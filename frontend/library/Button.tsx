@@ -23,31 +23,26 @@ const variantStyles: Record<ButtonVariant, string> = {
     bg-primary-600 text-white border border-primary-600
     hover:bg-primary-700 hover:border-primary-700
     active:bg-primary-800
-    focus-visible:ring-2 focus-visible:ring-primary-500/30 focus-visible:ring-offset-2
   `,
   secondary: `
     bg-secondary-100 text-secondary-800 border border-secondary-200
     hover:bg-secondary-200 hover:border-secondary-300
     active:bg-secondary-300
-    focus-visible:ring-2 focus-visible:ring-secondary-500/30 focus-visible:ring-offset-2
   `,
   outline: `
     bg-transparent text-primary-700 border border-primary-300
     hover:bg-primary-50 hover:border-primary-400
     active:bg-primary-100
-    focus-visible:ring-2 focus-visible:ring-primary-500/30 focus-visible:ring-offset-2
   `,
   ghost: `
     bg-transparent text-neutral-700 border border-transparent
     hover:bg-neutral-100
     active:bg-neutral-200
-    focus-visible:ring-2 focus-visible:ring-neutral-500/30 focus-visible:ring-offset-2
   `,
   danger: `
     bg-error-500 text-white border border-error-500
     hover:bg-error-600 hover:border-error-600
     active:bg-error-700
-    focus-visible:ring-2 focus-visible:ring-error-500/30 focus-visible:ring-offset-2
   `,
 };
 

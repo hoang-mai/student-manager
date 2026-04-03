@@ -11,6 +11,8 @@ type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   prefixIcon?: ReactNode;
   suffixIcon?: ReactNode;
   fullWidth?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
 };
 
 const sizeStyles: Record<InputSize, string> = {
@@ -31,6 +33,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       fullWidth = true,
       className = "",
       id,
+      disabled,
+      loading,
       ...props
     },
     ref
@@ -40,10 +44,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const variantStyles: Record<InputVariant, string> = {
       outlined: `
-        border border-neutral-200 bg-white
+        border-2 border-primary-200 bg-white
         text-neutral-900 placeholder:text-neutral-400
         hover:border-primary-400
-        focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+        focus:border-primary-500
       `,
       filled: `
         border border-transparent bg-neutral-50
@@ -54,7 +58,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     };
 
     const errorStyles = error
-      ? "!border-error-500 focus:!ring-error-500/20 focus:!border-error-500"
+      ? "!border-error-200 hover:!border-error-400 focus:!border-error-500"
+      : "";
+
+    const disabledStyles = disabled
+      ? "!border-neutral-200 hover:!border-neutral-200 focus:!border-neutral-200"
       : "";
 
     const widthStyles = fullWidth ? "w-full" : "";
@@ -78,11 +86,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={id}
+            disabled={disabled || loading}
             className={`
               ${baseStyles}
               ${sizeStyles[size]}
               ${variantStyles[variant]}
               ${errorStyles}
+              ${disabledStyles}
               ${widthStyles}
               ${prefixIcon ? "!pl-10" : ""}
               ${suffixIcon ? "!pr-10" : ""}
