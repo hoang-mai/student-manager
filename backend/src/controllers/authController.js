@@ -15,7 +15,7 @@ const login = async (req, res) => {
   await validateOrThrow(schema, req.body);
 
   const { username, password } = req.body;
-  const user = await User.findOne({ where: { username }, include: [{ model: Role }] });
+  const user = await User.findOne({ where: { [db.Sequelize.Op.or]: [{ username }, { email: username }] }, include: [{ model: Role }] });
   if (!user) {
     return success(res, null, 'User does not exist', 400);
   }
