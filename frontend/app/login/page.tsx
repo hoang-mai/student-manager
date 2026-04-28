@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Main from "@/components/auth/Main";
+import Main from "@/components/login/Main";
 
 export const metadata: Metadata = {
   title: "Đăng nhập | Quản lý Học viên",

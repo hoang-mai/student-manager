@@ -1,17 +1,35 @@
 import { InputHTMLAttributes, forwardRef, type ReactNode } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
 type InputSize = "sm" | "md" | "lg";
 type InputVariant = "outlined" | "filled";
 
 type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
+  /** Nhãn hiển thị phía trên ô nhập liệu */
   label?: string;
+  
+  /** Thông báo lỗi hiển thị phía dưới ô nhập liệu (nếu có) */
   error?: string;
+  
+  /** Kích thước của ô nhập liệu: sm (nhỏ), md (trung bình), lg (lớn) */
   size?: InputSize;
+  
+  /** Kiểu hiển thị: outlined (có viền), filled (nền xám) */
   variant?: InputVariant;
+  
+  /** Icon hiển thị ở phía bên trái */
   prefixIcon?: ReactNode;
+  
+  /** Icon hiển thị ở phía bên phải (thường dùng cho nút ẩn/hiện mật khẩu) */
   suffixIcon?: ReactNode;
+  
+  /** Có chiếm toàn bộ chiều ngang của container hay không */
   fullWidth?: boolean;
+  
+  /** Trạng thái vô hiệu hóa ô nhập liệu */
   disabled?: boolean;
+  
+  /** Trạng thái đang tải (vô hiệu hóa tương tác) */
   loading?: boolean;
 };
 
@@ -107,9 +125,19 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             </span>
           )}
         </div>
-        {error && (
-          <p className="text-error-500 text-xs mt-1.5 ml-0.5">{error}</p>
-        )}
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.p
+              key={error}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-error-500 text-xs mt-1.5 ml-0.5"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
