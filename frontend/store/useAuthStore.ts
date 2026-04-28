@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface User {
   id: string;
@@ -13,7 +13,11 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (data: { user: User; accessToken: string; refreshToken: string }) => void;
+  setAuth: (data: {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  }) => void;
   logout: () => void;
 }
 
@@ -40,7 +44,7 @@ export const useAuthStore = create<AuthState>()(
         }),
     }),
     {
-      name: 'auth-storage',
+      name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
     }
   )

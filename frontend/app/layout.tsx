@@ -15,11 +15,12 @@ import QueryProvider from "@/components/providers/QueryProvider";
 import OfflineDetector from "@/components/providers/OfflineDetector";
 import Loading from "@/components/modals/Loading";
 import Toast from "@/components/modals/Toast";
-import {ReactNode} from "react";
+import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Hệ thống quản lý học viên",
-  description: "Hệ thống quản lý học viên là một ứng dụng web được thiết kế để giúp các tổ chức giáo dục quản lý thông tin học viên một cách hiệu quả. Hệ thống này cung cấp các tính năng như đăng ký học viên, quản lý khóa học, theo dõi tiến độ học tập và tạo báo cáo chi tiết về hoạt động của học viên. Với giao diện thân thiện và dễ sử dụng, hệ thống quản lý học viên giúp cải thiện trải nghiệm học tập và tăng cường sự tương tác giữa giáo viên và học viên.",
+  description:
+    "Hệ thống quản lý học viên là một ứng dụng web được thiết kế để giúp các tổ chức giáo dục quản lý thông tin học viên một cách hiệu quả. Hệ thống này cung cấp các tính năng như đăng ký học viên, quản lý khóa học, theo dõi tiến độ học tập và tạo báo cáo chi tiết về hoạt động của học viên. Với giao diện thân thiện và dễ sử dụng, hệ thống quản lý học viên giúp cải thiện trải nghiệm học tập và tăng cường sự tương tác giữa giáo viên và học viên.",
 };
 
 export default function RootLayout({

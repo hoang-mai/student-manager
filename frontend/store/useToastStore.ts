@@ -1,7 +1,7 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import { TOAST_CONFIG } from "@/constants/constants";
 
-export type ToastVariant = 'success' | 'error' | 'info' | 'warning';
+export type ToastVariant = "success" | "error" | "info" | "warning";
 
 export interface Toast {
   id: string;
@@ -10,12 +10,9 @@ export interface Toast {
   duration?: number;
 }
 
-
-
-
 interface ToastState {
   toasts: Toast[];
-  addToast: (toast: Omit<Toast, 'id'>) => string;
+  addToast: (toast: Omit<Toast, "id">) => string;
   removeToast: (id: string) => void;
 }
 

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface LoadingState {
   isLoading: boolean;
@@ -10,15 +10,17 @@ interface LoadingState {
 export const useLoadingStore = create<LoadingState>((set) => ({
   isLoading: false,
   count: 0,
-  showLoading: () => set((state) => ({
-    count: state.count + 1,
-    isLoading: true,
-  })),
-  hideLoading: () => set((state) => {
-    const nextCount = Math.max(0, state.count - 1);
-    return {
-      count: nextCount,
-      isLoading: nextCount > 0,
-    };
-  }),
+  showLoading: () =>
+    set((state) => ({
+      count: state.count + 1,
+      isLoading: true,
+    })),
+  hideLoading: () =>
+    set((state) => {
+      const nextCount = Math.max(0, state.count - 1);
+      return {
+        count: nextCount,
+        isLoading: nextCount > 0,
+      };
+    }),
 }));

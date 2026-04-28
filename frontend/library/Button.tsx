@@ -6,19 +6,19 @@ type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Kích thước nút: sm (nhỏ), md (vừa), lg (lớn) */
   size?: ButtonSize;
-  
+
   /** Biểu diễn màu sắc/kiểu dáng: primary, secondary, outline, ghost, danger */
   variant?: ButtonVariant;
-  
+
   /** Có chiếm toàn bộ chiều ngang container hay không */
   fullWidth?: boolean;
-  
+
   /** Trạng thái đang tải (hiển thị spinner nếu có và vô hiệu hóa nút) */
   loading?: boolean;
-  
+
   /** Icon hiển thị ở phía trước văn bản */
   prefixIcon?: ReactNode;
-  
+
   /** Icon hiển thị ở phía sau văn bản */
   suffixIcon?: ReactNode;
 };

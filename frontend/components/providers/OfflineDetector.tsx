@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { useToastStore } from '@/store/useToastStore';
+import { useEffect, useRef } from "react";
+import { useToastStore } from "@/store/useToastStore";
 
 export default function OfflineDetector() {
   const { addToast, removeToast } = useToastStore();
@@ -14,8 +14,8 @@ export default function OfflineDetector() {
         offlineToastId.current = null;
       }
       addToast({
-        message: 'Đã khôi phục kết nối mạng.',
-        variant: 'success',
+        message: "Đã khôi phục kết nối mạng.",
+        variant: "success",
       });
     };
 
@@ -23,21 +23,20 @@ export default function OfflineDetector() {
       if (offlineToastId.current) return;
 
       offlineToastId.current = addToast({
-        message: 'Bạn đang ngoại tuyến. Vui lòng kiểm tra kết nối mạng.',
-        variant: 'error',
+        message: "Bạn đang ngoại tuyến. Vui lòng kiểm tra kết nối mạng.",
+        variant: "error",
         duration: Infinity,
       });
     };
 
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
-  }, [addToast]);
+  }, [addToast, removeToast]);
 
   return null;
 }

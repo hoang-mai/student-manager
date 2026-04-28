@@ -1,10 +1,10 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { useAuthStore } from '@/store/useAuthStore';
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -26,8 +26,9 @@ api.interceptors.response.use(
     return response.data;
   },
   (error: AxiosError<ApiResponse>) => {
-    const message = error.response?.data?.message || error.message || 'Something went wrong';
-    
+    const message =
+      error.response?.data?.message || error.message || "Something went wrong";
+
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
     }
@@ -35,8 +36,8 @@ api.interceptors.response.use(
     return Promise.reject({
       message,
       statusCode: error.response?.status || 500,
-      type: error.response?.data?.type || 'ERROR',
-      data: error.response?.data?.data
+      type: error.response?.data?.type || "ERROR",
+      data: error.response?.data?.data,
     });
   }
 );

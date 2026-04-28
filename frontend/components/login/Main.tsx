@@ -44,7 +44,9 @@ export default function Main() {
     onError: (error: any) => {
       hideLoading();
       addToast({
-        message: error.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại!",
+        message:
+          error.response?.data?.message ||
+          "Đăng nhập thất bại. Vui lòng thử lại!",
         variant: "error",
       });
     },
@@ -80,7 +82,12 @@ export default function Main() {
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 3, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
+          transition={{
+            duration: 3,
+            delay: 0.5,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
           className="absolute -bottom-32 -right-32 w-80 h-80 bg-secondary-500/30 rounded-full blur-3xl"
         />
       </div>
@@ -128,11 +135,7 @@ export default function Main() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="cursor-pointer text-neutral-400 hover:text-neutral-600 transition-colors"
               >
-                {showPassword ? (
-                  <FiEyeOff size={18} />
-                ) : (
-                  <FiEye size={18} />
-                )}
+                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
               </button>
             }
             error={errors.password?.message}
@@ -162,9 +165,7 @@ export default function Main() {
         </form>
 
         <div className="mt-2 flex items-center justify-center text-center flex-wrap gap-1">
-          <p className="text-neutral-900 text-sm">
-            Bạn chưa có tài khoản?
-          </p>
+          <p className="text-neutral-900 text-sm">Bạn chưa có tài khoản?</p>
           <Link
             href="/register"
             className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"

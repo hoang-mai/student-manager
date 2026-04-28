@@ -25,16 +25,16 @@ const Divide: React.FC<DivideProps> = ({
   const isHorizontal = orientation === "horizontal";
 
   if (!children) {
-  const lineClassName = faded
-    ? isHorizontal
-      ? "bg-gradient-to-r from-transparent via-neutral-200 to-transparent"
-      : "bg-gradient-to-b from-transparent via-neutral-200 to-transparent"
-    : "bg-neutral-100";
+    const lineClassName = faded
+      ? isHorizontal
+        ? "bg-gradient-to-r from-transparent via-neutral-200 to-transparent"
+        : "bg-gradient-to-b from-transparent via-neutral-200 to-transparent"
+      : "bg-neutral-100";
     return (
       <div
         className={`${lineClassName} ${isHorizontal ? "w-full" : "h-full"} ${className}`}
         style={{
-          [isHorizontal ? "height" : "width"]: `${thickness}px`
+          [isHorizontal ? "height" : "width"]: `${thickness}px`,
         }}
         role="separator"
       />
@@ -44,14 +44,14 @@ const Divide: React.FC<DivideProps> = ({
   return (
     <div className={`flex items-center w-full ${className}`} role="separator">
       <div
-        className={`flex-1 ${faded ? "bg-gradient-to-r from-transparent to-neutral-200" : "bg-neutral-100"}`}
+        className={`flex-1 ${faded ? "bg-linear-to-r from-transparent to-neutral-200" : "bg-neutral-100"}`}
         style={{ height: `${thickness}px` }}
       />
       <span className="px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider bg-transparent shrink-0">
         {children}
       </span>
       <div
-        className={`flex-1 ${faded ? "bg-gradient-to-r from-neutral-200 to-transparent" : "bg-neutral-100"}`}
+        className={`flex-1 ${faded ? "bg-linear-to-r from-neutral-200 to-transparent" : "bg-neutral-100"}`}
         style={{ height: `${thickness}px` }}
       />
     </div>

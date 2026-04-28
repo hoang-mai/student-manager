@@ -5,4 +5,3 @@
 export const TOAST_CONFIG = {
   DEFAULT_DURATION: 3000,
 };
-

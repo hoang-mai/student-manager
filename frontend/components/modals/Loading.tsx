@@ -38,10 +38,10 @@ export default function Loading() {
 
               {/* Center dot */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <motion.div 
+                <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 1, repeat: Infinity }}
-                  className="w-1.5 h-1.5 bg-primary-800 rounded-full" 
+                  className="w-1.5 h-1.5 bg-primary-800 rounded-full"
                 />
               </div>
             </div>

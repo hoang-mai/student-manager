@@ -1,7 +1,7 @@
-export { };
+export {};
 
 declare global {
-  interface ApiResponse<T = any> {
+  interface ApiResponse<T> {
     statusCode: number;
     message: string;
     data?: T;

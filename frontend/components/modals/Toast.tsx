@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useToastStore, type ToastVariant } from '@/store/useToastStore';
+import React from "react";
+import { useToastStore, type ToastVariant } from "@/store/useToastStore";
 import {
   IoCheckmarkCircle,
   IoAlertCircle,
   IoInformationCircle,
   IoWarning,
   IoClose,
-} from 'react-icons/io5';
-import { AnimatePresence, motion } from 'motion/react';
-import {TOAST_CONFIG} from "@/constants/constants";
+} from "react-icons/io5";
+import { AnimatePresence, motion } from "motion/react";
+import { TOAST_CONFIG } from "@/constants/constants";
 
 const variantConfig: Record<
   ToastVariant,
@@ -22,27 +22,27 @@ const variantConfig: Record<
   }
 > = {
   success: {
-    bg: 'bg-green-50',
-    border: 'border-green-200/50',
-    accent: 'text-green-600',
+    bg: "bg-green-50",
+    border: "border-green-200/50",
+    accent: "text-green-600",
     icon: <IoCheckmarkCircle className="w-5 h-5 shrink-0" />,
   },
   error: {
-    bg: 'bg-rose-50',
-    border: 'border-rose-200/50',
-    accent: 'text-rose-600',
+    bg: "bg-rose-50",
+    border: "border-rose-200/50",
+    accent: "text-rose-600",
     icon: <IoAlertCircle className="w-5 h-5 shrink-0" />,
   },
   info: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-200/50',
-    accent: 'text-blue-600',
+    bg: "bg-blue-50",
+    border: "border-blue-200/50",
+    accent: "text-blue-600",
     icon: <IoInformationCircle className="w-5 h-5 shrink-0" />,
   },
   warning: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-200/50',
-    accent: 'text-amber-600',
+    bg: "bg-amber-50",
+    border: "border-amber-200/50",
+    accent: "text-amber-600",
     icon: <IoWarning className="w-5 h-5 shrink-0" />,
   },
 };
@@ -72,7 +72,7 @@ const Toast = () => {
               role="alert"
             >
               <div className={`${config.accent} mt-0.5`}>{config.icon}</div>
-              
+
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-700 leading-relaxed tracking-wide">
                   {toast.message}
@@ -92,7 +92,11 @@ const Toast = () => {
                 <motion.div
                   initial={{ scaleX: 1 }}
                   animate={{ scaleX: 0 }}
-                  transition={{ duration: (toast.duration || TOAST_CONFIG.DEFAULT_DURATION) / 1000, ease: 'linear' }}
+                  transition={{
+                    duration:
+                      (toast.duration || TOAST_CONFIG.DEFAULT_DURATION) / 1000,
+                    ease: "linear",
+                  }}
                   className={`absolute bottom-0 left-0 h-0.5 w-full origin-left bg-current ${config.accent} opacity-30`}
                 />
               )}

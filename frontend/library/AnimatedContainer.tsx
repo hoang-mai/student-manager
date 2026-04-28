@@ -3,13 +3,20 @@
 import React, { ReactNode } from "react";
 import { motion, HTMLMotionProps } from "motion/react";
 
-type AnimationVariant = "fade" | "slideUp" | "slideDown" | "slideLeft" | "slideRight" | "scale" | "diagonalUp";
+type AnimationVariant =
+  | "fade"
+  | "slideUp"
+  | "slideDown"
+  | "slideLeft"
+  | "slideRight"
+  | "scale"
+  | "diagonalUp";
 
 interface AnimatedContainerProps extends HTMLMotionProps<"div"> {
   /** Nội dung bên trong container */
   children: ReactNode;
 
-  /** 
+  /**
    * Kiểu hiệu ứng xuất hiện có sẵn:
    * - fade: Hiện dần
    * - slideUp/Down/Left/Right: Trượt từ các hướng
