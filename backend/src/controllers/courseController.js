@@ -1,61 +1,57 @@
-const db = require('../models');
 const Yup = require('yup');
-const { success, paginated, validateOrThrow } = require('../utils/response');
-
-const Course = db.course;
-const Op = db.Sequelize.Op;
+const courseService = require('../services/course.service');
+const { success, paginated, error, validateOrThrow } = require('../utils/response');
 
 const getAll = async (req, res) => {
-  const { page = 1, limit = 20, search } = req.query;
-  const offset = (page - 1) * limit;
-  const where = {};
-  if (search) {
-    where[Op.or] = [
-      { name: { [Op.iLike]: `%${search}%` } },
-      { code: { [Op.iLike]: `%${search}%` } },
-    ];
+  try {
+    const result = await courseService.getAll(req.query);
+    return paginated(res, result.data, result.pagination);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
   }
-
-  const { count, rows } = await Course.findAndCountAll({
-    where,
-    limit: parseInt(limit, 10),
-    offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
-  });
-
-  return paginated(res, rows, { page: parseInt(page, 10), limit: parseInt(limit, 10), total: count, totalPages: Math.ceil(count / limit) });
 };
 
 const getById = async (req, res) => {
-  const course = await Course.findByPk(req.params.id);
-  if (!course) return success(res, null, 'Course not found', 404);
-  return success(res, course);
+  try {
+    const result = await courseService.getById(req.params.id);
+    return success(res, result);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const create = async (req, res) => {
-  const schema = Yup.object().shape({
-    code: Yup.string().required(),
-    name: Yup.string().required(),
-    credits: Yup.number().integer().min(0),
-  });
-  await validateOrThrow(schema, req.body);
+  try {
+    const schema = Yup.object().shape({
+      code: Yup.string().required(),
+      name: Yup.string().required(),
+      credits: Yup.number().integer().min(0),
+    });
+    await validateOrThrow(schema, req.body);
 
-  const course = await Course.create(req.body);
-  return success(res, course, 'Course created', 201);
+    const result = await courseService.create(req.body);
+    return success(res, result, 'Course created', 201);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const update = async (req, res) => {
-  const course = await Course.findByPk(req.params.id);
-  if (!course) return success(res, null, 'Course not found', 404);
-  await course.update(req.body);
-  return success(res, course, 'Course updated');
+  try {
+    const result = await courseService.update(req.params.id, req.body);
+    return success(res, result, 'Course updated');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const remove = async (req, res) => {
-  const course = await Course.findByPk(req.params.id);
-  if (!course) return success(res, null, 'Course not found', 404);
-  await course.destroy();
-  return success(res, null, 'Course deleted');
+  try {
+    await courseService.remove(req.params.id);
+    return success(res, null, 'Course deleted');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 module.exports = { getAll, getById, create, update, remove };

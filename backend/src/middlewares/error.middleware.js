@@ -11,6 +11,15 @@ const errorMiddleware = (err, req, res, next) => {
     });
   }
 
+  // JWT errors
+  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      statusCode: 401,
+      message: err.name === 'TokenExpiredError' ? 'Token expired' : 'Token is not valid',
+      type: 'BAD_TOKEN',
+    });
+  }
+
   // Sequelize unique constraint error
   if (err.name === 'SequelizeUniqueConstraintError') {
     return res.status(400).json({

@@ -1,3 +1,4 @@
+const asyncHandler = require('express-async-handler');
 const db = require('../models');
 const JwtService = require('../services/jwt.service');
 const { BadTokenError, ForbiddenError } = require('../utils/apiError');
@@ -5,7 +6,7 @@ const { BadTokenError, ForbiddenError } = require('../utils/apiError');
 const User = db.user;
 const Role = db.role;
 
-const authMiddleware = async (req, res, next) => {
+const authMiddleware = asyncHandler(async (req, res, next) => {
   if (process.env.SERVER_JWT === 'false') return next();
   const token = JwtService.jwtGetToken(req);
   if (!token) throw new BadTokenError();
@@ -17,10 +18,10 @@ const authMiddleware = async (req, res, next) => {
   req.userId = user.id;
   req.user = user;
   return next();
-};
+});
 
 const requireRole = (...roleNames) => {
-  return async (req, res, next) => {
+  return asyncHandler(async (req, res, next) => {
     if (process.env.SERVER_JWT === 'false') return next();
     if (!req.user) {
       throw new BadTokenError();
@@ -29,7 +30,7 @@ const requireRole = (...roleNames) => {
       throw new ForbiddenError();
     }
     return next();
-  };
+  });
 };
 
 module.exports = {

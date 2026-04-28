@@ -1,62 +1,56 @@
-const db = require('../models');
 const Yup = require('yup');
-const { success, paginated, validateOrThrow } = require('../utils/response');
-
-const University = db.university;
-const Major = db.major;
-const Op = db.Sequelize.Op;
+const universityService = require('../services/university.service');
+const { success, paginated, error, validateOrThrow } = require('../utils/response');
 
 const getAll = async (req, res) => {
-  const { page = 1, limit = 20, search } = req.query;
-  const offset = (page - 1) * limit;
-  const where = {};
-  if (search) {
-    where[Op.or] = [
-      { name: { [Op.iLike]: `%${search}%` } },
-      { code: { [Op.iLike]: `%${search}%` } },
-    ];
+  try {
+    const result = await universityService.getAll(req.query);
+    return paginated(res, result.data, result.pagination);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
   }
-
-  const { count, rows } = await University.findAndCountAll({
-    where,
-    include: [{ model: Major }],
-    limit: parseInt(limit, 10),
-    offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
-  });
-
-  return paginated(res, rows, { page: parseInt(page, 10), limit: parseInt(limit, 10), total: count, totalPages: Math.ceil(count / limit) });
 };
 
 const getById = async (req, res) => {
-  const university = await University.findByPk(req.params.id, { include: [{ model: Major }] });
-  if (!university) return success(res, null, 'University not found', 404);
-  return success(res, university);
+  try {
+    const result = await universityService.getById(req.params.id);
+    return success(res, result);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const create = async (req, res) => {
-  const schema = Yup.object().shape({
-    code: Yup.string().required(),
-    name: Yup.string().required(),
-  });
-  await validateOrThrow(schema, req.body);
+  try {
+    const schema = Yup.object().shape({
+      code: Yup.string().required(),
+      name: Yup.string().required(),
+    });
+    await validateOrThrow(schema, req.body);
 
-  const university = await University.create(req.body);
-  return success(res, university, 'University created', 201);
+    const result = await universityService.create(req.body);
+    return success(res, result, 'University created', 201);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const update = async (req, res) => {
-  const university = await University.findByPk(req.params.id);
-  if (!university) return success(res, null, 'University not found', 404);
-  await university.update(req.body);
-  return success(res, university, 'University updated');
+  try {
+    const result = await universityService.update(req.params.id, req.body);
+    return success(res, result, 'University updated');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const remove = async (req, res) => {
-  const university = await University.findByPk(req.params.id);
-  if (!university) return success(res, null, 'University not found', 404);
-  await university.destroy();
-  return success(res, null, 'University deleted');
+  try {
+    await universityService.remove(req.params.id);
+    return success(res, null, 'University deleted');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 module.exports = { getAll, getById, create, update, remove };

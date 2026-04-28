@@ -1,128 +1,95 @@
-const bcrypt = require('bcrypt');
-const db = require('../models');
 const Yup = require('yup');
-const { success, paginated, validateOrThrow } = require('../utils/response');
-
-const User = db.user;
-const Role = db.role;
-const StudentProfile = db.studentProfile;
-const Op = db.Sequelize.Op;
+const userService = require('../services/user.service');
+const { success, paginated, error, validateOrThrow } = require('../utils/response');
 
 const getAllUsers = async (req, res) => {
-  const { page = 1, limit = 20, role, search } = req.query;
-  const offset = (page - 1) * limit;
-  const where = {};
-  if (search) {
-    where[Op.or] = [
-      { username: { [Op.iLike]: `%${search}%` } },
-      { full_name: { [Op.iLike]: `%${search}%` } },
-      { email: { [Op.iLike]: `%${search}%` } },
-    ];
+  try {
+    const result = await userService.getAllUsers(req.query);
+    return paginated(res, result.data, result.pagination);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
   }
-  const include = [{ model: Role, attributes: ['id', 'name'] }];
-  if (role) include[0].where = { name: role };
-
-  const { count, rows } = await User.findAndCountAll({
-    where,
-    include,
-    limit: parseInt(limit, 10),
-    offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
-  });
-
-  return paginated(res, rows, { page: parseInt(page, 10), limit: parseInt(limit, 10), total: count, totalPages: Math.ceil(count / limit) });
 };
 
 const getUserById = async (req, res) => {
-  const user = await User.findByPk(req.params.id, {
-    include: [
-      { model: Role, attributes: ['id', 'name'] },
-      { model: StudentProfile },
-    ],
-  });
-  if (!user) return success(res, null, 'User not found', 404);
-
-  const { password, ...data } = user.get({ plain: true });
-  return success(res, data);
+  try {
+    const result = await userService.getUserById(req.params.id);
+    return success(res, result);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const createUser = async (req, res) => {
-  const schema = Yup.object().shape({
-    username: Yup.string().required().min(3),
-    email: Yup.string().email().required(),
-    password: Yup.string().required().min(6),
-    full_name: Yup.string().required(),
-    role_id: Yup.number().integer().required(),
-  });
-  await validateOrThrow(schema, req.body);
+  try {
+    const schema = Yup.object().shape({
+      username: Yup.string().required().min(3),
+      email: Yup.string().email().required(),
+      password: Yup.string().required().min(6),
+      full_name: Yup.string().required(),
+      role_id: Yup.number().integer().required(),
+    });
+    await validateOrThrow(schema, req.body);
 
-  const { username, email, password, full_name, phone, role_id } = req.body;
-  const exist = await User.findOne({ where: { [Op.or]: [{ username }, { email }] } });
-  if (exist) return success(res, null, 'Username or email already exists', 400);
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ username, email, password: hashedPassword, full_name, phone, role_id });
-
-  const { password: _, ...data } = newUser.get({ plain: true });
-  return success(res, data, 'User created', 201);
+    const result = await userService.createUser(req.body);
+    return success(res, result, 'User created', 201);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const updateUser = async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) return success(res, null, 'User not found', 404);
-
-  const { password, ...updateData } = req.body;
-  if (password) updateData.password = await bcrypt.hash(password, 10);
-  await user.update(updateData);
-
-  const { password: _, ...data } = user.get({ plain: true });
-  return success(res, data, 'User updated');
+  try {
+    const result = await userService.updateUser(req.params.id, req.body);
+    return success(res, result, 'User updated');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const deleteUser = async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) return success(res, null, 'User not found', 404);
-  await user.destroy();
-  return success(res, null, 'User deleted');
+  try {
+    await userService.deleteUser(req.params.id);
+    return success(res, null, 'User deleted');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const toggleActive = async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) return success(res, null, 'User not found', 404);
-  user.is_active = !user.is_active;
-  await user.save();
-  return success(res, { is_active: user.is_active }, 'User status updated');
+  try {
+    const result = await userService.toggleActive(req.params.id);
+    return success(res, result, 'User status updated');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const resetPassword = async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) return success(res, null, 'User not found', 404);
-  const newPassword = req.body.newPassword || '12345678';
-  user.password = await bcrypt.hash(newPassword, 10);
-  await user.save();
-  return success(res, null, 'Password reset successfully');
+  try {
+    await userService.resetPassword(req.params.id, req.body.newPassword);
+    return success(res, null, 'Password reset successfully');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const getMyProfile = async (req, res) => {
-  const user = await User.findByPk(req.userId, {
-    include: [
-      { model: Role, attributes: ['id', 'name'] },
-      { model: StudentProfile },
-    ],
-  });
-  if (!user) return success(res, null, 'User not found', 404);
-
-  const { password, ...data } = user.get({ plain: true });
-  return success(res, data);
+  try {
+    const result = await userService.getMyProfile(req.userId);
+    return success(res, result);
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 const updateMyProfile = async (req, res) => {
-  const user = await User.findByPk(req.userId);
-  if (!user) return success(res, null, 'User not found', 404);
-
-  const { password, role_id, is_active, ...updateData } = req.body;
-  await user.update(updateData);
-  return success(res, null, 'Profile updated');
+  try {
+    await userService.updateMyProfile(req.userId, req.body);
+    return success(res, null, 'Profile updated');
+  } catch (err) {
+    return error(res, err.message, err.statusCode || 500);
+  }
 };
 
 module.exports = {
