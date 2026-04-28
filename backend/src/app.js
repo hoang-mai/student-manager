@@ -1,6 +1,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const morgan = require('morgan');
 require('express-async-handler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
@@ -16,6 +17,18 @@ app.use(cors({
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// HTTP Request Logger
+morgan.token('body', (req) => {
+  const body = { ...req.body };
+  if (body.password) body.password = '***';
+  if (body.oldPassword) body.oldPassword = '***';
+  if (body.newPassword) body.newPassword = '***';
+  return JSON.stringify(body) || '-';
+});
+morgan.token('query', (req) => JSON.stringify(req.query) || '-');
+const logFormat = '[:date[iso]] :method :url :status :res[content-length] - :response-time ms | Query: :query | Body: :body';
+app.use(morgan(logFormat));
 
 // Routes
 const routes = require('./routes');

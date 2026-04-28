@@ -15,7 +15,7 @@ const login = async (req, res) => {
   await validateOrThrow(schema, req.body);
 
   const { username, password } = req.body;
-  const user = await User.findOne({ where: { username }, include: [{ model: Role }] });
+  const user = await User.findOne({ where: { [db.Sequelize.Op.or]: [{ username }, { email: username }] }, include: [{ model: Role }] });
   if (!user) {
     return success(res, null, 'User does not exist', 400);
   }
@@ -69,7 +69,13 @@ const refreshToken = async (req, res) => {
   await validateOrThrow(schema, req.body);
 
   const { refreshToken } = req.body;
-  const decoded = JwtService.jwtVerify(refreshToken);
+  let decoded;
+  try {
+    decoded = JwtService.jwtVerify(refreshToken);
+  } catch (err) {
+    return success(res, null, 'Invalid token', 401);
+  }
+
   if (decoded.token !== 2) {
     return success(res, null, 'Invalid token', 401);
   }

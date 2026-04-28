@@ -214,7 +214,7 @@ async function demo() {
     console.log('DutyRoster ID:', duty.id);
 
     console.log('\n✅ DEMO DATA CREATED SUCCESSFULLY');
-    console.log('Swagger UI: http://localhost:3001/api-docs');
+    console.log('Swagger UI: http://localhost:6868/api-docs');
     console.log('Login: admin / admin123');
     process.exit(0);
   } catch (err) {
