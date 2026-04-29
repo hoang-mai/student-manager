@@ -25,7 +25,7 @@ type UserFormValues = z.infer<typeof userSchema>;
 interface UserFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateUserDTO) => void;
+  onSubmit: (data: any) => void;
   user?: User | null;
   isLoading?: boolean;
 }
@@ -57,14 +57,11 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
 
   useEffect(() => {
     if (user) {
-      // Tìm role_id dựa trên string role từ backend (ví dụ: "COMMANDER" -> 2)
-      const roleEntry = Object.values(ROLES).find(r => r.role === user.role);
-      
       reset({
         username: user.username,
-        email: user.email || "",
-        full_name: user.fullName || "",
-        role_id: roleEntry?.id || ROLES.STUDENT.id,
+        email: user.email,
+        full_name: user.fullName,
+        role_id: user.roleId,
         password: "", // Không hiển thị mật khẩu khi edit
       });
     } else {

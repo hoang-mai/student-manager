@@ -4,7 +4,7 @@ import React from "react";
 import { HiOutlineUser } from "react-icons/hi";
 import Image from "next/image";
 
-export interface AvatarProps {
+interface AvatarProps {
   src?: string | null;
   alt?: string;
   size?: number | string;
