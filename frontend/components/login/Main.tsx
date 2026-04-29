@@ -8,6 +8,7 @@ import Input from "@/library/Input";
 import Button from "@/library/Button";
 import { loginSchema } from "@/utils/validations/login";
 import type { LoginFormValues } from "@/types/auth";
+import { ROLES } from "@/constants/constants";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { useMutation } from "@tanstack/react-query";
@@ -25,28 +26,35 @@ export default function Main() {
   const { setAuth } = useAuthStore();
   const { showLoading, hideLoading } = useLoadingStore();
   const { addToast } = useToastStore();
-
   const loginMutation = useMutation({
     mutationFn: (data: LoginFormValues) => {
       showLoading();
       return authService.login(data);
     },
     onSuccess: (response) => {
+      if (!response.data) return;
       setAuth({
-        user: response.user,
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
+        user: response.data.user,
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
       });
       hideLoading();
       addToast({ message: "Đăng nhập thành công!", variant: "success" });
-      router.push("/dashboard");
+
+      const userRole = response.data.user.Role.name;
+      if (userRole === ROLES.COMMANDER.role) {
+        router.replace("/commander");
+      } else if (userRole === ROLES.ADMIN.role) {
+        router.replace("/admin");
+      } else {
+        router.replace("/dashboard");
+      }
     },
-    onError: (error: any) => {
+
+    onError: (error: ApiResponse) => {
       hideLoading();
       addToast({
-        message:
-          error.response?.data?.message ||
-          "Đăng nhập thất bại. Vui lòng thử lại!",
+        message: error.message || "Đăng nhập thất bại. Vui lòng thử lại!",
         variant: "error",
       });
     },
@@ -61,7 +69,6 @@ export default function Main() {
     defaultValues: {
       username: "",
       password: "",
-      remember: false,
     },
   });
 
@@ -100,7 +107,7 @@ export default function Main() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            <Image src="/logo.png" alt="Logo" width={70} height={70} />
+            <Image src="/logo.png" alt="Logo" width={70} height={70} priority />
           </div>
           <h1 className="text-2xl font-bold text-neutral-900">
             Quản lý Học viên

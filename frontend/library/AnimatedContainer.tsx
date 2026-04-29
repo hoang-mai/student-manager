@@ -76,7 +76,7 @@ const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
   children,
   variant = "slideUp",
   delay = 0,
-  duration = 0.5,
+  duration = 0.4,
   staggerChildren = 0.1,
   x,
   y,

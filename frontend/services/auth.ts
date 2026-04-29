@@ -3,7 +3,7 @@ import { LoginFormValues, LoginResponse } from "@/types/auth";
 import { ENDPOINTS } from "@/constants/endpoints";
 
 export const authService = {
-  login: async (data: LoginFormValues): Promise<LoginResponse> => {
+  login: async (data: LoginFormValues): Promise<ApiResponse<LoginResponse>> => {
     return api.post(ENDPOINTS.AUTH.LOGIN, data);
   },
 
