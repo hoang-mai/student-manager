@@ -1,12 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { User } from "@/types/auth";
+import Cookies from "js-cookie";
+import { getTokenExpiration, isTokenExpired } from "@/utils/fn-common";
+import { JWT_CONFIG } from "@/constants/constants";
 
-interface User {
-  id: string;
-  username: string;
-  fullName: string;
-  role: string;
-}
 
 interface AuthState {
   user: User | null;
@@ -28,24 +26,40 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
-      setAuth: (data) =>
+      setAuth: (data) => {
+        const expiryDate = getTokenExpiration(data.refreshToken);
+        
+        Cookies.set("refreshToken", data.refreshToken, { 
+          expires: expiryDate || JWT_CONFIG.DEFAULT_EXPIRED_DATE,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict"
+        });
+        
         set({
           user: data.user,
           accessToken: data.accessToken,
           refreshToken: data.refreshToken,
           isAuthenticated: true,
-        }),
-      logout: () =>
+        });
+      },
+      logout: () => {
+        Cookies.remove("refreshToken");
         set({
           user: null,
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
-        }),
+        });
+      },
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state && state.refreshToken && isTokenExpired(state.refreshToken)) {
+          state.logout();
+        }
+      },
     }
   )
 );
