@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const db = require('../models');
+const { serialize } = require('../utils/serialize');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
 
 const User = db.user;
@@ -7,10 +8,7 @@ const Role = db.role;
 const StudentProfile = db.studentProfile;
 const Op = db.Sequelize.Op;
 
-const _excludePassword = (user) => {
-  const { password, ...data } = user.get({ plain: true });
-  return data;
-};
+const _excludePassword = (user) => serialize(user);
 
 const getAllUsers = async ({ page = 1, limit = 20, role, search }) => {
   const offset = (page - 1) * limit;

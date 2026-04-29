@@ -1,9 +1,10 @@
 const { ValidationError, UnauthorizedError } = require('../utils/apiError');
+const { serialize } = require('./serialize');
 
 const success = (res, data = null, message = 'Thành công', statusCode = 200) => {
   const response = { statusCode, message };
   if (data !== null && data !== undefined) {
-    response.data = data;
+    response.data = serialize(data);
   }
   return res.status(statusCode).json(response);
 };
@@ -12,7 +13,7 @@ const paginated = (res, data, pagination, message = 'Thành công', statusCode =
   return res.status(statusCode).json({
     statusCode,
     message,
-    data,
+    data: serialize(data),
     pagination,
   });
 };

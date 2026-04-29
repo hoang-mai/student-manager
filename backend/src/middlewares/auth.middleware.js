@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const db = require('../models');
 const JwtService = require('../services/jwt.service');
+const { serialize } = require('../utils/serialize');
 const { BadTokenError, ForbiddenError } = require('../utils/apiError');
 
 const User = db.user;
@@ -15,8 +16,9 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   if (!user || !user.isActive) {
     throw new BadTokenError('Tài khoản đã bị khóa hoặc không tồn tại');
   }
-  req.userId = user.id;
-  req.user = user;
+  const plainUser = serialize(user);
+  req.userId = plainUser.id;
+  req.user = plainUser;
   return next();
 });
 
@@ -26,7 +28,7 @@ const requireRole = (...roleNames) => {
     if (!req.user) {
       throw new BadTokenError();
     }
-    if (!req.user.Role || !roleNames.includes(req.user.Role.name)) {
+    if (!req.user.role || !roleNames.includes(req.user.role.name)) {
       throw new ForbiddenError();
     }
     return next();

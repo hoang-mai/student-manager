@@ -1,15 +1,13 @@
 const bcrypt = require('bcrypt');
 const db = require('../models');
 const JwtService = require('./jwt.service');
+const { serialize } = require('../utils/serialize');
 const { NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError } = require('../utils/apiError');
 
 const User = db.user;
 const Role = db.role;
 
-const _excludePassword = (user) => {
-  const { password, ...userData } = user.get({ plain: true });
-  return userData;
-};
+const _excludePassword = (user) => serialize(user);
 
 const _generateTokens = (userId) => {
   const issuedAt = Math.floor(Date.now() / 1000);
