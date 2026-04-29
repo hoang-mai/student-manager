@@ -1,32 +1,17 @@
-import apiClient from "./axios-client";
+import api from "./axios";
+import { LoginFormValues, LoginResponse } from "@/types/auth";
 import { ENDPOINTS } from "@/constants/endpoints";
-import {
-  LoginResponse,
-  LoginRequest,
-  ChangePasswordRequest,
-  CreateUserRequest,
-} from "@/types/auth";
-import { UserDetailResponse } from "@/types/user";
 
 export const authService = {
-  login: async (data: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
-    return apiClient.post(ENDPOINTS.AUTH.LOGIN, data);
+  login: async (data: LoginFormValues): Promise<ApiResponse<LoginResponse>> => {
+    return api.post(ENDPOINTS.AUTH.LOGIN, data);
   },
 
-
-  getProfile: async (): Promise<ApiResponse<UserDetailResponse>> => {
-    return apiClient.get(ENDPOINTS.AUTH.PROFILE);
+  logout: async () => {
+    return api.post(ENDPOINTS.AUTH.LOGOUT);
   },
 
-  changePassword: async (data: ChangePasswordRequest) => {
-    return apiClient.post(ENDPOINTS.AUTH.CHANGE_PASSWORD, data);
-  },
-
-  updateProfile: async (data: any) => {
-    return apiClient.put(ENDPOINTS.AUTH.PROFILE, data);
-  },
-
-  register: async (data: CreateUserRequest) => {
-    return apiClient.post(ENDPOINTS.AUTH.REGISTER, data);
+  getProfile: async () => {
+    return api.get(ENDPOINTS.AUTH.PROFILE);
   },
 };

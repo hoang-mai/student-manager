@@ -3,9 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { COMMANDER_MENU, MenuItem } from "@/constants/commander-menu";
-import Typography from "@/library/Typography";
-import Image from "next/image";
+import { COMMANDER_MENU, MenuItem } from "@/constants/commanderMenu";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
@@ -18,22 +16,21 @@ const Sidebar: React.FC = () => {
 
       {/* Header Sidebar */}
       <div className="relative flex items-center gap-3 p-6 h-20">
-        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={32}
-            height={32}
-            style={{ height: "auto" }}
-          />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center text-white font-bold shrink-0 shadow-lg shadow-primary-600/20">
+          S
         </div>
-        <Typography variant="h2" weight="black" className="leading-none">
-          Tiên Phong
-        </Typography>
+        <div className="flex flex-col">
+          <span className="font-black text-neutral-800 whitespace-nowrap uppercase tracking-tighter text-lg leading-tight">
+            Vanguard
+          </span>
+          <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold leading-none">
+            Tactical Manager
+          </span>
+        </div>
       </div>
 
       {/* Danh sách Menu */}
-      <nav className="relative flex-1 overflow-y-auto py-4 px-4 no-scrollbar">
+      <nav className="relative flex-1 overflow-y-auto py-4 px-4 custom-scrollbar">
         <ul className="space-y-1.5">
           {COMMANDER_MENU.map((item: MenuItem) => {
             const isActive =
@@ -41,13 +38,14 @@ const Sidebar: React.FC = () => {
               (item.path !== "/commander" && pathname.startsWith(item.path));
 
             return (
-              <li key={item.title}>
+              <li key={item.code}>
                 <Link
                   href={item.path}
-                  className={`flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden ${isActive
+                  className={`flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden ${
+                    isActive
                       ? "bg-primary-600 text-white shadow-md shadow-primary-600/10"
                       : "text-neutral-500 hover:bg-white hover:text-primary-700 hover:shadow-sm"
-                    }`}
+                  }`}
                 >
                   <item.icon
                     size={20}
@@ -69,7 +67,7 @@ const Sidebar: React.FC = () => {
         </ul>
       </nav>
 
-
+      
     </aside>
   );
 };

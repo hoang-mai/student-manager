@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { getTokenExpiration, isTokenExpired } from "@/utils/fn-common";
 import { JWT_CONFIG } from "@/constants/constants";
 
+
 interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -27,22 +28,13 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       setAuth: (data) => {
         const expiryDate = getTokenExpiration(data.refreshToken);
-
-        Cookies.set("refreshToken", data.refreshToken, {
+        
+        Cookies.set("refreshToken", data.refreshToken, { 
           expires: expiryDate || JWT_CONFIG.DEFAULT_EXPIRED_DATE,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
+          sameSite: "strict"
         });
-        Cookies.set("accessToken", data.accessToken, {
-          expires: expiryDate || JWT_CONFIG.DEFAULT_EXPIRED_DATE,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
-        Cookies.set("role", data.user.role, {
-          expires: expiryDate || JWT_CONFIG.DEFAULT_EXPIRED_DATE,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
+        
         set({
           user: data.user,
           accessToken: data.accessToken,
@@ -52,8 +44,6 @@ export const useAuthStore = create<AuthState>()(
       },
       logout: () => {
         Cookies.remove("refreshToken");
-        Cookies.remove("accessToken");
-        Cookies.remove("role");
         set({
           user: null,
           accessToken: null,
