@@ -5,37 +5,37 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    class_id: {
+    classId: {
       type: DataTypes.INTEGER,
     },
-    student_id: {
+    studentId: {
       type: DataTypes.INTEGER,
     },
-    course_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    semester_id: {
+    courseId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    day_of_week: {
+    semesterId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    dayOfWeek: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: { min: 0, max: 6 },
     },
-    start_time: {
+    startTime: {
       type: DataTypes.TIME,
       allowNull: false,
     },
-    end_time: {
+    endTime: {
       type: DataTypes.TIME,
       allowNull: false,
     },
     room: {
       type: DataTypes.STRING(100),
     },
-    schedule_type: {
+    scheduleType: {
       type: DataTypes.ENUM('CLASS', 'PERSONAL'),
       defaultValue: 'CLASS',
     },

@@ -12,8 +12,8 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   if (!token) throw new BadTokenError();
   const decoded = JwtService.jwtVerify(token);
   const user = await User.findByPk(decoded.userId, { include: [{ model: Role }] });
-  if (!user || !user.is_active) {
-    throw new BadTokenError('Account has been locked or does not exist');
+  if (!user || !user.isActive) {
+    throw new BadTokenError('Tài khoản đã bị khóa hoặc không tồn tại');
   }
   req.userId = user.id;
   req.user = user;

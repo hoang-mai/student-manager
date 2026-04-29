@@ -12,7 +12,7 @@ const jwtVerify = (token) => {
     if (err.name === 'TokenExpiredError') {
       throw new TokenExpiredError();
     }
-    throw new BadTokenError('Token is not valid');
+    throw new BadTokenError('Token không hợp lệ');
   }
 };
 

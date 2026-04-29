@@ -6,21 +6,21 @@ const StudentProfile = db.studentProfile;
 const User = db.user;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, student_id, achievement_type }) => {
+const getAll = async ({ page = 1, limit = 20, studentId, achievementType }) => {
   const offset = (page - 1) * limit;
   const where = {};
-  if (student_id) where.student_id = student_id;
-  if (achievement_type) where.achievement_type = achievement_type;
+  if (studentId) where.studentId = studentId;
+  if (achievementType) where.achievementType = achievementType;
 
   const { count, rows } = await Achievement.findAndCountAll({
     where,
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
-      { model: User, as: 'creator', attributes: ['id', 'full_name'] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
+      { model: User, as: 'creator', attributes: ['id', 'fullName'] },
     ],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -37,28 +37,28 @@ const getAll = async ({ page = 1, limit = 20, student_id, achievement_type }) =>
 const getById = async (id) => {
   const achievement = await Achievement.findByPk(id, {
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
-      { model: User, as: 'creator', attributes: ['id', 'full_name'] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
+      { model: User, as: 'creator', attributes: ['id', 'fullName'] },
     ],
   });
-  if (!achievement) throw new NotFoundError('Achievement not found');
+  if (!achievement) throw new NotFoundError('Không tìm thấy thành tích');
   return achievement;
 };
 
 const create = async (data, createdBy) => {
-  return await Achievement.create({ ...data, created_by: createdBy });
+  return await Achievement.create({ ...data, createdBy });
 };
 
 const update = async (id, data) => {
   const achievement = await Achievement.findByPk(id);
-  if (!achievement) throw new NotFoundError('Achievement not found');
+  if (!achievement) throw new NotFoundError('Không tìm thấy thành tích');
   await achievement.update(data);
   return achievement;
 };
 
 const remove = async (id) => {
   const achievement = await Achievement.findByPk(id);
-  if (!achievement) throw new NotFoundError('Achievement not found');
+  if (!achievement) throw new NotFoundError('Không tìm thấy thành tích');
   await achievement.destroy();
 };
 

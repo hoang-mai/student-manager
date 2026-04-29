@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     phone: {
       type: DataTypes.STRING(20),
     },
-    commander_id: {
+    commanderId: {
       type: DataTypes.INTEGER,
     },
   }, {

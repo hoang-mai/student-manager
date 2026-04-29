@@ -9,34 +9,34 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100),
       allowNull: false,
     },
-    academic_year_id: {
+    academicYearId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    start_date: {
+    startDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
-    end_date: {
+    endDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
-    registration_start: {
+    registrationStart: {
       type: DataTypes.DATEONLY,
     },
-    registration_end: {
+    registrationEnd: {
       type: DataTypes.DATEONLY,
     },
-    exam_start: {
+    examStart: {
       type: DataTypes.DATEONLY,
     },
-    exam_end: {
+    examEnd: {
       type: DataTypes.DATEONLY,
     },
-    grade_entry_deadline: {
+    gradeEntryDeadline: {
       type: DataTypes.DATEONLY,
     },
-    is_active: {
+    isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },

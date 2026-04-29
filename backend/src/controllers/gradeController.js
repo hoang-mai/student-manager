@@ -23,18 +23,18 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   try {
     const schema = Yup.object().shape({
-      student_id: Yup.number().integer().required(),
-      course_id: Yup.number().integer().required(),
-      semester_id: Yup.number().integer().required(),
-      score_10: Yup.number().min(0).max(10),
-      score_4: Yup.number().min(0).max(4),
-      letter_grade: Yup.string(),
+      studentId: Yup.number().integer().required(),
+      courseId: Yup.number().integer().required(),
+      semesterId: Yup.number().integer().required(),
+      score10: Yup.number().min(0).max(10),
+      score4: Yup.number().min(0).max(4),
+      letterGrade: Yup.string(),
       status: Yup.string().oneOf(['PASSED', 'FAILED', 'PENDING']),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await gradeService.create(req.body, req.userId);
-    return success(res, result, 'Grade created', 201);
+    return success(res, result, 'Tạo điểm số thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -43,7 +43,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const result = await gradeService.update(req.params.id, req.body);
-    return success(res, result, 'Grade updated');
+    return success(res, result, 'Cập nhật điểm số thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -52,7 +52,7 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await gradeService.remove(req.params.id);
-    return success(res, null, 'Grade deleted');
+    return success(res, null, 'Xóa điểm số thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

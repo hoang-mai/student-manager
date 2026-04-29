@@ -5,18 +5,18 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    grade_request_id: {
+    gradeRequestId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    file_name: {
+    fileName: {
       type: DataTypes.STRING(255),
     },
-    file_url: {
+    fileUrl: {
       type: DataTypes.STRING(500),
       allowNull: false,
     },
-    file_type: {
+    fileType: {
       type: DataTypes.STRING(50),
     },
   }, {

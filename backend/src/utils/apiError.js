@@ -1,12 +1,12 @@
 const DEFAULT_ERRORS = {
-  BAD_TOKEN: { code: 'BAD_TOKEN', message: 'Token is not valid' },
-  TOKEN_EXPIRED: { code: 'TOKEN_EXPIRED', message: 'Token expired' },
-  UNAUTHORIZED: { code: 'UNAUTHORIZED', message: 'Invalid credentials' },
-  SERVER_ERROR: { code: 'SERVER_ERROR', message: 'Internal server error' },
-  NOT_FOUND: { code: 'NOT_FOUND', message: 'Not found' },
-  BAD_REQUEST: { code: 'BAD_REQUEST', message: 'Bad request' },
-  FORBIDDEN: { code: 'FORBIDDEN', message: 'Permission denied' },
-  VALIDATION: { code: 'VALIDATION', message: 'Validation error' },
+  BAD_TOKEN: { code: 'BAD_TOKEN', message: 'Token không hợp lệ' },
+  TOKEN_EXPIRED: { code: 'TOKEN_EXPIRED', message: 'Token đã hết hạn' },
+  UNAUTHORIZED: { code: 'UNAUTHORIZED', message: 'Thông tin xác thực không hợp lệ' },
+  SERVER_ERROR: { code: 'SERVER_ERROR', message: 'Lỗi máy chủ nội bộ' },
+  NOT_FOUND: { code: 'NOT_FOUND', message: 'Không tìm thấy' },
+  BAD_REQUEST: { code: 'BAD_REQUEST', message: 'Yêu cầu không hợp lệ' },
+  FORBIDDEN: { code: 'FORBIDDEN', message: 'Bạn không có quyền truy cập' },
+  VALIDATION: { code: 'VALIDATION', message: 'Lỗi xác thực dữ liệu' },
 };
 
 class BaseError extends Error {

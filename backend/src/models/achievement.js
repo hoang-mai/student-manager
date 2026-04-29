@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    student_id: {
+    studentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -13,23 +13,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    achievement_type: {
+    achievementType: {
       type: DataTypes.ENUM('REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING'),
       allowNull: false,
     },
     level: {
       type: DataTypes.STRING(100),
     },
-    issue_date: {
+    issueDate: {
       type: DataTypes.DATEONLY,
     },
     description: {
       type: DataTypes.TEXT,
     },
-    file_url: {
+    fileUrl: {
       type: DataTypes.STRING(500),
     },
-    created_by: {
+    createdBy: {
       type: DataTypes.INTEGER,
     },
   }, {

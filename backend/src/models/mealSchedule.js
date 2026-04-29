@@ -5,11 +5,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    student_id: {
+    studentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    schedule_date: {
+    scheduleDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
     },

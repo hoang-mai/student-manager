@@ -10,22 +10,22 @@ const AcademicYear = db.academicYear;
 const TrainingUnit = db.trainingUnit;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, search, class_id, status }) => {
+const getAll = async ({ page = 1, limit = 20, search, classId, status }) => {
   const offset = (page - 1) * limit;
   const where = {};
   if (status) where.status = status;
-  if (class_id) where.class_id = class_id;
+  if (classId) where.classId = classId;
   if (search) {
     where[Op.or] = [
-      { student_code: { [Op.iLike]: `%${search}%` } },
-      { '$User.full_name$': { [Op.iLike]: `%${search}%` } },
+      { studentCode: { [Op.iLike]: `%${search}%` } },
+      { '$User.fullName$': { [Op.iLike]: `%${search}%` } },
     ];
   }
 
   const { count, rows } = await StudentProfile.findAndCountAll({
     where,
     include: [
-      { model: User, attributes: ['id', 'username', 'full_name', 'email', 'phone'] },
+      { model: User, attributes: ['id', 'username', 'fullName', 'email', 'phone'] },
       { model: Class, attributes: ['id', 'code', 'name'] },
       { model: University, attributes: ['id', 'name'] },
       { model: Major, attributes: ['id', 'name'] },
@@ -34,7 +34,7 @@ const getAll = async ({ page = 1, limit = 20, search, class_id, status }) => {
     ],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -59,7 +59,7 @@ const getById = async (id) => {
       { model: TrainingUnit },
     ],
   });
-  if (!profile) throw new NotFoundError('Student not found');
+  if (!profile) throw new NotFoundError('Không tìm thấy hồ sơ học viên');
   return profile;
 };
 
@@ -69,14 +69,14 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const profile = await StudentProfile.findByPk(id);
-  if (!profile) throw new NotFoundError('Student not found');
+  if (!profile) throw new NotFoundError('Không tìm thấy hồ sơ học viên');
   await profile.update(data);
   return profile;
 };
 
 const remove = async (id) => {
   const profile = await StudentProfile.findByPk(id);
-  if (!profile) throw new NotFoundError('Student not found');
+  if (!profile) throw new NotFoundError('Không tìm thấy hồ sơ học viên');
   await profile.destroy();
 };
 

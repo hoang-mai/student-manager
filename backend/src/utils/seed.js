@@ -3,7 +3,7 @@ const db = require('../models');
 
 async function seed() {
   try {
-    await db.sequelize.sync({ alter: true });
+    await db.sequelize.sync();
     console.log('Database synced.');
 
     // Seed roles
@@ -26,10 +26,10 @@ async function seed() {
         username: 'admin',
         email: 'admin@studentmanager.local',
         password: hashedPassword,
-        full_name: 'Quản trị viên',
+        fullName: 'Quản trị viên',
         phone: '0900000000',
-        role_id: adminRole.id,
-        is_active: true,
+        roleId: adminRole.id,
+        isActive: true,
       },
     });
     console.log(created ? 'Admin user created.' : 'Admin user already exists.');
@@ -44,7 +44,7 @@ async function seed() {
     // Seed a sample academic year
     await db.academicYear.findOrCreate({
       where: { name: '2024-2025' },
-      defaults: { name: '2024-2025', start_year: 2024, end_year: 2025 },
+      defaults: { name: '2024-2025', startYear: 2024, endYear: 2025 },
     });
     console.log('Sample academic year seeded.');
 

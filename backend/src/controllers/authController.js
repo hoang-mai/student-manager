@@ -11,7 +11,7 @@ const login = async (req, res) => {
     await validateOrThrow(schema, req.body);
 
     const result = await authService.login(req.body.username, req.body.password);
-    return success(res, result, 'OK');
+    return success(res, result, 'Thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -23,14 +23,14 @@ const register = async (req, res) => {
       username: Yup.string().required().min(3),
       email: Yup.string().email().required(),
       password: Yup.string().required().min(6),
-      full_name: Yup.string().required(),
+      fullName: Yup.string().required(),
       phone: Yup.string(),
-      role_id: Yup.number().integer(),
+      roleId: Yup.number().integer(),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await authService.register(req.body);
-    return success(res, result, 'User created', 201);
+    return success(res, result, 'Tạo tài khoản thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -42,7 +42,7 @@ const refreshToken = async (req, res) => {
     await validateOrThrow(schema, req.body);
 
     const result = await authService.refreshToken(req.body.refreshToken);
-    return success(res, result, 'OK');
+    return success(res, result, 'Thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -57,7 +57,7 @@ const changePassword = async (req, res) => {
     await validateOrThrow(schema, req.body);
 
     await authService.changePassword(req.userId, req.body.oldPassword, req.body.newPassword);
-    return success(res, null, 'Password changed successfully');
+    return success(res, null, 'Đổi mật khẩu thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

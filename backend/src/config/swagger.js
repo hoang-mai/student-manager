@@ -6,9 +6,9 @@ const options = {
     info: {
       title: 'Hệ thống Quản lý Học viên - Student Manager API',
       version: '1.0.0',
-      description: `Tài liệu mô tả chi tiết các API của hệ thống quản lý học viên. 
-      Hệ thống hỗ trợ 3 nhóm ngườ dùng chính: **Quản trị viên**, **Chỉ huy** và **Học viên**.
-      
+      description: `Tài liệu mô tả chi tiết các API của hệ thống quản lý học viên.
+      Hệ thống hỗ trợ 3 nhóm người dùng chính: **Quản trị viên**, **Chỉ huy** và **Học viên**.
+
       Các chức năng chính bao gồm:
       - Quản lý tài khoản và phân quyền (RBAC)
       - Quản lý hồ sơ học viên, điểm số, học kỳ
@@ -28,11 +28,11 @@ const options = {
     ],
     tags: [
       { name: 'Xác thực', description: 'Đăng nhập, đăng ký, quản lý token và mật khẩu' },
-      { name: 'Ngườ dùng', description: 'Quản lý tài khoản ngườ dùng trong hệ thống (Admin / Chỉ huy)' },
+      { name: 'Người dùng', description: 'Quản lý tài khoản người dùng trong hệ thống (Admin / Chỉ huy)' },
       { name: 'Học viên', description: 'Quản lý hồ sơ, thông tin học viên' },
       { name: 'Điểm số', description: 'Quản lý điểm môn học của học viên' },
       { name: 'Đề xuất điểm', description: 'Học viên đề xuất cập nhật điểm, Chỉ huy phê duyệt' },
-      { name: 'Lịch học', description: 'Thờ khóa biểu học tập' },
+      { name: 'Lịch học', description: 'Thời khóa biểu học tập' },
       { name: 'Lịch cắt cơm', description: 'Lịch đăng ký bữa ăn theo ca' },
       { name: 'Học phí', description: 'Quản lý thông tin học phí, thanh toán' },
       { name: 'Thành tích', description: 'Khen thưởng, đề tài khoa học, rèn luyện' },
@@ -49,7 +49,7 @@ const options = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'Nhập token JWT đượ cấp sau khi đăng nhập. Ví dụ: Bearer eyJhbGciOiJIUzI1NiIs...',
+          description: 'Nhập token JWT được cấp sau khi đăng nhập. Ví dụ: Bearer eyJhbGciOiJIUzI1NiIs...',
         },
       },
       schemas: {
@@ -59,33 +59,33 @@ const options = {
             id: { type: 'integer', example: 1 },
             username: { type: 'string', example: 'admin' },
             email: { type: 'string', example: 'admin@example.com' },
-            full_name: { type: 'string', example: 'Nguyễn Văn A' },
+            fullName: { type: 'string', example: 'Nguyễn Văn A' },
             phone: { type: 'string', example: '0987654321' },
-            avatar_url: { type: 'string', example: 'https://example.com/avatar.jpg' },
-            role_id: { type: 'integer', example: 1 },
-            is_active: { type: 'boolean', example: true },
-            last_login_at: { type: 'string', format: 'date-time' },
-            created_at: { type: 'string', format: 'date-time' },
-            updated_at: { type: 'string', format: 'date-time' },
+            avatarUrl: { type: 'string', example: 'https://example.com/avatar.jpg' },
+            roleId: { type: 'integer', example: 1 },
+            isActive: { type: 'boolean', example: true },
+            lastLoginAt: { type: 'string', format: 'date-time' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
           },
         },
         StudentProfile: {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            user_id: { type: 'integer', example: 2 },
-            student_code: { type: 'string', example: 'HV001' },
-            class_id: { type: 'integer', example: 1 },
-            university_id: { type: 'integer', example: 1 },
-            major_id: { type: 'integer', example: 1 },
-            academic_year_id: { type: 'integer', example: 1 },
-            training_unit_id: { type: 'integer', example: 1 },
+            userId: { type: 'integer', example: 2 },
+            studentCode: { type: 'string', example: 'HV001' },
+            classId: { type: 'integer', example: 1 },
+            universityId: { type: 'integer', example: 1 },
+            majorId: { type: 'integer', example: 1 },
+            academicYearId: { type: 'integer', example: 1 },
+            trainingUnitId: { type: 'integer', example: 1 },
             gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'], example: 'MALE' },
-            date_of_birth: { type: 'string', format: 'date', example: '2000-01-15' },
-            id_card_number: { type: 'string', example: '012345678901' },
-            military_rank: { type: 'string', example: 'Thượng sĩ' },
+            dateOfBirth: { type: 'string', format: 'date', example: '2000-01-15' },
+            idCardNumber: { type: 'string', example: '012345678901' },
+            militaryRank: { type: 'string', example: 'Thượng sĩ' },
             unit: { type: 'string', example: 'Đơn vị 1' },
-            enrollment_date: { type: 'string', format: 'date', example: '2023-09-01' },
+            enrollmentDate: { type: 'string', format: 'date', example: '2023-09-01' },
             status: { type: 'string', enum: ['STUDYING', 'GRADUATED', 'SUSPENDED', 'DROPPED'], example: 'STUDYING' },
           },
         },
@@ -93,53 +93,53 @@ const options = {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            student_id: { type: 'integer', example: 1 },
-            course_id: { type: 'integer', example: 1 },
-            semester_id: { type: 'integer', example: 1 },
-            score_10: { type: 'number', example: 8.5 },
-            score_4: { type: 'number', example: 3.5 },
-            letter_grade: { type: 'string', example: 'B+' },
+            studentId: { type: 'integer', example: 1 },
+            courseId: { type: 'integer', example: 1 },
+            semesterId: { type: 'integer', example: 1 },
+            score10: { type: 'number', example: 8.5 },
+            score4: { type: 'number', example: 3.5 },
+            letterGrade: { type: 'string', example: 'B+' },
             status: { type: 'string', enum: ['PASSED', 'FAILED', 'PENDING'], example: 'PASSED' },
-            created_by: { type: 'integer', example: 1 },
+            createdBy: { type: 'integer', example: 1 },
           },
         },
         GradeRequest: {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            student_id: { type: 'integer', example: 1 },
-            course_id: { type: 'integer', example: 1 },
-            semester_id: { type: 'integer', example: 1 },
-            request_type: { type: 'string', enum: ['ADD', 'UPDATE', 'DELETE'], example: 'UPDATE' },
+            studentId: { type: 'integer', example: 1 },
+            courseId: { type: 'integer', example: 1 },
+            semesterId: { type: 'integer', example: 1 },
+            requestType: { type: 'string', enum: ['ADD', 'UPDATE', 'DELETE'], example: 'UPDATE' },
             reason: { type: 'string', example: 'Điểm thi cuối kỳ bị nhập sai' },
-            proposed_score_10: { type: 'number', example: 8.0 },
+            proposedScore10: { type: 'number', example: 8.0 },
             status: { type: 'string', enum: ['PENDING', 'APPROVED', 'REJECTED'], example: 'PENDING' },
-            reviewer_id: { type: 'integer', example: null },
-            review_note: { type: 'string', example: null },
-            reviewed_at: { type: 'string', format: 'date-time', example: null },
+            reviewerId: { type: 'integer', example: null },
+            reviewNote: { type: 'string', example: null },
+            reviewedAt: { type: 'string', format: 'date-time', example: null },
           },
         },
         Schedule: {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            class_id: { type: 'integer', example: 1 },
-            student_id: { type: 'integer', example: null },
-            course_id: { type: 'integer', example: 1 },
-            semester_id: { type: 'integer', example: 1 },
-            day_of_week: { type: 'integer', minimum: 0, maximum: 6, example: 2, description: '0=Chủ nhật, 1=Thứ 2, ..., 6=Thứ 7' },
-            start_time: { type: 'string', example: '07:00:00' },
-            end_time: { type: 'string', example: '09:25:00' },
+            classId: { type: 'integer', example: 1 },
+            studentId: { type: 'integer', example: null },
+            courseId: { type: 'integer', example: 1 },
+            semesterId: { type: 'integer', example: 1 },
+            dayOfWeek: { type: 'integer', minimum: 0, maximum: 6, example: 2, description: '0=Chủ nhật, 1=Thứ 2, ..., 6=Thứ 7' },
+            startTime: { type: 'string', example: '07:00:00' },
+            endTime: { type: 'string', example: '09:25:00' },
             room: { type: 'string', example: 'A101' },
-            schedule_type: { type: 'string', enum: ['CLASS', 'PERSONAL'], example: 'CLASS' },
+            scheduleType: { type: 'string', enum: ['CLASS', 'PERSONAL'], example: 'CLASS' },
           },
         },
         MealSchedule: {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            student_id: { type: 'integer', example: 1 },
-            schedule_date: { type: 'string', format: 'date', example: '2024-10-01' },
+            studentId: { type: 'integer', example: 1 },
+            scheduleDate: { type: 'string', format: 'date', example: '2024-10-01' },
             session: { type: 'string', enum: ['MORNING', 'NOON', 'AFTERNOON', 'EVENING'], example: 'NOON', description: 'Buổi ăn: Sáng, Trưa, Chiều, Tối' },
             status: { type: 'string', enum: ['REGISTERED', 'CANCELLED'], example: 'REGISTERED' },
           },
@@ -148,13 +148,13 @@ const options = {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            student_id: { type: 'integer', example: 1 },
-            semester_id: { type: 'integer', example: 1 },
+            studentId: { type: 'integer', example: 1 },
+            semesterId: { type: 'integer', example: 1 },
             amount: { type: 'number', example: 5000000 },
-            paid_amount: { type: 'number', example: 5000000 },
+            paidAmount: { type: 'number', example: 5000000 },
             status: { type: 'string', enum: ['PAID', 'UNPAID', 'PARTIAL'], example: 'PAID' },
-            due_date: { type: 'string', format: 'date', example: '2024-10-15' },
-            paid_at: { type: 'string', format: 'date-time', example: '2024-10-10T08:00:00Z' },
+            dueDate: { type: 'string', format: 'date', example: '2024-10-15' },
+            paidAt: { type: 'string', format: 'date-time', example: '2024-10-10T08:00:00Z' },
             note: { type: 'string', example: 'Đã thu đủ' },
           },
         },
@@ -162,24 +162,26 @@ const options = {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            student_id: { type: 'integer', example: 1 },
+            studentId: { type: 'integer', example: 1 },
             title: { type: 'string', example: 'Giải nhất Olympic Toán' },
-            achievement_type: { type: 'string', enum: ['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING'], example: 'REWARD' },
+            achievementType: { type: 'string', enum: ['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING'], example: 'REWARD' },
             level: { type: 'string', example: 'Cấp trường' },
-            issue_date: { type: 'string', format: 'date', example: '2024-05-20' },
+            issueDate: { type: 'string', format: 'date', example: '2024-05-20' },
             description: { type: 'string', example: 'Đạt giải trong kỳ thi Olympic Toán toàn trường' },
-            file_url: { type: 'string', example: 'https://example.com/cert.pdf' },
+            fileUrl: { type: 'string', example: 'https://example.com/cert.pdf' },
+            createdBy: { type: 'integer', example: 1 },
           },
         },
         DutyRoster: {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            user_id: { type: 'integer', example: 3 },
-            duty_date: { type: 'string', format: 'date', example: '2024-10-01' },
+            userId: { type: 'integer', example: 3 },
+            dutyDate: { type: 'string', format: 'date', example: '2024-10-01' },
             shift: { type: 'string', enum: ['MORNING', 'AFTERNOON', 'NIGHT', 'FULL'], example: 'NIGHT' },
-            duty_type: { type: 'string', enum: ['COMMAND', 'SECURITY', 'OTHER'], example: 'COMMAND' },
+            dutyType: { type: 'string', enum: ['COMMAND', 'SECURITY', 'OTHER'], example: 'COMMAND' },
             note: { type: 'string', example: 'Trực ban đêm' },
+            createdBy: { type: 'integer', example: 1 },
           },
         },
         University: {
@@ -197,10 +199,10 @@ const options = {
             id: { type: 'integer', example: 1 },
             code: { type: 'string', example: 'CNTT-K62' },
             name: { type: 'string', example: 'Công nghệ thông tin K62' },
-            major_id: { type: 'integer', example: 1 },
-            academic_year_id: { type: 'integer', example: 1 },
-            training_unit_id: { type: 'integer', example: 1 },
-            commander_id: { type: 'integer', example: 2 },
+            majorId: { type: 'integer', example: 1 },
+            academicYearId: { type: 'integer', example: 1 },
+            trainingUnitId: { type: 'integer', example: 1 },
+            commanderId: { type: 'integer', example: 2 },
           },
         },
         Semester: {
@@ -208,15 +210,15 @@ const options = {
           properties: {
             id: { type: 'integer', example: 1 },
             name: { type: 'string', example: 'Học kỳ 1 - 2024-2025' },
-            academic_year_id: { type: 'integer', example: 1 },
-            start_date: { type: 'string', format: 'date', example: '2024-09-01' },
-            end_date: { type: 'string', format: 'date', example: '2025-01-15' },
-            registration_start: { type: 'string', format: 'date', example: '2024-08-15' },
-            registration_end: { type: 'string', format: 'date', example: '2024-08-30' },
-            exam_start: { type: 'string', format: 'date', example: '2024-12-15' },
-            exam_end: { type: 'string', format: 'date', example: '2024-12-30' },
-            grade_entry_deadline: { type: 'string', format: 'date', example: '2025-01-10' },
-            is_active: { type: 'boolean', example: true },
+            academicYearId: { type: 'integer', example: 1 },
+            startDate: { type: 'string', format: 'date', example: '2024-09-01' },
+            endDate: { type: 'string', format: 'date', example: '2025-01-15' },
+            registrationStart: { type: 'string', format: 'date', example: '2024-08-15' },
+            registrationEnd: { type: 'string', format: 'date', example: '2024-08-30' },
+            examStart: { type: 'string', format: 'date', example: '2024-12-15' },
+            examEnd: { type: 'string', format: 'date', example: '2024-12-30' },
+            gradeEntryDeadline: { type: 'string', format: 'date', example: '2025-01-10' },
+            isActive: { type: 'boolean', example: true },
           },
         },
         Course: {
@@ -243,7 +245,7 @@ const options = {
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/Error' },
-              example: { statusCode: 401, message: 'Token is not valid' },
+              example: { statusCode: 401, message: 'Token không hợp lệ' },
             },
           },
         },
@@ -252,7 +254,7 @@ const options = {
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/Error' },
-              example: { statusCode: 403, message: 'Permission denied' },
+              example: { statusCode: 403, message: 'Bạn không có quyền truy cập' },
             },
           },
         },
@@ -261,7 +263,7 @@ const options = {
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/Error' },
-              example: { statusCode: 404, message: 'Not found' },
+              example: { statusCode: 404, message: 'Không tìm thấy' },
             },
           },
         },
@@ -270,7 +272,7 @@ const options = {
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/Error' },
-              example: { statusCode: 400, message: ['username is required'] },
+              example: { statusCode: 400, message: 'username là bắt buộc' },
             },
           },
         },
@@ -287,7 +289,7 @@ const options = {
         post: {
           tags: ['Xác thực'],
           summary: 'Đăng nhập hệ thống',
-          description: 'Ngườ dùng đăng nhập bằng username và mật khẩu để nhận JWT token.',
+          description: 'Người dùng đăng nhập bằng username và mật khẩu để nhận JWT token.',
           security: [],
           requestBody: {
             required: true,
@@ -298,7 +300,7 @@ const options = {
                   required: ['username', 'password'],
                   properties: {
                     username: { type: 'string', example: 'admin' },
-                    password: { type: 'string', example: '12345678' },
+                    password: { type: 'string', example: 'admin123' },
                   },
                 },
               },
@@ -313,7 +315,7 @@ const options = {
                     type: 'object',
                     properties: {
                       statusCode: { type: 'integer', example: 200 },
-                      message: { type: 'string', example: 'OK' },
+                      message: { type: 'string', example: 'Thành công' },
                       data: {
                         type: 'object',
                         properties: {
@@ -336,7 +338,7 @@ const options = {
         post: {
           tags: ['Xác thực'],
           summary: 'Đăng ký tài khoản mới',
-          description: 'Tạo tài khoản ngườ dùng mới. Mặc định vai trò là học viên nếu không chỉ định role_id.',
+          description: 'Tạo tài khoản người dùng mới. Mặc định vai trò là học viên nếu không chỉ định roleId.',
           security: [],
           requestBody: {
             required: true,
@@ -344,14 +346,14 @@ const options = {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: ['username', 'email', 'password', 'full_name'],
+                  required: ['username', 'email', 'password', 'fullName'],
                   properties: {
                     username: { type: 'string', example: 'hocsinh01' },
                     email: { type: 'string', example: 'hs01@example.com' },
                     password: { type: 'string', example: '123456' },
-                    full_name: { type: 'string', example: 'Trần Văn B' },
+                    fullName: { type: 'string', example: 'Trần Văn B' },
                     phone: { type: 'string', example: '0912345678' },
-                    role_id: { type: 'integer', example: 2, description: 'ID vai trò (bắt buộc nếu admin tạo tài khoản)' },
+                    roleId: { type: 'integer', example: 3, description: 'ID vai trò (1=admin, 2=chi_huy, 3=hoc_vien)' },
                   },
                 },
               },
@@ -393,7 +395,7 @@ const options = {
         post: {
           tags: ['Xác thực'],
           summary: 'Đổi mật khẩu',
-          description: 'Ngườ dùng đã đăng nhập đổi mật khẩu của chính mình.',
+          description: 'Người dùng đã đăng nhập đổi mật khẩu của chính mình.',
           requestBody: {
             required: true,
             content: {
@@ -402,7 +404,7 @@ const options = {
                   type: 'object',
                   required: ['oldPassword', 'newPassword'],
                   properties: {
-                    oldPassword: { type: 'string', example: '12345678' },
+                    oldPassword: { type: 'string', example: 'admin123' },
                     newPassword: { type: 'string', example: 'newpass123' },
                   },
                 },
@@ -418,22 +420,22 @@ const options = {
       // ==================== USERS ====================
       '/users': {
         get: {
-          tags: ['Ngườ dùng'],
-          summary: 'Lấy danh sách ngườ dùng',
+          tags: ['Người dùng'],
+          summary: 'Lấy danh sách người dùng',
           description: 'Admin / Chỉ huy xem toàn bộ tài khoản. Hỗ trợ tìm kiếm và phân trang.',
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'search', in: 'query', schema: { type: 'string' }, description: 'Tìm theo username, full_name, email' },
+            { name: 'search', in: 'query', schema: { type: 'string' }, description: 'Tìm theo username, fullName, email' },
             { name: 'role', in: 'query', schema: { type: 'string' }, description: 'Lọc theo tên vai trò (admin, chi_huy, hoc_vien)' },
           ],
           responses: {
-            200: { description: 'Danh sách ngườ dùng' },
+            200: { description: 'Danh sách người dùng (có phân trang)' },
             403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
         post: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Tạo tài khoản mới (Admin/Chỉ huy)',
           requestBody: {
             required: true,
@@ -441,14 +443,14 @@ const options = {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: ['username', 'email', 'password', 'full_name', 'role_id'],
+                  required: ['username', 'email', 'password', 'fullName', 'roleId'],
                   properties: {
                     username: { type: 'string' },
                     email: { type: 'string' },
                     password: { type: 'string' },
-                    full_name: { type: 'string' },
+                    fullName: { type: 'string' },
                     phone: { type: 'string' },
-                    role_id: { type: 'integer', description: '1=admin, 2=chi_huy, 3=hoc_vien' },
+                    roleId: { type: 'integer', description: '1=admin, 2=chi_huy, 3=hoc_vien' },
                   },
                 },
               },
@@ -456,21 +458,38 @@ const options = {
           },
           responses: {
             201: { description: 'Tạo thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
       '/users/me': {
         get: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Xem thông tin cá nhân',
-          description: 'Ngườ dùng đã đăng nhập xem profile của chính mình, bao gồm cả hồ sơ học viên nếu có.',
+          description: 'Người dùng đã đăng nhập xem profile của chính mình, bao gồm cả hồ sơ học viên nếu có.',
           responses: {
             200: { description: 'Thông tin cá nhân' },
           },
         },
         put: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Cập nhật thông tin cá nhân',
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    fullName: { type: 'string' },
+                    phone: { type: 'string' },
+                    email: { type: 'string' },
+                    avatarUrl: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
@@ -478,7 +497,7 @@ const options = {
       },
       '/users/{id}': {
         get: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Xem chi tiết tài khoản theo ID',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
@@ -487,15 +506,30 @@ const options = {
           },
         },
         put: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Cập nhật tài khoản',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    fullName: { type: 'string' },
+                    phone: { type: 'string' },
+                    email: { type: 'string' },
+                    roleId: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
         },
         delete: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Xóa tài khoản (Admin only)',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
@@ -506,9 +540,9 @@ const options = {
       },
       '/users/{id}/toggle-active': {
         patch: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Khóa / Mở khóa tài khoản',
-          description: 'Chuyển đổi trạng thái is_active của tài khoản.',
+          description: 'Chuyển đổi trạng thái isActive của tài khoản.',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
             200: { description: 'Thay đổi trạng thái thành công' },
@@ -517,9 +551,9 @@ const options = {
       },
       '/users/{id}/reset-password': {
         patch: {
-          tags: ['Ngườ dùng'],
+          tags: ['Người dùng'],
           summary: 'Reset mật khẩu',
-          description: 'Admin / Chỉ huy reset mật khẩu về mặc định (hoặc mật khẩu mới được cung cấp).',
+          description: 'Admin / Chỉ huy reset mật khẩu cho người dùng khác.',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           requestBody: {
             content: {
@@ -548,11 +582,11 @@ const options = {
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
             { name: 'search', in: 'query', schema: { type: 'string' } },
-            { name: 'class_id', in: 'query', schema: { type: 'integer' } },
+            { name: 'classId', in: 'query', schema: { type: 'integer' } },
             { name: 'status', in: 'query', schema: { type: 'string', enum: ['STUDYING', 'GRADUATED', 'SUSPENDED', 'DROPPED'] } },
           ],
           responses: {
-            200: { description: 'Danh sách học viên' },
+            200: { description: 'Danh sách học viên (có phân trang)' },
           },
         },
         post: {
@@ -563,12 +597,33 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/StudentProfile' },
+                schema: {
+                  type: 'object',
+                  required: ['userId', 'studentCode', 'classId'],
+                  properties: {
+                    userId: { type: 'integer' },
+                    studentCode: { type: 'string' },
+                    classId: { type: 'integer' },
+                    universityId: { type: 'integer' },
+                    majorId: { type: 'integer' },
+                    academicYearId: { type: 'integer' },
+                    trainingUnitId: { type: 'integer' },
+                    gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'] },
+                    dateOfBirth: { type: 'string', format: 'date' },
+                    idCardNumber: { type: 'string' },
+                    militaryRank: { type: 'string' },
+                    unit: { type: 'string' },
+                    enrollmentDate: { type: 'string', format: 'date' },
+                    status: { type: 'string', enum: ['STUDYING', 'GRADUATED', 'SUSPENDED', 'DROPPED'] },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo hồ sơ thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -586,16 +641,41 @@ const options = {
           tags: ['Học viên'],
           summary: 'Cập nhật hồ sơ học viên',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    studentCode: { type: 'string' },
+                    classId: { type: 'integer' },
+                    universityId: { type: 'integer' },
+                    majorId: { type: 'integer' },
+                    academicYearId: { type: 'integer' },
+                    trainingUnitId: { type: 'integer' },
+                    gender: { type: 'string', enum: ['MALE', 'FEMALE', 'OTHER'] },
+                    dateOfBirth: { type: 'string', format: 'date' },
+                    idCardNumber: { type: 'string' },
+                    militaryRank: { type: 'string' },
+                    unit: { type: 'string' },
+                    enrollmentDate: { type: 'string', format: 'date' },
+                    status: { type: 'string', enum: ['STUDYING', 'GRADUATED', 'SUSPENDED', 'DROPPED'] },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
         },
         delete: {
           tags: ['Học viên'],
-          summary: 'Xóa hồ sơ học viên',
+          summary: 'Xóa hồ sơ học viên (Admin only)',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
             200: { description: 'Xóa thành công' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -608,12 +688,12 @@ const options = {
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'student_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'semester_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'course_id', in: 'query', schema: { type: 'integer' } },
+            { name: 'studentId', in: 'query', schema: { type: 'integer' } },
+            { name: 'semesterId', in: 'query', schema: { type: 'integer' } },
+            { name: 'courseId', in: 'query', schema: { type: 'integer' } },
           ],
           responses: {
-            200: { description: 'Danh sách điểm' },
+            200: { description: 'Danh sách điểm (có phân trang)' },
           },
         },
         post: {
@@ -624,12 +704,26 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Grade' },
+                schema: {
+                  type: 'object',
+                  required: ['studentId', 'courseId', 'semesterId'],
+                  properties: {
+                    studentId: { type: 'integer' },
+                    courseId: { type: 'integer' },
+                    semesterId: { type: 'integer' },
+                    score10: { type: 'number', minimum: 0, maximum: 10 },
+                    score4: { type: 'number', minimum: 0, maximum: 4 },
+                    letterGrade: { type: 'string' },
+                    status: { type: 'string', enum: ['PASSED', 'FAILED', 'PENDING'] },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Nhập điểm thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -647,6 +741,23 @@ const options = {
           tags: ['Điểm số'],
           summary: 'Cập nhật điểm',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    score10: { type: 'number', minimum: 0, maximum: 10 },
+                    score4: { type: 'number', minimum: 0, maximum: 4 },
+                    letterGrade: { type: 'string' },
+                    status: { type: 'string', enum: ['PASSED', 'FAILED', 'PENDING'] },
+                    courseId: { type: 'integer' },
+                    semesterId: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
@@ -665,15 +776,15 @@ const options = {
         get: {
           tags: ['Đề xuất điểm'],
           summary: 'Lấy danh sách đề xuất điểm',
-          description: 'Học viên xem đề xuất của mình; Chỉ huy xem toàn bộ để duyệt.',
+          description: 'Học viên xem đề xuất của mình; Chỉ huy / Admin xem toàn bộ để duyệt.',
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'student_id', in: 'query', schema: { type: 'integer' } },
+            { name: 'studentId', in: 'query', schema: { type: 'integer' } },
             { name: 'status', in: 'query', schema: { type: 'string', enum: ['PENDING', 'APPROVED', 'REJECTED'] } },
           ],
           responses: {
-            200: { description: 'Danh sách đề xuất' },
+            200: { description: 'Danh sách đề xuất (có phân trang)' },
           },
         },
         post: {
@@ -684,12 +795,24 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/GradeRequest' },
+                schema: {
+                  type: 'object',
+                  required: ['studentId', 'courseId', 'semesterId', 'requestType'],
+                  properties: {
+                    studentId: { type: 'integer' },
+                    courseId: { type: 'integer' },
+                    semesterId: { type: 'integer' },
+                    requestType: { type: 'string', enum: ['ADD', 'UPDATE', 'DELETE'] },
+                    reason: { type: 'string' },
+                    proposedScore10: { type: 'number', minimum: 0, maximum: 10 },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo đề xuất thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
           },
         },
       },
@@ -715,7 +838,7 @@ const options = {
         put: {
           tags: ['Đề xuất điểm'],
           summary: 'Phê duyệt / Từ chối đề xuất',
-          description: `Chỉ huy duyệt hoặc từ chối đề xuất. 
+          description: `Chỉ huy / Admin duyệt hoặc từ chối đề xuất.
           Nếu APPROVED, hệ thống tự động cập nhật điểm vào bảng grades.
           Nếu DELETE + APPROVED, hệ thống xóa điểm tương ứng.`,
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
@@ -728,7 +851,7 @@ const options = {
                   required: ['status'],
                   properties: {
                     status: { type: 'string', enum: ['APPROVED', 'REJECTED'], example: 'APPROVED' },
-                    review_note: { type: 'string', example: 'Đã kiểm tra minh chứng, đồng ý cập nhật' },
+                    reviewNote: { type: 'string', example: 'Đã kiểm tra minh chứng, đồng ý cập nhật' },
                   },
                 },
               },
@@ -745,16 +868,16 @@ const options = {
         get: {
           tags: ['Lịch học'],
           summary: 'Lấy danh sách lịch học',
-          description: 'Xem thờ khóa biểu theo lớp, học viên hoặc học kỳ.',
+          description: 'Xem thời khóa biểu theo lớp, học viên hoặc học kỳ.',
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'class_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'student_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'semester_id', in: 'query', schema: { type: 'integer' } },
+            { name: 'classId', in: 'query', schema: { type: 'integer' } },
+            { name: 'studentId', in: 'query', schema: { type: 'integer' } },
+            { name: 'semesterId', in: 'query', schema: { type: 'integer' } },
           ],
           responses: {
-            200: { description: 'Danh sách lịch học' },
+            200: { description: 'Danh sách lịch học (có phân trang)' },
           },
         },
         post: {
@@ -764,12 +887,28 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Schedule' },
+                schema: {
+                  type: 'object',
+                  required: ['courseId', 'semesterId', 'dayOfWeek', 'startTime', 'endTime'],
+                  properties: {
+                    classId: { type: 'integer' },
+                    studentId: { type: 'integer' },
+                    courseId: { type: 'integer' },
+                    semesterId: { type: 'integer' },
+                    dayOfWeek: { type: 'integer', minimum: 0, maximum: 6, description: '0=Chủ nhật, 1=Thứ 2, ..., 6=Thứ 7' },
+                    startTime: { type: 'string', example: '07:00:00' },
+                    endTime: { type: 'string', example: '09:25:00' },
+                    room: { type: 'string' },
+                    scheduleType: { type: 'string', enum: ['CLASS', 'PERSONAL'] },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo lịch học thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -786,6 +925,26 @@ const options = {
           tags: ['Lịch học'],
           summary: 'Cập nhật lịch học',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    classId: { type: 'integer' },
+                    studentId: { type: 'integer' },
+                    courseId: { type: 'integer' },
+                    semesterId: { type: 'integer' },
+                    dayOfWeek: { type: 'integer', minimum: 0, maximum: 6 },
+                    startTime: { type: 'string' },
+                    endTime: { type: 'string' },
+                    room: { type: 'string' },
+                    scheduleType: { type: 'string', enum: ['CLASS', 'PERSONAL'] },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
@@ -808,12 +967,12 @@ const options = {
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'student_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'start_date', in: 'query', schema: { type: 'string', format: 'date' } },
-            { name: 'end_date', in: 'query', schema: { type: 'string', format: 'date' } },
+            { name: 'studentId', in: 'query', schema: { type: 'integer' } },
+            { name: 'startDate', in: 'query', schema: { type: 'string', format: 'date' } },
+            { name: 'endDate', in: 'query', schema: { type: 'string', format: 'date' } },
           ],
           responses: {
-            200: { description: 'Danh sách lịch cắt cơm' },
+            200: { description: 'Danh sách lịch cắt cơm (có phân trang)' },
           },
         },
         post: {
@@ -823,12 +982,23 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/MealSchedule' },
+                schema: {
+                  type: 'object',
+                  required: ['studentId', 'scheduleDate', 'session'],
+                  properties: {
+                    studentId: { type: 'integer' },
+                    scheduleDate: { type: 'string', format: 'date' },
+                    session: { type: 'string', enum: ['MORNING', 'NOON', 'AFTERNOON', 'EVENING'] },
+                    status: { type: 'string', enum: ['REGISTERED', 'CANCELLED'] },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -845,6 +1015,20 @@ const options = {
           tags: ['Lịch cắt cơm'],
           summary: 'Cập nhật lịch cắt cơm',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    scheduleDate: { type: 'string', format: 'date' },
+                    session: { type: 'string', enum: ['MORNING', 'NOON', 'AFTERNOON', 'EVENING'] },
+                    status: { type: 'string', enum: ['REGISTERED', 'CANCELLED'] },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
@@ -867,12 +1051,12 @@ const options = {
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'student_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'semester_id', in: 'query', schema: { type: 'integer' } },
+            { name: 'studentId', in: 'query', schema: { type: 'integer' } },
+            { name: 'semesterId', in: 'query', schema: { type: 'integer' } },
             { name: 'status', in: 'query', schema: { type: 'string', enum: ['PAID', 'UNPAID', 'PARTIAL'] } },
           ],
           responses: {
-            200: { description: 'Danh sách học phí' },
+            200: { description: 'Danh sách học phí (có phân trang)' },
           },
         },
         post: {
@@ -882,12 +1066,26 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Tuition' },
+                schema: {
+                  type: 'object',
+                  required: ['studentId', 'semesterId', 'amount', 'dueDate'],
+                  properties: {
+                    studentId: { type: 'integer' },
+                    semesterId: { type: 'integer' },
+                    amount: { type: 'number', exclusiveMinimum: 0 },
+                    paidAmount: { type: 'number' },
+                    status: { type: 'string', enum: ['PAID', 'UNPAID', 'PARTIAL'] },
+                    dueDate: { type: 'string', format: 'date' },
+                    note: { type: 'string' },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -904,6 +1102,22 @@ const options = {
           tags: ['Học phí'],
           summary: 'Cập nhật học phí / trạng thái thanh toán',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    amount: { type: 'number', exclusiveMinimum: 0 },
+                    paidAmount: { type: 'number' },
+                    status: { type: 'string', enum: ['PAID', 'UNPAID', 'PARTIAL'] },
+                    dueDate: { type: 'string', format: 'date' },
+                    note: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
@@ -926,11 +1140,11 @@ const options = {
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'student_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'achievement_type', in: 'query', schema: { type: 'string', enum: ['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING'] } },
+            { name: 'studentId', in: 'query', schema: { type: 'integer' } },
+            { name: 'achievementType', in: 'query', schema: { type: 'string', enum: ['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING'] } },
           ],
           responses: {
-            200: { description: 'Danh sách thành tích' },
+            200: { description: 'Danh sách thành tích (có phân trang)' },
           },
         },
         post: {
@@ -940,12 +1154,26 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Achievement' },
+                schema: {
+                  type: 'object',
+                  required: ['studentId', 'title', 'achievementType'],
+                  properties: {
+                    studentId: { type: 'integer' },
+                    title: { type: 'string' },
+                    achievementType: { type: 'string', enum: ['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING'] },
+                    level: { type: 'string' },
+                    issueDate: { type: 'string', format: 'date' },
+                    description: { type: 'string' },
+                    fileUrl: { type: 'string' },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Thêm thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -962,6 +1190,23 @@ const options = {
           tags: ['Thành tích'],
           summary: 'Cập nhật thành tích',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    title: { type: 'string' },
+                    achievementType: { type: 'string', enum: ['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING'] },
+                    level: { type: 'string' },
+                    issueDate: { type: 'string', format: 'date' },
+                    description: { type: 'string' },
+                    fileUrl: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
@@ -984,12 +1229,12 @@ const options = {
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'user_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'duty_date', in: 'query', schema: { type: 'string', format: 'date' } },
+            { name: 'userId', in: 'query', schema: { type: 'integer' } },
+            { name: 'dutyDate', in: 'query', schema: { type: 'string', format: 'date' } },
             { name: 'shift', in: 'query', schema: { type: 'string', enum: ['MORNING', 'AFTERNOON', 'NIGHT', 'FULL'] } },
           ],
           responses: {
-            200: { description: 'Danh sách lịch trực' },
+            200: { description: 'Danh sách lịch trực (có phân trang)' },
           },
         },
         post: {
@@ -999,12 +1244,24 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/DutyRoster' },
+                schema: {
+                  type: 'object',
+                  required: ['userId', 'dutyDate', 'shift'],
+                  properties: {
+                    userId: { type: 'integer' },
+                    dutyDate: { type: 'string', format: 'date' },
+                    shift: { type: 'string', enum: ['MORNING', 'AFTERNOON', 'NIGHT', 'FULL'] },
+                    dutyType: { type: 'string', enum: ['COMMAND', 'SECURITY', 'OTHER'] },
+                    note: { type: 'string' },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1021,6 +1278,22 @@ const options = {
           tags: ['Lịch trực'],
           summary: 'Cập nhật lịch trực',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    userId: { type: 'integer' },
+                    dutyDate: { type: 'string', format: 'date' },
+                    shift: { type: 'string', enum: ['MORNING', 'AFTERNOON', 'NIGHT', 'FULL'] },
+                    dutyType: { type: 'string', enum: ['COMMAND', 'SECURITY', 'OTHER'] },
+                    note: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
@@ -1045,7 +1318,7 @@ const options = {
             { name: 'search', in: 'query', schema: { type: 'string' } },
           ],
           responses: {
-            200: { description: 'Danh sách trường ĐH' },
+            200: { description: 'Danh sách trường ĐH (có phân trang)' },
           },
         },
         post: {
@@ -1055,12 +1328,22 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/University' },
+                schema: {
+                  type: 'object',
+                  required: ['code', 'name'],
+                  properties: {
+                    code: { type: 'string' },
+                    name: { type: 'string' },
+                    address: { type: 'string' },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Thêm thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1077,13 +1360,27 @@ const options = {
           tags: ['Trường ĐH'],
           summary: 'Cập nhật trường ĐH',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'string' },
+                    name: { type: 'string' },
+                    address: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
         },
         delete: {
           tags: ['Trường ĐH'],
-          summary: 'Xóa trường ĐH (Admin)',
+          summary: 'Xóa trường ĐH (Admin only)',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
             200: { description: 'Xóa thành công' },
@@ -1100,11 +1397,11 @@ const options = {
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
             { name: 'search', in: 'query', schema: { type: 'string' } },
-            { name: 'major_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'academic_year_id', in: 'query', schema: { type: 'integer' } },
+            { name: 'majorId', in: 'query', schema: { type: 'integer' } },
+            { name: 'academicYearId', in: 'query', schema: { type: 'integer' } },
           ],
           responses: {
-            200: { description: 'Danh sách lớp' },
+            200: { description: 'Danh sách lớp (có phân trang)' },
           },
         },
         post: {
@@ -1114,12 +1411,25 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Class' },
+                schema: {
+                  type: 'object',
+                  required: ['code', 'name', 'majorId', 'academicYearId'],
+                  properties: {
+                    code: { type: 'string' },
+                    name: { type: 'string' },
+                    majorId: { type: 'integer' },
+                    academicYearId: { type: 'integer' },
+                    trainingUnitId: { type: 'integer' },
+                    commanderId: { type: 'integer' },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1136,16 +1446,34 @@ const options = {
           tags: ['Lớp học'],
           summary: 'Cập nhật lớp học',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'string' },
+                    name: { type: 'string' },
+                    majorId: { type: 'integer' },
+                    academicYearId: { type: 'integer' },
+                    trainingUnitId: { type: 'integer' },
+                    commanderId: { type: 'integer' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
         },
         delete: {
           tags: ['Lớp học'],
-          summary: 'Xóa lớp học (Admin)',
+          summary: 'Xóa lớp học (Admin only)',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
             200: { description: 'Xóa thành công' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1157,27 +1485,44 @@ const options = {
           parameters: [
             { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
             { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-            { name: 'academic_year_id', in: 'query', schema: { type: 'integer' } },
-            { name: 'is_active', in: 'query', schema: { type: 'boolean' } },
+            { name: 'academicYearId', in: 'query', schema: { type: 'integer' } },
+            { name: 'isActive', in: 'query', schema: { type: 'boolean' } },
           ],
           responses: {
-            200: { description: 'Danh sách học kỳ' },
+            200: { description: 'Danh sách học kỳ (có phân trang)' },
           },
         },
         post: {
           tags: ['Học kỳ'],
           summary: 'Tạo học kỳ mới',
-          description: 'Thiết lập các mốc thờ gian: đăng ký môn, thi, nhập điểm.',
+          description: 'Thiết lập các mốc thời gian: đăng ký môn, thi, nhập điểm.',
           requestBody: {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Semester' },
+                schema: {
+                  type: 'object',
+                  required: ['name', 'academicYearId', 'startDate', 'endDate'],
+                  properties: {
+                    name: { type: 'string' },
+                    academicYearId: { type: 'integer' },
+                    startDate: { type: 'string', format: 'date' },
+                    endDate: { type: 'string', format: 'date' },
+                    registrationStart: { type: 'string', format: 'date' },
+                    registrationEnd: { type: 'string', format: 'date' },
+                    examStart: { type: 'string', format: 'date' },
+                    examEnd: { type: 'string', format: 'date' },
+                    gradeEntryDeadline: { type: 'string', format: 'date' },
+                    isActive: { type: 'boolean' },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Tạo thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1194,16 +1539,38 @@ const options = {
           tags: ['Học kỳ'],
           summary: 'Cập nhật học kỳ',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    academicYearId: { type: 'integer' },
+                    startDate: { type: 'string', format: 'date' },
+                    endDate: { type: 'string', format: 'date' },
+                    registrationStart: { type: 'string', format: 'date' },
+                    registrationEnd: { type: 'string', format: 'date' },
+                    examStart: { type: 'string', format: 'date' },
+                    examEnd: { type: 'string', format: 'date' },
+                    gradeEntryDeadline: { type: 'string', format: 'date' },
+                    isActive: { type: 'boolean' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
         },
         delete: {
           tags: ['Học kỳ'],
-          summary: 'Xóa học kỳ (Admin)',
+          summary: 'Xóa học kỳ (Admin only)',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
             200: { description: 'Xóa thành công' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1218,7 +1585,7 @@ const options = {
             { name: 'search', in: 'query', schema: { type: 'string' } },
           ],
           responses: {
-            200: { description: 'Danh sách môn học' },
+            200: { description: 'Danh sách môn học (có phân trang)' },
           },
         },
         post: {
@@ -1228,12 +1595,23 @@ const options = {
             required: true,
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Course' },
+                schema: {
+                  type: 'object',
+                  required: ['code', 'name'],
+                  properties: {
+                    code: { type: 'string' },
+                    name: { type: 'string' },
+                    credits: { type: 'integer', default: 0 },
+                    description: { type: 'string' },
+                  },
+                },
               },
             },
           },
           responses: {
             201: { description: 'Thêm thành công' },
+            400: { $ref: '#/components/responses/ValidationError' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1250,16 +1628,32 @@ const options = {
           tags: ['Môn học'],
           summary: 'Cập nhật môn học',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'string' },
+                    name: { type: 'string' },
+                    credits: { type: 'integer' },
+                    description: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
           responses: {
             200: { description: 'Cập nhật thành công' },
           },
         },
         delete: {
           tags: ['Môn học'],
-          summary: 'Xóa môn học (Admin)',
+          summary: 'Xóa môn học (Admin only)',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           responses: {
             200: { description: 'Xóa thành công' },
+            403: { $ref: '#/components/responses/ForbiddenError' },
           },
         },
       },
@@ -1270,28 +1664,7 @@ const options = {
           summary: 'Thống kê học viên',
           description: 'Tổng số học viên, đang học, đã tốt nghiệp, bảo lưu.',
           responses: {
-            200: {
-              description: 'Số liệu thống kê',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      statusCode: { type: 'integer' },
-                      data: {
-                        type: 'object',
-                        properties: {
-                          totalStudents: { type: 'integer' },
-                          studying: { type: 'integer' },
-                          graduated: { type: 'integer' },
-                          suspended: { type: 'integer' },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            200: { description: 'Số liệu thống kê' },
           },
         },
       },
@@ -1304,28 +1677,7 @@ const options = {
             { name: 'semester_id', in: 'query', schema: { type: 'integer' }, description: 'Lọc theo học kỳ' },
           ],
           responses: {
-            200: {
-              description: 'Số liệu thống kê điểm',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      statusCode: { type: 'integer' },
-                      data: {
-                        type: 'object',
-                        properties: {
-                          averageScore10: { type: 'number' },
-                          passed: { type: 'integer' },
-                          failed: { type: 'integer' },
-                          pending: { type: 'integer' },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            200: { description: 'Số liệu thống kê điểm' },
           },
         },
       },
@@ -1335,27 +1687,7 @@ const options = {
           summary: 'Thống kê học phí',
           description: 'Số lượng đã đóng, chưa đóng, đóng một phần.',
           responses: {
-            200: {
-              description: 'Số liệu học phí',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      statusCode: { type: 'integer' },
-                      data: {
-                        type: 'object',
-                        properties: {
-                          paid: { type: 'integer' },
-                          unpaid: { type: 'integer' },
-                          partial: { type: 'integer' },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            200: { description: 'Số liệu học phí' },
           },
         },
       },

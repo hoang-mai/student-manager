@@ -10,24 +10,24 @@ const User = db.user;
 const Grade = db.grade;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, student_id, status }) => {
+const getAll = async ({ page = 1, limit = 20, studentId, status }) => {
   const offset = (page - 1) * limit;
   const where = {};
-  if (student_id) where.student_id = student_id;
+  if (studentId) where.studentId = studentId;
   if (status) where.status = status;
 
   const { count, rows } = await GradeRequest.findAndCountAll({
     where,
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
       { model: Course },
       { model: Semester },
-      { model: User, as: 'reviewer', attributes: ['id', 'full_name'] },
+      { model: User, as: 'reviewer', attributes: ['id', 'fullName'] },
       { model: GradeRequestAttachment },
     ],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -44,14 +44,14 @@ const getAll = async ({ page = 1, limit = 20, student_id, status }) => {
 const getById = async (id) => {
   const request = await GradeRequest.findByPk(id, {
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
       { model: Course },
       { model: Semester },
-      { model: User, as: 'reviewer', attributes: ['id', 'full_name'] },
+      { model: User, as: 'reviewer', attributes: ['id', 'fullName'] },
       { model: GradeRequestAttachment },
     ],
   });
-  if (!request) throw new NotFoundError('Grade request not found');
+  if (!request) throw new NotFoundError('Không tìm thấy đề xuất điểm');
   return request;
 };
 
@@ -59,26 +59,26 @@ const create = async (data) => {
   return await GradeRequest.create(data);
 };
 
-const review = async (id, { status, review_note }, reviewerId) => {
+const review = async (id, { status, reviewNote }, reviewerId) => {
   const request = await GradeRequest.findByPk(id);
-  if (!request) throw new NotFoundError('Grade request not found');
-  if (request.status !== 'PENDING') throw new BadRequestError('Request already reviewed');
+  if (!request) throw new NotFoundError('Không tìm thấy đề xuất điểm');
+  if (request.status !== 'PENDING') throw new BadRequestError('Đề xuất này đã được xử lý');
 
   request.status = status;
-  request.reviewer_id = reviewerId;
-  request.review_note = review_note;
-  request.reviewed_at = new Date();
+  request.reviewerId = reviewerId;
+  request.reviewNote = reviewNote;
+  request.reviewedAt = new Date();
   await request.save();
 
   if (status === 'APPROVED') {
-    if (request.request_type === 'DELETE') {
-      await Grade.destroy({ where: { student_id: request.student_id, course_id: request.course_id, semester_id: request.semester_id } });
+    if (request.requestType === 'DELETE') {
+      await Grade.destroy({ where: { studentId: request.studentId, courseId: request.courseId, semesterId: request.semesterId } });
     } else {
       const [grade, created] = await Grade.findOrCreate({
-        where: { student_id: request.student_id, course_id: request.course_id, semester_id: request.semester_id },
-        defaults: { score_10: request.proposed_score_10, created_by: reviewerId },
+        where: { studentId: request.studentId, courseId: request.courseId, semesterId: request.semesterId },
+        defaults: { score10: request.proposedScore10, createdBy: reviewerId },
       });
-      if (!created) await grade.update({ score_10: request.proposed_score_10, created_by: reviewerId });
+      if (!created) await grade.update({ score10: request.proposedScore10, createdBy: reviewerId });
     }
   }
 
@@ -87,7 +87,7 @@ const review = async (id, { status, review_note }, reviewerId) => {
 
 const remove = async (id) => {
   const request = await GradeRequest.findByPk(id);
-  if (!request) throw new NotFoundError('Grade request not found');
+  if (!request) throw new NotFoundError('Không tìm thấy đề xuất điểm');
   await request.destroy();
 };
 

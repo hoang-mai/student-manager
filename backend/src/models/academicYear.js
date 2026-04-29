@@ -9,11 +9,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    start_year: {
+    startYear: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    end_year: {
+    endYear: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

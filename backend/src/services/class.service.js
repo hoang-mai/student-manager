@@ -9,7 +9,7 @@ const User = db.user;
 const StudentProfile = db.studentProfile;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, search, major_id, academic_year_id }) => {
+const getAll = async ({ page = 1, limit = 20, search, majorId, academicYearId }) => {
   const offset = (page - 1) * limit;
   const where = {};
   if (search) {
@@ -18,8 +18,8 @@ const getAll = async ({ page = 1, limit = 20, search, major_id, academic_year_id
       { code: { [Op.iLike]: `%${search}%` } },
     ];
   }
-  if (major_id) where.major_id = major_id;
-  if (academic_year_id) where.academic_year_id = academic_year_id;
+  if (majorId) where.majorId = majorId;
+  if (academicYearId) where.academicYearId = academicYearId;
 
   const { count, rows } = await Class.findAndCountAll({
     where,
@@ -27,11 +27,11 @@ const getAll = async ({ page = 1, limit = 20, search, major_id, academic_year_id
       { model: Major },
       { model: AcademicYear },
       { model: TrainingUnit, attributes: ['id', 'name'] },
-      { model: User, as: 'commander', attributes: ['id', 'full_name'] },
+      { model: User, as: 'commander', attributes: ['id', 'fullName'] },
     ],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -51,11 +51,11 @@ const getById = async (id) => {
       { model: Major },
       { model: AcademicYear },
       { model: TrainingUnit, attributes: ['id', 'name'] },
-      { model: User, as: 'commander', attributes: ['id', 'full_name'] },
-      { model: StudentProfile, include: [{ model: User, attributes: ['full_name'] }] },
+      { model: User, as: 'commander', attributes: ['id', 'fullName'] },
+      { model: StudentProfile, include: [{ model: User, attributes: ['fullName'] }] },
     ],
   });
-  if (!cls) throw new NotFoundError('Class not found');
+  if (!cls) throw new NotFoundError('Không tìm thấy lớp học');
   return cls;
 };
 
@@ -65,14 +65,14 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const cls = await Class.findByPk(id);
-  if (!cls) throw new NotFoundError('Class not found');
+  if (!cls) throw new NotFoundError('Không tìm thấy lớp học');
   await cls.update(data);
   return cls;
 };
 
 const remove = async (id) => {
   const cls = await Class.findByPk(id);
-  if (!cls) throw new NotFoundError('Class not found');
+  if (!cls) throw new NotFoundError('Không tìm thấy lớp học');
   await cls.destroy();
 };
 

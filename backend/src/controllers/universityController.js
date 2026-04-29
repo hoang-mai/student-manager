@@ -29,7 +29,7 @@ const create = async (req, res) => {
     await validateOrThrow(schema, req.body);
 
     const result = await universityService.create(req.body);
-    return success(res, result, 'University created', 201);
+    return success(res, result, 'Tạo trường đại học thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -38,7 +38,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const result = await universityService.update(req.params.id, req.body);
-    return success(res, result, 'University updated');
+    return success(res, result, 'Cập nhật trường đại học thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -47,7 +47,7 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await universityService.remove(req.params.id);
-    return success(res, null, 'University deleted');
+    return success(res, null, 'Xóa trường đại học thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

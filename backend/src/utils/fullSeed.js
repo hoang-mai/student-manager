@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 async function fullSeed() {
   try {
-    await db.sequelize.sync({ alter: true });
+    await db.sequelize.sync();
     console.log('Database synced.');
 
     // Truncate all tables (with CASCADE) and restart sequences for clean seed
@@ -72,8 +72,8 @@ async function fullSeed() {
     // Admin có tất cả quyền
     for (const perm of allPermissions) {
       await db.rolePermission.findOrCreate({
-        where: { role_id: roleAdmin.id, permission_id: perm.id },
-        defaults: { role_id: roleAdmin.id, permission_id: perm.id },
+        where: { roleId: roleAdmin.id, permissionId: perm.id },
+        defaults: { roleId: roleAdmin.id, permissionId: perm.id },
       });
     }
     // Chỉ huy: xem + quản lý học viên, điểm, thờii khóa biểu, học phí
@@ -86,8 +86,8 @@ async function fullSeed() {
     );
     for (const perm of chiHuyPerms) {
       await db.rolePermission.findOrCreate({
-        where: { role_id: roleChiHuy.id, permission_id: perm.id },
-        defaults: { role_id: roleChiHuy.id, permission_id: perm.id },
+        where: { roleId: roleChiHuy.id, permissionId: perm.id },
+        defaults: { roleId: roleChiHuy.id, permissionId: perm.id },
       });
     }
     // Học viên: chỉ xem
@@ -96,8 +96,8 @@ async function fullSeed() {
     );
     for (const perm of hocVienPerms) {
       await db.rolePermission.findOrCreate({
-        where: { role_id: roleHocVien.id, permission_id: perm.id },
-        defaults: { role_id: roleHocVien.id, permission_id: perm.id },
+        where: { roleId: roleHocVien.id, permissionId: perm.id },
+        defaults: { roleId: roleHocVien.id, permissionId: perm.id },
       });
     }
     console.log('Role-Permissions seeded.');
@@ -106,19 +106,19 @@ async function fullSeed() {
     // 4. USERS
     // ==========================
     const usersData = [
-      { username: 'admin', email: 'admin@qldt.local', password: await bcrypt.hash('admin123', 10), full_name: 'Nguyễn Văn Quản Trị', phone: '0900000001', role_id: roleAdmin.id, is_active: true },
-      { username: 'chihuy01', email: 'ch1@qldt.local', password: await bcrypt.hash('chihuy123', 10), full_name: 'Trần Văn Chỉ Huy', phone: '0900000002', role_id: roleChiHuy.id, is_active: true },
-      { username: 'chihuy02', email: 'ch2@qldt.local', password: await bcrypt.hash('chihuy123', 10), full_name: 'Lê Thị Chỉ Huy', phone: '0900000003', role_id: roleChiHuy.id, is_active: true },
-      { username: 'hv001', email: 'hv001@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Phạm Văn An', phone: '0900000011', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv002', email: 'hv002@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Nguyễn Thị Bình', phone: '0900000012', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv003', email: 'hv003@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Trần Văn Cường', phone: '0900000013', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv004', email: 'hv004@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Lê Thị Dung', phone: '0900000014', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv005', email: 'hv005@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Hoàng Văn Em', phone: '0900000015', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv006', email: 'hv006@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Vũ Thị Phương', phone: '0900000016', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv007', email: 'hv007@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Đặng Văn Giang', phone: '0900000017', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv008', email: 'hv008@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Bùi Thị Hương', phone: '0900000018', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv009', email: 'hv009@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Ngô Văn Ích', phone: '0900000019', role_id: roleHocVien.id, is_active: true },
-      { username: 'hv010', email: 'hv010@qldt.local', password: await bcrypt.hash('hocvien123', 10), full_name: 'Dương Thị Kim', phone: '0900000020', role_id: roleHocVien.id, is_active: true },
+      { username: 'admin', email: 'admin@qldt.local', password: await bcrypt.hash('admin123', 10), fullName: 'Nguyễn Văn Quản Trị', phone: '0900000001', roleId: roleAdmin.id, isActive: true },
+      { username: 'chihuy01', email: 'ch1@qldt.local', password: await bcrypt.hash('chihuy123', 10), fullName: 'Trần Văn Chỉ Huy', phone: '0900000002', roleId: roleChiHuy.id, isActive: true },
+      { username: 'chihuy02', email: 'ch2@qldt.local', password: await bcrypt.hash('chihuy123', 10), fullName: 'Lê Thị Chỉ Huy', phone: '0900000003', roleId: roleChiHuy.id, isActive: true },
+      { username: 'hv001', email: 'hv001@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Phạm Văn An', phone: '0900000011', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv002', email: 'hv002@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Nguyễn Thị Bình', phone: '0900000012', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv003', email: 'hv003@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Trần Văn Cường', phone: '0900000013', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv004', email: 'hv004@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Lê Thị Dung', phone: '0900000014', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv005', email: 'hv005@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Hoàng Văn Em', phone: '0900000015', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv006', email: 'hv006@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Vũ Thị Phương', phone: '0900000016', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv007', email: 'hv007@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Đặng Văn Giang', phone: '0900000017', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv008', email: 'hv008@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Bùi Thị Hương', phone: '0900000018', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv009', email: 'hv009@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Ngô Văn Ích', phone: '0900000019', roleId: roleHocVien.id, isActive: true },
+      { username: 'hv010', email: 'hv010@qldt.local', password: await bcrypt.hash('hocvien123', 10), fullName: 'Dương Thị Kim', phone: '0900000020', roleId: roleHocVien.id, isActive: true },
     ];
     const users = [];
     for (const u of usersData) {
@@ -126,16 +126,16 @@ async function fullSeed() {
       users.push(user);
     }
     const adminUser = users.find(u => u.username === 'admin');
-    const chiHuyUsers = users.filter(u => u.role_id === roleChiHuy.id);
-    const hocVienUsers = users.filter(u => u.role_id === roleHocVien.id);
+    const chiHuyUsers = users.filter(u => u.roleId === roleChiHuy.id);
+    const hocVienUsers = users.filter(u => u.roleId === roleHocVien.id);
     console.log('Users seeded.');
 
     // ==========================
     // 5. TRAINING UNITS
     // ==========================
     const trainingUnitsData = [
-      { code: 'DH1', name: 'Đại đội 1', address: 'Khu A - Doanh trại Quân sự', phone: '0241111111', commander_id: chiHuyUsers[0].id },
-      { code: 'DH2', name: 'Đại đội 2', address: 'Khu B - Doanh trại Quân sự', phone: '0242222222', commander_id: chiHuyUsers[1].id },
+      { code: 'DH1', name: 'Đại đội 1', address: 'Khu A - Doanh trại Quân sự', phone: '0241111111', commanderId: chiHuyUsers[0].id },
+      { code: 'DH2', name: 'Đại đội 2', address: 'Khu B - Doanh trại Quân sự', phone: '0242222222', commanderId: chiHuyUsers[1].id },
     ];
     const trainingUnits = [];
     for (const tu of trainingUnitsData) {
@@ -163,13 +163,13 @@ async function fullSeed() {
     // 7. MAJORS
     // ==========================
     const majorsData = [
-      { code: 'CNTT', name: 'Công nghệ thông tin', university_id: universities[0].id },
-      { code: 'KTPM', name: 'Kỹ thuật phần mềm', university_id: universities[0].id },
-      { code: 'HTTT', name: 'Hệ thống thông tin', university_id: universities[0].id },
-      { code: 'KTQT', name: 'Kinh tế quốc tế', university_id: universities[1].id },
-      { code: 'TMDT', name: 'Thương mại điện tử', university_id: universities[1].id },
-      { code: 'TA', name: 'Ngôn ngữ Anh', university_id: universities[2].id },
-      { code: 'TRUNG', name: 'Ngôn ngữ Trung', university_id: universities[2].id },
+      { code: 'CNTT', name: 'Công nghệ thông tin', universityId: universities[0].id },
+      { code: 'KTPM', name: 'Kỹ thuật phần mềm', universityId: universities[0].id },
+      { code: 'HTTT', name: 'Hệ thống thông tin', universityId: universities[0].id },
+      { code: 'KTQT', name: 'Kinh tế quốc tế', universityId: universities[1].id },
+      { code: 'TMDT', name: 'Thương mại điện tử', universityId: universities[1].id },
+      { code: 'TA', name: 'Ngôn ngữ Anh', universityId: universities[2].id },
+      { code: 'TRUNG', name: 'Ngôn ngữ Trung', universityId: universities[2].id },
     ];
     const majors = [];
     for (const m of majorsData) {
@@ -182,10 +182,10 @@ async function fullSeed() {
     // 8. ACADEMIC YEARS
     // ==========================
     const academicYearsData = [
-      { name: '2022-2023', start_year: 2022, end_year: 2023 },
-      { name: '2023-2024', start_year: 2023, end_year: 2024 },
-      { name: '2024-2025', start_year: 2024, end_year: 2025 },
-      { name: '2025-2026', start_year: 2025, end_year: 2026 },
+      { name: '2022-2023', startYear: 2022, endYear: 2023 },
+      { name: '2023-2024', startYear: 2023, endYear: 2024 },
+      { name: '2024-2025', startYear: 2024, endYear: 2025 },
+      { name: '2025-2026', startYear: 2025, endYear: 2026 },
     ];
     const academicYears = [];
     for (const ay of academicYearsData) {
@@ -198,12 +198,12 @@ async function fullSeed() {
     // 9. CLASSES
     // ==========================
     const classesData = [
-      { code: 'CNTT-K60', name: 'Công nghệ thông tin K60', major_id: majors[0].id, academic_year_id: academicYears[0].id, training_unit_id: trainingUnits[0].id, commander_id: chiHuyUsers[0].id },
-      { code: 'KTPM-K61', name: 'Kỹ thuật phần mềm K61', major_id: majors[1].id, academic_year_id: academicYears[1].id, training_unit_id: trainingUnits[0].id, commander_id: chiHuyUsers[0].id },
-      { code: 'HTTT-K62', name: 'Hệ thống thông tin K62', major_id: majors[2].id, academic_year_id: academicYears[2].id, training_unit_id: trainingUnits[1].id, commander_id: chiHuyUsers[1].id },
-      { code: 'KTQT-K62', name: 'Kinh tế quốc tế K62', major_id: majors[3].id, academic_year_id: academicYears[2].id, training_unit_id: trainingUnits[1].id, commander_id: chiHuyUsers[1].id },
-      { code: 'TMDT-K61', name: 'Thương mại điện tử K61', major_id: majors[4].id, academic_year_id: academicYears[1].id, training_unit_id: trainingUnits[0].id, commander_id: chiHuyUsers[0].id },
-      { code: 'TA-K63', name: 'Ngôn ngữ Anh K63', major_id: majors[5].id, academic_year_id: academicYears[3].id, training_unit_id: trainingUnits[1].id, commander_id: chiHuyUsers[1].id },
+      { code: 'CNTT-K60', name: 'Công nghệ thông tin K60', majorId: majors[0].id, academicYearId: academicYears[0].id, trainingUnitId: trainingUnits[0].id, commanderId: chiHuyUsers[0].id },
+      { code: 'KTPM-K61', name: 'Kỹ thuật phần mềm K61', majorId: majors[1].id, academicYearId: academicYears[1].id, trainingUnitId: trainingUnits[0].id, commanderId: chiHuyUsers[0].id },
+      { code: 'HTTT-K62', name: 'Hệ thống thông tin K62', majorId: majors[2].id, academicYearId: academicYears[2].id, trainingUnitId: trainingUnits[1].id, commanderId: chiHuyUsers[1].id },
+      { code: 'KTQT-K62', name: 'Kinh tế quốc tế K62', majorId: majors[3].id, academicYearId: academicYears[2].id, trainingUnitId: trainingUnits[1].id, commanderId: chiHuyUsers[1].id },
+      { code: 'TMDT-K61', name: 'Thương mại điện tử K61', majorId: majors[4].id, academicYearId: academicYears[1].id, trainingUnitId: trainingUnits[0].id, commanderId: chiHuyUsers[0].id },
+      { code: 'TA-K63', name: 'Ngôn ngữ Anh K63', majorId: majors[5].id, academicYearId: academicYears[3].id, trainingUnitId: trainingUnits[1].id, commanderId: chiHuyUsers[1].id },
     ];
     const classes = [];
     for (const c of classesData) {
@@ -216,10 +216,10 @@ async function fullSeed() {
     // 10. SEMESTERS
     // ==========================
     const semestersData = [
-      { name: 'Học kỳ 1 - 2024-2025', academic_year_id: academicYears[2].id, start_date: '2024-09-02', end_date: '2025-01-19', registration_start: '2024-08-15', registration_end: '2024-09-01', exam_start: '2025-01-06', exam_end: '2025-01-19', grade_entry_deadline: '2025-01-26', is_active: true },
-      { name: 'Học kỳ 2 - 2024-2025', academic_year_id: academicYears[2].id, start_date: '2025-02-10', end_date: '2025-06-15', registration_start: '2025-01-25', registration_end: '2025-02-09', exam_start: '2025-06-02', exam_end: '2025-06-15', grade_entry_deadline: '2025-06-22', is_active: true },
-      { name: 'Học kỳ 1 - 2023-2024', academic_year_id: academicYears[1].id, start_date: '2023-09-04', end_date: '2024-01-21', registration_start: '2023-08-20', registration_end: '2023-09-03', exam_start: '2024-01-08', exam_end: '2024-01-21', grade_entry_deadline: '2024-01-28', is_active: false },
-      { name: 'Học kỳ 2 - 2023-2024', academic_year_id: academicYears[1].id, start_date: '2024-02-12', end_date: '2024-06-16', registration_start: '2024-01-27', registration_end: '2024-02-11', exam_start: '2024-06-03', exam_end: '2024-06-16', grade_entry_deadline: '2024-06-23', is_active: false },
+      { name: 'Học kỳ 1 - 2024-2025', academicYearId: academicYears[2].id, startDate: '2024-09-02', endDate: '2025-01-19', registrationStart: '2024-08-15', registrationEnd: '2024-09-01', examStart: '2025-01-06', examEnd: '2025-01-19', gradeEntryDeadline: '2025-01-26', isActive: true },
+      { name: 'Học kỳ 2 - 2024-2025', academicYearId: academicYears[2].id, startDate: '2025-02-10', endDate: '2025-06-15', registrationStart: '2025-01-25', registrationEnd: '2025-02-09', examStart: '2025-06-02', examEnd: '2025-06-15', gradeEntryDeadline: '2025-06-22', isActive: true },
+      { name: 'Học kỳ 1 - 2023-2024', academicYearId: academicYears[1].id, startDate: '2023-09-04', endDate: '2024-01-21', registrationStart: '2023-08-20', registrationEnd: '2023-09-03', examStart: '2024-01-08', examEnd: '2024-01-21', gradeEntryDeadline: '2024-01-28', isActive: false },
+      { name: 'Học kỳ 2 - 2023-2024', academicYearId: academicYears[1].id, startDate: '2024-02-12', endDate: '2024-06-16', registrationStart: '2024-01-27', registrationEnd: '2024-02-11', examStart: '2024-06-03', examEnd: '2024-06-16', gradeEntryDeadline: '2024-06-23', isActive: false },
     ];
     const semesters = [];
     for (const s of semestersData) {
@@ -258,20 +258,20 @@ async function fullSeed() {
     // 12. STUDENT PROFILES
     // ==========================
     const studentProfilesData = [
-      { user_id: hocVienUsers[0].id, student_code: 'HV001', class_id: classes[0].id, university_id: universities[0].id, major_id: majors[0].id, academic_year_id: academicYears[0].id, training_unit_id: trainingUnits[0].id, gender: 'MALE', date_of_birth: '2002-03-15', id_card_number: '001092001234', military_rank: 'Hạ sĩ', unit: 'Đại đội 1', enrollment_date: '2022-09-01', status: 'STUDYING' },
-      { user_id: hocVienUsers[1].id, student_code: 'HV002', class_id: classes[1].id, university_id: universities[0].id, major_id: majors[1].id, academic_year_id: academicYears[1].id, training_unit_id: trainingUnits[0].id, gender: 'FEMALE', date_of_birth: '2003-07-22', id_card_number: '001092005678', military_rank: 'Hạ sĩ', unit: 'Đại đội 1', enrollment_date: '2023-09-01', status: 'STUDYING' },
-      { user_id: hocVienUsers[2].id, student_code: 'HV003', class_id: classes[2].id, university_id: universities[0].id, major_id: majors[2].id, academic_year_id: academicYears[2].id, training_unit_id: trainingUnits[1].id, gender: 'MALE', date_of_birth: '2004-01-10', id_card_number: '001092009012', military_rank: 'Binh nhất', unit: 'Đại đội 2', enrollment_date: '2024-09-01', status: 'STUDYING' },
-      { user_id: hocVienUsers[3].id, student_code: 'HV004', class_id: classes[3].id, university_id: universities[1].id, major_id: majors[3].id, academic_year_id: academicYears[2].id, training_unit_id: trainingUnits[1].id, gender: 'FEMALE', date_of_birth: '2004-05-18', id_card_number: '001092013456', military_rank: 'Binh nhất', unit: 'Đại đội 2', enrollment_date: '2024-09-01', status: 'STUDYING' },
-      { user_id: hocVienUsers[4].id, student_code: 'HV005', class_id: classes[4].id, university_id: universities[1].id, major_id: majors[4].id, academic_year_id: academicYears[1].id, training_unit_id: trainingUnits[0].id, gender: 'MALE', date_of_birth: '2003-11-30', id_card_number: '001092017890', military_rank: 'Hạ sĩ', unit: 'Đại đội 1', enrollment_date: '2023-09-01', status: 'SUSPENDED' },
-      { user_id: hocVienUsers[5].id, student_code: 'HV006', class_id: classes[5].id, university_id: universities[2].id, major_id: majors[5].id, academic_year_id: academicYears[3].id, training_unit_id: trainingUnits[1].id, gender: 'FEMALE', date_of_birth: '2005-02-14', id_card_number: '001092021234', military_rank: 'Binh nhì', unit: 'Đại đội 2', enrollment_date: '2025-09-01', status: 'STUDYING' },
-      { user_id: hocVienUsers[6].id, student_code: 'HV007', class_id: classes[0].id, university_id: universities[0].id, major_id: majors[0].id, academic_year_id: academicYears[0].id, training_unit_id: trainingUnits[0].id, gender: 'MALE', date_of_birth: '2002-08-05', id_card_number: '001092025678', military_rank: 'Trung sĩ', unit: 'Đại đội 1', enrollment_date: '2022-09-01', status: 'GRADUATED' },
-      { user_id: hocVienUsers[7].id, student_code: 'HV008', class_id: classes[1].id, university_id: universities[0].id, major_id: majors[1].id, academic_year_id: academicYears[1].id, training_unit_id: trainingUnits[0].id, gender: 'FEMALE', date_of_birth: '2003-04-20', id_card_number: '001092029012', military_rank: 'Hạ sĩ', unit: 'Đại đội 1', enrollment_date: '2023-09-01', status: 'STUDYING' },
-      { user_id: hocVienUsers[8].id, student_code: 'HV009', class_id: classes[2].id, university_id: universities[0].id, major_id: majors[2].id, academic_year_id: academicYears[2].id, training_unit_id: trainingUnits[1].id, gender: 'OTHER', date_of_birth: '2004-09-09', id_card_number: '001092033456', military_rank: 'Binh nhì', unit: 'Đại đội 2', enrollment_date: '2024-09-01', status: 'STUDYING' },
-      { user_id: hocVienUsers[9].id, student_code: 'HV010', class_id: classes[3].id, university_id: universities[1].id, major_id: majors[3].id, academic_year_id: academicYears[2].id, training_unit_id: trainingUnits[1].id, gender: 'FEMALE', date_of_birth: '2004-12-25', id_card_number: '001092037890', military_rank: 'Binh nhì', unit: 'Đại đội 2', enrollment_date: '2024-09-01', status: 'DROPPED' },
+      { userId: hocVienUsers[0].id, studentCode: 'HV001', classId: classes[0].id, universityId: universities[0].id, majorId: majors[0].id, academicYearId: academicYears[0].id, trainingUnitId: trainingUnits[0].id, gender: 'MALE', dateOfBirth: '2002-03-15', idCardNumber: '001092001234', militaryRank: 'Hạ sĩ', unit: 'Đại đội 1', enrollmentDate: '2022-09-01', status: 'STUDYING' },
+      { userId: hocVienUsers[1].id, studentCode: 'HV002', classId: classes[1].id, universityId: universities[0].id, majorId: majors[1].id, academicYearId: academicYears[1].id, trainingUnitId: trainingUnits[0].id, gender: 'FEMALE', dateOfBirth: '2003-07-22', idCardNumber: '001092005678', militaryRank: 'Hạ sĩ', unit: 'Đại đội 1', enrollmentDate: '2023-09-01', status: 'STUDYING' },
+      { userId: hocVienUsers[2].id, studentCode: 'HV003', classId: classes[2].id, universityId: universities[0].id, majorId: majors[2].id, academicYearId: academicYears[2].id, trainingUnitId: trainingUnits[1].id, gender: 'MALE', dateOfBirth: '2004-01-10', idCardNumber: '001092009012', militaryRank: 'Binh nhất', unit: 'Đại đội 2', enrollmentDate: '2024-09-01', status: 'STUDYING' },
+      { userId: hocVienUsers[3].id, studentCode: 'HV004', classId: classes[3].id, universityId: universities[1].id, majorId: majors[3].id, academicYearId: academicYears[2].id, trainingUnitId: trainingUnits[1].id, gender: 'FEMALE', dateOfBirth: '2004-05-18', idCardNumber: '001092013456', militaryRank: 'Binh nhất', unit: 'Đại đội 2', enrollmentDate: '2024-09-01', status: 'STUDYING' },
+      { userId: hocVienUsers[4].id, studentCode: 'HV005', classId: classes[4].id, universityId: universities[1].id, majorId: majors[4].id, academicYearId: academicYears[1].id, trainingUnitId: trainingUnits[0].id, gender: 'MALE', dateOfBirth: '2003-11-30', idCardNumber: '001092017890', militaryRank: 'Hạ sĩ', unit: 'Đại đội 1', enrollmentDate: '2023-09-01', status: 'SUSPENDED' },
+      { userId: hocVienUsers[5].id, studentCode: 'HV006', classId: classes[5].id, universityId: universities[2].id, majorId: majors[5].id, academicYearId: academicYears[3].id, trainingUnitId: trainingUnits[1].id, gender: 'FEMALE', dateOfBirth: '2005-02-14', idCardNumber: '001092021234', militaryRank: 'Binh nhì', unit: 'Đại đội 2', enrollmentDate: '2025-09-01', status: 'STUDYING' },
+      { userId: hocVienUsers[6].id, studentCode: 'HV007', classId: classes[0].id, universityId: universities[0].id, majorId: majors[0].id, academicYearId: academicYears[0].id, trainingUnitId: trainingUnits[0].id, gender: 'MALE', dateOfBirth: '2002-08-05', idCardNumber: '001092025678', militaryRank: 'Trung sĩ', unit: 'Đại đội 1', enrollmentDate: '2022-09-01', status: 'GRADUATED' },
+      { userId: hocVienUsers[7].id, studentCode: 'HV008', classId: classes[1].id, universityId: universities[0].id, majorId: majors[1].id, academicYearId: academicYears[1].id, trainingUnitId: trainingUnits[0].id, gender: 'FEMALE', dateOfBirth: '2003-04-20', idCardNumber: '001092029012', militaryRank: 'Hạ sĩ', unit: 'Đại đội 1', enrollmentDate: '2023-09-01', status: 'STUDYING' },
+      { userId: hocVienUsers[8].id, studentCode: 'HV009', classId: classes[2].id, universityId: universities[0].id, majorId: majors[2].id, academicYearId: academicYears[2].id, trainingUnitId: trainingUnits[1].id, gender: 'OTHER', dateOfBirth: '2004-09-09', idCardNumber: '001092033456', militaryRank: 'Binh nhì', unit: 'Đại đội 2', enrollmentDate: '2024-09-01', status: 'STUDYING' },
+      { userId: hocVienUsers[9].id, studentCode: 'HV010', classId: classes[3].id, universityId: universities[1].id, majorId: majors[3].id, academicYearId: academicYears[2].id, trainingUnitId: trainingUnits[1].id, gender: 'FEMALE', dateOfBirth: '2004-12-25', idCardNumber: '001092037890', militaryRank: 'Binh nhì', unit: 'Đại đội 2', enrollmentDate: '2024-09-01', status: 'DROPPED' },
     ];
     const studentProfiles = [];
     for (const sp of studentProfilesData) {
-      const [profile] = await db.studentProfile.findOrCreate({ where: { user_id: sp.user_id }, defaults: sp });
+      const [profile] = await db.studentProfile.findOrCreate({ where: { userId: sp.userId }, defaults: sp });
       studentProfiles.push(profile);
     }
     console.log('StudentProfiles seeded.');
@@ -280,31 +280,31 @@ async function fullSeed() {
     // 13. GRADES
     // ==========================
     const gradesData = [
-      { student_id: studentProfiles[0].id, course_id: courses[0].id, semester_id: semesters[2].id, score_10: 8.5, score_4: 3.5, letter_grade: 'B+', status: 'PASSED', created_by: adminUser.id },
-      { student_id: studentProfiles[0].id, course_id: courses[1].id, semester_id: semesters[2].id, score_10: 7.0, score_4: 2.5, letter_grade: 'C+', status: 'PASSED', created_by: adminUser.id },
-      { student_id: studentProfiles[0].id, course_id: courses[2].id, semester_id: semesters[3].id, score_10: 9.0, score_4: 4.0, letter_grade: 'A', status: 'PASSED', created_by: adminUser.id },
-      { student_id: studentProfiles[1].id, course_id: courses[0].id, semester_id: semesters[2].id, score_10: 6.5, score_4: 2.5, letter_grade: 'C+', status: 'PASSED', created_by: adminUser.id },
-      { student_id: studentProfiles[1].id, course_id: courses[3].id, semester_id: semesters[3].id, score_10: 8.0, score_4: 3.5, letter_grade: 'B+', status: 'PASSED', created_by: chiHuyUsers[0].id },
-      { student_id: studentProfiles[2].id, course_id: courses[0].id, semester_id: semesters[0].id, score_10: 5.0, score_4: 2.0, letter_grade: 'C', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[2].id, course_id: courses[1].id, semester_id: semesters[0].id, score_10: 3.5, score_4: 0.0, letter_grade: 'F', status: 'FAILED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[2].id, course_id: courses[4].id, semester_id: semesters[0].id, score_10: 7.5, score_4: 3.0, letter_grade: 'B', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[3].id, course_id: courses[8].id, semester_id: semesters[0].id, score_10: 8.5, score_4: 3.5, letter_grade: 'B+', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[3].id, course_id: courses[9].id, semester_id: semesters[0].id, score_10: 9.5, score_4: 4.0, letter_grade: 'A+', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[4].id, course_id: courses[0].id, semester_id: semesters[2].id, score_10: 4.0, score_4: 0.0, letter_grade: 'F', status: 'FAILED', created_by: chiHuyUsers[0].id },
-      { student_id: studentProfiles[5].id, course_id: courses[10].id, semester_id: semesters[0].id, score_10: 7.0, score_4: 2.5, letter_grade: 'C+', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[5].id, course_id: courses[12].id, semester_id: semesters[0].id, score_10: 8.0, score_4: 3.5, letter_grade: 'B+', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[6].id, course_id: courses[0].id, semester_id: semesters[2].id, score_10: 9.5, score_4: 4.0, letter_grade: 'A+', status: 'PASSED', created_by: adminUser.id },
-      { student_id: studentProfiles[6].id, course_id: courses[1].id, semester_id: semesters[3].id, score_10: 9.0, score_4: 4.0, letter_grade: 'A', status: 'PASSED', created_by: adminUser.id },
-      { student_id: studentProfiles[7].id, course_id: courses[3].id, semester_id: semesters[2].id, score_10: 6.0, score_4: 2.0, letter_grade: 'C', status: 'PASSED', created_by: chiHuyUsers[0].id },
-      { student_id: studentProfiles[7].id, course_id: courses[5].id, semester_id: semesters[3].id, score_10: 7.5, score_4: 3.0, letter_grade: 'B', status: 'PASSED', created_by: chiHuyUsers[0].id },
-      { student_id: studentProfiles[8].id, course_id: courses[2].id, semester_id: semesters[0].id, score_10: 5.5, score_4: 2.0, letter_grade: 'C', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[8].id, course_id: courses[6].id, semester_id: semesters[0].id, score_10: 8.0, score_4: 3.5, letter_grade: 'B+', status: 'PASSED', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[9].id, course_id: courses[8].id, semester_id: semesters[0].id, score_10: 2.5, score_4: 0.0, letter_grade: 'F', status: 'FAILED', created_by: chiHuyUsers[1].id },
+      { studentId: studentProfiles[0].id, courseId: courses[0].id, semesterId: semesters[2].id, score10: 8.5, score4: 3.5, letterGrade: 'B+', status: 'PASSED', createdBy: adminUser.id },
+      { studentId: studentProfiles[0].id, courseId: courses[1].id, semesterId: semesters[2].id, score10: 7.0, score4: 2.5, letterGrade: 'C+', status: 'PASSED', createdBy: adminUser.id },
+      { studentId: studentProfiles[0].id, courseId: courses[2].id, semesterId: semesters[3].id, score10: 9.0, score4: 4.0, letterGrade: 'A', status: 'PASSED', createdBy: adminUser.id },
+      { studentId: studentProfiles[1].id, courseId: courses[0].id, semesterId: semesters[2].id, score10: 6.5, score4: 2.5, letterGrade: 'C+', status: 'PASSED', createdBy: adminUser.id },
+      { studentId: studentProfiles[1].id, courseId: courses[3].id, semesterId: semesters[3].id, score10: 8.0, score4: 3.5, letterGrade: 'B+', status: 'PASSED', createdBy: chiHuyUsers[0].id },
+      { studentId: studentProfiles[2].id, courseId: courses[0].id, semesterId: semesters[0].id, score10: 5.0, score4: 2.0, letterGrade: 'C', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[2].id, courseId: courses[1].id, semesterId: semesters[0].id, score10: 3.5, score4: 0.0, letterGrade: 'F', status: 'FAILED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[2].id, courseId: courses[4].id, semesterId: semesters[0].id, score10: 7.5, score4: 3.0, letterGrade: 'B', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[3].id, courseId: courses[8].id, semesterId: semesters[0].id, score10: 8.5, score4: 3.5, letterGrade: 'B+', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[3].id, courseId: courses[9].id, semesterId: semesters[0].id, score10: 9.5, score4: 4.0, letterGrade: 'A+', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[4].id, courseId: courses[0].id, semesterId: semesters[2].id, score10: 4.0, score4: 0.0, letterGrade: 'F', status: 'FAILED', createdBy: chiHuyUsers[0].id },
+      { studentId: studentProfiles[5].id, courseId: courses[10].id, semesterId: semesters[0].id, score10: 7.0, score4: 2.5, letterGrade: 'C+', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[5].id, courseId: courses[12].id, semesterId: semesters[0].id, score10: 8.0, score4: 3.5, letterGrade: 'B+', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[6].id, courseId: courses[0].id, semesterId: semesters[2].id, score10: 9.5, score4: 4.0, letterGrade: 'A+', status: 'PASSED', createdBy: adminUser.id },
+      { studentId: studentProfiles[6].id, courseId: courses[1].id, semesterId: semesters[3].id, score10: 9.0, score4: 4.0, letterGrade: 'A', status: 'PASSED', createdBy: adminUser.id },
+      { studentId: studentProfiles[7].id, courseId: courses[3].id, semesterId: semesters[2].id, score10: 6.0, score4: 2.0, letterGrade: 'C', status: 'PASSED', createdBy: chiHuyUsers[0].id },
+      { studentId: studentProfiles[7].id, courseId: courses[5].id, semesterId: semesters[3].id, score10: 7.5, score4: 3.0, letterGrade: 'B', status: 'PASSED', createdBy: chiHuyUsers[0].id },
+      { studentId: studentProfiles[8].id, courseId: courses[2].id, semesterId: semesters[0].id, score10: 5.5, score4: 2.0, letterGrade: 'C', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[8].id, courseId: courses[6].id, semesterId: semesters[0].id, score10: 8.0, score4: 3.5, letterGrade: 'B+', status: 'PASSED', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[9].id, courseId: courses[8].id, semesterId: semesters[0].id, score10: 2.5, score4: 0.0, letterGrade: 'F', status: 'FAILED', createdBy: chiHuyUsers[1].id },
     ];
     const grades = [];
     for (const g of gradesData) {
       const [grade] = await db.grade.findOrCreate({
-        where: { student_id: g.student_id, course_id: g.course_id, semester_id: g.semester_id },
+        where: { studentId: g.studentId, courseId: g.courseId, semesterId: g.semesterId },
         defaults: g,
       });
       grades.push(grade);
@@ -315,16 +315,16 @@ async function fullSeed() {
     // 14. GRADE REQUESTS
     // ==========================
     const gradeRequestsData = [
-      { student_id: studentProfiles[2].id, course_id: courses[1].id, semester_id: semesters[0].id, request_type: 'UPDATE', reason: 'Điểm thi cuối kỳ bị nhập sai, đề nghị cập nhật lại', proposed_score_10: 5.5, status: 'PENDING', reviewer_id: null, review_note: null, reviewed_at: null },
-      { student_id: studentProfiles[4].id, course_id: courses[0].id, semester_id: semesters[2].id, request_type: 'UPDATE', reason: 'Bài thi bị chấm nhầm câu, xin phúc khảo', proposed_score_10: 5.0, status: 'APPROVED', reviewer_id: chiHuyUsers[0].id, review_note: 'Đồng ý cập nhật sau khi rà soát', reviewed_at: new Date('2024-02-15') },
-      { student_id: studentProfiles[9].id, course_id: courses[8].id, semester_id: semesters[0].id, request_type: 'DELETE', reason: 'Học viên đã nghỉ học, xin xóa điểm', proposed_score_10: null, status: 'REJECTED', reviewer_id: chiHuyUsers[1].id, review_note: 'Không chấp nhận, điểm giữ nguyên', reviewed_at: new Date('2025-01-10') },
-      { student_id: studentProfiles[0].id, course_id: courses[2].id, semester_id: semesters[3].id, request_type: 'ADD', reason: 'Học viên học lại, xin thêm điểm môn này', proposed_score_10: 7.0, status: 'PENDING', reviewer_id: null, review_note: null, reviewed_at: null },
-      { student_id: studentProfiles[8].id, course_id: courses[2].id, semester_id: semesters[0].id, request_type: 'UPDATE', reason: 'Bài thi vắng mặt do điều động đột xuất, có giấy xác nhận', proposed_score_10: 6.0, status: 'PENDING', reviewer_id: null, review_note: null, reviewed_at: null },
+      { studentId: studentProfiles[2].id, courseId: courses[1].id, semesterId: semesters[0].id, requestType: 'UPDATE', reason: 'Điểm thi cuối kỳ bị nhập sai, đề nghị cập nhật lại', proposedScore10: 5.5, status: 'PENDING', reviewerId: null, reviewNote: null, reviewedAt: null },
+      { studentId: studentProfiles[4].id, courseId: courses[0].id, semesterId: semesters[2].id, requestType: 'UPDATE', reason: 'Bài thi bị chấm nhầm câu, xin phúc khảo', proposedScore10: 5.0, status: 'APPROVED', reviewerId: chiHuyUsers[0].id, reviewNote: 'Đồng ý cập nhật sau khi rà soát', reviewedAt: new Date('2024-02-15') },
+      { studentId: studentProfiles[9].id, courseId: courses[8].id, semesterId: semesters[0].id, requestType: 'DELETE', reason: 'Học viên đã nghỉ học, xin xóa điểm', proposedScore10: null, status: 'REJECTED', reviewerId: chiHuyUsers[1].id, reviewNote: 'Không chấp nhận, điểm giữ nguyên', reviewedAt: new Date('2025-01-10') },
+      { studentId: studentProfiles[0].id, courseId: courses[2].id, semesterId: semesters[3].id, requestType: 'ADD', reason: 'Học viên học lại, xin thêm điểm môn này', proposedScore10: 7.0, status: 'PENDING', reviewerId: null, reviewNote: null, reviewedAt: null },
+      { studentId: studentProfiles[8].id, courseId: courses[2].id, semesterId: semesters[0].id, requestType: 'UPDATE', reason: 'Bài thi vắng mặt do điều động đột xuất, có giấy xác nhận', proposedScore10: 6.0, status: 'PENDING', reviewerId: null, reviewNote: null, reviewedAt: null },
     ];
     const gradeRequests = [];
     for (const gr of gradeRequestsData) {
       const [req] = await db.gradeRequest.findOrCreate({
-        where: { student_id: gr.student_id, course_id: gr.course_id, semester_id: gr.semester_id, request_type: gr.request_type },
+        where: { studentId: gr.studentId, courseId: gr.courseId, semesterId: gr.semesterId, requestType: gr.requestType },
         defaults: gr,
       });
       gradeRequests.push(req);
@@ -335,14 +335,14 @@ async function fullSeed() {
     // 15. GRADE REQUEST ATTACHMENTS
     // ==========================
     const attachmentData = [
-      { grade_request_id: gradeRequests[0].id, file_name: 'don_phuc_khao.pdf', file_url: '/uploads/grade_requests/don_phuc_khao_001.pdf', file_type: 'application/pdf' },
-      { grade_request_id: gradeRequests[0].id, file_name: 'bang_diem_goc.jpg', file_url: '/uploads/grade_requests/bang_diem_goc_001.jpg', file_type: 'image/jpeg' },
-      { grade_request_id: gradeRequests[1].id, file_name: 'don_xin_phuckhao.pdf', file_url: '/uploads/grade_requests/don_xin_phuckhao_002.pdf', file_type: 'application/pdf' },
-      { grade_request_id: gradeRequests[3].id, file_name: 'giay_xac_nhan_hoc_lai.pdf', file_url: '/uploads/grade_requests/giay_xac_nhan_hoc_lai_004.pdf', file_type: 'application/pdf' },
+      { gradeRequestId: gradeRequests[0].id, fileName: 'don_phuc_khao.pdf', fileUrl: '/uploads/grade_requests/don_phuc_khao_001.pdf', fileType: 'application/pdf' },
+      { gradeRequestId: gradeRequests[0].id, fileName: 'bang_diem_goc.jpg', fileUrl: '/uploads/grade_requests/bang_diem_goc_001.jpg', fileType: 'image/jpeg' },
+      { gradeRequestId: gradeRequests[1].id, fileName: 'don_xin_phuckhao.pdf', fileUrl: '/uploads/grade_requests/don_xin_phuckhao_002.pdf', fileType: 'application/pdf' },
+      { gradeRequestId: gradeRequests[3].id, fileName: 'giay_xac_nhan_hoc_lai.pdf', fileUrl: '/uploads/grade_requests/giay_xac_nhan_hoc_lai_004.pdf', fileType: 'application/pdf' },
     ];
     for (const att of attachmentData) {
       await db.gradeRequestAttachment.findOrCreate({
-        where: { grade_request_id: att.grade_request_id, file_name: att.file_name },
+        where: { gradeRequestId: att.gradeRequestId, fileName: att.fileName },
         defaults: att,
       });
     }
@@ -352,16 +352,16 @@ async function fullSeed() {
     // 16. ACHIEVEMENTS
     // ==========================
     const achievementsData = [
-      { student_id: studentProfiles[0].id, title: 'Giải nhì Olympic Tin học Quốc gia', achievement_type: 'REWARD', level: 'Quốc gia', issue_date: '2023-04-15', description: 'Đạt giải nhì kỳ thi Olympic Tin học toàn quốc', file_url: '/uploads/achievements/olympic_tinhoc_001.pdf', created_by: adminUser.id },
-      { student_id: studentProfiles[0].id, title: 'Đề tài nghiên cứu khoa học cấp trường', achievement_type: 'SCIENTIFIC_TOPIC', level: 'Cấp trường', issue_date: '2024-05-20', description: 'Hệ thống quản lý điểm cho đơn vị quân sự', file_url: '/uploads/achievements/nckh_001.pdf', created_by: adminUser.id },
-      { student_id: studentProfiles[1].id, title: 'Huy chương vàng Hội thao Quân sự', achievement_type: 'TRAINING', level: 'Cấp đơn vị', issue_date: '2024-03-10', description: 'Môn bơi lội 100m tự do nữ', file_url: '/uploads/achievements/hoithao_002.jpg', created_by: chiHuyUsers[0].id },
-      { student_id: studentProfiles[2].id, title: 'Giải ba Khoa học kỹ thuật cấp Bộ', achievement_type: 'SCIENTIFIC_TOPIC', level: 'Cấp Bộ', issue_date: '2025-01-05', description: 'Ứng dụng AI trong nhận diện mục tiêu', file_url: '/uploads/achievements/khkt_003.pdf', created_by: chiHuyUsers[1].id },
-      { student_id: studentProfiles[6].id, title: 'Sinh viên 5 tốt cấp Trung ương', achievement_type: 'REWARD', level: 'Trung ương', issue_date: '2024-06-20', description: 'Danh hiệu cao quý dành cho sinh viên xuất sắc toàn diện', file_url: '/uploads/achievements/sv5tot_007.pdf', created_by: adminUser.id },
-      { student_id: studentProfiles[7].id, title: 'Chứng nhận hoàn thành xuất sắc khóa huấn luyện', achievement_type: 'TRAINING', level: 'Cấp trường', issue_date: '2024-08-01', description: 'Khóa huấn luyện quân sự năm 2024', file_url: '/uploads/achievements/huanluyen_008.jpg', created_by: chiHuyUsers[0].id },
+      { studentId: studentProfiles[0].id, title: 'Giải nhì Olympic Tin học Quốc gia', achievementType: 'REWARD', level: 'Quốc gia', issueDate: '2023-04-15', description: 'Đạt giải nhì kỳ thi Olympic Tin học toàn quốc', fileUrl: '/uploads/achievements/olympic_tinhoc_001.pdf', createdBy: adminUser.id },
+      { studentId: studentProfiles[0].id, title: 'Đề tài nghiên cứu khoa học cấp trường', achievementType: 'SCIENTIFIC_TOPIC', level: 'Cấp trường', issueDate: '2024-05-20', description: 'Hệ thống quản lý điểm cho đơn vị quân sự', fileUrl: '/uploads/achievements/nckh_001.pdf', createdBy: adminUser.id },
+      { studentId: studentProfiles[1].id, title: 'Huy chương vàng Hội thao Quân sự', achievementType: 'TRAINING', level: 'Cấp đơn vị', issueDate: '2024-03-10', description: 'Môn bơi lội 100m tự do nữ', fileUrl: '/uploads/achievements/hoithao_002.jpg', createdBy: chiHuyUsers[0].id },
+      { studentId: studentProfiles[2].id, title: 'Giải ba Khoa học kỹ thuật cấp Bộ', achievementType: 'SCIENTIFIC_TOPIC', level: 'Cấp Bộ', issueDate: '2025-01-05', description: 'Ứng dụng AI trong nhận diện mục tiêu', fileUrl: '/uploads/achievements/khkt_003.pdf', createdBy: chiHuyUsers[1].id },
+      { studentId: studentProfiles[6].id, title: 'Sinh viên 5 tốt cấp Trung ương', achievementType: 'REWARD', level: 'Trung ương', issueDate: '2024-06-20', description: 'Danh hiệu cao quý dành cho sinh viên xuất sắc toàn diện', fileUrl: '/uploads/achievements/sv5tot_007.pdf', createdBy: adminUser.id },
+      { studentId: studentProfiles[7].id, title: 'Chứng nhận hoàn thành xuất sắc khóa huấn luyện', achievementType: 'TRAINING', level: 'Cấp trường', issueDate: '2024-08-01', description: 'Khóa huấn luyện quân sự năm 2024', fileUrl: '/uploads/achievements/huanluyen_008.jpg', createdBy: chiHuyUsers[0].id },
     ];
     for (const ach of achievementsData) {
       await db.achievement.findOrCreate({
-        where: { student_id: ach.student_id, title: ach.title },
+        where: { studentId: ach.studentId, title: ach.title },
         defaults: ach,
       });
     }
@@ -371,23 +371,23 @@ async function fullSeed() {
     // 17. SCHEDULES
     // ==========================
     const schedulesData = [
-      { class_id: classes[0].id, student_id: null, course_id: courses[0].id, semester_id: semesters[2].id, day_of_week: 1, start_time: '07:00:00', end_time: '09:25:00', room: 'A101', schedule_type: 'CLASS' },
-      { class_id: classes[0].id, student_id: null, course_id: courses[1].id, semester_id: semesters[2].id, day_of_week: 2, start_time: '09:35:00', end_time: '12:00:00', room: 'A102', schedule_type: 'CLASS' },
-      { class_id: classes[1].id, student_id: null, course_id: courses[3].id, semester_id: semesters[3].id, day_of_week: 3, start_time: '13:30:00', end_time: '16:45:00', room: 'B201', schedule_type: 'CLASS' },
-      { class_id: classes[2].id, student_id: null, course_id: courses[0].id, semester_id: semesters[0].id, day_of_week: 1, start_time: '07:00:00', end_time: '09:25:00', room: 'A103', schedule_type: 'CLASS' },
-      { class_id: classes[2].id, student_id: null, course_id: courses[1].id, semester_id: semesters[0].id, day_of_week: 3, start_time: '09:35:00', end_time: '12:00:00', room: 'A104', schedule_type: 'CLASS' },
-      { class_id: classes[3].id, student_id: null, course_id: courses[8].id, semester_id: semesters[0].id, day_of_week: 2, start_time: '07:00:00', end_time: '09:25:00', room: 'C301', schedule_type: 'CLASS' },
-      { class_id: classes[3].id, student_id: null, course_id: courses[9].id, semester_id: semesters[0].id, day_of_week: 4, start_time: '09:35:00', end_time: '12:00:00', room: 'C302', schedule_type: 'CLASS' },
-      { class_id: classes[4].id, student_id: null, course_id: courses[0].id, semester_id: semesters[2].id, day_of_week: 5, start_time: '13:30:00', end_time: '16:45:00', room: 'A105', schedule_type: 'CLASS' },
-      { class_id: classes[5].id, student_id: null, course_id: courses[10].id, semester_id: semesters[0].id, day_of_week: 1, start_time: '07:00:00', end_time: '08:30:00', room: 'D401', schedule_type: 'CLASS' },
-      { class_id: classes[5].id, student_id: null, course_id: courses[12].id, semester_id: semesters[0].id, day_of_week: 2, start_time: '08:40:00', end_time: '11:50:00', room: 'Sân tập', schedule_type: 'CLASS' },
-      { class_id: null, student_id: studentProfiles[0].id, course_id: courses[7].id, semester_id: semesters[3].id, day_of_week: 6, start_time: '07:00:00', end_time: '09:25:00', room: 'Lab AI', schedule_type: 'PERSONAL' },
-      { class_id: null, student_id: studentProfiles[2].id, course_id: courses[6].id, semester_id: semesters[1].id, day_of_week: 6, start_time: '13:30:00', end_time: '16:45:00', room: 'Lab Web', schedule_type: 'PERSONAL' },
+      { classId: classes[0].id, studentId: null, courseId: courses[0].id, semesterId: semesters[2].id, dayOfWeek: 1, startTime: '07:00:00', endTime: '09:25:00', room: 'A101', scheduleType: 'CLASS' },
+      { classId: classes[0].id, studentId: null, courseId: courses[1].id, semesterId: semesters[2].id, dayOfWeek: 2, startTime: '09:35:00', endTime: '12:00:00', room: 'A102', scheduleType: 'CLASS' },
+      { classId: classes[1].id, studentId: null, courseId: courses[3].id, semesterId: semesters[3].id, dayOfWeek: 3, startTime: '13:30:00', endTime: '16:45:00', room: 'B201', scheduleType: 'CLASS' },
+      { classId: classes[2].id, studentId: null, courseId: courses[0].id, semesterId: semesters[0].id, dayOfWeek: 1, startTime: '07:00:00', endTime: '09:25:00', room: 'A103', scheduleType: 'CLASS' },
+      { classId: classes[2].id, studentId: null, courseId: courses[1].id, semesterId: semesters[0].id, dayOfWeek: 3, startTime: '09:35:00', endTime: '12:00:00', room: 'A104', scheduleType: 'CLASS' },
+      { classId: classes[3].id, studentId: null, courseId: courses[8].id, semesterId: semesters[0].id, dayOfWeek: 2, startTime: '07:00:00', endTime: '09:25:00', room: 'C301', scheduleType: 'CLASS' },
+      { classId: classes[3].id, studentId: null, courseId: courses[9].id, semesterId: semesters[0].id, dayOfWeek: 4, startTime: '09:35:00', endTime: '12:00:00', room: 'C302', scheduleType: 'CLASS' },
+      { classId: classes[4].id, studentId: null, courseId: courses[0].id, semesterId: semesters[2].id, dayOfWeek: 5, startTime: '13:30:00', endTime: '16:45:00', room: 'A105', scheduleType: 'CLASS' },
+      { classId: classes[5].id, studentId: null, courseId: courses[10].id, semesterId: semesters[0].id, dayOfWeek: 1, startTime: '07:00:00', endTime: '08:30:00', room: 'D401', scheduleType: 'CLASS' },
+      { classId: classes[5].id, studentId: null, courseId: courses[12].id, semesterId: semesters[0].id, dayOfWeek: 2, startTime: '08:40:00', endTime: '11:50:00', room: 'Sân tập', scheduleType: 'CLASS' },
+      { classId: null, studentId: studentProfiles[0].id, courseId: courses[7].id, semesterId: semesters[3].id, dayOfWeek: 6, startTime: '07:00:00', endTime: '09:25:00', room: 'Lab AI', scheduleType: 'PERSONAL' },
+      { classId: null, studentId: studentProfiles[2].id, courseId: courses[6].id, semesterId: semesters[1].id, dayOfWeek: 6, startTime: '13:30:00', endTime: '16:45:00', room: 'Lab Web', scheduleType: 'PERSONAL' },
     ];
     for (const s of schedulesData) {
-      const whereClause = s.class_id
-        ? { class_id: s.class_id, course_id: s.course_id, semester_id: s.semester_id, day_of_week: s.day_of_week }
-        : { student_id: s.student_id, course_id: s.course_id, semester_id: s.semester_id, day_of_week: s.day_of_week };
+      const whereClause = s.classId
+        ? { classId: s.classId, courseId: s.courseId, semesterId: s.semesterId, dayOfWeek: s.dayOfWeek }
+        : { studentId: s.studentId, courseId: s.courseId, semesterId: s.semesterId, dayOfWeek: s.dayOfWeek };
       await db.schedule.findOrCreate({ where: whereClause, defaults: s });
     }
     console.log('Schedules seeded.');
@@ -396,25 +396,25 @@ async function fullSeed() {
     // 18. MEAL SCHEDULES
     // ==========================
     const mealSchedulesData = [
-      { student_id: studentProfiles[0].id, schedule_date: '2024-10-01', session: 'MORNING', status: 'REGISTERED' },
-      { student_id: studentProfiles[0].id, schedule_date: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[0].id, schedule_date: '2024-10-01', session: 'EVENING', status: 'CANCELLED' },
-      { student_id: studentProfiles[1].id, schedule_date: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[1].id, schedule_date: '2024-10-02', session: 'MORNING', status: 'REGISTERED' },
-      { student_id: studentProfiles[2].id, schedule_date: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[2].id, schedule_date: '2024-10-01', session: 'AFTERNOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[3].id, schedule_date: '2024-10-02', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[4].id, schedule_date: '2024-10-01', session: 'NOON', status: 'CANCELLED' },
-      { student_id: studentProfiles[5].id, schedule_date: '2025-02-15', session: 'MORNING', status: 'REGISTERED' },
-      { student_id: studentProfiles[5].id, schedule_date: '2025-02-15', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[6].id, schedule_date: '2024-06-01', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[7].id, schedule_date: '2024-10-03', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[8].id, schedule_date: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
-      { student_id: studentProfiles[8].id, schedule_date: '2024-10-02', session: 'EVENING', status: 'REGISTERED' },
+      { studentId: studentProfiles[0].id, scheduleDate: '2024-10-01', session: 'MORNING', status: 'REGISTERED' },
+      { studentId: studentProfiles[0].id, scheduleDate: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[0].id, scheduleDate: '2024-10-01', session: 'EVENING', status: 'CANCELLED' },
+      { studentId: studentProfiles[1].id, scheduleDate: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[1].id, scheduleDate: '2024-10-02', session: 'MORNING', status: 'REGISTERED' },
+      { studentId: studentProfiles[2].id, scheduleDate: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[2].id, scheduleDate: '2024-10-01', session: 'AFTERNOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[3].id, scheduleDate: '2024-10-02', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[4].id, scheduleDate: '2024-10-01', session: 'NOON', status: 'CANCELLED' },
+      { studentId: studentProfiles[5].id, scheduleDate: '2025-02-15', session: 'MORNING', status: 'REGISTERED' },
+      { studentId: studentProfiles[5].id, scheduleDate: '2025-02-15', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[6].id, scheduleDate: '2024-06-01', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[7].id, scheduleDate: '2024-10-03', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[8].id, scheduleDate: '2024-10-01', session: 'NOON', status: 'REGISTERED' },
+      { studentId: studentProfiles[8].id, scheduleDate: '2024-10-02', session: 'EVENING', status: 'REGISTERED' },
     ];
     for (const ms of mealSchedulesData) {
       await db.mealSchedule.findOrCreate({
-        where: { student_id: ms.student_id, schedule_date: ms.schedule_date, session: ms.session },
+        where: { studentId: ms.studentId, scheduleDate: ms.scheduleDate, session: ms.session },
         defaults: ms,
       });
     }
@@ -424,23 +424,23 @@ async function fullSeed() {
     // 19. TUITIONS
     // ==========================
     const tuitionsData = [
-      { student_id: studentProfiles[0].id, semester_id: semesters[2].id, amount: 4500000, paid_amount: 4500000, status: 'PAID', due_date: '2023-10-15', paid_at: new Date('2023-10-10'), note: 'Đã đóng đầy đủ học kỳ 1' },
-      { student_id: studentProfiles[0].id, semester_id: semesters[3].id, amount: 4500000, paid_amount: 4500000, status: 'PAID', due_date: '2024-03-15', paid_at: new Date('2024-03-05'), note: 'Đã đóng đầy đủ học kỳ 2' },
-      { student_id: studentProfiles[1].id, semester_id: semesters[2].id, amount: 4800000, paid_amount: 4800000, status: 'PAID', due_date: '2024-10-15', paid_at: new Date('2024-10-01'), note: 'Đã đóng đầy đủ' },
-      { student_id: studentProfiles[1].id, semester_id: semesters[3].id, amount: 4800000, paid_amount: 2400000, status: 'PARTIAL', due_date: '2025-03-15', paid_at: new Date('2025-02-20'), note: 'Đã đóng 1/2, còn nợ' },
-      { student_id: studentProfiles[2].id, semester_id: semesters[0].id, amount: 5000000, paid_amount: 5000000, status: 'PAID', due_date: '2024-10-15', paid_at: new Date('2024-09-28'), note: 'Đã đóng đầy đủ học kỳ 1' },
-      { student_id: studentProfiles[2].id, semester_id: semesters[1].id, amount: 5000000, paid_amount: 0, status: 'UNPAID', due_date: '2025-04-15', paid_at: null, note: 'Chưa đóng học phí' },
-      { student_id: studentProfiles[3].id, semester_id: semesters[0].id, amount: 5200000, paid_amount: 5200000, status: 'PAID', due_date: '2024-10-15', paid_at: new Date('2024-10-05'), note: 'Đã đóng đầy đủ' },
-      { student_id: studentProfiles[4].id, semester_id: semesters[2].id, amount: 4800000, paid_amount: 0, status: 'UNPAID', due_date: '2024-10-15', paid_at: null, note: 'Học viên tạm dừng, chưa đóng' },
-      { student_id: studentProfiles[5].id, semester_id: semesters[0].id, amount: 5500000, paid_amount: 5500000, status: 'PAID', due_date: '2025-10-15', paid_at: new Date('2025-09-20'), note: 'Đã đóng đầy đủ' },
-      { student_id: studentProfiles[6].id, semester_id: semesters[2].id, amount: 4500000, paid_amount: 4500000, status: 'PAID', due_date: '2023-10-15', paid_at: new Date('2023-10-05'), note: 'Đã tốt nghiệp, đóng đủ' },
-      { student_id: studentProfiles[7].id, semester_id: semesters[2].id, amount: 4800000, paid_amount: 4800000, status: 'PAID', due_date: '2024-10-15', paid_at: new Date('2024-09-25'), note: 'Đã đóng đầy đủ' },
-      { student_id: studentProfiles[8].id, semester_id: semesters[0].id, amount: 5000000, paid_amount: 2500000, status: 'PARTIAL', due_date: '2024-10-15', paid_at: new Date('2024-10-10'), note: 'Đã đóng 1/2' },
-      { student_id: studentProfiles[9].id, semester_id: semesters[0].id, amount: 5200000, paid_amount: 0, status: 'UNPAID', due_date: '2024-10-15', paid_at: null, note: 'Học viên đã nghỉ học' },
+      { studentId: studentProfiles[0].id, semesterId: semesters[2].id, amount: 4500000, paidAmount: 4500000, status: 'PAID', dueDate: '2023-10-15', paidAt: new Date('2023-10-10'), note: 'Đã đóng đầy đủ học kỳ 1' },
+      { studentId: studentProfiles[0].id, semesterId: semesters[3].id, amount: 4500000, paidAmount: 4500000, status: 'PAID', dueDate: '2024-03-15', paidAt: new Date('2024-03-05'), note: 'Đã đóng đầy đủ học kỳ 2' },
+      { studentId: studentProfiles[1].id, semesterId: semesters[2].id, amount: 4800000, paidAmount: 4800000, status: 'PAID', dueDate: '2024-10-15', paidAt: new Date('2024-10-01'), note: 'Đã đóng đầy đủ' },
+      { studentId: studentProfiles[1].id, semesterId: semesters[3].id, amount: 4800000, paidAmount: 2400000, status: 'PARTIAL', dueDate: '2025-03-15', paidAt: new Date('2025-02-20'), note: 'Đã đóng 1/2, còn nợ' },
+      { studentId: studentProfiles[2].id, semesterId: semesters[0].id, amount: 5000000, paidAmount: 5000000, status: 'PAID', dueDate: '2024-10-15', paidAt: new Date('2024-09-28'), note: 'Đã đóng đầy đủ học kỳ 1' },
+      { studentId: studentProfiles[2].id, semesterId: semesters[1].id, amount: 5000000, paidAmount: 0, status: 'UNPAID', dueDate: '2025-04-15', paidAt: null, note: 'Chưa đóng học phí' },
+      { studentId: studentProfiles[3].id, semesterId: semesters[0].id, amount: 5200000, paidAmount: 5200000, status: 'PAID', dueDate: '2024-10-15', paidAt: new Date('2024-10-05'), note: 'Đã đóng đầy đủ' },
+      { studentId: studentProfiles[4].id, semesterId: semesters[2].id, amount: 4800000, paidAmount: 0, status: 'UNPAID', dueDate: '2024-10-15', paidAt: null, note: 'Học viên tạm dừng, chưa đóng' },
+      { studentId: studentProfiles[5].id, semesterId: semesters[0].id, amount: 5500000, paidAmount: 5500000, status: 'PAID', dueDate: '2025-10-15', paidAt: new Date('2025-09-20'), note: 'Đã đóng đầy đủ' },
+      { studentId: studentProfiles[6].id, semesterId: semesters[2].id, amount: 4500000, paidAmount: 4500000, status: 'PAID', dueDate: '2023-10-15', paidAt: new Date('2023-10-05'), note: 'Đã tốt nghiệp, đóng đủ' },
+      { studentId: studentProfiles[7].id, semesterId: semesters[2].id, amount: 4800000, paidAmount: 4800000, status: 'PAID', dueDate: '2024-10-15', paidAt: new Date('2024-09-25'), note: 'Đã đóng đầy đủ' },
+      { studentId: studentProfiles[8].id, semesterId: semesters[0].id, amount: 5000000, paidAmount: 2500000, status: 'PARTIAL', dueDate: '2024-10-15', paidAt: new Date('2024-10-10'), note: 'Đã đóng 1/2' },
+      { studentId: studentProfiles[9].id, semesterId: semesters[0].id, amount: 5200000, paidAmount: 0, status: 'UNPAID', dueDate: '2024-10-15', paidAt: null, note: 'Học viên đã nghỉ học' },
     ];
     for (const t of tuitionsData) {
       await db.tuition.findOrCreate({
-        where: { student_id: t.student_id, semester_id: t.semester_id },
+        where: { studentId: t.studentId, semesterId: t.semesterId },
         defaults: t,
       });
     }
@@ -450,20 +450,20 @@ async function fullSeed() {
     // 20. DUTY ROSTERS
     // ==========================
     const dutyRostersData = [
-      { user_id: chiHuyUsers[0].id, duty_date: '2024-10-01', shift: 'MORNING', duty_type: 'COMMAND', note: 'Trực chỉ huy ca sáng', created_by: adminUser.id },
-      { user_id: chiHuyUsers[0].id, duty_date: '2024-10-01', shift: 'NIGHT', duty_type: 'COMMAND', note: 'Trực chỉ huy ca đêm', created_by: adminUser.id },
-      { user_id: chiHuyUsers[1].id, duty_date: '2024-10-02', shift: 'AFTERNOON', duty_type: 'COMMAND', note: 'Trực chỉ huy ca chiều', created_by: adminUser.id },
-      { user_id: chiHuyUsers[1].id, duty_date: '2024-10-03', shift: 'FULL', duty_type: 'SECURITY', note: 'Tuần tra an ninh cả ngày', created_by: adminUser.id },
-      { user_id: adminUser.id, duty_date: '2024-10-05', shift: 'MORNING', duty_type: 'OTHER', note: 'Kiểm tra công tác chuẩn bị', created_by: adminUser.id },
-      { user_id: chiHuyUsers[0].id, duty_date: '2024-10-07', shift: 'NIGHT', duty_type: 'COMMAND', note: 'Trực chỉ huy đêm thứ 2', created_by: adminUser.id },
-      { user_id: chiHuyUsers[1].id, duty_date: '2024-10-08', shift: 'MORNING', duty_type: 'SECURITY', note: 'Kiểm tra an ninh đầu tuần', created_by: adminUser.id },
-      { user_id: chiHuyUsers[0].id, duty_date: '2025-02-10', shift: 'AFTERNOON', duty_type: 'COMMAND', note: 'Chỉ huy buổi chiều đầu học kỳ 2', created_by: adminUser.id },
-      { user_id: chiHuyUsers[1].id, duty_date: '2025-02-11', shift: 'NIGHT', duty_type: 'COMMAND', note: 'Trực đêm học kỳ 2', created_by: adminUser.id },
-      { user_id: adminUser.id, duty_date: '2025-02-15', shift: 'FULL', duty_type: 'OTHER', note: 'Tổng kiểm tra đầu năm mới', created_by: adminUser.id },
+      { userId: chiHuyUsers[0].id, dutyDate: '2024-10-01', shift: 'MORNING', dutyType: 'COMMAND', note: 'Trực chỉ huy ca sáng', createdBy: adminUser.id },
+      { userId: chiHuyUsers[0].id, dutyDate: '2024-10-01', shift: 'NIGHT', dutyType: 'COMMAND', note: 'Trực chỉ huy ca đêm', createdBy: adminUser.id },
+      { userId: chiHuyUsers[1].id, dutyDate: '2024-10-02', shift: 'AFTERNOON', dutyType: 'COMMAND', note: 'Trực chỉ huy ca chiều', createdBy: adminUser.id },
+      { userId: chiHuyUsers[1].id, dutyDate: '2024-10-03', shift: 'FULL', dutyType: 'SECURITY', note: 'Tuần tra an ninh cả ngày', createdBy: adminUser.id },
+      { userId: adminUser.id, dutyDate: '2024-10-05', shift: 'MORNING', dutyType: 'OTHER', note: 'Kiểm tra công tác chuẩn bị', createdBy: adminUser.id },
+      { userId: chiHuyUsers[0].id, dutyDate: '2024-10-07', shift: 'NIGHT', dutyType: 'COMMAND', note: 'Trực chỉ huy đêm thứ 2', createdBy: adminUser.id },
+      { userId: chiHuyUsers[1].id, dutyDate: '2024-10-08', shift: 'MORNING', dutyType: 'SECURITY', note: 'Kiểm tra an ninh đầu tuần', createdBy: adminUser.id },
+      { userId: chiHuyUsers[0].id, dutyDate: '2025-02-10', shift: 'AFTERNOON', dutyType: 'COMMAND', note: 'Chỉ huy buổi chiều đầu học kỳ 2', createdBy: adminUser.id },
+      { userId: chiHuyUsers[1].id, dutyDate: '2025-02-11', shift: 'NIGHT', dutyType: 'COMMAND', note: 'Trực đêm học kỳ 2', createdBy: adminUser.id },
+      { userId: adminUser.id, dutyDate: '2025-02-15', shift: 'FULL', dutyType: 'OTHER', note: 'Tổng kiểm tra đầu năm mới', createdBy: adminUser.id },
     ];
     for (const dr of dutyRostersData) {
       await db.dutyRoster.findOrCreate({
-        where: { user_id: dr.user_id, duty_date: dr.duty_date, shift: dr.shift },
+        where: { userId: dr.userId, dutyDate: dr.dutyDate, shift: dr.shift },
         defaults: dr,
       });
     }

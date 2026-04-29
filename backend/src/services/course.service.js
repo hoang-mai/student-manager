@@ -18,7 +18,7 @@ const getAll = async ({ page = 1, limit = 20, search }) => {
     where,
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -34,7 +34,7 @@ const getAll = async ({ page = 1, limit = 20, search }) => {
 
 const getById = async (id) => {
   const course = await Course.findByPk(id);
-  if (!course) throw new NotFoundError('Course not found');
+  if (!course) throw new NotFoundError('Không tìm thấy môn học');
   return course;
 };
 
@@ -44,14 +44,14 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const course = await Course.findByPk(id);
-  if (!course) throw new NotFoundError('Course not found');
+  if (!course) throw new NotFoundError('Không tìm thấy môn học');
   await course.update(data);
   return course;
 };
 
 const remove = async (id) => {
   const course = await Course.findByPk(id);
-  if (!course) throw new NotFoundError('Course not found');
+  if (!course) throw new NotFoundError('Không tìm thấy môn học');
   await course.destroy();
 };
 
