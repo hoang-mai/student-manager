@@ -5,32 +5,34 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    student_id: {
+    studentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    course_id: {
+    courseId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    semester_id: {
+    semesterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    score_10: {
+    score10: {
       type: DataTypes.FLOAT,
+      field: 'score_10',
     },
-    score_4: {
+    score4: {
       type: DataTypes.FLOAT,
+      field: 'score_4',
     },
-    letter_grade: {
+    letterGrade: {
       type: DataTypes.STRING(5),
     },
     status: {
       type: DataTypes.ENUM('PASSED', 'FAILED', 'PENDING'),
       defaultValue: 'PENDING',
     },
-    created_by: {
+    createdBy: {
       type: DataTypes.INTEGER,
     },
   }, {

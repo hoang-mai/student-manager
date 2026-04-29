@@ -7,22 +7,22 @@ const Semester = db.semester;
 const User = db.user;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, student_id, semester_id, status }) => {
+const getAll = async ({ page = 1, limit = 20, studentId, semesterId, status }) => {
   const offset = (page - 1) * limit;
   const where = {};
-  if (student_id) where.student_id = student_id;
-  if (semester_id) where.semester_id = semester_id;
+  if (studentId) where.studentId = studentId;
+  if (semesterId) where.semesterId = semesterId;
   if (status) where.status = status;
 
   const { count, rows } = await Tuition.findAndCountAll({
     where,
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
       { model: Semester },
     ],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -39,11 +39,11 @@ const getAll = async ({ page = 1, limit = 20, student_id, semester_id, status })
 const getById = async (id) => {
   const tuition = await Tuition.findByPk(id, {
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
       { model: Semester },
     ],
   });
-  if (!tuition) throw new NotFoundError('Tuition not found');
+  if (!tuition) throw new NotFoundError('Không tìm thấy học phí');
   return tuition;
 };
 
@@ -53,14 +53,14 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const tuition = await Tuition.findByPk(id);
-  if (!tuition) throw new NotFoundError('Tuition not found');
+  if (!tuition) throw new NotFoundError('Không tìm thấy học phí');
   await tuition.update(data);
   return tuition;
 };
 
 const remove = async (id) => {
   const tuition = await Tuition.findByPk(id);
-  if (!tuition) throw new NotFoundError('Tuition not found');
+  if (!tuition) throw new NotFoundError('Không tìm thấy học phí');
   await tuition.destroy();
 };
 

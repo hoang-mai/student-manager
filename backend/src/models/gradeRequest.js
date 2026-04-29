@@ -5,39 +5,40 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    student_id: {
+    studentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    course_id: {
+    courseId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    semester_id: {
+    semesterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    request_type: {
+    requestType: {
       type: DataTypes.ENUM('ADD', 'UPDATE', 'DELETE'),
       allowNull: false,
     },
     reason: {
       type: DataTypes.TEXT,
     },
-    proposed_score_10: {
+    proposedScore10: {
       type: DataTypes.FLOAT,
+      field: 'proposed_score_10',
     },
     status: {
       type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED'),
       defaultValue: 'PENDING',
     },
-    reviewer_id: {
+    reviewerId: {
       type: DataTypes.INTEGER,
     },
-    review_note: {
+    reviewNote: {
       type: DataTypes.TEXT,
     },
-    reviewed_at: {
+    reviewedAt: {
       type: DataTypes.DATE,
     },
   }, {

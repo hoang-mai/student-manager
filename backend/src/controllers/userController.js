@@ -26,13 +26,13 @@ const createUser = async (req, res) => {
       username: Yup.string().required().min(3),
       email: Yup.string().email().required(),
       password: Yup.string().required().min(6),
-      full_name: Yup.string().required(),
-      role_id: Yup.number().integer().required(),
+      fullName: Yup.string().required(),
+      roleId: Yup.number().integer().required(),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await userService.createUser(req.body);
-    return success(res, result, 'User created', 201);
+    return success(res, result, 'Tạo người dùng thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -41,7 +41,7 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const result = await userService.updateUser(req.params.id, req.body);
-    return success(res, result, 'User updated');
+    return success(res, result, 'Cập nhật người dùng thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -50,7 +50,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     await userService.deleteUser(req.params.id);
-    return success(res, null, 'User deleted');
+    return success(res, null, 'Xóa người dùng thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -59,7 +59,7 @@ const deleteUser = async (req, res) => {
 const toggleActive = async (req, res) => {
   try {
     const result = await userService.toggleActive(req.params.id);
-    return success(res, result, 'User status updated');
+    return success(res, result, 'Trạng thái người dùng đã được cập nhật');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -68,7 +68,7 @@ const toggleActive = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     await userService.resetPassword(req.params.id, req.body.newPassword);
-    return success(res, null, 'Password reset successfully');
+    return success(res, null, 'Đặt lại mật khẩu thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -85,8 +85,8 @@ const getMyProfile = async (req, res) => {
 
 const updateMyProfile = async (req, res) => {
   try {
-    await userService.updateMyProfile(req.userId, req.body);
-    return success(res, null, 'Profile updated');
+    const result = await userService.updateMyProfile(req.userId, req.body);
+    return success(res, result, 'Cập nhật hồ sơ thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

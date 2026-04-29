@@ -5,11 +5,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    duty_date: {
+    dutyDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
@@ -17,14 +17,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('MORNING', 'AFTERNOON', 'NIGHT', 'FULL'),
       allowNull: false,
     },
-    duty_type: {
+    dutyType: {
       type: DataTypes.ENUM('COMMAND', 'SECURITY', 'OTHER'),
       defaultValue: 'OTHER',
     },
     note: {
       type: DataTypes.TEXT,
     },
-    created_by: {
+    createdBy: {
       type: DataTypes.INTEGER,
     },
   }, {

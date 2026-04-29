@@ -20,7 +20,7 @@ const getAll = async ({ page = 1, limit = 20, search }) => {
     include: [{ model: Major }],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -36,7 +36,7 @@ const getAll = async ({ page = 1, limit = 20, search }) => {
 
 const getById = async (id) => {
   const university = await University.findByPk(id, { include: [{ model: Major }] });
-  if (!university) throw new NotFoundError('University not found');
+  if (!university) throw new NotFoundError('Không tìm thấy trường đại học');
   return university;
 };
 
@@ -46,14 +46,14 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const university = await University.findByPk(id);
-  if (!university) throw new NotFoundError('University not found');
+  if (!university) throw new NotFoundError('Không tìm thấy trường đại học');
   await university.update(data);
   return university;
 };
 
 const remove = async (id) => {
   const university = await University.findByPk(id);
-  if (!university) throw new NotFoundError('University not found');
+  if (!university) throw new NotFoundError('Không tìm thấy trường đại học');
   await university.destroy();
 };
 

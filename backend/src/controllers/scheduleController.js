@@ -23,16 +23,16 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   try {
     const schema = Yup.object().shape({
-      course_id: Yup.number().integer().required(),
-      semester_id: Yup.number().integer().required(),
-      day_of_week: Yup.number().integer().min(0).max(6).required(),
-      start_time: Yup.string().required(),
-      end_time: Yup.string().required(),
+      courseId: Yup.number().integer().required(),
+      semesterId: Yup.number().integer().required(),
+      dayOfWeek: Yup.number().integer().min(0).max(6).required(),
+      startTime: Yup.string().required(),
+      endTime: Yup.string().required(),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await scheduleService.create(req.body);
-    return success(res, result, 'Schedule created', 201);
+    return success(res, result, 'Tạo lịch học thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -41,7 +41,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const result = await scheduleService.update(req.params.id, req.body);
-    return success(res, result, 'Schedule updated');
+    return success(res, result, 'Cập nhật lịch học thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -50,7 +50,7 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await scheduleService.remove(req.params.id);
-    return success(res, null, 'Schedule deleted');
+    return success(res, null, 'Xóa lịch học thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

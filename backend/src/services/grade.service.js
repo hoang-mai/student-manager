@@ -8,24 +8,24 @@ const Semester = db.semester;
 const User = db.user;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, student_id, semester_id, course_id }) => {
+const getAll = async ({ page = 1, limit = 20, studentId, semesterId, courseId }) => {
   const offset = (page - 1) * limit;
   const where = {};
-  if (student_id) where.student_id = student_id;
-  if (semester_id) where.semester_id = semester_id;
-  if (course_id) where.course_id = course_id;
+  if (studentId) where.studentId = studentId;
+  if (semesterId) where.semesterId = semesterId;
+  if (courseId) where.courseId = courseId;
 
   const { count, rows } = await Grade.findAndCountAll({
     where,
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
       { model: Course },
       { model: Semester },
-      { model: User, as: 'creator', attributes: ['id', 'full_name'] },
+      { model: User, as: 'creator', attributes: ['id', 'fullName'] },
     ],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -42,29 +42,29 @@ const getAll = async ({ page = 1, limit = 20, student_id, semester_id, course_id
 const getById = async (id) => {
   const grade = await Grade.findByPk(id, {
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
       { model: Course },
       { model: Semester },
     ],
   });
-  if (!grade) throw new NotFoundError('Grade not found');
+  if (!grade) throw new NotFoundError('Không tìm thấy điểm số');
   return grade;
 };
 
 const create = async (data, createdBy) => {
-  return await Grade.create({ ...data, created_by: createdBy });
+  return await Grade.create({ ...data, createdBy });
 };
 
 const update = async (id, data) => {
   const grade = await Grade.findByPk(id);
-  if (!grade) throw new NotFoundError('Grade not found');
+  if (!grade) throw new NotFoundError('Không tìm thấy điểm số');
   await grade.update(data);
   return grade;
 };
 
 const remove = async (id) => {
   const grade = await Grade.findByPk(id);
-  if (!grade) throw new NotFoundError('Grade not found');
+  if (!grade) throw new NotFoundError('Không tìm thấy điểm số');
   await grade.destroy();
 };
 

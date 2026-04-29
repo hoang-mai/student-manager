@@ -35,7 +35,7 @@ app.get('/health', (req, res) => {
 
 // 404
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({ message: 'Đường dẫn không tồn tại' });
 });
 
 // Global error handler

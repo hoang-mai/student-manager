@@ -24,14 +24,14 @@ const create = async (req, res) => {
   try {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      academic_year_id: Yup.number().integer().required(),
-      start_date: Yup.date().required(),
-      end_date: Yup.date().required(),
+      academicYearId: Yup.number().integer().required(),
+      startDate: Yup.date().required(),
+      endDate: Yup.date().required(),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await semesterService.create(req.body);
-    return success(res, result, 'Semester created', 201);
+    return success(res, result, 'Tạo học kỳ thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -40,7 +40,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const result = await semesterService.update(req.params.id, req.body);
-    return success(res, result, 'Semester updated');
+    return success(res, result, 'Cập nhật học kỳ thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -49,7 +49,7 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await semesterService.remove(req.params.id);
-    return success(res, null, 'Semester deleted');
+    return success(res, null, 'Xóa học kỳ thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

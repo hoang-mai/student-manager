@@ -30,7 +30,7 @@ const create = async (req, res) => {
     await validateOrThrow(schema, req.body);
 
     const result = await courseService.create(req.body);
-    return success(res, result, 'Course created', 201);
+    return success(res, result, 'Tạo môn học thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -39,7 +39,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const result = await courseService.update(req.params.id, req.body);
-    return success(res, result, 'Course updated');
+    return success(res, result, 'Cập nhật môn học thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -48,7 +48,7 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await courseService.remove(req.params.id);
-    return success(res, null, 'Course deleted');
+    return success(res, null, 'Xóa môn học thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

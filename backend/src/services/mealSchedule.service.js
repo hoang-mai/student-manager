@@ -6,20 +6,20 @@ const StudentProfile = db.studentProfile;
 const User = db.user;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, student_id, start_date, end_date }) => {
+const getAll = async ({ page = 1, limit = 20, studentId, startDate, endDate }) => {
   const offset = (page - 1) * limit;
   const where = {};
-  if (student_id) where.student_id = student_id;
-  if (start_date && end_date) where.schedule_date = { [Op.between]: [start_date, end_date] };
+  if (studentId) where.studentId = studentId;
+  if (startDate && endDate) where.scheduleDate = { [Op.between]: [startDate, endDate] };
 
   const { count, rows } = await MealSchedule.findAndCountAll({
     where,
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
     ],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['schedule_date', 'ASC'], ['session', 'ASC']],
+    order: [['scheduleDate', 'ASC'], ['session', 'ASC']],
   });
 
   return {
@@ -36,10 +36,10 @@ const getAll = async ({ page = 1, limit = 20, student_id, start_date, end_date }
 const getById = async (id) => {
   const meal = await MealSchedule.findByPk(id, {
     include: [
-      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['full_name'] }] },
+      { model: StudentProfile, as: 'student', include: [{ model: User, attributes: ['fullName'] }] },
     ],
   });
-  if (!meal) throw new NotFoundError('Meal schedule not found');
+  if (!meal) throw new NotFoundError('Không tìm thấy lịch cắt cơm');
   return meal;
 };
 
@@ -49,14 +49,14 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const meal = await MealSchedule.findByPk(id);
-  if (!meal) throw new NotFoundError('Meal schedule not found');
+  if (!meal) throw new NotFoundError('Không tìm thấy lịch cắt cơm');
   await meal.update(data);
   return meal;
 };
 
 const remove = async (id) => {
   const meal = await MealSchedule.findByPk(id);
-  if (!meal) throw new NotFoundError('Meal schedule not found');
+  if (!meal) throw new NotFoundError('Không tìm thấy lịch cắt cơm');
   await meal.destroy();
 };
 

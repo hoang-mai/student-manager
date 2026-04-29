@@ -5,11 +5,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    student_id: {
+    studentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    semester_id: {
+    semesterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL(15, 2),
       allowNull: false,
     },
-    paid_amount: {
+    paidAmount: {
       type: DataTypes.DECIMAL(15, 2),
       defaultValue: 0.00,
     },
@@ -25,10 +25,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('PAID', 'UNPAID', 'PARTIAL'),
       defaultValue: 'UNPAID',
     },
-    due_date: {
+    dueDate: {
       type: DataTypes.DATEONLY,
     },
-    paid_at: {
+    paidAt: {
       type: DataTypes.DATE,
     },
     note: {

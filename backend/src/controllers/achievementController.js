@@ -23,14 +23,14 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   try {
     const schema = Yup.object().shape({
-      student_id: Yup.number().integer().required(),
+      studentId: Yup.number().integer().required(),
       title: Yup.string().required(),
-      achievement_type: Yup.string().oneOf(['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING']).required(),
+      achievementType: Yup.string().oneOf(['REWARD', 'SCIENTIFIC_TOPIC', 'TRAINING']).required(),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await achievementService.create(req.body, req.userId);
-    return success(res, result, 'Achievement created', 201);
+    return success(res, result, 'Tạo thành tích thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -39,7 +39,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const result = await achievementService.update(req.params.id, req.body);
-    return success(res, result, 'Achievement updated');
+    return success(res, result, 'Cập nhật thành tích thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -48,7 +48,7 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await achievementService.remove(req.params.id);
-    return success(res, null, 'Achievement deleted');
+    return success(res, null, 'Xóa thành tích thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

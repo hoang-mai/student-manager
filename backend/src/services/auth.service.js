@@ -25,39 +25,39 @@ const login = async (username, password) => {
   });
 
   if (!user) {
-    throw new BadRequestError('User does not exist');
+    throw new BadRequestError('Người dùng không tồn tại');
   }
-  if (!user.is_active) {
-    throw new ForbiddenError('Account has been locked');
+  if (!user.isActive) {
+    throw new ForbiddenError('Tài khoản đã bị khóa');
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw new UnauthorizedError('Password is incorrect');
+    throw new UnauthorizedError('Mật khẩu không chính xác');
   }
 
-  user.last_login_at = new Date();
+  user.lastLoginAt = new Date();
   await user.save();
 
   const { accessToken, refreshToken } = _generateTokens(user.id);
   return { accessToken, refreshToken, user: _excludePassword(user) };
 };
 
-const register = async ({ username, email, password, full_name, phone, role_id }) => {
+const register = async ({ username, email, password, fullName, phone, roleId }) => {
   const exist = await User.findOne({ where: { [db.Sequelize.Op.or]: [{ username }, { email }] } });
   if (exist) {
-    throw new BadRequestError('Username or email already exists');
+    throw new BadRequestError('Tên đăng nhập hoặc email đã tồn tại');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const defaultRole = role_id || (await Role.findOne({ where: { name: 'hoc_vien' } }))?.id;
+  const defaultRole = roleId || (await Role.findOne({ where: { name: 'hoc_vien' } }))?.id;
   const newUser = await User.create({
     username,
     email,
     password: hashedPassword,
-    full_name,
+    fullName,
     phone,
-    role_id: defaultRole,
+    roleId: defaultRole,
   });
 
   return _excludePassword(newUser);
@@ -66,12 +66,12 @@ const register = async ({ username, email, password, full_name, phone, role_id }
 const refreshToken = async (token) => {
   const decoded = JwtService.jwtVerify(token);
   if (decoded.token !== 2) {
-    throw new UnauthorizedError('Invalid token');
+    throw new UnauthorizedError('Token không hợp lệ');
   }
 
   const user = await User.findByPk(decoded.userId, { include: [{ model: Role }] });
-  if (!user || !user.is_active) {
-    throw new ForbiddenError('Account has been locked');
+  if (!user || !user.isActive) {
+    throw new ForbiddenError('Tài khoản đã bị khóa');
   }
 
   const { accessToken, refreshToken } = _generateTokens(user.id);
@@ -81,12 +81,12 @@ const refreshToken = async (token) => {
 const changePassword = async (userId, oldPassword, newPassword) => {
   const user = await User.findByPk(userId);
   if (!user) {
-    throw new NotFoundError('User not found');
+    throw new NotFoundError('Không tìm thấy người dùng');
   }
 
   const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
   if (!isPasswordValid) {
-    throw new UnauthorizedError('Old password is incorrect');
+    throw new UnauthorizedError('Mật khẩu cũ không chính xác');
   }
 
   user.password = await bcrypt.hash(newPassword, 10);

@@ -23,17 +23,17 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   try {
     const schema = Yup.object().shape({
-      student_id: Yup.number().integer().required(),
-      course_id: Yup.number().integer().required(),
-      semester_id: Yup.number().integer().required(),
-      request_type: Yup.string().oneOf(['ADD', 'UPDATE', 'DELETE']).required(),
+      studentId: Yup.number().integer().required(),
+      courseId: Yup.number().integer().required(),
+      semesterId: Yup.number().integer().required(),
+      requestType: Yup.string().oneOf(['ADD', 'UPDATE', 'DELETE']).required(),
       reason: Yup.string(),
-      proposed_score_10: Yup.number().min(0).max(10),
+      proposedScore10: Yup.number().min(0).max(10),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await gradeRequestService.create(req.body);
-    return success(res, result, 'Grade request created', 201);
+    return success(res, result, 'Tạo đề xuất điểm thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -43,12 +43,12 @@ const review = async (req, res) => {
   try {
     const schema = Yup.object().shape({
       status: Yup.string().oneOf(['APPROVED', 'REJECTED']).required(),
-      review_note: Yup.string(),
+      reviewNote: Yup.string(),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await gradeRequestService.review(req.params.id, req.body, req.userId);
-    return success(res, result, 'Grade request reviewed');
+    return success(res, result, 'Đề xuất điểm đã được xử lý');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -57,7 +57,7 @@ const review = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await gradeRequestService.remove(req.params.id);
-    return success(res, null, 'Grade request deleted');
+    return success(res, null, 'Xóa đề xuất điểm thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

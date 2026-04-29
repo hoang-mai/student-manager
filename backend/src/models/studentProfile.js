@@ -5,47 +5,47 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
     },
-    student_code: {
+    studentCode: {
       type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
     },
-    class_id: {
+    classId: {
       type: DataTypes.INTEGER,
     },
-    university_id: {
+    universityId: {
       type: DataTypes.INTEGER,
     },
-    major_id: {
+    majorId: {
       type: DataTypes.INTEGER,
     },
-    academic_year_id: {
+    academicYearId: {
       type: DataTypes.INTEGER,
     },
-    training_unit_id: {
+    trainingUnitId: {
       type: DataTypes.INTEGER,
     },
     gender: {
       type: DataTypes.ENUM('MALE', 'FEMALE', 'OTHER'),
     },
-    date_of_birth: {
+    dateOfBirth: {
       type: DataTypes.DATEONLY,
     },
-    id_card_number: {
+    idCardNumber: {
       type: DataTypes.STRING(20),
     },
-    military_rank: {
+    militaryRank: {
       type: DataTypes.STRING(50),
     },
     unit: {
       type: DataTypes.STRING(255),
     },
-    enrollment_date: {
+    enrollmentDate: {
       type: DataTypes.DATEONLY,
     },
     status: {

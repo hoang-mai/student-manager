@@ -18,7 +18,7 @@ const getAllUsers = async ({ page = 1, limit = 20, role, search }) => {
   if (search) {
     where[Op.or] = [
       { username: { [Op.iLike]: `%${search}%` } },
-      { full_name: { [Op.iLike]: `%${search}%` } },
+      { fullName: { [Op.iLike]: `%${search}%` } },
       { email: { [Op.iLike]: `%${search}%` } },
     ];
   }
@@ -30,7 +30,7 @@ const getAllUsers = async ({ page = 1, limit = 20, role, search }) => {
     include,
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['created_at', 'DESC']],
+    order: [['createdAt', 'DESC']],
   });
 
   return {
@@ -51,22 +51,22 @@ const getUserById = async (id) => {
       { model: StudentProfile },
     ],
   });
-  if (!user) throw new NotFoundError('User not found');
+  if (!user) throw new NotFoundError('Không tìm thấy người dùng');
   return _excludePassword(user);
 };
 
-const createUser = async ({ username, email, password, full_name, phone, role_id }) => {
+const createUser = async ({ username, email, password, fullName, phone, roleId }) => {
   const exist = await User.findOne({ where: { [Op.or]: [{ username }, { email }] } });
-  if (exist) throw new BadRequestError('Username or email already exists');
+  if (exist) throw new BadRequestError('Tên đăng nhập hoặc email đã tồn tại');
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ username, email, password: hashedPassword, full_name, phone, role_id });
+  const newUser = await User.create({ username, email, password: hashedPassword, fullName, phone, roleId });
   return _excludePassword(newUser);
 };
 
 const updateUser = async (id, data) => {
   const user = await User.findByPk(id);
-  if (!user) throw new NotFoundError('User not found');
+  if (!user) throw new NotFoundError('Không tìm thấy người dùng');
 
   const { password, ...updateData } = data;
   if (password) updateData.password = await bcrypt.hash(password, 10);
@@ -77,21 +77,21 @@ const updateUser = async (id, data) => {
 
 const deleteUser = async (id) => {
   const user = await User.findByPk(id);
-  if (!user) throw new NotFoundError('User not found');
+  if (!user) throw new NotFoundError('Không tìm thấy người dùng');
   await user.destroy();
 };
 
 const toggleActive = async (id) => {
   const user = await User.findByPk(id);
-  if (!user) throw new NotFoundError('User not found');
-  user.is_active = !user.is_active;
+  if (!user) throw new NotFoundError('Không tìm thấy người dùng');
+  user.isActive = !user.isActive;
   await user.save();
-  return { is_active: user.is_active };
+  return { isActive: user.isActive };
 };
 
 const resetPassword = async (id, newPassword = '12345678') => {
   const user = await User.findByPk(id);
-  if (!user) throw new NotFoundError('User not found');
+  if (!user) throw new NotFoundError('Không tìm thấy người dùng');
   user.password = await bcrypt.hash(newPassword, 10);
   await user.save();
 };
@@ -103,16 +103,24 @@ const getMyProfile = async (userId) => {
       { model: StudentProfile },
     ],
   });
-  if (!user) throw new NotFoundError('User not found');
+  if (!user) throw new NotFoundError('Không tìm thấy người dùng');
   return _excludePassword(user);
 };
 
 const updateMyProfile = async (userId, data) => {
   const user = await User.findByPk(userId);
-  if (!user) throw new NotFoundError('User not found');
+  if (!user) throw new NotFoundError('Không tìm thấy người dùng');
 
-  const { password, role_id, is_active, ...updateData } = data;
+  const { password, roleId, isActive, ...updateData } = data;
   await user.update(updateData);
+
+  const updated = await User.findByPk(userId, {
+    include: [
+      { model: Role, attributes: ['id', 'name'] },
+      { model: StudentProfile },
+    ],
+  });
+  return _excludePassword(updated);
 };
 
 module.exports = {

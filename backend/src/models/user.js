@@ -18,24 +18,24 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100),
       unique: true,
     },
-    full_name: {
+    fullName: {
       type: DataTypes.STRING(100),
     },
     phone: {
       type: DataTypes.STRING(20),
     },
-    avatar_url: {
+    avatarUrl: {
       type: DataTypes.STRING(255),
     },
-    role_id: {
+    roleId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    is_active: {
+    isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
-    last_login_at: {
+    lastLoginAt: {
       type: DataTypes.DATE,
     },
   }, {

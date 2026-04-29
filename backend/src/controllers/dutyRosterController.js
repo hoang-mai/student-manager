@@ -23,14 +23,14 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   try {
     const schema = Yup.object().shape({
-      user_id: Yup.number().integer().required(),
-      duty_date: Yup.date().required(),
+      userId: Yup.number().integer().required(),
+      dutyDate: Yup.date().required(),
       shift: Yup.string().oneOf(['MORNING', 'AFTERNOON', 'NIGHT', 'FULL']).required(),
     });
     await validateOrThrow(schema, req.body);
 
     const result = await dutyRosterService.create(req.body, req.userId);
-    return success(res, result, 'Duty roster created', 201);
+    return success(res, result, 'Tạo lịch trực thành công', 201);
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -39,7 +39,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const result = await dutyRosterService.update(req.params.id, req.body);
-    return success(res, result, 'Duty roster updated');
+    return success(res, result, 'Cập nhật lịch trực thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }
@@ -48,7 +48,7 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await dutyRosterService.remove(req.params.id);
-    return success(res, null, 'Duty roster deleted');
+    return success(res, null, 'Xóa lịch trực thành công');
   } catch (err) {
     return error(res, err.message, err.statusCode || 500);
   }

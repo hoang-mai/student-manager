@@ -5,18 +5,18 @@ const Semester = db.semester;
 const AcademicYear = db.academicYear;
 const Op = db.Sequelize.Op;
 
-const getAll = async ({ page = 1, limit = 20, academic_year_id, is_active }) => {
+const getAll = async ({ page = 1, limit = 20, academicYearId, isActive }) => {
   const offset = (page - 1) * limit;
   const where = {};
-  if (academic_year_id) where.academic_year_id = academic_year_id;
-  if (is_active !== undefined) where.is_active = is_active === 'true';
+  if (academicYearId) where.academicYearId = academicYearId;
+  if (isActive !== undefined) where.isActive = isActive === 'true';
 
   const { count, rows } = await Semester.findAndCountAll({
     where,
     include: [{ model: AcademicYear }],
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
-    order: [['start_date', 'DESC']],
+    order: [['startDate', 'DESC']],
   });
 
   return {
@@ -32,7 +32,7 @@ const getAll = async ({ page = 1, limit = 20, academic_year_id, is_active }) => 
 
 const getById = async (id) => {
   const semester = await Semester.findByPk(id, { include: [{ model: AcademicYear }] });
-  if (!semester) throw new NotFoundError('Semester not found');
+  if (!semester) throw new NotFoundError('Không tìm thấy học kỳ');
   return semester;
 };
 
@@ -42,14 +42,14 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const semester = await Semester.findByPk(id);
-  if (!semester) throw new NotFoundError('Semester not found');
+  if (!semester) throw new NotFoundError('Không tìm thấy học kỳ');
   await semester.update(data);
   return semester;
 };
 
 const remove = async (id) => {
   const semester = await Semester.findByPk(id);
-  if (!semester) throw new NotFoundError('Semester not found');
+  if (!semester) throw new NotFoundError('Không tìm thấy học kỳ');
   await semester.destroy();
 };
 

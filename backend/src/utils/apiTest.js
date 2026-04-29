@@ -7,6 +7,7 @@ let chiHuyToken = null;
 let hocVienToken = null;
 let passed = 0;
 let failed = 0;
+const ts = Date.now();
 const errors = [];
 
 async function request(method, path, body = null, token = null) {
@@ -60,7 +61,13 @@ async function runTests() {
 
   // 1. Health Check
   console.log('--- Public Endpoints ---');
-  let res = await request('GET', '/health');
+  let res = await new Promise((resolve) => {
+    const req = http.get(BASE_URL.replace('/api', '/health'), (r) => {
+      resolve({ status: r.statusCode });
+    });
+    req.on('error', () => resolve({ status: 500 }));
+    req.setTimeout(5000, () => { req.destroy(); resolve({ status: 500 }); });
+  });
   logResult('GET /health', res.status, 200);
 
   // 2. Auth - Login
@@ -80,10 +87,10 @@ async function runTests() {
   res = await request('POST', '/auth/login', { username: 'admin', password: 'wrongpass' });
   logResult('POST /auth/login (wrong pass)', res.status, 401);
 
-  res = await request('POST', '/auth/register', { username: 'testuser999', email: 'test999@local.com', password: 'test1234', full_name: 'Test User' });
+  res = await request('POST', '/auth/register', { username: `testuser${ts}`, email: `test${ts}@local.com`, password: 'test1234', fullName: 'Test User' });
   logResult('POST /auth/register', res.status, 201);
 
-  // Refresh token test - cần refreshToken
+  // Refresh token test
   res = await request('POST', '/auth/login', { username: 'admin', password: 'admin123' });
   const refreshToken = res.body.data?.refreshToken;
   if (refreshToken) {
@@ -116,12 +123,12 @@ async function runTests() {
   res = await request('GET', '/users/99999', null, adminToken);
   logResult('GET /users/99999', res.status, 404);
 
-  res = await request('POST', '/users', { username: 'apitestuser', email: 'api@test.local', password: 'test1234', full_name: 'API Test', role_id: 3 }, adminToken);
+  res = await request('POST', '/users', { username: `apitest${ts}`, email: `api${ts}@test.local`, password: 'test1234', fullName: 'API Test', roleId: 3 }, adminToken);
   logResult('POST /users', res.status, 201);
   const newUserId = res.body.data?.id || res.body.id;
 
   if (newUserId) {
-    res = await request('PUT', `/users/${newUserId}`, { full_name: 'API Test Updated', phone: '0999999999' }, adminToken);
+    res = await request('PUT', `/users/${newUserId}`, { fullName: 'API Test Updated', phone: '0999999999' }, adminToken);
     logResult(`PUT /users/${newUserId}`, res.status, 200);
 
     res = await request('PATCH', `/users/${newUserId}/toggle-active`, {}, adminToken);
@@ -157,18 +164,18 @@ async function runTests() {
   res = await request('GET', '/grades', null, adminToken);
   logResult('GET /grades', res.status, 200);
 
-  res = await request('GET', '/grades?student_id=1', null, adminToken);
-  logResult('GET /grades?student_id=1', res.status, 200);
+  res = await request('GET', '/grades?studentId=1', null, adminToken);
+  logResult('GET /grades?studentId=1', res.status, 200);
 
   res = await request('GET', '/grades/1', null, adminToken);
   logResult('GET /grades/1', res.status, 200);
 
-  res = await request('POST', '/grades', { student_id: 1, course_id: 2, semester_id: 1, score_10: 7.5, score_4: 3.0, letter_grade: 'B', status: 'PASSED' }, adminToken);
+  res = await request('POST', '/grades', { studentId: 1, courseId: 2, semesterId: 1, score10: 7.5, score4: 3.0, letterGrade: 'B', status: 'PASSED' }, adminToken);
   logResult('POST /grades', res.status, 201);
   const newGradeId = res.body.data?.id || res.body.id;
 
   if (newGradeId) {
-    res = await request('PUT', `/grades/${newGradeId}`, { score_10: 8.0, letter_grade: 'B+' }, adminToken);
+    res = await request('PUT', `/grades/${newGradeId}`, { score10: 8.0, letterGrade: 'B+' }, adminToken);
     logResult(`PUT /grades/${newGradeId}`, res.status, 200);
 
     res = await request('DELETE', `/grades/${newGradeId}`, null, adminToken);
@@ -186,12 +193,12 @@ async function runTests() {
   res = await request('GET', '/grade-requests/1', null, adminToken);
   logResult('GET /grade-requests/1', res.status, 200);
 
-  res = await request('POST', '/grade-requests', { student_id: 1, course_id: 2, semester_id: 1, request_type: 'UPDATE', reason: 'Test API', proposed_score_10: 9.0 }, hocVienToken);
+  res = await request('POST', '/grade-requests', { studentId: 1, courseId: 2, semesterId: 1, requestType: 'UPDATE', reason: 'Test API', proposedScore10: 9.0 }, hocVienToken);
   logResult('POST /grade-requests (hoc_vien)', res.status, 201);
   const newGRId = res.body.data?.id || res.body.id;
 
   if (newGRId) {
-    res = await request('PUT', `/grade-requests/${newGRId}/review`, { status: 'APPROVED', review_note: 'OK from API test' }, chiHuyToken);
+    res = await request('PUT', `/grade-requests/${newGRId}/review`, { status: 'APPROVED', reviewNote: 'OK from API test' }, chiHuyToken);
     logResult(`PUT /grade-requests/${newGRId}/review (chi_huy)`, res.status, 200);
 
     res = await request('DELETE', `/grade-requests/${newGRId}`, null, adminToken);
@@ -203,13 +210,13 @@ async function runTests() {
   res = await request('GET', '/schedules', null, adminToken);
   logResult('GET /schedules', res.status, 200);
 
-  res = await request('GET', '/schedules?class_id=1', null, adminToken);
-  logResult('GET /schedules?class_id=1', res.status, 200);
+  res = await request('GET', '/schedules?classId=1', null, adminToken);
+  logResult('GET /schedules?classId=1', res.status, 200);
 
   res = await request('GET', '/schedules/1', null, adminToken);
   logResult('GET /schedules/1', res.status, 200);
 
-  res = await request('POST', '/schedules', { class_id: 1, course_id: 1, semester_id: 1, day_of_week: 1, start_time: '07:00:00', end_time: '09:25:00', room: 'TEST101', schedule_type: 'CLASS' }, adminToken);
+  res = await request('POST', '/schedules', { classId: 1, courseId: 1, semesterId: 1, dayOfWeek: 1, startTime: '07:00:00', endTime: '09:25:00', room: 'TEST101', scheduleType: 'CLASS' }, adminToken);
   logResult('POST /schedules', res.status, 201);
   const newScheduleId = res.body.data?.id || res.body.id;
 
@@ -226,13 +233,13 @@ async function runTests() {
   res = await request('GET', '/meal-schedules', null, adminToken);
   logResult('GET /meal-schedules', res.status, 200);
 
-  res = await request('GET', '/meal-schedules?student_id=1', null, adminToken);
-  logResult('GET /meal-schedules?student_id=1', res.status, 200);
+  res = await request('GET', '/meal-schedules?studentId=1', null, adminToken);
+  logResult('GET /meal-schedules?studentId=1', res.status, 200);
 
   res = await request('GET', '/meal-schedules/1', null, adminToken);
   logResult('GET /meal-schedules/1', res.status, 200);
 
-  res = await request('POST', '/meal-schedules', { student_id: 1, schedule_date: '2025-01-01', session: 'NOON', status: 'REGISTERED' }, adminToken);
+  res = await request('POST', '/meal-schedules', { studentId: 1, scheduleDate: '2025-01-01', session: 'NOON', status: 'REGISTERED' }, adminToken);
   logResult('POST /meal-schedules', res.status, 201);
   const newMealId = res.body.data?.id || res.body.id;
 
@@ -255,12 +262,12 @@ async function runTests() {
   res = await request('GET', '/tuitions/1', null, adminToken);
   logResult('GET /tuitions/1', res.status, 200);
 
-  res = await request('POST', '/tuitions', { student_id: 1, semester_id: 1, amount: 1000000, paid_amount: 0, status: 'UNPAID', due_date: '2025-06-01' }, adminToken);
+  res = await request('POST', '/tuitions', { studentId: 1, semesterId: 1, amount: 1000000, paidAmount: 0, status: 'UNPAID', dueDate: '2025-06-01' }, adminToken);
   logResult('POST /tuitions', res.status, 201);
   const newTuitionId = res.body.data?.id || res.body.id;
 
   if (newTuitionId) {
-    res = await request('PUT', `/tuitions/${newTuitionId}`, { paid_amount: 1000000, status: 'PAID' }, adminToken);
+    res = await request('PUT', `/tuitions/${newTuitionId}`, { paidAmount: 1000000, status: 'PAID' }, adminToken);
     logResult(`PUT /tuitions/${newTuitionId}`, res.status, 200);
 
     res = await request('DELETE', `/tuitions/${newTuitionId}`, null, adminToken);
@@ -272,13 +279,13 @@ async function runTests() {
   res = await request('GET', '/achievements', null, adminToken);
   logResult('GET /achievements', res.status, 200);
 
-  res = await request('GET', '/achievements?student_id=1', null, adminToken);
-  logResult('GET /achievements?student_id=1', res.status, 200);
+  res = await request('GET', '/achievements?studentId=1', null, adminToken);
+  logResult('GET /achievements?studentId=1', res.status, 200);
 
   res = await request('GET', '/achievements/1', null, adminToken);
   logResult('GET /achievements/1', res.status, 200);
 
-  res = await request('POST', '/achievements', { student_id: 1, title: 'Test Achievement', achievement_type: 'REWARD', level: 'Test', issue_date: '2025-01-01' }, adminToken);
+  res = await request('POST', '/achievements', { studentId: 1, title: 'Test Achievement', achievementType: 'REWARD', level: 'Test', issueDate: '2025-01-01' }, adminToken);
   logResult('POST /achievements', res.status, 201);
   const newAchieveId = res.body.data?.id || res.body.id;
 
@@ -301,7 +308,7 @@ async function runTests() {
   res = await request('GET', '/duty-rosters/1', null, adminToken);
   logResult('GET /duty-rosters/1', res.status, 200);
 
-  res = await request('POST', '/duty-rosters', { user_id: 2, duty_date: '2025-12-01', shift: 'MORNING', duty_type: 'COMMAND', note: 'Test duty' }, adminToken);
+  res = await request('POST', '/duty-rosters', { userId: 2, dutyDate: '2025-12-01', shift: 'MORNING', dutyType: 'COMMAND', note: 'Test duty' }, adminToken);
   logResult('POST /duty-rosters', res.status, 201);
   const newDutyId = res.body.data?.id || res.body.id;
 
@@ -321,7 +328,7 @@ async function runTests() {
   res = await request('GET', '/universities/1', null, adminToken);
   logResult('GET /universities/1', res.status, 200);
 
-  res = await request('POST', '/universities', { code: 'TESTU', name: 'Test University', address: 'Test Address' }, adminToken);
+  res = await request('POST', '/universities', { code: 'TESTU2', name: 'Test University', address: 'Test Address' }, adminToken);
   logResult('POST /universities', res.status, 201);
   const newUnivId = res.body.data?.id || res.body.id;
 
@@ -341,7 +348,7 @@ async function runTests() {
   res = await request('GET', '/classes/1', null, adminToken);
   logResult('GET /classes/1', res.status, 200);
 
-  res = await request('POST', '/classes', { code: 'TEST-K99', name: 'Lớp test', major_id: 1, academic_year_id: 1 }, adminToken);
+  res = await request('POST', '/classes', { code: 'TEST-K99C', name: 'Lớp test', majorId: 1, academicYearId: 1 }, adminToken);
   logResult('POST /classes', res.status, 201);
   const newClassId = res.body.data?.id || res.body.id;
 
@@ -358,18 +365,18 @@ async function runTests() {
   res = await request('GET', '/semesters', null, adminToken);
   logResult('GET /semesters', res.status, 200);
 
-  res = await request('GET', '/semesters?is_active=true', null, adminToken);
-  logResult('GET /semesters?is_active=true', res.status, 200);
+  res = await request('GET', '/semesters?isActive=true', null, adminToken);
+  logResult('GET /semesters?isActive=true', res.status, 200);
 
   res = await request('GET', '/semesters/1', null, adminToken);
   logResult('GET /semesters/1', res.status, 200);
 
-  res = await request('POST', '/semesters', { name: 'Test HK - 2025', academic_year_id: 1, start_date: '2025-09-01', end_date: '2026-01-15', is_active: true }, adminToken);
+  res = await request('POST', '/semesters', { name: 'Test HK - 2025E', academicYearId: 1, startDate: new Date('2025-09-01').toISOString(), endDate: new Date('2026-01-15').toISOString(), isActive: true }, adminToken);
   logResult('POST /semesters', res.status, 201);
   const newSemesterId = res.body.data?.id || res.body.id;
 
   if (newSemesterId) {
-    res = await request('PUT', `/semesters/${newSemesterId}`, { is_active: false }, adminToken);
+    res = await request('PUT', `/semesters/${newSemesterId}`, { isActive: false }, adminToken);
     logResult(`PUT /semesters/${newSemesterId}`, res.status, 200);
 
     res = await request('DELETE', `/semesters/${newSemesterId}`, null, adminToken);
@@ -384,7 +391,7 @@ async function runTests() {
   res = await request('GET', '/courses/1', null, adminToken);
   logResult('GET /courses/1', res.status, 200);
 
-  res = await request('POST', '/courses', { code: 'TEST101', name: 'Môn học test', credits: 3 }, adminToken);
+  res = await request('POST', '/courses', { code: 'TEST101CD', name: 'Môn học test', credits: 3 }, adminToken);
   logResult('POST /courses', res.status, 201);
   const newCourseId = res.body.data?.id || res.body.id;
 
@@ -416,7 +423,7 @@ async function runTests() {
   res = await request('GET', '/users', null, hocVienToken);
   logResult('GET /users (hoc_vien -> 403)', res.status, 403);
 
-  res = await request('POST', '/grades', { student_id: 1, course_id: 1, semester_id: 1, score_10: 5.0 }, hocVienToken);
+  res = await request('POST', '/grades', { studentId: 1, courseId: 1, semesterId: 1, score10: 5.0 }, hocVienToken);
   logResult('POST /grades (hoc_vien -> 403)', res.status, 403);
 
   res = await request('GET', '/students', null, hocVienToken);
@@ -425,7 +432,7 @@ async function runTests() {
   res = await request('GET', '/students', null, chiHuyToken);
   logResult('GET /students (chi_huy -> 200)', res.status, 200);
 
-  res = await request('POST', '/users', { username: 'testch', email: 'ch@test.local', password: 'test1234', full_name: 'Test', role_id: 3 }, chiHuyToken);
+  res = await request('POST', '/users', { username: `testch${ts}`, email: `ch${ts}@test.local`, password: 'test1234', fullName: 'Test', roleId: 3 }, chiHuyToken);
   logResult('POST /users (chi_huy -> 201)', res.status, 201);
 
   res = await request('DELETE', '/users/1', null, chiHuyToken);
@@ -450,10 +457,17 @@ async function runTests() {
 
 // Wait for server to be ready
 async function waitForServer(maxRetries = 30) {
+  const http = require('http');
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const res = await request('GET', '/health');
-      if (res.status === 200) return true;
+      const ok = await new Promise((resolve) => {
+        const req = http.get('http://localhost:6868/health', (res) => {
+          resolve(res.statusCode === 200);
+        });
+        req.on('error', () => resolve(false));
+        req.setTimeout(2000, () => { req.destroy(); resolve(false); });
+      });
+      if (ok) return true;
     } catch {}
     await new Promise((r) => setTimeout(r, 1000));
     process.stdout.write('.');

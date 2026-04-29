@@ -1,6 +1,6 @@
 const { ValidationError, UnauthorizedError } = require('../utils/apiError');
 
-const success = (res, data = null, message = 'OK', statusCode = 200) => {
+const success = (res, data = null, message = 'Thành công', statusCode = 200) => {
   const response = { statusCode, message };
   if (data !== null && data !== undefined) {
     response.data = data;
@@ -8,7 +8,7 @@ const success = (res, data = null, message = 'OK', statusCode = 200) => {
   return res.status(statusCode).json(response);
 };
 
-const paginated = (res, data, pagination, message = 'OK', statusCode = 200) => {
+const paginated = (res, data, pagination, message = 'Thành công', statusCode = 200) => {
   return res.status(statusCode).json({
     statusCode,
     message,
@@ -17,7 +17,7 @@ const paginated = (res, data, pagination, message = 'OK', statusCode = 200) => {
   });
 };
 
-const error = (res, message = 'Internal Server Error', statusCode = 500) => {
+const error = (res, message = 'Lỗi máy chủ nội bộ', statusCode = 500) => {
   return res.status(statusCode).json({
     statusCode,
     message,
