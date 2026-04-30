@@ -5,7 +5,6 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
 router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
-router.get('/hierarchy', controller.getHierarchy);
 router.post('/', controller.create);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);

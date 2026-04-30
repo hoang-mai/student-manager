@@ -1,20 +1,13 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
-const { paginateQuery } = require('../utils/response');
 
 const SubjectResult = db.subjectResult;
-const SemesterResult = db.semesterResult;
 
 const create = async (data) => SubjectResult.create(data);
-const getAll = async (query) => paginateQuery(SubjectResult, query, {
-  filterFields: ['semesterResultId', 'subjectCode', 'subjectName', 'letterGrade'],
-  include: [{ model: SemesterResult }],
-});
+const getAll = async () => SubjectResult.findAll();
 
 const getDetail = async (id) => {
-  const record = await SubjectResult.findByPk(id, {
-    include: [{ model: SemesterResult }],
-  });
+  const record = await SubjectResult.findByPk(id);
   if (!record) throw new NotFoundError('Không tìm thấy kết quả môn học');
   return record;
 };

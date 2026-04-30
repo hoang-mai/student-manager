@@ -1,12 +1,7 @@
 const db = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
-const { paginateQuery } = require('../utils/response');
 
-const Student = db.profile;
-const Class = db.class;
-const Organization = db.organization;
-const University = db.university;
-const EducationLevel = db.educationLevel;
+const Student = db.student;
 const YearlyResult = db.yearlyResult;
 const SemesterResult = db.semesterResult;
 const SubjectResult = db.subjectResult;
@@ -20,97 +15,13 @@ const ScientificTopic = db.scientificTopic;
 const TuitionFee = db.tuitionFee;
 const Notification = db.notification;
 
-const EXCEL_HEADERS = {
-  // Thông tin cá nhân
-  'code': 'Mã học viên',
-  'fullName': 'Họ và tên',
-  'gender': 'Giới tính',
-  'birthday': 'Ngày sinh',
-  'hometown': 'Quê quán',
-  'placeOfBirth': 'Nơi sinh',
-  'currentAddress': 'Địa chỉ hiện tại',
-  'phoneNumber': 'Số điện thoại',
-  'email': 'Email',
-  'cccdNumber': 'Số CCCD',
-  'avatar': 'Ảnh đại diện',
-  // Quân sự
-  'rank': 'Cấp bậc',
-  'unit': 'Đơn vị',
-  'positionGovernment': 'Chức vụ chính quyền',
-  'positionParty': 'Chức vụ Đảng',
-  'dateOfEnlistment': 'Ngày nhập ngũ',
-  // Đảng
-  'partyMemberCardNumber': 'Số thẻ Đảng',
-  'probationaryPartyMember': 'Ngày vào Đảng dự bị',
-  'fullPartyMember': 'Ngày vào Đảng chính thức',
-  // Dân tộc - Tôn giáo
-  'ethnicity': 'Dân tộc',
-  'religion': 'Tôn giáo',
-  // Gia đình - Yếu tố nước ngoài
-  'familyMember': 'Thông tin gia đình',
-  'foreignRelations': 'Yếu tố nước ngoài',
-  // Học tập
-  'enrollment': 'Khóa nhập học',
-  'graduationDate': 'Ngày tốt nghiệp',
-  'currentCpa4': 'CPA hệ 4',
-  'currentCpa10': 'CPA hệ 10',
-  // Tổ chức
-  'class.className': 'Lớp',
-  'organization.organizationName': 'Đơn vị trực thuộc',
-  'organization.travelTime': 'Thời gian di chuyển',
-  'university.universityCode': 'Mã trường',
-  'university.universityName': 'Tên trường',
-  'educationLevel.levelName': 'Hệ đào tạo',
-  // Xếp loại năm học (cần filter schoolYear)
-  'yearlyResult.schoolYear': 'Năm học',
-  'yearlyResult.averageGrade4': 'Điểm TB hệ 4',
-  'yearlyResult.averageGrade10': 'Điểm TB hệ 10',
-  'yearlyResult.totalCredits': 'Tổng tín chỉ',
-  'yearlyResult.passedSubjects': 'Số môn đạt',
-  'yearlyResult.failedSubjects': 'Số môn không đạt',
-  'yearlyResult.academicStatus': 'Xếp loại học tập',
-  'yearlyResult.partyRating': 'Xếp loại Đảng viên',
-  'yearlyResult.trainingRating': 'Xếp loại rèn luyện',
-  // Khen thưởng
-  'achievements': 'Danh sách khen thưởng',
-  'yearlyAchievements': 'Thành tích theo năm',
-};
-
-const resolveField = (obj, path) => {
-  const parts = path.split('.');
-  let current = obj;
-  for (const part of parts) {
-    if (current === null || current === undefined) return '';
-    current = current[part];
-  }
-  if (current instanceof Date) return current.toISOString().split('T')[0];
-  return current !== null && current !== undefined ? current : '';
-};
-
 // ===================== CRUD Cơ bản =====================
 
 const create = async (data) => Student.create(data);
-const getAll = async (query) => {
-  const opts = {
-    filterFields: ['code', 'fullName', 'gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId'],
-    include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }],
-  };
-
-  if (query.schoolYear) {
-    opts.include.push({
-      model: YearlyResult,
-      where: { schoolYear: query.schoolYear },
-      required: true,
-    });
-  }
-
-  return paginateQuery(Student, query, opts);
-};
+const getAll = async () => Student.findAll();
 
 const getDetail = async (id) => {
-  const record = await Student.findByPk(id, {
-    include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }],
-  });
+  const record = await Student.findByPk(id);
   if (!record) throw new NotFoundError('Không tìm thấy học viên');
   return record;
 };
@@ -126,107 +37,23 @@ const deleteRecord = async (id) => {
   return { deleted: true };
 };
 
-// ===================== Export Excel =====================
+// ===================== HV-02: Profile =====================
 
-const exportStudents = async (query) => {
-  const where = {};
-  const include = [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }];
-
-  const filterFields = ['code', 'fullName', 'gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId'];
-  for (const field of filterFields) {
-    if (query[field] !== undefined) {
-      where[field] = query[field];
-    }
-  }
-
-  if (query.schoolYear) {
-    include.push({
-      model: YearlyResult,
-      where: { schoolYear: query.schoolYear },
-      required: true,
-    });
-  }
-
-  const students = await Student.findAll({ where, include, order: [['fullName', 'ASC']] });
-
-  const studentIds = students.map(s => s.id);
-  const achievementsMap = {};
-  const yearlyAchievementsMap = {};
-
-  if (studentIds.length > 0) {
-    const achievements = await Achievement.findAll({ where: { userId: studentIds }, order: [['year', 'DESC']] });
-    const yearlyAchievements = await YearlyAchievement.findAll({ where: { userId: studentIds }, order: [['year', 'DESC']] });
-
-    for (const a of achievements) {
-      if (!achievementsMap[a.userId]) achievementsMap[a.userId] = [];
-      achievementsMap[a.userId].push(a);
-    }
-    for (const ya of yearlyAchievements) {
-      if (!yearlyAchievementsMap[ya.userId]) yearlyAchievementsMap[ya.userId] = [];
-      yearlyAchievementsMap[ya.userId].push(ya);
-    }
-  }
-
-  const requestedFields = query.fields ? query.fields.split(',').map(f => f.trim()).filter(f => EXCEL_HEADERS[f]) : Object.keys(EXCEL_HEADERS);
-
-  const ExcelJS = require('exceljs');
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('Danh sách học viên');
-
-  worksheet.addRow(requestedFields.map(f => EXCEL_HEADERS[f]));
-
-  for (const student of students) {
-    const plain = student.get({ plain: true });
-
-    const studentAchievements = achievementsMap[plain.id] || [];
-    const studentYearlyAchievements = yearlyAchievementsMap[plain.id] || [];
-
-    plain.achievements = studentAchievements.map(a => `${a.title || ''} (${a.award || ''}, ${a.year || ''})`).join('; ');
-    plain.yearlyAchievements = studentYearlyAchievements.map(ya => `${ya.title || ''} (${ya.year || ''})`).join('; ');
-
-    if (plain.familyMember && typeof plain.familyMember === 'object') {
-      plain.familyMember = JSON.stringify(plain.familyMember);
-    }
-    if (plain.foreignRelations && typeof plain.foreignRelations === 'object') {
-      plain.foreignRelations = JSON.stringify(plain.foreignRelations);
-    }
-
-    const yearlyResults = plain.YearlyResults;
-    if (yearlyResults && yearlyResults.length > 0) {
-      const yr = yearlyResults[0];
-      plain.yearlyResult = {
-        schoolYear: yr.schoolYear,
-        averageGrade4: yr.averageGrade4,
-        averageGrade10: yr.averageGrade10,
-        totalCredits: yr.totalCredits,
-        passedSubjects: yr.passedSubjects,
-        failedSubjects: yr.failedSubjects,
-        academicStatus: yr.academicStatus,
-        partyRating: yr.partyRating,
-        trainingRating: yr.trainingRating,
-      };
-    }
-
-    const row = requestedFields.map(field => resolveField(plain, field));
-    worksheet.addRow(row);
-  }
-
-  worksheet.columns.forEach(col => { col.width = 22; });
-
-  worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-  worksheet.getRow(1).fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FF4472C4' },
-  };
-
-  return workbook.xlsx.writeBuffer();
+const getProfile = async (studentId) => {
+  const student = await Student.findByPk(studentId, {
+    include: [
+      { model: db.class },
+      { model: db.organization },
+      { model: db.university },
+      { model: db.educationLevel },
+    ],
+  });
+  if (!student) throw new NotFoundError('Không tìm thấy học viên');
+  return student;
 };
 
-// ===================== HV-02: Profile (xem profile dùng /api/auth/profile) =====================
-
-const updateProfile = async (userId, data) => {
-  const student = await Student.findByPk(userId);
+const updateProfile = async (studentId, data) => {
+  const student = await Student.findByPk(studentId);
   if (!student) throw new NotFoundError('Không tìm thấy học viên');
 
   const allowedFields = [
@@ -241,16 +68,16 @@ const updateProfile = async (userId, data) => {
   return student.update(updateData);
 };
 
-const uploadAvatar = async (userId, avatarUrl) => {
-  const student = await Student.findByPk(userId);
+const uploadAvatar = async (studentId, avatarUrl) => {
+  const student = await Student.findByPk(studentId);
   if (!student) throw new NotFoundError('Không tìm thấy học viên');
   return student.update({ avatar: avatarUrl });
 };
 
 // ===================== HV-03: Academic Results =====================
 
-const getAcademicResults = async (userId, query = {}) => {
-  const where = { userId };
+const getAcademicResults = async (studentId, query = {}) => {
+  const where = { studentId };
   if (query.schoolYear) where.schoolYear = query.schoolYear;
 
   return YearlyResult.findAll({
@@ -265,22 +92,22 @@ const getAcademicResults = async (userId, query = {}) => {
 
 // ===================== HV-06: TimeTable =====================
 
-const getMyTimeTable = async (userId) => {
-  return TimeTable.findAll({ where: { userId } });
+const getMyTimeTable = async (studentId) => {
+  return TimeTable.findAll({ where: { studentId } });
 };
 
-const createMyTimeTable = async (userId, data) => {
-  return TimeTable.create({ ...data, userId });
+const createMyTimeTable = async (studentId, data) => {
+  return TimeTable.create({ ...data, studentId });
 };
 
-const updateMyTimeTable = async (userId, id, data) => {
-  const record = await TimeTable.findOne({ where: { id, userId } });
+const updateMyTimeTable = async (studentId, id, data) => {
+  const record = await TimeTable.findOne({ where: { id, studentId } });
   if (!record) throw new NotFoundError('Không tìm thấy thời khóa biểu');
   return record.update(data);
 };
 
-const deleteMyTimeTable = async (userId, id) => {
-  const record = await TimeTable.findOne({ where: { id, userId } });
+const deleteMyTimeTable = async (studentId, id) => {
+  const record = await TimeTable.findOne({ where: { id, studentId } });
   if (!record) throw new NotFoundError('Không tìm thấy thời khóa biểu');
   await record.destroy();
   return { deleted: true };
@@ -288,18 +115,18 @@ const deleteMyTimeTable = async (userId, id) => {
 
 // ===================== HV-07: Cut Rice =====================
 
-const getMyCutRice = async (userId) => {
-  let record = await CutRice.findOne({ where: { userId } });
+const getMyCutRice = async (studentId) => {
+  let record = await CutRice.findOne({ where: { studentId } });
   if (!record) {
-    record = await CutRice.create({ userId, weekly: {} });
+    record = await CutRice.create({ studentId, weekly: {} });
   }
   return record;
 };
 
-const updateMyCutRice = async (userId, data) => {
-  let record = await CutRice.findOne({ where: { userId } });
+const updateMyCutRice = async (studentId, data) => {
+  let record = await CutRice.findOne({ where: { studentId } });
   if (!record) {
-    record = await CutRice.create({ userId, weekly: {} });
+    record = await CutRice.create({ studentId, weekly: {} });
   }
 
   return record.update({
@@ -312,46 +139,49 @@ const updateMyCutRice = async (userId, data) => {
 
 // ===================== HV-08: Achievements & Tuition =====================
 
-const getMyAchievements = async (userId) => {
-  const achievements = await Achievement.findAll({ where: { userId }, order: [['year', 'DESC']] });
-  const profile = await AchievementProfile.findOne({ where: { userId } });
+const getMyAchievements = async (studentId) => {
+  const achievements = await Achievement.findAll({ where: { studentId }, order: [['year', 'DESC']] });
+  const profile = await AchievementProfile.findOne({ where: { studentId } });
   const yearlyAchievements = await YearlyAchievement.findAll({
-    where: { userId },
+    where: { studentId },
     include: [{ model: ScientificInitiative }, { model: ScientificTopic }],
     order: [['year', 'DESC']],
   });
   return { achievements, profile, yearlyAchievements };
 };
 
-const getMyTuitionFees = async (userId) => {
-  return TuitionFee.findAll({ where: { userId }, order: [['createdAt', 'DESC']] });
+const getMyTuitionFees = async (studentId) => {
+  return TuitionFee.findAll({ where: { studentId }, order: [['createdAt', 'DESC']] });
 };
 
 // ===================== HV-09: Notifications =====================
 
-const getMyNotifications = async (userId, query = {}) => {
-  const where = { userId };
+const getMyNotifications = async (studentId, query = {}) => {
+  const where = { studentId };
   if (query.type) where.type = query.type;
   if (query.isRead !== undefined) where.isRead = query.isRead === 'true';
 
-  return paginateQuery(Notification, query, { where, order: [['createdAt', 'DESC']] });
+  return Notification.findAll({
+    where,
+    order: [['createdAt', 'DESC']],
+  });
 };
 
-const getMyNotificationDetail = async (userId, id) => {
-  const notif = await Notification.findOne({ where: { id, userId } });
+const getMyNotificationDetail = async (studentId, id) => {
+  const notif = await Notification.findOne({ where: { id, studentId } });
   if (!notif) throw new NotFoundError('Không tìm thấy thông báo');
   await notif.update({ isRead: true });
   return notif;
 };
 
-const markNotificationRead = async (userId, id) => {
-  const notif = await Notification.findOne({ where: { id, userId } });
+const markNotificationRead = async (studentId, id) => {
+  const notif = await Notification.findOne({ where: { id, studentId } });
   if (!notif) throw new NotFoundError('Không tìm thấy thông báo');
   return notif.update({ isRead: true });
 };
 
-const markAllNotificationsRead = async (userId) => {
-  await Notification.update({ isRead: true }, { where: { userId } });
+const markAllNotificationsRead = async (studentId) => {
+  await Notification.update({ isRead: true }, { where: { studentId } });
   return { updated: true };
 };
 
@@ -361,7 +191,8 @@ module.exports = {
   getDetail,
   update,
   delete: deleteRecord,
-  exportStudents,
+  getProfile,
+  updateProfile,
   uploadAvatar,
   getAcademicResults,
   getMyTimeTable,

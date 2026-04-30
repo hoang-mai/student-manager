@@ -1,55 +1,70 @@
 const router = require('express').Router();
 const controller = require('../controllers/user.controller');
-const { authMiddleware, requireRole, requireStudent } = require('../middlewares/auth.middleware');
+const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
 
 router.use(authMiddleware);
+router.use(requireRole('ADMIN'));
 
-// ===================== Student: Học tập =====================
-router.get('/academic-results', requireStudent, controller.getAcademicResults);
-
-// ===================== Student: Thời khóa biểu =====================
-router.get('/time-table', requireStudent, controller.getMyTimeTable);
-router.post('/time-table', requireStudent, controller.createMyTimeTable);
-router.put('/time-table/:id', requireStudent, controller.updateMyTimeTable);
-router.delete('/time-table/:id', requireStudent, controller.deleteMyTimeTable);
-
-// ===================== Student: Cắt cơm =====================
-router.get('/cut-rice', requireStudent, controller.getMyCutRice);
-router.put('/cut-rice', requireStudent, controller.updateMyCutRice);
-
-// ===================== Student: Thành tích & Học phí =====================
-router.get('/achievements', requireStudent, controller.getMyAchievements);
-router.get('/tuition-fees', requireStudent, controller.getMyTuitionFees);
-
-// ===================== Profile (cá nhân) =====================
-router.get('/profile', requireRole('STUDENT', 'COMMANDER'), controller.getMyProfile);
-router.put('/profile', requireRole('STUDENT', 'COMMANDER'), controller.updateMyProfile);
-router.post('/avatar', requireRole('STUDENT', 'COMMANDER'), controller.uploadAvatar);
-
-// ===================== Admin/Commander: Quản lý hồ sơ =====================
-router.use(requireRole('ADMIN', 'COMMANDER'));
-
-router.get('/profiles/export', controller.exportProfiles);
-router.get('/profiles', controller.getAllProfiles);
-router.get('/profiles/:id', controller.getProfileDetail);
-router.put('/profiles/:id', controller.updateProfile);
-router.delete('/profiles/:id', controller.deleteProfile);
-
-// ===================== Commander: Cắt cơm hàng loạt =====================
-router.post('/cut-rice/generate/:userId', controller.generateCutRice);
-router.post('/cut-rice/generate-all', controller.generateAllCutRice);
-
-// ===================== Commander: Báo cáo =====================
-router.get('/reports/academic', controller.getAcademicReport);
-router.get('/reports/party-training', controller.getPartyTrainingReport);
-router.get('/reports/achievements', controller.getAchievementReport);
-router.get('/reports/tuition', controller.getTuitionReport);
-
-// ===================== Admin/Commander: User CRUD =====================
+/**
+ * @swagger
+ * /users/batch:
+ *   post:
+ *     tags: [Users]
+ *     summary: CH-01 - Tạo tài khoản hàng loạt
+ *     description: Admin tạo nhiều tài khoản cùng lúc. Mỗi user có username, password, role, studentId/commanderId. Trả về kết quả từng tài khoản
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Kết quả tạo hàng loạt
+ */
 router.post('/batch', controller.createBatchUsers);
+
+/**
+ * @swagger
+ * /users/{id}/reset-password:
+ *   post:
+ *     tags: [Users]
+ *     summary: CH-01 - Reset mật khẩu
+ *     description: Admin đặt lại mật khẩu cho người dùng. Mặc định là 123456 nếu không cung cấp
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Đặt lại mật khẩu thành công
+ */
 router.post('/:id/reset-password', controller.resetPassword);
+
+/**
+ * @swagger
+ * /users/{id}/toggle-active:
+ *   post:
+ *     tags: [Users]
+ *     summary: CH-01 - Khóa/Mở khóa tài khoản
+ *     description: Admin khóa (soft delete) hoặc mở khóa (restore) tài khoản người dùng
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Trạng thái mới (ACTIVE hoặc LOCKED)
+ */
 router.post('/:id/toggle-active', controller.toggleActive);
 
+// CRUD Người dùng
 router.post('/', controller.create);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);

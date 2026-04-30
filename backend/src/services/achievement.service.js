@@ -1,38 +1,13 @@
 const db = require('../models');
-const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
-const { paginateQuery } = require('../utils/response');
 
 const Model = db.achievement;
-const Student = db.profile;
 
 const create = async (data) => Model.create(data);
-const getAll = async (query) => {
-  const where = {};
-  const studentWhere = {};
-  const include = [{ model: User }];
-
-  if (query.userId) where.userId = query.userId;
-  if (query.semester) where.semester = query.semester;
-  if (query.schoolYear) where.schoolYear = query.schoolYear;
-  if (query.year) where.year = query.year;
-  if (query.award) where.award = query.award;
-
-  if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
-  if (query.unit) studentWhere.unit = query.unit;
-
-  if (Object.keys(studentWhere).length > 0) {
-    include[0].where = studentWhere;
-    include[0].required = true;
-  }
-
-  return paginateQuery(Model, query, { where, include });
-};
+const getAll = async () => Model.findAll();
 
 const getDetail = async (id) => {
-  const record = await Model.findByPk(id, {
-    include: [{ model: User }],
-  });
+  const record = await Model.findByPk(id);
   if (!record) throw new NotFoundError('Không tìm thấy thành tích');
   return record;
 };
