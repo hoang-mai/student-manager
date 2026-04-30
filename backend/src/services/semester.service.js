@@ -1,11 +1,10 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
-const { paginateQuery } = require('../utils/response');
 
 const Semester = db.semester;
 
 const create = async (data) => Semester.create(data);
-const getAll = async (query) => paginateQuery(Semester, query, { filterFields: ['code', 'schoolYear'] });
+const getAll = async () => Semester.findAll();
 
 const getDetail = async (id) => {
   const record = await Semester.findByPk(id);

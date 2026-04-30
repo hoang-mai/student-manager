@@ -1,14 +1,10 @@
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const db = require('../models');
 const JwtService = require('./jwt.service');
 const { serialize } = require('../utils/serialize');
 const { NotFoundError, UnauthorizedError, BadRequestError } = require('../utils/apiError');
 
 const User = db.user;
-const Profile = db.profile;
-
-const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
 const _excludePassword = (user) => serialize(user);
 
@@ -38,26 +34,11 @@ const login = async (username, password) => {
 };
 
 const register = async (data) => {
-  const { username, password, role, code, fullName, email } = data;
+  const { username, password, role, studentId, commanderId } = data;
 
   const exist = await User.findOne({ where: { username } });
   if (exist) {
     throw new BadRequestError('Tên đăng nhập đã tồn tại');
-  }
-
-  let profileId = null;
-  if ((role === 'STUDENT' || role === 'COMMANDER') && fullName) {
-    if (code) {
-      const existing = await Profile.findOne({ where: { code } });
-      if (existing) throw new BadRequestError(`Mã ${code} đã tồn tại`);
-    }
-    const prefix = role === 'STUDENT' ? 'HV' : 'CH';
-    const profile = await Profile.create({
-      code: code || _generateCode(prefix),
-      fullName,
-      email,
-    });
-    profileId = profile.id;
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -66,7 +47,8 @@ const register = async (data) => {
     password: hashedPassword,
     role: role || 'STUDENT',
     isAdmin: role === 'ADMIN',
-    profileId,
+    studentId: studentId || null,
+    commanderId: commanderId || null,
   });
 
   return _excludePassword(newUser);

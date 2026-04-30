@@ -1,20 +1,13 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
-const { paginateQuery } = require('../utils/response');
 
 const Class = db.class;
-const EducationLevel = db.educationLevel;
 
 const create = async (data) => Class.create(data);
-const getAll = async (query) => paginateQuery(Class, query, {
-  filterFields: ['className', 'educationLevelId'],
-  include: [{ model: EducationLevel }],
-});
+const getAll = async () => Class.findAll();
 
 const getDetail = async (id) => {
-  const record = await Class.findByPk(id, {
-    include: [{ model: EducationLevel }],
-  });
+  const record = await Class.findByPk(id);
   if (!record) throw new NotFoundError('Không tìm thấy lớp học');
   return record;
 };
