@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
     },
     username: {
       type: DataTypes.STRING(50),
@@ -14,34 +14,31 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING(100),
-      unique: true,
-    },
-    fullName: {
-      type: DataTypes.STRING(100),
-    },
-    phone: {
-      type: DataTypes.STRING(20),
-    },
-    avatarUrl: {
-      type: DataTypes.STRING(255),
-    },
-    roleId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    isActive: {
+    isAdmin: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
+      defaultValue: false,
     },
-    lastLoginAt: {
+    role: {
+      type: DataTypes.STRING(50),
+    },
+    refreshToken: {
+      type: DataTypes.TEXT,
+    },
+    studentId: {
+      type: DataTypes.UUID,
+    },
+    commanderId: {
+      type: DataTypes.UUID,
+    },
+    deleteAt: {
       type: DataTypes.DATE,
     },
   }, {
     tableName: 'users',
     timestamps: true,
     underscored: true,
+    paranoid: true,
+    deletedAt: 'delete_at',
   });
 
   return User;

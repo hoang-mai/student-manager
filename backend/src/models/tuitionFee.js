@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Achievement = sequelize.define('Achievement', {
+  const TuitionFee = sequelize.define('TuitionFee', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false,
     },
+    totalAmount: {
+      type: DataTypes.DECIMAL(15, 2),
+    },
     semester: {
       type: DataTypes.STRING(50),
     },
@@ -16,25 +19,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
     },
     content: {
-      type: DataTypes.TEXT,
-    },
-    year: {
-      type: DataTypes.INTEGER,
-    },
-    title: {
       type: DataTypes.STRING(255),
     },
-    description: {
-      type: DataTypes.TEXT,
-    },
-    award: {
-      type: DataTypes.STRING(255),
+    status: {
+      type: DataTypes.STRING(50),
+      defaultValue: 'UNPAID',
     },
   }, {
-    tableName: 'achievements',
+    tableName: 'tuition_fees',
     timestamps: true,
     underscored: true,
   });
 
-  return Achievement;
+  return TuitionFee;
 };

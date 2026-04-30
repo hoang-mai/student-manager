@@ -1,24 +1,22 @@
 module.exports = (sequelize, DataTypes) => {
-  const Semester = sequelize.define('Semester', {
+  const TimeTable = sequelize.define('TimeTable', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    code: {
-      type: DataTypes.STRING(50),
+    studentId: {
+      type: DataTypes.UUID,
       allowNull: false,
-      unique: true,
     },
-    schoolYear: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
+    schedules: {
+      type: DataTypes.JSONB,
     },
   }, {
-    tableName: 'semesters',
+    tableName: 'time_tables',
     timestamps: true,
     underscored: true,
   });
 
-  return Semester;
+  return TimeTable;
 };
