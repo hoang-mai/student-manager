@@ -49,6 +49,8 @@ db.class = require('./class.js')(sequelize, DataTypes);
 
 // Nhóm Hồ sơ Sinh viên
 db.student = require('./student.js')(sequelize, DataTypes);
+db.commander = require('./commander.js')(sequelize, DataTypes);
+db.user = require('./user.js')(sequelize, DataTypes);
 
 // Nhóm Kết quả Học tập & Đào tạo
 db.yearlyResult = require('./yearlyResult.js')(sequelize, DataTypes);
@@ -65,10 +67,8 @@ db.yearlyAchievement = require('./yearlyAchievement.js')(sequelize, DataTypes);
 db.scientificInitiative = require('./scientificInitiative.js')(sequelize, DataTypes);
 db.scientificTopic = require('./scientificTopic.js')(sequelize, DataTypes);
 
-// Nhóm Chỉ huy & Đờ sống
-db.commander = require('./commander.js')(sequelize, DataTypes);
+// Nhóm Bổ trợ & Lịch trình
 db.commanderDutySchedule = require('./commanderDutySchedule.js')(sequelize, DataTypes);
-db.user = require('./user.js')(sequelize, DataTypes);
 db.cutRice = require('./cutRice.js')(sequelize, DataTypes);
 db.notification = require('./notification.js')(sequelize, DataTypes);
 
@@ -107,6 +107,14 @@ db.student.belongsTo(db.university, { foreignKey: 'university_id', onUpdate: 'CA
 // EducationLevel 1:N Student
 db.educationLevel.hasMany(db.student, { foreignKey: 'education_level_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 db.student.belongsTo(db.educationLevel, { foreignKey: 'education_level_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+
+// Commander 1:1 User
+db.commander.hasOne(db.user, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.user.belongsTo(db.commander, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+
+// Student 1:1 User
+db.student.hasOne(db.user, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.user.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
 // --- Nhóm Kết quả Học tập & Đào tạo ---
 
@@ -156,15 +164,7 @@ db.scientificInitiative.belongsTo(db.yearlyAchievement, { foreignKey: 'yearly_ac
 db.yearlyAchievement.hasMany(db.scientificTopic, { foreignKey: 'yearly_achievement_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.scientificTopic.belongsTo(db.yearlyAchievement, { foreignKey: 'yearly_achievement_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// --- Nhóm Chỉ huy & Đờ sống ---
-
-// Commander 1:1 User
-db.commander.hasOne(db.user, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.user.belongsTo(db.commander, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-
-// Student 1:1 User
-db.student.hasOne(db.user, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.user.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// --- Nhóm Bổ trợ & Lịch trình ---
 
 // Student 1:N CutRice
 db.student.hasMany(db.cutRice, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });

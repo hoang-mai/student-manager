@@ -1,89 +1,31 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
 
-const StudentProfile = db.studentProfile;
-const User = db.user;
-const Class = db.class;
-const University = db.university;
-const Major = db.major;
-const AcademicYear = db.academicYear;
-const TrainingUnit = db.trainingUnit;
-const Op = db.Sequelize.Op;
-
-const getAll = async ({ page = 1, limit = 20, search, classId, status }) => {
-  const offset = (page - 1) * limit;
-  const where = {};
-  if (status) where.status = status;
-  if (classId) where.classId = classId;
-  if (search) {
-    where[Op.or] = [
-      { studentCode: { [Op.iLike]: `%${search}%` } },
-      { '$User.fullName$': { [Op.iLike]: `%${search}%` } },
-    ];
-  }
-
-  const { count, rows } = await StudentProfile.findAndCountAll({
-    where,
-    include: [
-      { model: User, attributes: ['id', 'username', 'fullName', 'email', 'phone'] },
-      { model: Class, attributes: ['id', 'code', 'name'] },
-      { model: University, attributes: ['id', 'name'] },
-      { model: Major, attributes: ['id', 'name'] },
-      { model: AcademicYear, attributes: ['id', 'name'] },
-      { model: TrainingUnit, attributes: ['id', 'name'] },
-    ],
-    limit: parseInt(limit, 10),
-    offset: parseInt(offset, 10),
-    order: [['createdAt', 'DESC']],
-  });
-
-  return {
-    data: rows,
-    pagination: {
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
-      total: count,
-      totalPages: Math.ceil(count / limit),
-    },
-  };
-};
-
-const getById = async (id) => {
-  const profile = await StudentProfile.findByPk(id, {
-    include: [
-      { model: User, attributes: { exclude: ['password'] } },
-      { model: Class },
-      { model: University },
-      { model: Major },
-      { model: AcademicYear },
-      { model: TrainingUnit },
-    ],
-  });
-  if (!profile) throw new NotFoundError('Không tìm thấy hồ sơ học viên');
-  return profile;
-};
+const Student = db.student;
 
 const create = async (data) => {
-  return await StudentProfile.create(data);
+  return Student.create(data);
+};
+
+const getAll = async () => {
+  return Student.findAll();
+};
+
+const getDetail = async (id) => {
+  const record = await Student.findByPk(id);
+  if (!record) throw new NotFoundError('Record not found');
+  return record;
 };
 
 const update = async (id, data) => {
-  const profile = await StudentProfile.findByPk(id);
-  if (!profile) throw new NotFoundError('Không tìm thấy hồ sơ học viên');
-  await profile.update(data);
-  return profile;
+  const record = await getDetail(id);
+  return record.update(data);
 };
 
-const remove = async (id) => {
-  const profile = await StudentProfile.findByPk(id);
-  if (!profile) throw new NotFoundError('Không tìm thấy hồ sơ học viên');
-  await profile.destroy();
+const deleteRecord = async (id) => {
+  const record = await getDetail(id);
+  await record.destroy();
+  return { deleted: true };
 };
 
-module.exports = {
-  getAll,
-  getById,
-  create,
-  update,
-  remove,
-};
+module.exports = { create, getAll, getDetail, update, delete: deleteRecord };

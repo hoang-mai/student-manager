@@ -1,11 +1,10 @@
 const router = require('express').Router();
-const universityController = require('../controllers/universityController');
-const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const controller = require('../controllers/university.controller');
 
-router.get('/', authMiddleware, universityController.getAll);
-router.get('/:id', authMiddleware, universityController.getById);
-router.post('/', authMiddleware, requireRole('admin', 'chi_huy'), universityController.create);
-router.put('/:id', authMiddleware, requireRole('admin', 'chi_huy'), universityController.update);
-router.delete('/:id', authMiddleware, requireRole('admin'), universityController.remove);
+router.post('/', controller.create);
+router.get('/', controller.getAll);
+router.get('/:id', controller.getDetail);
+router.put('/:id', controller.update);
+router.delete('/:id', controller.delete);
 
 module.exports = router;

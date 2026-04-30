@@ -1,16 +1,10 @@
 const router = require('express').Router();
-const userController = require('../controllers/userController');
-const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const controller = require('../controllers/user.controller');
 
-router.get('/me', authMiddleware, userController.getMyProfile);
-router.put('/me', authMiddleware, userController.updateMyProfile);
-
-router.get('/', authMiddleware, requireRole('admin', 'chi_huy'), userController.getAllUsers);
-router.get('/:id', authMiddleware, requireRole('admin', 'chi_huy'), userController.getUserById);
-router.post('/', authMiddleware, requireRole('admin', 'chi_huy'), userController.createUser);
-router.put('/:id', authMiddleware, requireRole('admin', 'chi_huy'), userController.updateUser);
-router.delete('/:id', authMiddleware, requireRole('admin'), userController.deleteUser);
-router.patch('/:id/toggle-active', authMiddleware, requireRole('admin', 'chi_huy'), userController.toggleActive);
-router.patch('/:id/reset-password', authMiddleware, requireRole('admin', 'chi_huy'), userController.resetPassword);
+router.post('/', controller.create);
+router.get('/', controller.getAll);
+router.get('/:id', controller.getDetail);
+router.put('/:id', controller.update);
+router.delete('/:id', controller.delete);
 
 module.exports = router;
