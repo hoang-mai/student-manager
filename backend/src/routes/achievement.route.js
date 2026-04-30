@@ -1,11 +1,10 @@
 const router = require('express').Router();
-const achievementController = require('../controllers/achievementController');
-const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const controller = require('../controllers/achievement.controller');
 
-router.get('/', authMiddleware, achievementController.getAll);
-router.get('/:id', authMiddleware, achievementController.getById);
-router.post('/', authMiddleware, requireRole('admin', 'chi_huy'), achievementController.create);
-router.put('/:id', authMiddleware, requireRole('admin', 'chi_huy'), achievementController.update);
-router.delete('/:id', authMiddleware, requireRole('admin', 'chi_huy'), achievementController.remove);
+router.post('/', controller.create);
+router.get('/', controller.getAll);
+router.get('/:id', controller.getDetail);
+router.put('/:id', controller.update);
+router.delete('/:id', controller.delete);
 
 module.exports = router;

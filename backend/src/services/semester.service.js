@@ -2,61 +2,30 @@ const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
 
 const Semester = db.semester;
-const AcademicYear = db.academicYear;
-const Op = db.Sequelize.Op;
-
-const getAll = async ({ page = 1, limit = 20, academicYearId, isActive }) => {
-  const offset = (page - 1) * limit;
-  const where = {};
-  if (academicYearId) where.academicYearId = academicYearId;
-  if (isActive !== undefined) where.isActive = isActive === 'true';
-
-  const { count, rows } = await Semester.findAndCountAll({
-    where,
-    include: [{ model: AcademicYear }],
-    limit: parseInt(limit, 10),
-    offset: parseInt(offset, 10),
-    order: [['startDate', 'DESC']],
-  });
-
-  return {
-    data: rows,
-    pagination: {
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
-      total: count,
-      totalPages: Math.ceil(count / limit),
-    },
-  };
-};
-
-const getById = async (id) => {
-  const semester = await Semester.findByPk(id, { include: [{ model: AcademicYear }] });
-  if (!semester) throw new NotFoundError('Không tìm thấy học kỳ');
-  return semester;
-};
 
 const create = async (data) => {
-  return await Semester.create(data);
+  return Semester.create(data);
+};
+
+const getAll = async () => {
+  return Semester.findAll();
+};
+
+const getDetail = async (id) => {
+  const record = await Semester.findByPk(id);
+  if (!record) throw new NotFoundError('Record not found');
+  return record;
 };
 
 const update = async (id, data) => {
-  const semester = await Semester.findByPk(id);
-  if (!semester) throw new NotFoundError('Không tìm thấy học kỳ');
-  await semester.update(data);
-  return semester;
+  const record = await getDetail(id);
+  return record.update(data);
 };
 
-const remove = async (id) => {
-  const semester = await Semester.findByPk(id);
-  if (!semester) throw new NotFoundError('Không tìm thấy học kỳ');
-  await semester.destroy();
+const deleteRecord = async (id) => {
+  const record = await getDetail(id);
+  await record.destroy();
+  return { deleted: true };
 };
 
-module.exports = {
-  getAll,
-  getById,
-  create,
-  update,
-  remove,
-};
+module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
