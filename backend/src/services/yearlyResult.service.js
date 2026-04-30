@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const YearlyResult = db.yearlyResult;
 
-const create = async (data) => {
-  return YearlyResult.create(data);
-};
-
-const getAll = async () => {
-  return YearlyResult.findAll();
-};
+const create = async (data) => YearlyResult.create(data);
+const getAll = async () => YearlyResult.findAll();
 
 const getDetail = async (id) => {
   const record = await YearlyResult.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy kết quả năm học');
   return record;
 };
 

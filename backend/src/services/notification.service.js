@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const Notification = db.notification;
 
-const create = async (data) => {
-  return Notification.create(data);
-};
-
-const getAll = async () => {
-  return Notification.findAll();
-};
+const create = async (data) => Notification.create(data);
+const getAll = async () => Notification.findAll();
 
 const getDetail = async (id) => {
   const record = await Notification.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy thông báo');
   return record;
 };
 

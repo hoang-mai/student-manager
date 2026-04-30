@@ -2,10 +2,9 @@ const bcrypt = require('bcrypt');
 const db = require('../models');
 const JwtService = require('./jwt.service');
 const { serialize } = require('../utils/serialize');
-const { NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError } = require('../utils/apiError');
+const { NotFoundError, UnauthorizedError, BadRequestError } = require('../utils/apiError');
 
 const User = db.user;
-const Role = db.role;
 
 const _excludePassword = (user) => serialize(user);
 
@@ -17,16 +16,9 @@ const _generateTokens = (userId) => {
 };
 
 const login = async (username, password) => {
-  const user = await User.findOne({
-    where: { [db.Sequelize.Op.or]: [{ username }, { email: username }] },
-    include: [{ model: Role }],
-  });
-
+  const user = await User.findOne({ where: { username } });
   if (!user) {
     throw new BadRequestError('Người dùng không tồn tại');
-  }
-  if (!user.isActive) {
-    throw new ForbiddenError('Tài khoản đã bị khóa');
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -34,28 +26,29 @@ const login = async (username, password) => {
     throw new UnauthorizedError('Mật khẩu không chính xác');
   }
 
-  user.lastLoginAt = new Date();
+  user.refreshToken = _generateTokens(user.id).refreshToken;
   await user.save();
 
   const { accessToken, refreshToken } = _generateTokens(user.id);
   return { accessToken, refreshToken, user: _excludePassword(user) };
 };
 
-const register = async ({ username, email, password, fullName, phone, roleId }) => {
-  const exist = await User.findOne({ where: { [db.Sequelize.Op.or]: [{ username }, { email }] } });
+const register = async (data) => {
+  const { username, password, role, studentId, commanderId } = data;
+
+  const exist = await User.findOne({ where: { username } });
   if (exist) {
-    throw new BadRequestError('Tên đăng nhập hoặc email đã tồn tại');
+    throw new BadRequestError('Tên đăng nhập đã tồn tại');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const defaultRole = roleId || (await Role.findOne({ where: { name: 'hoc_vien' } }))?.id;
   const newUser = await User.create({
     username,
-    email,
     password: hashedPassword,
-    fullName,
-    phone,
-    roleId: defaultRole,
+    role: role || 'STUDENT',
+    isAdmin: role === 'ADMIN',
+    studentId: studentId || null,
+    commanderId: commanderId || null,
   });
 
   return _excludePassword(newUser);
@@ -67,9 +60,9 @@ const refreshToken = async (token) => {
     throw new UnauthorizedError('Token không hợp lệ');
   }
 
-  const user = await User.findByPk(decoded.userId, { include: [{ model: Role }] });
-  if (!user || !user.isActive) {
-    throw new ForbiddenError('Tài khoản đã bị khóa');
+  const user = await User.findByPk(decoded.userId);
+  if (!user) {
+    throw new UnauthorizedError('Tài khoản không tồn tại');
   }
 
   const { accessToken, refreshToken } = _generateTokens(user.id);

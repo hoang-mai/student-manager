@@ -22,5 +22,4 @@ router.use('/scientific-topics', require('./scientificTopic.route'));
 router.use('/cut-rice', require('./cutRice.route'));
 router.use('/commander-duty-schedules', require('./commanderDutySchedule.route'));
 router.use('/notifications', require('./notification.route'));
-
 module.exports = router;

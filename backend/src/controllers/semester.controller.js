@@ -1,29 +1,66 @@
+const asyncHandler = require('express-async-handler');
 const service = require('../services/semester.service');
+const gradeConversion = require('../utils/gradeConversion');
 const { success } = require('../utils/response');
 
-const create = async (req, res) => {
-  const result = await service.create(req.body);
-  return success(res, result, 'Created successfully', 201);
-};
+// ===================== CRUD Cơ bản =====================
 
-const getAll = async (req, res) => {
+const create = asyncHandler(async (req, res) => {
+  const result = await service.create(req.body);
+  return success(res, result, 'Tạo mới thành công', 201);
+});
+
+const getAll = asyncHandler(async (req, res) => {
   const result = await service.getAll();
   return success(res, result);
-};
+});
 
-const getDetail = async (req, res) => {
+const getDetail = asyncHandler(async (req, res) => {
   const result = await service.getDetail(req.params.id);
   return success(res, result);
-};
+});
 
-const update = async (req, res) => {
+const update = asyncHandler(async (req, res) => {
   const result = await service.update(req.params.id, req.body);
-  return success(res, result, 'Updated successfully');
-};
+  return success(res, result, 'Cập nhật thành công');
+});
 
-const deleteRecord = async (req, res) => {
+const deleteRecord = asyncHandler(async (req, res) => {
   await service.delete(req.params.id);
-  return success(res, null, 'Deleted successfully');
-};
+  return success(res, null, 'Xóa thành công');
+});
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+// ===================== CH-11: Chuyển đổi điểm =====================
+
+const convertGrade = asyncHandler(async (req, res) => {
+  const { value, from, to } = req.body;
+  const result = gradeConversion.convertGrade(value, from, to);
+  return success(res, result);
+});
+
+const convertMultipleGrades = asyncHandler(async (req, res) => {
+  const result = gradeConversion.convertMultiple(req.body.grades || []);
+  return success(res, result);
+});
+
+const calculateGpa = asyncHandler(async (req, res) => {
+  const result = gradeConversion.calculateGpa(req.body.grades || []);
+  return success(res, result);
+});
+
+const getGradeTable = asyncHandler(async (req, res) => {
+  const result = gradeConversion.getGradeTable();
+  return success(res, result);
+});
+
+module.exports = {
+  create,
+  getAll,
+  getDetail,
+  update,
+  delete: deleteRecord,
+  convertGrade,
+  convertMultipleGrades,
+  calculateGpa,
+  getGradeTable,
+};

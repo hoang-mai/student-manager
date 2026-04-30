@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const Organization = db.organization;
 
-const create = async (data) => {
-  return Organization.create(data);
-};
-
-const getAll = async () => {
-  return Organization.findAll();
-};
+const create = async (data) => Organization.create(data);
+const getAll = async () => Organization.findAll();
 
 const getDetail = async (id) => {
   const record = await Organization.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy đơn vị');
   return record;
 };
 

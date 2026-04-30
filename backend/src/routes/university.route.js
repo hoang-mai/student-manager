@@ -1,5 +1,9 @@
 const router = require('express').Router();
 const controller = require('../controllers/university.controller');
+const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+
+router.use(authMiddleware);
+router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
 router.get('/', controller.getAll);
