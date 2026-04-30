@@ -1,19 +1,14 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
 
-const AchievementProfile = db.achievementProfile;
+const Model = db.achievementProfile;
 
-const create = async (data) => {
-  return AchievementProfile.create(data);
-};
-
-const getAll = async () => {
-  return AchievementProfile.findAll();
-};
+const create = async (data) => Model.create(data);
+const getAll = async () => Model.findAll();
 
 const getDetail = async (id) => {
-  const record = await AchievementProfile.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  const record = await Model.findByPk(id);
+  if (!record) throw new NotFoundError('Không tìm thấy hồ sơ thành tích');
   return record;
 };
 

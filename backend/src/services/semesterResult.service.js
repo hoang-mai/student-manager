@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const SemesterResult = db.semesterResult;
 
-const create = async (data) => {
-  return SemesterResult.create(data);
-};
-
-const getAll = async () => {
-  return SemesterResult.findAll();
-};
+const create = async (data) => SemesterResult.create(data);
+const getAll = async () => SemesterResult.findAll();
 
 const getDetail = async (id) => {
   const record = await SemesterResult.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy kết quả học kỳ');
   return record;
 };
 

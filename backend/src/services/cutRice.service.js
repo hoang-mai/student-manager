@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const CutRice = db.cutRice;
 
-const create = async (data) => {
-  return CutRice.create(data);
-};
-
-const getAll = async () => {
-  return CutRice.findAll();
-};
+const create = async (data) => CutRice.create(data);
+const getAll = async () => CutRice.findAll();
 
 const getDetail = async (id) => {
   const record = await CutRice.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy lịch cắt cơm');
   return record;
 };
 

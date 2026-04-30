@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const ScientificTopic = db.scientificTopic;
 
-const create = async (data) => {
-  return ScientificTopic.create(data);
-};
-
-const getAll = async () => {
-  return ScientificTopic.findAll();
-};
+const create = async (data) => ScientificTopic.create(data);
+const getAll = async () => ScientificTopic.findAll();
 
 const getDetail = async (id) => {
   const record = await ScientificTopic.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy đề tài NCKH');
   return record;
 };
 

@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const EducationLevel = db.educationLevel;
 
-const create = async (data) => {
-  return EducationLevel.create(data);
-};
-
-const getAll = async () => {
-  return EducationLevel.findAll();
-};
+const create = async (data) => EducationLevel.create(data);
+const getAll = async () => EducationLevel.findAll();
 
 const getDetail = async (id) => {
   const record = await EducationLevel.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy trình độ đào tạo');
   return record;
 };
 

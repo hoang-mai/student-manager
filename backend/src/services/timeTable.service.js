@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const TimeTable = db.timeTable;
 
-const create = async (data) => {
-  return TimeTable.create(data);
-};
-
-const getAll = async () => {
-  return TimeTable.findAll();
-};
+const create = async (data) => TimeTable.create(data);
+const getAll = async () => TimeTable.findAll();
 
 const getDetail = async (id) => {
   const record = await TimeTable.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy thời khóa biểu');
   return record;
 };
 

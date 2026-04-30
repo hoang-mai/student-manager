@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const CommanderDutySchedule = db.commanderDutySchedule;
 
-const create = async (data) => {
-  return CommanderDutySchedule.create(data);
-};
-
-const getAll = async () => {
-  return CommanderDutySchedule.findAll();
-};
+const create = async (data) => CommanderDutySchedule.create(data);
+const getAll = async () => CommanderDutySchedule.findAll();
 
 const getDetail = async (id) => {
   const record = await CommanderDutySchedule.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy lịch trực');
   return record;
 };
 

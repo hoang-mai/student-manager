@@ -3,17 +3,12 @@ const { NotFoundError } = require('../utils/apiError');
 
 const TuitionFee = db.tuitionFee;
 
-const create = async (data) => {
-  return TuitionFee.create(data);
-};
-
-const getAll = async () => {
-  return TuitionFee.findAll();
-};
+const create = async (data) => TuitionFee.create(data);
+const getAll = async () => TuitionFee.findAll();
 
 const getDetail = async (id) => {
   const record = await TuitionFee.findByPk(id);
-  if (!record) throw new NotFoundError('Record not found');
+  if (!record) throw new NotFoundError('Không tìm thấy học phí');
   return record;
 };
 
