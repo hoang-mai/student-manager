@@ -1,32 +1,32 @@
 module.exports = (sequelize, DataTypes) => {
-  const University = sequelize.define('University', {
+  const ScientificInitiative = sequelize.define('ScientificInitiative', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    universityCode: {
-      type: DataTypes.STRING(50),
+    yearlyAchievementId: {
+      type: DataTypes.UUID,
       allowNull: false,
-      unique: true,
     },
-    universityName: {
+    title: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    totalStudents: {
+    description: {
+      type: DataTypes.TEXT,
+    },
+    year: {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
     },
     status: {
       type: DataTypes.STRING(50),
-      defaultValue: 'ACTIVE',
     },
   }, {
-    tableName: 'universities',
+    tableName: 'scientific_initiatives',
     timestamps: true,
     underscored: true,
   });
 
-  return University;
+  return ScientificInitiative;
 };

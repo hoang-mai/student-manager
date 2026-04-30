@@ -1,18 +1,16 @@
 module.exports = (sequelize, DataTypes) => {
-  const University = sequelize.define('University', {
+  const Organization = sequelize.define('Organization', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    universityCode: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: true,
-    },
-    universityName: {
+    organizationName: {
       type: DataTypes.STRING(255),
       allowNull: false,
+    },
+    travelTime: {
+      type: DataTypes.INTEGER,
     },
     totalStudents: {
       type: DataTypes.INTEGER,
@@ -22,11 +20,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       defaultValue: 'ACTIVE',
     },
+    universityId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
   }, {
-    tableName: 'universities',
+    tableName: 'organizations',
     timestamps: true,
     underscored: true,
   });
 
-  return University;
+  return Organization;
 };

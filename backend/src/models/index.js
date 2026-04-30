@@ -31,170 +31,141 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+// ==========================
 // Models
-db.role = require('./role.js')(sequelize, DataTypes);
-db.permission = require('./permission.js')(sequelize, DataTypes);
-db.rolePermission = require('./rolePermission.js')(sequelize, DataTypes);
-db.user = require('./user.js')(sequelize, DataTypes);
-db.trainingUnit = require('./trainingUnit.js')(sequelize, DataTypes);
+// ==========================
+
+// Nhóm Quản lý Tổ chức & Cơ sở
 db.university = require('./university.js')(sequelize, DataTypes);
-db.major = require('./major.js')(sequelize, DataTypes);
-db.academicYear = require('./academicYear.js')(sequelize, DataTypes);
+db.organization = require('./organization.js')(sequelize, DataTypes);
+db.educationLevel = require('./educationLevel.js')(sequelize, DataTypes);
 db.class = require('./class.js')(sequelize, DataTypes);
+
+// Nhóm Hồ sơ Sinh viên
+db.student = require('./student.js')(sequelize, DataTypes);
+
+// Nhóm Kết quả Học tập & Đào tạo
+db.yearlyResult = require('./yearlyResult.js')(sequelize, DataTypes);
+db.semesterResult = require('./semesterResult.js')(sequelize, DataTypes);
+db.subjectResult = require('./subjectResult.js')(sequelize, DataTypes);
 db.semester = require('./semester.js')(sequelize, DataTypes);
-db.course = require('./course.js')(sequelize, DataTypes);
-db.studentProfile = require('./studentProfile.js')(sequelize, DataTypes);
-db.grade = require('./grade.js')(sequelize, DataTypes);
-db.gradeRequest = require('./gradeRequest.js')(sequelize, DataTypes);
-db.gradeRequestAttachment = require('./gradeRequestAttachment.js')(sequelize, DataTypes);
+db.timeTable = require('./timeTable.js')(sequelize, DataTypes);
+db.tuitionFee = require('./tuitionFee.js')(sequelize, DataTypes);
+
+// Nhóm Thi đua & Nghiên cứu
 db.achievement = require('./achievement.js')(sequelize, DataTypes);
-db.schedule = require('./schedule.js')(sequelize, DataTypes);
-db.mealSchedule = require('./mealSchedule.js')(sequelize, DataTypes);
-db.tuition = require('./tuition.js')(sequelize, DataTypes);
-db.dutyRoster = require('./dutyRoster.js')(sequelize, DataTypes);
+db.achievementProfile = require('./achievementProfile.js')(sequelize, DataTypes);
+db.yearlyAchievement = require('./yearlyAchievement.js')(sequelize, DataTypes);
+db.scientificInitiative = require('./scientificInitiative.js')(sequelize, DataTypes);
+db.scientificTopic = require('./scientificTopic.js')(sequelize, DataTypes);
+
+// Nhóm Chỉ huy & Đờ sống
+db.commander = require('./commander.js')(sequelize, DataTypes);
+db.commanderDutySchedule = require('./commanderDutySchedule.js')(sequelize, DataTypes);
+db.user = require('./user.js')(sequelize, DataTypes);
+db.cutRice = require('./cutRice.js')(sequelize, DataTypes);
+db.notification = require('./notification.js')(sequelize, DataTypes);
 
 // ==========================
 // Relations
 // ==========================
 
-// Role <-> Permission (N:M)
-db.role.belongsToMany(db.permission, { through: db.rolePermission, foreignKey: 'role_id' });
-db.permission.belongsToMany(db.role, { through: db.rolePermission, foreignKey: 'permission_id' });
+// --- Nhóm Quản lý Tổ chức & Cơ sở ---
 
-// Role <-> User (1:N)
-db.role.hasMany(db.user, { foreignKey: 'role_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.user.belongsTo(db.role, { foreignKey: 'role_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+// University 1:N Organization
+db.university.hasMany(db.organization, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+db.organization.belongsTo(db.university, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
 
-// TrainingUnit <-> User (commander)
-db.user.hasMany(db.trainingUnit, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.trainingUnit.belongsTo(db.user, { foreignKey: 'commander_id', as: 'commander', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// Organization 1:N EducationLevel
+db.organization.hasMany(db.educationLevel, { foreignKey: 'organization_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+db.educationLevel.belongsTo(db.organization, { foreignKey: 'organization_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
 
-// University <-> Major (1:N)
-db.university.hasMany(db.major, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.major.belongsTo(db.university, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// EducationLevel 1:N Class
+db.educationLevel.hasMany(db.class, { foreignKey: 'education_level_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+db.class.belongsTo(db.educationLevel, { foreignKey: 'education_level_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
 
-// AcademicYear <-> Class (1:N)
-db.academicYear.hasMany(db.class, { foreignKey: 'academic_year_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.class.belongsTo(db.academicYear, { foreignKey: 'academic_year_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+// --- Nhóm Hồ sơ Sinh viên ---
 
-// AcademicYear <-> Semester (1:N)
-db.academicYear.hasMany(db.semester, { foreignKey: 'academic_year_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.semester.belongsTo(db.academicYear, { foreignKey: 'academic_year_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// Class 1:N Student
+db.class.hasMany(db.student, { foreignKey: 'class_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.student.belongsTo(db.class, { foreignKey: 'class_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
-// Major <-> Class (1:N)
-db.major.hasMany(db.class, { foreignKey: 'major_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.class.belongsTo(db.major, { foreignKey: 'major_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+// Organization 1:N Student
+db.organization.hasMany(db.student, { foreignKey: 'organization_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.student.belongsTo(db.organization, { foreignKey: 'organization_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
-// TrainingUnit <-> Class (1:N)
-db.trainingUnit.hasMany(db.class, { foreignKey: 'training_unit_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.class.belongsTo(db.trainingUnit, { foreignKey: 'training_unit_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// University 1:N Student
+db.university.hasMany(db.student, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.student.belongsTo(db.university, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
-// User (commander) <-> Class (1:N)
-db.user.hasMany(db.class, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.class.belongsTo(db.user, { foreignKey: 'commander_id', as: 'commander', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// EducationLevel 1:N Student
+db.educationLevel.hasMany(db.student, { foreignKey: 'education_level_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.student.belongsTo(db.educationLevel, { foreignKey: 'education_level_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
-// User <-> StudentProfile (1:1)
-db.user.hasOne(db.studentProfile, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.studentProfile.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// --- Nhóm Kết quả Học tập & Đào tạo ---
 
-// Class <-> StudentProfile (1:N)
-db.class.hasMany(db.studentProfile, { foreignKey: 'class_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.studentProfile.belongsTo(db.class, { foreignKey: 'class_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// Student 1:N YearlyResult
+db.student.hasMany(db.yearlyResult, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.yearlyResult.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// University <-> StudentProfile (1:N)
-db.university.hasMany(db.studentProfile, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.studentProfile.belongsTo(db.university, { foreignKey: 'university_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// Student 1:N SemesterResult
+db.student.hasMany(db.semesterResult, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.semesterResult.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// Major <-> StudentProfile (1:N)
-db.major.hasMany(db.studentProfile, { foreignKey: 'major_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.studentProfile.belongsTo(db.major, { foreignKey: 'major_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// YearlyResult 1:N SemesterResult
+db.yearlyResult.hasMany(db.semesterResult, { foreignKey: 'yearly_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.semesterResult.belongsTo(db.yearlyResult, { foreignKey: 'yearly_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// AcademicYear <-> StudentProfile (1:N)
-db.academicYear.hasMany(db.studentProfile, { foreignKey: 'academic_year_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.studentProfile.belongsTo(db.academicYear, { foreignKey: 'academic_year_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// SemesterResult 1:N SubjectResult
+db.semesterResult.hasMany(db.subjectResult, { foreignKey: 'semester_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.subjectResult.belongsTo(db.semesterResult, { foreignKey: 'semester_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// TrainingUnit <-> StudentProfile (1:N)
-db.trainingUnit.hasMany(db.studentProfile, { foreignKey: 'training_unit_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.studentProfile.belongsTo(db.trainingUnit, { foreignKey: 'training_unit_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// Student 1:N TimeTable
+db.student.hasMany(db.timeTable, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.timeTable.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// StudentProfile <-> Grade (1:N)
-db.studentProfile.hasMany(db.grade, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.grade.belongsTo(db.studentProfile, { foreignKey: 'student_id', as: 'student', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// Student 1:N TuitionFee
+db.student.hasMany(db.tuitionFee, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.tuitionFee.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// Course <-> Grade (1:N)
-db.course.hasMany(db.grade, { foreignKey: 'course_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.grade.belongsTo(db.course, { foreignKey: 'course_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+// --- Nhóm Thi đua & Nghiên cứu ---
 
-// Semester <-> Grade (1:N)
-db.semester.hasMany(db.grade, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.grade.belongsTo(db.semester, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+// Student 1:N Achievement
+db.student.hasMany(db.achievement, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.achievement.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// User (creator) <-> Grade (1:N)
-db.user.hasMany(db.grade, { foreignKey: 'created_by', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.grade.belongsTo(db.user, { foreignKey: 'created_by', as: 'creator', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// Student 1:1 AchievementProfile
+db.student.hasOne(db.achievementProfile, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.achievementProfile.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// StudentProfile <-> GradeRequest (1:N)
-db.studentProfile.hasMany(db.gradeRequest, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.gradeRequest.belongsTo(db.studentProfile, { foreignKey: 'student_id', as: 'student', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// Student 1:N YearlyAchievement
+db.student.hasMany(db.yearlyAchievement, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.yearlyAchievement.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// Course <-> GradeRequest (1:N)
-db.course.hasMany(db.gradeRequest, { foreignKey: 'course_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.gradeRequest.belongsTo(db.course, { foreignKey: 'course_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+// YearlyAchievement 1:N ScientificInitiative
+db.yearlyAchievement.hasMany(db.scientificInitiative, { foreignKey: 'yearly_achievement_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.scientificInitiative.belongsTo(db.yearlyAchievement, { foreignKey: 'yearly_achievement_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// Semester <-> GradeRequest (1:N)
-db.semester.hasMany(db.gradeRequest, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.gradeRequest.belongsTo(db.semester, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+// YearlyAchievement 1:N ScientificTopic
+db.yearlyAchievement.hasMany(db.scientificTopic, { foreignKey: 'yearly_achievement_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.scientificTopic.belongsTo(db.yearlyAchievement, { foreignKey: 'yearly_achievement_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// User (reviewer) <-> GradeRequest (1:N)
-db.user.hasMany(db.gradeRequest, { foreignKey: 'reviewer_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.gradeRequest.belongsTo(db.user, { foreignKey: 'reviewer_id', as: 'reviewer', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// --- Nhóm Chỉ huy & Đờ sống ---
 
-// GradeRequest <-> GradeRequestAttachment (1:N)
-db.gradeRequest.hasMany(db.gradeRequestAttachment, { foreignKey: 'grade_request_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.gradeRequestAttachment.belongsTo(db.gradeRequest, { foreignKey: 'grade_request_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// Commander 1:1 User
+db.commander.hasOne(db.user, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.user.belongsTo(db.commander, { foreignKey: 'commander_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
-// StudentProfile <-> Achievement (1:N)
-db.studentProfile.hasMany(db.achievement, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.achievement.belongsTo(db.studentProfile, { foreignKey: 'student_id', as: 'student', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// Student 1:1 User
+db.student.hasOne(db.user, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.user.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// User (creator) <-> Achievement (1:N)
-db.user.hasMany(db.achievement, { foreignKey: 'created_by', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.achievement.belongsTo(db.user, { foreignKey: 'created_by', as: 'creator', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// Student 1:N CutRice
+db.student.hasMany(db.cutRice, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.cutRice.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// Class <-> Schedule (1:N)
-db.class.hasMany(db.schedule, { foreignKey: 'class_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.schedule.belongsTo(db.class, { foreignKey: 'class_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-
-// StudentProfile <-> Schedule (1:N)
-db.studentProfile.hasMany(db.schedule, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.schedule.belongsTo(db.studentProfile, { foreignKey: 'student_id', as: 'student', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-
-// Course <-> Schedule (1:N)
-db.course.hasMany(db.schedule, { foreignKey: 'course_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.schedule.belongsTo(db.course, { foreignKey: 'course_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-
-// Semester <-> Schedule (1:N)
-db.semester.hasMany(db.schedule, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.schedule.belongsTo(db.semester, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-
-// StudentProfile <-> MealSchedule (1:N)
-db.studentProfile.hasMany(db.mealSchedule, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.mealSchedule.belongsTo(db.studentProfile, { foreignKey: 'student_id', as: 'student', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-
-// StudentProfile <-> Tuition (1:N)
-db.studentProfile.hasMany(db.tuition, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.tuition.belongsTo(db.studentProfile, { foreignKey: 'student_id', as: 'student', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-
-// Semester <-> Tuition (1:N)
-db.semester.hasMany(db.tuition, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-db.tuition.belongsTo(db.semester, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
-
-// User <-> DutyRoster (1:N)
-db.user.hasMany(db.dutyRoster, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.dutyRoster.belongsTo(db.user, { foreignKey: 'user_id', as: 'user', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-
-// User (creator) <-> DutyRoster (1:N)
-db.user.hasMany(db.dutyRoster, { foreignKey: 'created_by', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
-db.dutyRoster.belongsTo(db.user, { foreignKey: 'created_by', as: 'creator', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+// Student 1:N Notification
+db.student.hasMany(db.notification, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.notification.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
 module.exports = db;

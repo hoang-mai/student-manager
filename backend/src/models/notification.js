@@ -1,32 +1,36 @@
 module.exports = (sequelize, DataTypes) => {
-  const University = sequelize.define('University', {
+  const Notification = sequelize.define('Notification', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    universityCode: {
-      type: DataTypes.STRING(50),
+    studentId: {
+      type: DataTypes.UUID,
       allowNull: false,
-      unique: true,
     },
-    universityName: {
+    title: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    totalStudents: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
+    content: {
+      type: DataTypes.TEXT,
     },
-    status: {
+    type: {
       type: DataTypes.STRING(50),
-      defaultValue: 'ACTIVE',
+    },
+    link: {
+      type: DataTypes.STRING(500),
+    },
+    isRead: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   }, {
-    tableName: 'universities',
+    tableName: 'notifications',
     timestamps: true,
     underscored: true,
   });
 
-  return University;
+  return Notification;
 };

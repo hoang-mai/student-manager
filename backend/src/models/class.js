@@ -1,32 +1,21 @@
 module.exports = (sequelize, DataTypes) => {
   const Class = sequelize.define('Class', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
     },
-    code: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: true,
-    },
-    name: {
+    className: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    majorId: {
+    studentCount: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    educationLevelId: {
+      type: DataTypes.UUID,
       allowNull: false,
-    },
-    academicYearId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    trainingUnitId: {
-      type: DataTypes.INTEGER,
-    },
-    commanderId: {
-      type: DataTypes.INTEGER,
     },
   }, {
     tableName: 'classes',

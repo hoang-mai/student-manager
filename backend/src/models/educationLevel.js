@@ -1,24 +1,23 @@
 module.exports = (sequelize, DataTypes) => {
-  const Semester = sequelize.define('Semester', {
+  const EducationLevel = sequelize.define('EducationLevel', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    code: {
-      type: DataTypes.STRING(50),
+    levelName: {
+      type: DataTypes.STRING(255),
       allowNull: false,
-      unique: true,
     },
-    schoolYear: {
-      type: DataTypes.STRING(50),
+    organizationId: {
+      type: DataTypes.UUID,
       allowNull: false,
     },
   }, {
-    tableName: 'semesters',
+    tableName: 'education_levels',
     timestamps: true,
     underscored: true,
   });
 
-  return Semester;
+  return EducationLevel;
 };
