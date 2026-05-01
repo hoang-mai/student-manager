@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const YearlyAchievement = db.yearlyAchievement;
 
 const create = async (data) => YearlyAchievement.create(data);
-const getAll = async () => YearlyAchievement.findAll();
+const getAll = async (query) => paginateQuery(YearlyAchievement, query);
 
 const getDetail = async (id) => {
   const record = await YearlyAchievement.findByPk(id);

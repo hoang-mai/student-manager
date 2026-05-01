@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const SemesterResult = db.semesterResult;
 
 const create = async (data) => SemesterResult.create(data);
-const getAll = async () => SemesterResult.findAll();
+const getAll = async (query) => paginateQuery(SemesterResult, query);
 
 const getDetail = async (id) => {
   const record = await SemesterResult.findByPk(id);

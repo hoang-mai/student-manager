@@ -1,5 +1,6 @@
 const db = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const Student = db.student;
 const YearlyResult = db.yearlyResult;
@@ -18,7 +19,7 @@ const Notification = db.notification;
 // ===================== CRUD Cơ bản =====================
 
 const create = async (data) => Student.create(data);
-const getAll = async () => Student.findAll();
+const getAll = async (query) => paginateQuery(Student, query);
 
 const getDetail = async (id) => {
   const record = await Student.findByPk(id);
@@ -161,10 +162,7 @@ const getMyNotifications = async (studentId, query = {}) => {
   if (query.type) where.type = query.type;
   if (query.isRead !== undefined) where.isRead = query.isRead === 'true';
 
-  return Notification.findAll({
-    where,
-    order: [['createdAt', 'DESC']],
-  });
+  return paginateQuery(Notification, query, { where, order: [['createdAt', 'DESC']] });
 };
 
 const getMyNotificationDetail = async (studentId, id) => {

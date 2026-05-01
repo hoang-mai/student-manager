@@ -1,17 +1,19 @@
 const asyncHandler = require('express-async-handler');
 const service = require('../services/student.service');
-const { success } = require('../utils/response');
+const { success, paginated, validateOrThrow } = require('../utils/response');
+const s = require('../validations/student.validation');
 
 // ===================== CRUD Cơ bản =====================
 
 const create = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.create, req.body);
   const result = await service.create(req.body);
   return success(res, result, 'Tạo mới thành công', 201);
 });
 
 const getAll = asyncHandler(async (req, res) => {
-  const result = await service.getAll();
-  return success(res, result);
+  const result = await service.getAll(req.query);
+  return paginated(res, result.rows, result.pagination);
 });
 
 const getDetail = asyncHandler(async (req, res) => {
@@ -20,6 +22,7 @@ const getDetail = asyncHandler(async (req, res) => {
 });
 
 const update = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.update, req.body);
   const result = await service.update(req.params.id, req.body);
   return success(res, result, 'Cập nhật thành công');
 });
@@ -37,6 +40,7 @@ const getProfile = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.profileUpdate, req.body);
   const result = await service.updateProfile(req.user.studentId, req.body);
   return success(res, result, 'Cập nhật thông tin thành công');
 });
@@ -61,11 +65,13 @@ const getMyTimeTable = asyncHandler(async (req, res) => {
 });
 
 const createMyTimeTable = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.timetable, req.body);
   const result = await service.createMyTimeTable(req.user.studentId, req.body);
   return success(res, result, 'Thêm môn học thành công', 201);
 });
 
 const updateMyTimeTable = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.timetable, req.body);
   const result = await service.updateMyTimeTable(req.user.studentId, req.params.id, req.body);
   return success(res, result, 'Cập nhật thời khóa biểu thành công');
 });
@@ -83,6 +89,7 @@ const getMyCutRice = asyncHandler(async (req, res) => {
 });
 
 const updateMyCutRice = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.cutRice, req.body);
   const result = await service.updateMyCutRice(req.user.studentId, req.body);
   return success(res, result, 'Cập nhật lịch cắt cơm thành công');
 });
@@ -103,7 +110,7 @@ const getMyTuitionFees = asyncHandler(async (req, res) => {
 
 const getMyNotifications = asyncHandler(async (req, res) => {
   const result = await service.getMyNotifications(req.user.studentId, req.query);
-  return success(res, result);
+  return paginated(res, result.rows, result.pagination);
 });
 
 const getMyNotificationDetail = asyncHandler(async (req, res) => {

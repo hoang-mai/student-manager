@@ -1,5 +1,6 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const Commander = db.commander;
 const Student = db.student;
@@ -14,7 +15,7 @@ const Notification = db.notification;
 // ===================== CRUD Cơ bản =====================
 
 const create = async (data) => Commander.create(data);
-const getAll = async () => Commander.findAll();
+const getAll = async (query) => paginateQuery(Commander, query);
 
 const getDetail = async (id) => {
   const record = await Commander.findByPk(id);
