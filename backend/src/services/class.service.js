@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const Class = db.class;
 
 const create = async (data) => Class.create(data);
-const getAll = async () => Class.findAll();
+const getAll = async (query) => paginateQuery(Class, query);
 
 const getDetail = async (id) => {
   const record = await Class.findByPk(id);

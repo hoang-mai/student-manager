@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const CommanderDutySchedule = db.commanderDutySchedule;
 
 const create = async (data) => CommanderDutySchedule.create(data);
-const getAll = async () => CommanderDutySchedule.findAll();
+const getAll = async (query) => paginateQuery(CommanderDutySchedule, query);
 
 const getDetail = async (id) => {
   const record = await CommanderDutySchedule.findByPk(id);

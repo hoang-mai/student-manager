@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const CutRice = db.cutRice;
 
 const create = async (data) => CutRice.create(data);
-const getAll = async () => CutRice.findAll();
+const getAll = async (query) => paginateQuery(CutRice, query);
 
 const getDetail = async (id) => {
   const record = await CutRice.findByPk(id);
