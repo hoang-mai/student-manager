@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
 type ButtonSize = "sm" | "md" | "lg";
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Kích thước nút: sm (nhỏ), md (vừa), lg (lớn) */
   size?: ButtonSize;
 
@@ -14,13 +14,16 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   fullWidth?: boolean;
 
   /** Trạng thái đang tải (hiển thị spinner nếu có và vô hiệu hóa nút) */
-  loading?: boolean;
+  isLoading?: boolean;
 
   /** Icon hiển thị ở phía trước văn bản */
   prefixIcon?: ReactNode;
 
   /** Icon hiển thị ở phía sau văn bản */
   suffixIcon?: ReactNode;
+
+  /** Icon component (từ react-icons, ví dụ: HiOutlinePlus) */
+  icon?: React.ElementType;
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -63,9 +66,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       size = "md",
       variant = "primary",
       fullWidth = false,
-      loading = false,
+      isLoading = false,
       prefixIcon,
       suffixIcon,
+      icon: Icon,
       children,
       disabled,
       className = "",
@@ -73,7 +77,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const isDisabled = disabled || loading;
+    const isDisabled = disabled || isLoading;
 
     return (
       <button
@@ -93,6 +97,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         `}
         {...props}
       >
+        {Icon && <Icon size={size === "sm" ? 16 : size === "md" ? 18 : 20} />}
         {prefixIcon && prefixIcon}
         {children}
         {suffixIcon && suffixIcon}

@@ -1,28 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useReactTable, getCoreRowModel, ColumnDef } from "@tanstack/react-table";
 import { userService } from "@/services/user";
 import { UserQueryParams } from "@/types/user";
 import { User } from "@/types/auth";
 import { ROLES } from "@/constants/constants";
+import { MOCK_USERS } from "@/constants/mockUsers";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Button from "@/library/Button";
-import Input from "@/library/Input";
 import Divide from "@/library/Divide";
+import Table from "@/library/Table";
+import Select from "@/library/Select";
 import {
   HiOutlinePlus,
-  HiOutlineSearch,
   HiOutlinePencil,
   HiOutlineLockClosed,
-  HiOutlineTrash,
-  HiOutlineFilter,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
-  HiOutlineUser,
   HiOutlineHome,
   HiOutlineDownload,
-  HiOutlineAcademicCap,
   HiOutlineOfficeBuilding,
   HiOutlineRefresh,
   HiOutlineX
@@ -54,6 +52,110 @@ export default function Main() {
     queryFn: () => userService.getAllUsers(queryParams),
   });
 
+  // Cấu trúc cột cho Table
+  const columns = useMemo<ColumnDef<User>[]>(
+    () => [
+      {
+        header: "STT",
+        cell: (info) => {
+          const index = info.row.index;
+          return ((queryParams.page ?? 1) - 1) * (queryParams.limit ?? 10) + index + 1;
+        },
+        size: 80,
+      },
+      {
+        header: "Học viên",
+        accessorKey: "fullName",
+        cell: (info) => {
+          const user = info.row.original;
+          return (
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-700 font-black overflow-hidden border border-white shadow-sm shrink-0">
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user.fullName.charAt(0).toUpperCase()
+                )}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-black text-neutral-800 uppercase tracking-tight leading-tight">{user.fullName}</span>
+                <span className="text-[11px] font-bold text-neutral-400 italic">Mã HV: 202400{user.id}</span>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        header: "Cấp bậc",
+        accessorKey: "rank",
+        cell: () => <span className="text-xs font-bold text-neutral-500">Học viên</span>
+      },
+      {
+        header: "Đơn vị",
+        accessorKey: "unit",
+        cell: () => <span className="text-xs font-bold text-neutral-500">Đại đội 1</span>
+      },
+      {
+        header: "Chức vụ",
+        accessorKey: "position",
+        cell: () => <span className="text-xs font-bold text-neutral-500">Lớp trưởng</span>
+      },
+      {
+        header: "Số điện thoại",
+        accessorKey: "phone",
+        cell: () => <span className="text-xs font-bold text-neutral-500 italic">0123.456.789</span>
+      },
+      {
+        header: "Hành động",
+        cell: (info) => {
+          const user = info.row.original;
+          return (
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => handleOpenModal(user)}
+                className="w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+              >
+                <HiOutlinePencil size={18} />
+              </button>
+              <button
+                className="w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-xl transition-all"
+              >
+                <HiOutlineLockClosed size={18} />
+              </button>
+            </div>
+          );
+        },
+      },
+    ],
+    [queryParams]
+  );
+
+  // Tính toán dữ liệu hiển thị (phân trang local nếu không có data từ API)
+  const displayData = useMemo(() => {
+    if (data?.data) return data.data;
+    const start = ((queryParams.page || 1) - 1) * (queryParams.limit || 10);
+    const end = start + (queryParams.limit || 10);
+    return MOCK_USERS.slice(start, end);
+  }, [data, queryParams]);
+
+  const totalPages = data?.pagination?.totalPages || Math.ceil(MOCK_USERS.length / (queryParams.limit || 10));
+  const totalItems = data?.pagination?.total || MOCK_USERS.length;
+
+  // Khởi tạo table instance
+  const table = useReactTable({
+    data: displayData,
+    columns,
+    pageCount: totalPages,
+    manualPagination: true,
+    state: {
+      pagination: {
+        pageIndex: (queryParams.page || 1) - 1,
+        pageSize: queryParams.limit || 10,
+      },
+    },
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   // Mutation: Tạo người dùng
   const createMutation = useMutation({
     mutationFn: (data: any) => userService.createUser(data),
@@ -80,18 +182,6 @@ export default function Main() {
     }
   });
 
-  // Mutation: Thay đổi trạng thái tài khoản
-  const toggleActiveMutation = useMutation({
-    mutationFn: (id: number) => userService.toggleActive(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      addToast({ message: "Cập nhật trạng thái thành công!", variant: "success" });
-    },
-    onError: () => {
-      addToast({ message: "Cập nhật trạng thái thất bại!", variant: "error" });
-    }
-  });
-
   const handleOpenModal = (user: User | null = null) => {
     setSelectedUser(user);
     setIsModalOpen(true);
@@ -99,15 +189,10 @@ export default function Main() {
 
   const handleFormSubmit = (formData: any) => {
     if (selectedUser) {
-      updateMutation.mutate({ id: selectedUser.id, data: formData });
+      updateMutation.mutate({ id: Number(selectedUser.id), data: formData });
     } else {
       createMutation.mutate(formData);
     }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setQueryParams({ ...queryParams, page: 1 });
   };
 
   const handlePageChange = (newPage: number) => {
@@ -115,12 +200,8 @@ export default function Main() {
   };
 
   return (
-    <AnimatedContainer variant="slideUp" className="space-y-8 relative">
-      {/* Background patterns */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-50/50 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 -left-40 w-80 h-80 bg-secondary-50/30 rounded-full blur-[100px] pointer-events-none" />
+    <AnimatedContainer variant="slideUp" className="space-y-8 relative rounded-2xl bg-white p-4">
 
-      {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-[11px] font-bold text-neutral-400 uppercase tracking-widest">
         <HiOutlineHome size={14} className="mb-0.5" />
         <span>Trang chủ</span>
@@ -128,14 +209,13 @@ export default function Main() {
         <span className="text-primary-600">Danh sách học viên</span>
       </div>
 
-      {/* Header & Actions */}
       <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
           <h1 className="text-2xl font-black text-neutral-800 tracking-tight uppercase">
             Danh sách học viên - Năm học
           </h1>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-2">
           <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 transition-all">
             <HiOutlineRefresh size={16} />
@@ -160,178 +240,73 @@ export default function Main() {
         </div>
       </div>
 
-      {/* Filter Section */}
-      <div className="bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-white/60 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
-          <div className="space-y-2">
-            <label className="text-[11px] font-black text-neutral-400 uppercase tracking-widest ml-1">Nhập tên</label>
-            <div className="relative group">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-neutral-900/5 border border-neutral-100 overflow-hidden relative">
+        <div className="p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-end">
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-neutral-400 uppercase tracking-[0.2em] ml-1">Tìm kiếm học viên</label>
               <input
                 type="text"
-                placeholder="vd: Nguyễn Văn X"
+                placeholder="Nhập tên học viên..."
                 value={queryParams.search}
                 onChange={(e) => setQueryParams({ ...queryParams, search: e.target.value, page: 1 })}
-                className="w-full h-11 pl-4 pr-4 rounded-xl bg-white border border-neutral-200 text-sm font-bold text-neutral-800 focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500/50 outline-none transition-all"
+                className="w-full h-12 pl-4 pr-4 rounded-2xl bg-neutral-50/50 border border-neutral-100 text-sm font-bold text-neutral-800 focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 focus:bg-white outline-none transition-all"
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[11px] font-black text-neutral-400 uppercase tracking-widest ml-1">Chọn đơn vị</label>
-            <select
-              className="w-full h-11 px-4 rounded-xl bg-white border border-neutral-200 text-sm font-bold text-neutral-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500/50 transition-all appearance-none cursor-pointer"
-              value={queryParams.role}
-              onChange={(e) => setQueryParams({ ...queryParams, role: e.target.value, page: 1 })}
-            >
-              <option value="">Tất cả đơn vị</option>
-              <option value={ROLES.STUDENT.role}>Học viên</option>
-              <option value={ROLES.COMMANDER.role}>Chỉ huy</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[11px] font-black text-neutral-400 uppercase tracking-widest ml-1">Năm học</label>
-            <select
-              className="w-full h-11 px-4 rounded-xl bg-white border border-neutral-200 text-sm font-bold text-neutral-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500/50 transition-all appearance-none cursor-pointer"
-            >
-              <option value="">Tất cả năm học</option>
-              <option value="2023-2024">2023 - 2024</option>
-              <option value="2024-2025">2024 - 2025</option>
-            </select>
-          </div>
-
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setQueryParams({ page: 1, limit: 10, search: "", role: ROLES.STUDENT.role })}
-              className="h-11 px-6 flex items-center gap-2 bg-neutral-800 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-neutral-900 transition-all shadow-lg shadow-neutral-800/20"
-            >
-              <HiOutlineX size={16} />
-              Xóa bộ lọc
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Table Section */}
-      <div className="bg-white rounded-3xl shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-neutral-50/50 border-b border-neutral-100/80">
-                <th className="px-6 py-5 text-[10px] font-black text-neutral-400 uppercase tracking-widest text-center">STT</th>
-                <th className="px-6 py-5 text-[10px] font-black text-neutral-400 uppercase tracking-widest">HỌ VÀ TÊN</th>
-                <th className="px-6 py-5 text-[10px] font-black text-neutral-400 uppercase tracking-widest text-center">CẤP BẬC</th>
-                <th className="px-6 py-5 text-[10px] font-black text-neutral-400 uppercase tracking-widest text-center">ĐƠN VỊ</th>
-                <th className="px-6 py-5 text-[10px] font-black text-neutral-400 uppercase tracking-widest text-center">CHỨC VỤ</th>
-                <th className="px-6 py-5 text-[10px] font-black text-neutral-400 uppercase tracking-widest text-center">SỐ ĐIỆN THOẠI</th>
-                <th className="px-6 py-5 text-[10px] font-black text-neutral-400 uppercase tracking-widest text-center">TÙY CHỌN</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-50">
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td colSpan={7} className="px-6 py-6 h-20 bg-neutral-50/10"></td>
-                  </tr>
-                ))
-              ) : data?.data.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-24 text-center">
-                    <div className="flex flex-col items-center gap-4 text-neutral-300">
-                      <HiOutlineUser size={56} className="opacity-10" />
-                      <div className="space-y-1">
-                        <p className="text-base font-black text-neutral-500 uppercase tracking-widest">Không có dữ liệu</p>
-                        <p className="text-sm font-medium italic text-neutral-400">Không tìm thấy học viên nào</p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                data?.data.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-neutral-50/50 transition-all group">
-                    <td className="px-6 py-4 text-center text-xs font-bold text-neutral-400">
-                      {(queryParams.page - 1) * queryParams.limit + index + 1}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-primary-700 font-black overflow-hidden border border-white shrink-0">
-                          {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            user.fullName.charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <span className="font-bold text-neutral-800">{user.fullName}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center text-xs font-bold text-neutral-500">Học viên</td>
-                    <td className="px-6 py-4 text-center text-xs font-bold text-neutral-500">Đại đội 1</td>
-                    <td className="px-6 py-4 text-center text-xs font-bold text-neutral-500">Lớp trưởng</td>
-                    <td className="px-6 py-4 text-center text-xs font-bold text-neutral-500">0123.456.789</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleOpenModal(user)}
-                          className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
-                        >
-                          <HiOutlinePencil size={18} />
-                        </button>
-                        <button
-                          className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-lg transition-all"
-                        >
-                          <HiOutlineLockClosed size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Table Footer / Pagination */}
-        <div className="relative">
-          <Divide className="absolute top-0 left-0 w-full" />
-          <div className="px-6 py-5 bg-neutral-50/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 text-xs font-bold text-neutral-500">
-            <span>Hiển thị:</span>
-            <select 
-              className="bg-white border border-neutral-200 rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-primary-500/10"
-              value={queryParams.limit}
-              onChange={(e) => setQueryParams({ ...queryParams, limit: Number(e.target.value), page: 1 })}
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-            <span>học viên/trang</span>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <span className="text-xs font-bold text-neutral-400">
-              Trang {data?.pagination.page || 1} / {data?.pagination.totalPages || 1} ({data?.pagination.total || 0} học viên)
-            </span>
-            <div className="flex items-center gap-1">
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-neutral-400 uppercase tracking-[0.2em] ml-1">Đơn vị quản lý</label>
+              <Select
+                size="lg"
+                label="Đơn vị "
+                value={queryParams.role}
+                onChange={(value) => setQueryParams({ ...queryParams, role: String(value), page: 1 })}
+                options={[
+                  { value: "", label: "Tất cả đơn vị" },
+                  { value: ROLES.STUDENT.role, label: "Học viên" },
+                  { value: ROLES.COMMANDER.role, label: "Chỉ huy" }
+                ]}
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-neutral-400 uppercase tracking-[0.2em] ml-1">Năm học hiện tại</label>
+              <select className="w-full h-12 px-4 rounded-2xl bg-neutral-50/50 border border-neutral-100 text-sm font-bold text-neutral-700 outline-none focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500/30 focus:bg-white transition-all appearance-none cursor-pointer">
+                <option value="">Tất cả năm học</option>
+                <option value="2023-2024">2023 - 2024</option>
+                <option value="2024-2025">2024 - 2025</option>
+              </select>
+            </div>
+            <div className="flex gap-2">
               <button
-                onClick={() => handlePageChange(data!.pagination.page - 1)}
-                disabled={!data || data.pagination.page === 1}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                onClick={() => setQueryParams({ page: 1, limit: 10, search: "", role: ROLES.STUDENT.role })}
+                className="h-12 flex-1 flex items-center justify-center gap-2 bg-neutral-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-neutral-900 transition-all shadow-lg shadow-neutral-800/10 active:scale-95"
               >
-                <HiOutlineChevronLeft size={16} />
-              </button>
-              <button
-                onClick={() => handlePageChange(data!.pagination.page + 1)}
-                disabled={!data || data.pagination.page === data.pagination.totalPages}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                <HiOutlineChevronRight size={16} />
+                <HiOutlineX size={16} />
+                Làm mới bộ lọc
               </button>
             </div>
           </div>
         </div>
+
+        <Divide className="w-full" />
+
+        {/* Table Area */}
+        <div className="px-4">
+          <Table
+            table={table}
+            isLoading={isLoading}
+            emptyText="Không tìm thấy học viên nào phù hợp"
+            pagination={{
+              page: data?.pagination.page || 1,
+              totalPages: data?.pagination.totalPages || 1,
+              total: data?.pagination.total || 0,
+              limit: queryParams.limit || 10,
+              itemName: "học viên",
+              onPageChange: handlePageChange,
+              onLimitChange: (limit) => setQueryParams({ ...queryParams, limit, page: 1 })
+            }}
+          />
+        </div>
       </div>
-    </div>
 
       {/* Modal */}
       <UserFormModal

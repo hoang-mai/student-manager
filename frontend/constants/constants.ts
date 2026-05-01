@@ -26,8 +26,15 @@ export const ROLES = {
   STUDENT: { id: 3, name: "Học viên", role: "hoc_vien" },
 };
 
+export const THEMES = {
+  DEFAULT_THEME: "light",
+  LIGHT: "light",
+  DARK: "dark",
+};
+
 export const DEFAULT_VALUES = {
   DEFAULT_ADMIN_NAME: "Admin",
   DEFAULT_COMMANDER_NAME: "Chỉ huy đơn vị",
   DEFAULT_STUDENT_NAME: "Học viên",
+
 };

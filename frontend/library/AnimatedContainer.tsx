@@ -12,7 +12,7 @@ type AnimationVariant =
   | "scale"
   | "diagonalUp";
 
-interface AnimatedContainerProps extends HTMLMotionProps<"div"> {
+export interface AnimatedContainerProps extends HTMLMotionProps<"div"> {
   /** Nội dung bên trong container */
   children: ReactNode;
 

@@ -30,7 +30,7 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* Danh sách Menu */}
-      <nav className="relative flex-1 overflow-y-auto py-4 px-4 custom-scrollbar">
+      <nav className="relative flex-1 overflow-y-auto py-4 px-4 no-scrollbar">
         <ul className="space-y-1.5">
           {COMMANDER_MENU.map((item: MenuItem) => {
             const isActive =
