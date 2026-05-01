@@ -12,10 +12,13 @@ const geistMono = Geist_Mono({
 });
 
 import QueryProvider from "@/components/providers/QueryProvider";
+import ThemeProvider from "@/components/providers/ThemeProvider";
 import OfflineDetector from "@/components/providers/OfflineDetector";
 import Loading from "@/components/modals/Loading";
 import Toast from "@/components/modals/Toast";
 import { ReactNode } from "react";
+import { cookies } from "next/headers";
+import { THEMES } from "@/constants/constants";
 
 export const metadata: Metadata = {
   title: "Hệ thống quản lý học viên",
@@ -23,22 +26,27 @@ export const metadata: Metadata = {
     "Hệ thống quản lý học viên là một ứng dụng web được thiết kế để giúp các tổ chức giáo dục quản lý thông tin học viên một cách hiệu quả. Hệ thống này cung cấp các tính năng như đăng ký học viên, quản lý khóa học, theo dõi tiến độ học tập và tạo báo cáo chi tiết về hoạt động của học viên. Với giao diện thân thiện và dễ sử dụng, hệ thống quản lý học viên giúp cải thiện trải nghiệm học tập và tăng cường sự tương tác giữa giáo viên và học viên.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value || THEMES.DEFAULT_THEME;
+
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased ${theme === THEMES.DARK ? "dark" : ""}`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
         <QueryProvider>
-          <OfflineDetector />
-          <Loading />
-          <Toast />
-          {children}
+          <ThemeProvider initialTheme={theme}>
+            <OfflineDetector />
+            <Loading />
+            <Toast />
+            {children}
+          </ThemeProvider>
         </QueryProvider>
       </body>
     </html>

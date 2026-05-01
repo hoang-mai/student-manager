@@ -124,6 +124,7 @@ export default function Main() {
             label="Tên đăng nhập"
             placeholder="Nhập tên đăng nhập"
             size="lg"
+            floatingLabel={false}
             prefixIcon={<FiUser size={18} />}
             error={errors.username?.message}
             {...register("username")}
@@ -132,6 +133,7 @@ export default function Main() {
           <Input
             id="login-password"
             label="Mật khẩu"
+            floatingLabel={false}
             type={showPassword ? "text" : "password"}
             placeholder="Nhập mật khẩu"
             size="lg"
@@ -164,7 +166,7 @@ export default function Main() {
             size="lg"
             variant="primary"
             fullWidth
-            loading={loginMutation.isPending}
+            isLoading={loginMutation.isPending}
             id="login-submit"
           >
             Đăng nhập

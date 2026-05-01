@@ -4,11 +4,11 @@ import React from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { ROLES, DEFAULT_VALUES } from "@/constants/constants";
 import Avatar from "@/library/Avatar";
-import { 
-  HiOutlineLogout, 
-  HiOutlineBell, 
-  HiOutlineChevronDown, 
-  HiOutlineUser, 
+import {
+  HiOutlineLogout,
+  HiOutlineBell,
+  HiOutlineChevronDown,
+  HiOutlineUser,
   HiOutlineLockClosed,
   HiOutlineMoon
 } from "react-icons/hi";
@@ -19,10 +19,22 @@ import { motion, AnimatePresence } from "motion/react";
 import Dropdown from "@/library/Dropdown";
 
 import Divide from "@/library/Divide";
+import Toggle from "@/library/Toggle";
+import { useTheme } from "next-themes";
+import Cookies from "js-cookie";
+import { THEMES } from "@/constants/constants";
 
 export default function Header() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const { theme, setTheme } = useTheme();
+
+  const isDarkMode = theme === THEMES.DARK;
+  const handleToggleTheme = () => {
+    const nextTheme = isDarkMode ? THEMES.LIGHT : THEMES.DARK;
+    setTheme(nextTheme);
+    Cookies.set("theme", nextTheme, { expires: 365 });
+  };
 
   const handleLogout = () => {
     logout();
@@ -53,7 +65,7 @@ export default function Header() {
         {/* User Profile & Dropdown */}
         <div className="flex items-center h-10 gap-6">
           <Divide orientation="vertical" className="h-6" />
-          
+
           <Dropdown
             trigger={(isOpen) => (
               <div className={`flex items-center gap-3 transition-all group ${isOpen ? "opacity-80" : ""}`}>
@@ -77,9 +89,9 @@ export default function Header() {
           >
             <div className="space-y-1">
               {/* Thông tin cá nhân */}
-              <motion.button 
+              <motion.button
                 whileHover="hover"
-                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group"
+                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
                   <motion.div variants={{ hover: { scale: 1.2, rotate: 5 } }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
@@ -90,9 +102,9 @@ export default function Header() {
               </motion.button>
 
               {/* Đổi mật khẩu */}
-              <motion.button 
+              <motion.button
                 whileHover="hover"
-                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group"
+                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
                   <motion.div variants={{ hover: { y: -2, scale: 1.1 } }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
@@ -103,9 +115,13 @@ export default function Header() {
               </motion.button>
 
               {/* Chế độ tối */}
-              <motion.button 
+              <motion.div
                 whileHover="hover"
-                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleTheme();
+                }}
+                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
                   <motion.div variants={{ hover: { rotate: -20, scale: 1.1 } }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
@@ -113,7 +129,13 @@ export default function Header() {
                   </motion.div>
                 </div>
                 Chế độ tối
-              </motion.button>
+                <Toggle
+                  checked={isDarkMode}
+                  onChange={handleToggleTheme}
+                  size="sm"
+                  className="ml-auto"
+                />
+              </motion.div>
             </div>
 
             <div className="mt-2 pt-2 relative">
@@ -121,7 +143,7 @@ export default function Header() {
               <motion.button
                 whileHover="hover"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-neutral-600 transition-all text-left group"
+                className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-neutral-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-error-400 group-hover:bg-error-50 group-hover:text-error-600 transition-all">
                   <motion.div variants={{ hover: { x: 3, scale: 1.1 } }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>

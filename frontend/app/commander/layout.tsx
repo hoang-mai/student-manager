@@ -18,7 +18,7 @@ export default function CommanderLayout({
         <Header />
 
         {/* Nội dung trang */}
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
           {children}
         </div>
       </main>

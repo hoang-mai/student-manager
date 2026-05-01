@@ -61,5 +61,14 @@
   --color-neutral-700: #545452;
   --color-neutral-800: #414140;
   --color-neutral-900: #323231;
+}
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

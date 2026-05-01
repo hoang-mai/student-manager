@@ -4,12 +4,15 @@ import { motion, AnimatePresence } from "motion/react";
 type InputSize = "sm" | "md" | "lg";
 type InputVariant = "outlined" | "filled";
 
-type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   /** Nhãn hiển thị phía trên ô nhập liệu */
   label?: string;
 
   /** Thông báo lỗi hiển thị phía dưới ô nhập liệu (nếu có) */
   error?: string;
+
+  /** Kiểu hiển thị label: true (nằm đè lên viền) hoặc false (nằm phía trên) */
+  floatingLabel?: boolean;
 
   /** Kích thước của ô nhập liệu: sm (nhỏ), md (trung bình), lg (lớn) */
   size?: InputSize;
@@ -30,7 +33,7 @@ type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   disabled?: boolean;
 
   /** Trạng thái đang tải (vô hiệu hóa tương tác) */
-  loading?: boolean;
+  isLoading?: boolean;
 };
 
 const sizeStyles: Record<InputSize, string> = {
@@ -52,7 +55,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       className = "",
       id,
       disabled,
-      loading,
+      isLoading,
+      floatingLabel = true,
       ...props
     },
     ref
@@ -86,11 +90,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const widthStyles = fullWidth ? "w-full" : "";
 
     return (
-      <div className={`${fullWidth ? "w-full" : "inline-flex flex-col"}`}>
+      <div className={`${fullWidth ? "w-full" : "inline-flex flex-col"} relative ${floatingLabel ? "mt-1.5" : ""}`}>
         {label && (
           <label
             htmlFor={id}
-            className="block text-sm font-medium text-neutral-700 mb-1.5"
+            className={
+              floatingLabel
+                ? `absolute -top-2 left-3 z-10 px-1 text-xs font-bold rounded-md  ${error ? "text-error-500" : "text-neutral-500"} bg-white`
+                : `block text-sm font-medium text-neutral-700 mb-1.5 ${error ? "text-error-500" : ""}`
+            }
           >
             {label}
           </label>
@@ -104,7 +112,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={id}
-            disabled={disabled || loading}
+            disabled={disabled || isLoading}
             className={`
               ${baseStyles}
               ${sizeStyles[size]}
