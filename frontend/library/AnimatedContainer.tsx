@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { motion, HTMLMotionProps } from "motion/react";
+import { motion, HTMLMotionProps, Variants } from "motion/react";
 
 type AnimationVariant =
   | "fade"
@@ -41,7 +41,7 @@ export interface AnimatedContainerProps extends HTMLMotionProps<"div"> {
   y?: number;
 }
 
-const variants: Record<AnimationVariant, any> = {
+const variants: Record<AnimationVariant, Variants> = {
   fade: {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },

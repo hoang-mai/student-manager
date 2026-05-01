@@ -41,13 +41,13 @@ export default function Main() {
       hideLoading();
       addToast({ message: "Đăng nhập thành công!", variant: "success" });
 
-      const userRole = response.data.user.Role.name;
+      const userRole = response.data.user.role;
       if (userRole === ROLES.COMMANDER.role) {
         router.replace("/commander");
       } else if (userRole === ROLES.ADMIN.role) {
         router.replace("/admin");
       } else {
-        router.replace("/dashboard");
+        router.replace("/student");
       }
     },
 

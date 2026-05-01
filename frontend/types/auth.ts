@@ -4,29 +4,20 @@ export type LoginFormValues = {
 };
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
-  email: string;
-  fullName: string;
-  avatarUrl?: string | null;
-  isActive: boolean;
-  roleId: number;
-  lastLoginAt?: string;
+  isAdmin: boolean;
+  role: "ADMIN" | "COMMANDER" | "STUDENT";
+  refreshToken: string;
+  studentId: string | null;
+  commanderId: string | null;
   createdAt: string;
   updatedAt: string;
-  role: {
-    id: number;
-    name: string;
-    description?: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  deleteAt: string | null;
 }
-
 
 export type LoginResponse = {
   accessToken: string;
   refreshToken: string;
   user: User;
 };
-

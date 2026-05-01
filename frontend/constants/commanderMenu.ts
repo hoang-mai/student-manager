@@ -1,3 +1,4 @@
+import React from 'react';
 import { 
   HiOutlineUserGroup, 
   HiOutlineOfficeBuilding, 
@@ -16,7 +17,7 @@ import {
 export type MenuItem = {
   title: string;
   path: string;
-  icon: any;
+  icon: React.ElementType;
   code: string;
 };
 

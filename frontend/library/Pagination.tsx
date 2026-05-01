@@ -12,28 +12,28 @@ import Select from "@/library/Select";
 
 export interface PaginationProps {
   /** Trang hiện tại (bắt đầu từ 1) */
-  page: number;
+  pageIndex: number;
   /** Tổng số trang */
   totalPages: number;
   /** Số lượng bản ghi trên mỗi trang */
-  limit: number;
+  pageSize: number;
   /** Hàm xử lý khi thay đổi trang */
-  onPageChange: (page: number) => void;
+  onPageChange: (pageIndex: number) => void;
   /** Hàm xử lý khi thay đổi số lượng hiển thị trên mỗi trang */
-  onLimitChange: (limit: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
-  page,
+  pageIndex,
   totalPages,
-  limit,
+  pageSize,
   onPageChange,
-  onLimitChange,
+  onPageSizeChange,
 }) => {
   const getPages = () => {
     const pages = [];
-    const start = Math.max(1, page - 2);
-    const end = Math.min(totalPages, page + 2);
+    const start = Math.max(1, pageIndex - 2);
+    const end = Math.min(totalPages, pageIndex + 2);
 
     for (let i = start; i <= end; i++) {
       pages.push(i);
@@ -53,9 +53,9 @@ const Pagination: React.FC<PaginationProps> = ({
         <Select
           size="sm"
           className="font-black"
-          value={limit}
+          value={pageSize}
           fullWidth={false}
-          onChange={(value) => onLimitChange(Number(value))}
+          onChange={(value) => onPageSizeChange(Number(value))}
           options={[
             { value: 10, label: "10" },
             { value: 20, label: "20" },
@@ -70,7 +70,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {/* Nút về đầu */}
         <button
           onClick={() => onPageChange(1)}
-          disabled={page === 1}
+          disabled={pageIndex === 1}
           className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
           title="Trang đầu"
         >
@@ -78,8 +78,8 @@ const Pagination: React.FC<PaginationProps> = ({
         </button>
 
         <button
-          onClick={() => onPageChange(page - 1)}
-          disabled={page === 1}
+          onClick={() => onPageChange(pageIndex - 1)}
+          disabled={pageIndex === 1}
           className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
         >
           <HiOutlineChevronLeft size={16} />
@@ -90,16 +90,16 @@ const Pagination: React.FC<PaginationProps> = ({
             <PageButton
               key={p}
               num={p}
-              active={p === page}
+              active={p === pageIndex}
               onClick={onPageChange}
             />
           ))}
         </div>
 
         <button
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= totalPages}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer "
+          onClick={() => onPageChange(pageIndex + 1)}
+          disabled={pageIndex >= totalPages}
+          className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
         >
           <HiOutlineChevronRight size={16} />
         </button>
@@ -107,7 +107,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {/* Nút đến cuối */}
         <button
           onClick={() => onPageChange(totalPages)}
-          disabled={page >= totalPages}
+          disabled={pageIndex >= totalPages}
           className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
           title="Trang cuối"
         >
@@ -115,7 +115,7 @@ const Pagination: React.FC<PaginationProps> = ({
         </button>
 
         <div className="hidden lg:block ml-4 text-xs font-bold text-neutral-400 uppercase tracking-[0.2em]">
-          {page} / {totalPages}
+          {pageIndex} / {totalPages}
         </div>
       </div>
     </div>
