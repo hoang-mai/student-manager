@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const db = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const User = db.user;
 
@@ -13,7 +14,7 @@ const create = async (data) => {
   return User.create(data);
 };
 
-const getAll = async () => User.findAll();
+const getAll = async (query) => paginateQuery(User, query);
 
 const getDetail = async (id) => {
   const record = await User.findByPk(id);

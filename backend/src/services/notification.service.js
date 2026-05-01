@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const Notification = db.notification;
 
 const create = async (data) => Notification.create(data);
-const getAll = async () => Notification.findAll();
+const getAll = async (query) => paginateQuery(Notification, query);
 
 const getDetail = async (id) => {
   const record = await Notification.findByPk(id);

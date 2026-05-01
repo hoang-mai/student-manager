@@ -42,12 +42,12 @@ app.get('/swagger.json', (req, res) => {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ success: true, statusCode: 200, message: 'Hệ thống hoạt động bình thường', data: { timestamp: new Date().toISOString() } });
 });
 
 // 404
 app.use((req, res) => {
-  res.status(404).json({ message: 'Đường dẫn không tồn tại' });
+  res.status(404).json({ success: false, statusCode: 404, message: 'Đường dẫn không tồn tại' });
 });
 
 // Global error handler

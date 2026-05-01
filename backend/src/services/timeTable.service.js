@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const TimeTable = db.timeTable;
 
 const create = async (data) => TimeTable.create(data);
-const getAll = async () => TimeTable.findAll();
+const getAll = async (query) => paginateQuery(TimeTable, query);
 
 const getDetail = async (id) => {
   const record = await TimeTable.findByPk(id);

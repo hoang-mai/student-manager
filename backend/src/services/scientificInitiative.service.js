@@ -1,10 +1,11 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const ScientificInitiative = db.scientificInitiative;
 
 const create = async (data) => ScientificInitiative.create(data);
-const getAll = async () => ScientificInitiative.findAll();
+const getAll = async (query) => paginateQuery(ScientificInitiative, query);
 
 const getDetail = async (id) => {
   const record = await ScientificInitiative.findByPk(id);

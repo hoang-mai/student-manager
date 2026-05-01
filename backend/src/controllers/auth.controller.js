@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Yup = require('yup');
 const authService = require('../services/auth.service');
+const db = require('../models');
 const { success, validateOrThrow } = require('../utils/response');
 
 const login = asyncHandler(async (req, res) => {
@@ -12,6 +13,21 @@ const login = asyncHandler(async (req, res) => {
 
   const result = await authService.login(req.body.username, req.body.password);
   return success(res, result, 'Đăng nhập thành công');
+});
+
+const me = asyncHandler(async (req, res) => {
+  const include = [];
+  if (req.user.role === 'STUDENT') {
+    include.push({
+      model: db.student,
+      include: [{ model: db.class }, { model: db.organization }, { model: db.university }, { model: db.educationLevel }],
+    });
+  }
+  if (req.user.role === 'COMMANDER') {
+    include.push({ model: db.commander });
+  }
+  const user = await db.user.findByPk(req.userId, { include });
+  return success(res, user);
 });
 
 const register = asyncHandler(async (req, res) => {
@@ -51,6 +67,7 @@ const changePassword = asyncHandler(async (req, res) => {
 
 module.exports = {
   login,
+  me,
   register,
   refreshToken,
   changePassword,

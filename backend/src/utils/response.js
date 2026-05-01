@@ -1,16 +1,15 @@
-const { ValidationError, UnauthorizedError } = require('../utils/apiError');
+const { ValidationError } = require('../utils/apiError');
 const { serialize } = require('./serialize');
 
 const success = (res, data = null, message = 'Thành công', statusCode = 200) => {
-  const response = { statusCode, message };
-  if (data !== null && data !== undefined) {
-    response.data = serialize(data);
-  }
-  return res.status(statusCode).json(response);
+  const body = { success: true, statusCode, message };
+  if (data !== null && data !== undefined) body.data = serialize(data);
+  return res.status(statusCode).json(body);
 };
 
 const paginated = (res, data, pagination, message = 'Thành công', statusCode = 200) => {
   return res.status(statusCode).json({
+    success: true,
     statusCode,
     message,
     data: serialize(data),
@@ -18,11 +17,10 @@ const paginated = (res, data, pagination, message = 'Thành công', statusCode =
   });
 };
 
-const error = (res, message = 'Lỗi máy chủ nội bộ', statusCode = 500) => {
-  return res.status(statusCode).json({
-    statusCode,
-    message,
-  });
+const fail = (res, message = 'Lỗi máy chủ nội bộ', statusCode = 500, type) => {
+  const body = { success: false, statusCode, message };
+  if (type) body.type = type;
+  return res.status(statusCode).json(body);
 };
 
 const validateOrThrow = async (schema, data) => {
@@ -33,9 +31,16 @@ const validateOrThrow = async (schema, data) => {
   }
 };
 
-module.exports = {
-  success,
-  paginated,
-  error,
-  validateOrThrow,
+const paginateQuery = async (model, query = {}, options = {}) => {
+  const page = Math.max(1, parseInt(query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 10));
+  const offset = (page - 1) * limit;
+  const { count, rows } = await model.findAndCountAll({ ...options, offset, limit });
+
+  return {
+    rows,
+    pagination: { pageIndex: page, pageSize: limit, totalPages: Math.ceil(count / limit), total: count },
+  };
 };
+
+module.exports = { success, paginated, fail, validateOrThrow, paginateQuery };
