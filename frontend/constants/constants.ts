@@ -21,9 +21,9 @@ export const PROTECTED_ROUTES = [
 export const AUTH_ROUTES = ["/login", "/register"];
 
 export const ROLES = {
-  ADMIN: { id: 1, name: "Admin", role: "admin" },
-  COMMANDER: { id: 2, name: "Chỉ huy", role: "chi_huy" },
-  STUDENT: { id: 3, name: "Học viên", role: "hoc_vien" },
+  ADMIN: { id: 1, name: "Admin", role: "ADMIN" },
+  COMMANDER: { id: 2, name: "Chỉ huy", role: "COMMANDER" },
+  STUDENT: { id: 3, name: "Học viên", role: "STUDENT" },
 };
 
 export const THEMES = {

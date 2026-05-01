@@ -1,6 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
-import { keysToCamel } from "@/utils/caseConverter";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { LoginResponse } from "@/types/auth";
 import { isTokenExpired } from "@/utils/fn-common";
@@ -78,9 +77,6 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    if (response.data) {
-      response.data = keysToCamel(response.data);
-    }
     return response.data;
   },
 

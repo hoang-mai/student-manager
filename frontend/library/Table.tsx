@@ -3,19 +3,8 @@
 import React from "react";
 import { flexRender, Table as TanStackTable } from "@tanstack/react-table";
 import { motion, AnimatePresence } from "motion/react";
-import Select from "@/library/Select";
 import Divide from "@/library/Divide";
-import Pagination from "@/library/Pagination";
-
-export interface TablePaginationProps {
-  page: number;
-  totalPages: number;
-  total: number;
-  limit: number;
-  itemName?: string;
-  onPageChange: (page: number) => void;
-  onLimitChange: (limit: number) => void;
-}
+import Pagination, { PaginationProps } from "@/library/Pagination";
 
 export interface TableProps<TData> {
   /** Đối tượng table được khởi tạo từ useReactTable */
@@ -25,7 +14,7 @@ export interface TableProps<TData> {
   /** Văn bản hiển thị khi không có dữ liệu */
   emptyText?: string;
   /** Cấu hình phân trang */
-  pagination?: TablePaginationProps;
+  pagination?: PaginationProps;
   /** Class CSS bổ sung cho container của bảng */
   className?: string;
   /** Class CSS cho các hàng (tr) */
@@ -162,11 +151,11 @@ const Table = <TData,>({
         <>
           <Divide className="w-full" />
           <Pagination
-            page={pagination.page}
+            pageIndex={pagination.pageIndex}
             totalPages={pagination.totalPages}
-            limit={pagination.limit}
+            pageSize={pagination.pageSize}
             onPageChange={pagination.onPageChange}
-            onLimitChange={pagination.onLimitChange}
+            onPageSizeChange={pagination.onPageSizeChange}
           />
         </>
       )}
