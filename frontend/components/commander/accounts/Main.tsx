@@ -39,7 +39,7 @@ export default function Main() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  // Cấu trúc cột cho Table
+  // Cấu trúc cột cho table
   const columns = useMemo<ColumnDef<User>[]>(
     () => [
       {
@@ -154,7 +154,13 @@ export default function Main() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string | number; data: Partial<CreateUserDTO> }) => userService.updateUser(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string | number;
+      data: Partial<CreateUserDTO>;
+    }) => userService.updateUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
       addToast({ message: "Cập nhật thành công!", variant: "success" });

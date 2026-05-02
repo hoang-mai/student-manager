@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { useForm, Controller } from "react-hook-form";
 import { ColumnFiltersState, Table } from "@tanstack/react-table";
 import {
-  HiOutlineFilter,
   HiOutlineSearch,
   HiOutlineRefresh,
   HiOutlineCalendar,
@@ -47,12 +46,8 @@ const TableFilter = <TData,>({
   isOpen = false,
   isLoading = false,
 }: TableFilterProps<TData>) => {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    register,
-  } = useForm<Record<string, string | number>>();
+  const { control, handleSubmit, reset, register } =
+    useForm<Record<string, string | number>>();
 
   const onSubmit = (data: Record<string, string | number>) => {
     const newFilters: ColumnFiltersState = Object.entries(data)
@@ -78,9 +73,7 @@ const TableFilter = <TData,>({
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         >
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {fields.map((field) => {
                 const Icon =

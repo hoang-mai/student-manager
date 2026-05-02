@@ -22,7 +22,7 @@ import {
 import { useToastStore } from "@/store/useToastStore";
 import UserFormModal from "@/components/commander/accounts/UserFormModal";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { FilterField } from "@/library/Table/TableFilter";
+import { FilterField } from "../../../library/table/TableFilter";
 
 export default function Main() {
   const queryClient = useQueryClient();
@@ -102,26 +102,29 @@ export default function Main() {
     []
   );
 
-  const filterOptions = useMemo<FilterField[]>(() => [
-    {
-      type: "text",
-      id: "username",
-      label: "Tên đăng nhập",
-      placeholder: "Nhập tên đăng nhập...",
-    },
-    {
-      type: "select",
-      id: "role",
-      label: "Vai trò",
-      options: [
-        { value: "", label: "Tất cả vai trò" },
-        { value: ROLES.STUDENT.role, label: ROLES.STUDENT.name },
-        { value: ROLES.COMMANDER.role, label: ROLES.COMMANDER.name },
-        { value: ROLES.ADMIN.role, label: ROLES.ADMIN.name },
-      ],
-      placeholder: "Chọn vai trò...",
-    }
-  ], []);
+  const filterOptions = useMemo<FilterField[]>(
+    () => [
+      {
+        type: "text",
+        id: "username",
+        label: "Tên đăng nhập",
+        placeholder: "Nhập tên đăng nhập...",
+      },
+      {
+        type: "select",
+        id: "role",
+        label: "Vai trò",
+        options: [
+          { value: "", label: "Tất cả vai trò" },
+          { value: ROLES.STUDENT.role, label: ROLES.STUDENT.name },
+          { value: ROLES.COMMANDER.role, label: ROLES.COMMANDER.name },
+          { value: ROLES.ADMIN.role, label: ROLES.ADMIN.name },
+        ],
+        placeholder: "Chọn vai trò...",
+      },
+    ],
+    []
+  );
 
   const createMutation = useMutation({
     mutationFn: (userData: CreateUserDTO) => userService.createUser(userData),

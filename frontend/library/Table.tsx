@@ -8,17 +8,18 @@ import {
   ColumnDef,
   VisibilityState,
   ColumnFiltersState,
+  SortingState,
 } from "@tanstack/react-table";
 import { DragDropProvider, DragEndEvent } from "@dnd-kit/react";
 import { isSortable } from "@dnd-kit/react/sortable";
 import Divide from "@/library/Divide";
 import Pagination from "@/library/Pagination";
-import TableHeader from "@/library/Table/TableHeader";
-import TableToolbar from "@/library/Table/TableToolbar";
-import TableSkeleton from "@/library/Table/TableSkeleton";
-import TableBody from "@/library/Table/TableBody";
+import TableHeader from "./table/TableHeader";
+import TableToolbar from "./table/TableToolbar";
+import TableSkeleton from "./table/TableSkeleton";
+import TableBody from "./table/TableBody";
 import { DEFAULT_PAGE } from "@/constants/constants";
-import { FilterField } from "@/library/Table/TableFilter";
+import { FilterField } from "./table/TableFilter";
 
 export interface TableProps<TData, TParams = Record<string, unknown>> {
   /** Hàm gọi API lấy dữ liệu */
@@ -61,9 +62,10 @@ const Table = <TData, TParams = Record<string, unknown>>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const { data, isLoading } = useQuery({
-    queryKey: [...queryKey, pagination, columnFilters],
+    queryKey: [...queryKey, pagination, columnFilters, sorting],
     queryFn: async () => {
       const filterParams = columnFilters.reduce(
         (acc, filter) => {
@@ -73,10 +75,17 @@ const Table = <TData, TParams = Record<string, unknown>>({
         {} as Record<string, unknown>
       );
 
+      const sortParams: Record<string, string> = {};
+      if (sorting.length > 0) {
+        sortParams.sortBy = sorting[0].id;
+        sortParams.sortOrder = sorting[0].desc ? "desc" : "asc";
+      }
+
       return fetchData({
         page: pagination.pageIndex + 1,
         limit: pagination.pageSize,
         ...filterParams,
+        ...sortParams,
       } as TParams);
     },
     placeholderData: keepPreviousData,
@@ -92,6 +101,7 @@ const Table = <TData, TParams = Record<string, unknown>>({
       id: "stt",
       header: "STT",
       size: 70,
+      enableSorting: false,
       cell: (info) => {
         return (
           <span className="text-xs font-bold text-neutral-400">
@@ -110,16 +120,20 @@ const Table = <TData, TParams = Record<string, unknown>>({
     pageCount: totalPages,
     manualPagination: true,
     manualFiltering: true,
+    manualSorting: true,
+    enableMultiSort: false,
     state: {
       pagination,
       columnOrder,
       columnVisibility,
       columnFilters,
+      sorting,
     },
     onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -163,7 +177,7 @@ const Table = <TData, TParams = Record<string, unknown>>({
 
   return (
     <div className="space-y-4">
-      {/* Table Toolbar */}
+      {/* table Toolbar */}
       <TableToolbar
         table={table}
         filterFields={filterFields}

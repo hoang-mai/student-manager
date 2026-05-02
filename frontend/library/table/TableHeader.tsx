@@ -17,6 +17,8 @@ const TableHeader = <TData,>({
     index,
   });
 
+  const isSorted = header.column.getIsSorted();
+
   return (
     <th
       ref={ref}
@@ -27,24 +29,34 @@ const TableHeader = <TData,>({
     >
       {header.isPlaceholder ? null : (
         <div className="flex items-center gap-2">
+          {/* Vùng nắm để kéo thả */}
+          <div ref={handleRef} className="cursor-grab active:cursor-grabbing p-1 -ml-1">
+            <div className="w-1 h-4 border-l-2 border-dotted border-neutral-300" />
+          </div>
+
+          {/* Vùng bấm để sắp xếp */}
           <div
-            ref={handleRef}
-            className={`flex items-center gap-2 ${
+            className={`flex items-center gap-2 flex-1 ${
               header.column.getCanSort()
                 ? "cursor-pointer select-none group/sort hover:text-neutral-600 transition-colors"
                 : ""
             }`}
-            onClick={header.column.getToggleSortingHandler()}
+            onClick={() => {
+              if (header.column.getCanSort()) {
+                console.log("Sort toggled for:", header.column.id);
+                header.column.toggleSorting();
+              }
+            }}
           >
-            <span>
+            <span className="truncate">
               {flexRender(header.column.columnDef.header, header.getContext())}
             </span>
 
             {header.column.getCanSort() && (
               <div className="flex flex-col shrink-0">
                 <svg
-                  className={`w-2.5 h-2.5 -mb-0.5 transition-all ${
-                    header.column.getIsSorted() === "asc"
+                  className={`w-2 h-2 -mb-0.5 transition-all ${
+                    isSorted === "asc"
                       ? "text-primary-600 opacity-100"
                       : "text-neutral-300 opacity-50 group-hover/sort:opacity-100"
                   }`}
@@ -55,13 +67,13 @@ const TableHeader = <TData,>({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={3}
+                    strokeWidth={4}
                     d="M5 15l7-7 7 7"
                   />
                 </svg>
                 <svg
-                  className={`w-2.5 h-2.5 -mt-0.5 transition-all ${
-                    header.column.getIsSorted() === "desc"
+                  className={`w-2 h-2 -mt-0.5 transition-all ${
+                    isSorted === "desc"
                       ? "text-primary-600 opacity-100"
                       : "text-neutral-300 opacity-50 group-hover/sort:opacity-100"
                   }`}
@@ -72,7 +84,7 @@ const TableHeader = <TData,>({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={3}
+                    strokeWidth={4}
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
