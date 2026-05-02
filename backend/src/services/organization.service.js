@@ -5,7 +5,7 @@ const { paginateQuery } = require('../utils/response');
 const Organization = db.organization;
 
 const create = async (data) => Organization.create(data);
-const getAll = async (query) => paginateQuery(Organization, query);
+const getAll = async (query) => paginateQuery(Organization, query, { filterFields: ['organizationName', 'status', 'universityId'] });
 
 const getDetail = async (id) => {
   const record = await Organization.findByPk(id);

@@ -5,7 +5,7 @@ const { paginateQuery } = require('../utils/response');
 const Model = db.achievement;
 
 const create = async (data) => Model.create(data);
-const getAll = async (query) => paginateQuery(Model, query);
+const getAll = async (query) => paginateQuery(Model, query, { filterFields: ['studentId', 'semester', 'schoolYear', 'year', 'award'] });
 
 const getDetail = async (id) => {
   const record = await Model.findByPk(id);

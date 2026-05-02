@@ -5,7 +5,7 @@ const { paginateQuery } = require('../utils/response');
 const Notification = db.notification;
 
 const create = async (data) => Notification.create(data);
-const getAll = async (query) => paginateQuery(Notification, query);
+const getAll = async (query) => paginateQuery(Notification, query, { filterFields: ['userId', 'type', 'isRead'] });
 
 const getDetail = async (id) => {
   const record = await Notification.findByPk(id);
