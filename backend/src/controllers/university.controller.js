@@ -19,6 +19,11 @@ const getDetail = asyncHandler(async (req, res) => {
   return success(res, result);
 });
 
+const getHierarchy = asyncHandler(async (req, res) => {
+  const result = await service.getHierarchy();
+  return success(res, result);
+});
+
 const update = asyncHandler(async (req, res) => {
   await validateOrThrow(s.update, req.body);
   const result = await service.update(req.params.id, req.body);
@@ -30,4 +35,4 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, getAll, getDetail, getHierarchy, update, delete: deleteRecord };

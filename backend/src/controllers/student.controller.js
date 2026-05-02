@@ -32,18 +32,7 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-// ===================== HV-02: Profile =====================
-
-const getProfile = asyncHandler(async (req, res) => {
-  const result = await service.getProfile(req.user.studentId);
-  return success(res, result);
-});
-
-const updateProfile = asyncHandler(async (req, res) => {
-  await validateOrThrow(s.profileUpdate, req.body);
-  const result = await service.updateProfile(req.user.studentId, req.body);
-  return success(res, result, 'Cập nhật thông tin thành công');
-});
+// ===================== HV-02: Profile (xem/sửa dùng chung /api/auth/profile) =====================
 
 const uploadAvatar = asyncHandler(async (req, res) => {
   const result = await service.uploadAvatar(req.user.studentId, req.body.avatar);
@@ -109,33 +98,27 @@ const getMyTuitionFees = asyncHandler(async (req, res) => {
 // ===================== HV-09: Notifications =====================
 
 const getMyNotifications = asyncHandler(async (req, res) => {
-  const result = await service.getMyNotifications(req.user.studentId, req.query);
+  const result = await service.getMyNotifications(req.userId, req.query);
   return paginated(res, result.rows, result.pagination);
 });
 
 const getMyNotificationDetail = asyncHandler(async (req, res) => {
-  const result = await service.getMyNotificationDetail(req.user.studentId, req.params.id);
+  const result = await service.getMyNotificationDetail(req.userId, req.params.id);
   return success(res, result);
 });
 
 const markNotificationRead = asyncHandler(async (req, res) => {
-  await service.markNotificationRead(req.user.studentId, req.params.id);
+  await service.markNotificationRead(req.userId, req.params.id);
   return success(res, null, 'Đã đánh dấu đọc');
 });
 
 const markAllNotificationsRead = asyncHandler(async (req, res) => {
-  await service.markAllNotificationsRead(req.user.studentId);
+  await service.markAllNotificationsRead(req.userId);
   return success(res, null, 'Đã đánh dấu đọc tất cả');
 });
 
 module.exports = {
-  create,
-  getAll,
-  getDetail,
-  update,
-  delete: deleteRecord,
-  getProfile,
-  updateProfile,
+  create, getAll, getDetail, update, delete: deleteRecord,
   uploadAvatar,
   getAcademicResults,
   getMyTimeTable,

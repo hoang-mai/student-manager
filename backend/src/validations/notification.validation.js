@@ -1,21 +1,19 @@
-const yup = require('yup');
+const Yup = require('yup');
 
-const create = yup.object({
-  studentId: yup.string().uuid('studentId không hợp lệ').required('Trường này là bắt buộc'),
-  title: yup.string().max(255).required('Trường này là bắt buộc'),
-  content: yup.string(),
-  type: yup.string().max(50),
-  link: yup.string().max(500),
-  isRead: yup.boolean(),
+exports.create = Yup.object({
+  userId: Yup.string().uuid('userId không hợp lệ').required('Trường này là bắt buộc'),
+  title: Yup.string().max(255).required('Trường này là bắt buộc'),
+  content: Yup.string(),
+  type: Yup.string().max(50),
+  link: Yup.string().max(500),
+  isRead: Yup.boolean(),
 });
 
-const update = yup.object({
-  studentId: yup.string().uuid('studentId không hợp lệ'),
-  title: yup.string().max(255),
-  content: yup.string(),
-  type: yup.string().max(50),
-  link: yup.string().max(500),
-  isRead: yup.boolean(),
+exports.update = Yup.object({
+  userId: Yup.string().uuid('userId không hợp lệ'),
+  title: Yup.string().max(255),
+  content: Yup.string(),
+  type: Yup.string().max(50),
+  link: Yup.string().max(500),
+  isRead: Yup.boolean(),
 });
-
-module.exports = { create, update };
