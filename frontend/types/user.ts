@@ -9,19 +9,8 @@ export type UserQueryParams = {
   search?: string;
   role?: string;
   isActive?: boolean;
-};
-
-/**
- * Cấu trúc phản hồi phân trang
- */
-export type PaginatedResponse<T> = {
-  data: T[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  orderColumn?: string;
+  orderDirection?: "asc" | "desc";
 };
 
 /**

@@ -1,13 +1,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  useReactTable,
-  getCoreRowModel,
-  ColumnDef,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
 import { userService } from "@/services/user";
 import { UserQueryParams, CreateUserDTO } from "@/types/user";
 import { User } from "@/types/auth";
@@ -22,25 +17,23 @@ import {
   HiOutlinePlus,
   HiOutlinePencil,
   HiOutlineLockClosed,
-  HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineHome,
   HiOutlineDownload,
-  HiOutlineOfficeBuilding,
   HiOutlineRefresh,
-  HiOutlineX,
-  HiOutlineAdjustments,
 } from "react-icons/hi";
 import { useToastStore } from "@/store/useToastStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
-import UserFormModal from "./UserFormModal";
+import UserFormModal from "@/components/commander/accounts/UserFormModal";
+import { ENDPOINTS } from "@/constants/endpoints";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 export default function Main() {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
   const { showLoading, hideLoading } = useLoadingStore();
 
-  // State tìm kiếm
+  // State tìm kiếm và filter
   const [search, setSearch] = useState("");
 
   // State Modal
@@ -52,58 +45,23 @@ export default function Main() {
     () => [
       {
         id: "username",
-        header: "Học viên",
+        header: "Tài khoản",
         accessorKey: "username",
-        cell: (info) => {
-          const user = info.row.original;
-          return (
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-700 font-black overflow-hidden border border-white shadow-sm shrink-0">
-                {(user.username || "?").charAt(0).toUpperCase()}
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-black text-neutral-800 uppercase tracking-tight leading-tight">
-                  {user.username}
-                </span>
-                <span className="text-[11px] font-bold text-neutral-400 italic">
-                  Mã HV: 202400{user.id}
-                </span>
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        id: "rank",
-        header: "Cấp bậc",
-        accessorKey: "rank",
-        cell: () => (
-          <span className="text-xs font-bold text-neutral-500">Học viên</span>
+        cell: (info) => (
+          <div className="flex items-center gap-3">
+            <span className="font-semibold text-gray-900">
+              {info.row.original.username}
+            </span>
+          </div>
         ),
       },
       {
-        id: "unit",
-        header: "Đơn vị",
-        accessorKey: "unit",
-        cell: () => (
-          <span className="text-xs font-bold text-neutral-500">Đại đội 1</span>
-        ),
-      },
-      {
-        id: "position",
-        header: "Chức vụ",
-        accessorKey: "position",
-        cell: () => (
-          <span className="text-xs font-bold text-neutral-500">Lớp trưởng</span>
-        ),
-      },
-      {
-        id: "phone",
-        header: "Số điện thoại",
-        accessorKey: "phone",
-        cell: () => (
-          <span className="text-xs font-bold text-neutral-500 italic">
-            0123.456.789
+        id: "role",
+        header: "Vai trò",
+        accessorKey: "role",
+        cell: (info) => (
+          <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs font-bold uppercase">
+            {info.row.original.role}
           </span>
         ),
       },
@@ -133,14 +91,18 @@ export default function Main() {
         cell: (info) => {
           const user = info.row.original;
           return (
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-start">
               <button
                 onClick={() => handleOpenModal(user)}
                 className="w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+                title="Chỉnh sửa"
               >
                 <HiOutlinePencil size={18} />
               </button>
-              <button className="w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-xl transition-all">
+              <button
+                className="w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-xl transition-all"
+                title="Khóa tài khoản"
+              >
                 <HiOutlineLockClosed size={18} />
               </button>
             </div>
@@ -155,7 +117,7 @@ export default function Main() {
   const createMutation = useMutation({
     mutationFn: (userData: CreateUserDTO) => userService.createUser(userData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
       addToast({ message: "Thêm người dùng thành công!", variant: "success" });
       setIsModalOpen(false);
     },
@@ -178,7 +140,7 @@ export default function Main() {
       data: Partial<CreateUserDTO>;
     }) => userService.updateUser(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
       addToast({ message: "Cập nhật thành công!", variant: "success" });
       setIsModalOpen(false);
     },
@@ -204,10 +166,6 @@ export default function Main() {
     }
   };
 
-  const handlePageChange = (newPageIndex: number) => {
-    setPagination((prev) => ({ ...prev, pageIndex: newPageIndex - 1 }));
-  };
-
   return (
     <AnimatedContainer
       variant="slideUp"
@@ -217,39 +175,28 @@ export default function Main() {
         <HiOutlineHome size={14} className="mb-0.5" />
         <span>Trang chủ</span>
         <HiOutlineChevronRight size={12} />
-        <span className="text-primary-600">Danh sách học viên</span>
+        <span className="text-primary-600">Quản lý hệ thống tài khoản</span>
       </div>
 
       <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
           <h1 className="text-2xl font-black text-neutral-800 tracking-tight uppercase">
-            Danh sách học viên - Năm học
+            Quản lý hệ thống tài khoản
           </h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 transition-all">
-            <HiOutlineRefresh size={16} />
-            Cập nhật học viên ra trường
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 transition-all">
-            <HiOutlineOfficeBuilding size={16} />
-            Quản lý Trường
-          </button>
-
-          {/* Visibility Toggle - Removed manual implementation, Smart Table will handle */}
-
           <Button
             variant="primary"
             icon={HiOutlinePlus}
             onClick={() => handleOpenModal()}
             className="h-10 px-5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-primary-600/20"
           >
-            Thêm Học viên
+            Thêm Tài khoản
           </Button>
           <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 transition-all">
             <HiOutlineDownload size={16} />
-            Xuất Excel QLCTNB
+            Xuất Excel
           </button>
         </div>
       </div>
@@ -261,7 +208,7 @@ export default function Main() {
           </div>
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên hoặc mã học viên..."
+            placeholder="Tìm kiếm theo tên, username hoặc email..."
             className="w-full h-11 pl-12 pr-4 bg-white border border-neutral-200 rounded-xl outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -271,7 +218,7 @@ export default function Main() {
         <div className="w-full md:w-64">
           <Select
             value={ROLES.STUDENT.role}
-            onChange={() => {}}
+            onChange={() => { }}
             options={[
               { value: ROLES.STUDENT.role, label: "Học viên" },
               { value: ROLES.COMMANDER.role, label: "Chỉ huy" },
@@ -283,7 +230,7 @@ export default function Main() {
         <button
           onClick={() => {
             setSearch("");
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
           }}
           className="h-11 px-4 flex items-center justify-center gap-2 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all text-sm font-bold"
         >
@@ -300,12 +247,19 @@ export default function Main() {
           <Table
             fetchData={userService.getAllUsers}
             columns={columns}
-            queryKey={["users"]}
+            queryKey={[QUERY_KEYS.USERS]}
             additionalParams={{ search }}
-            emptyText="Không tìm thấy học viên nào phù hợp"
+            emptyText="Không tìm thấy tài khoản nào phù hợp"
           />
         </div>
       </div>
+
+      <UserFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+        initialData={selectedUser}
+      />
     </AnimatedContainer>
   );
 }

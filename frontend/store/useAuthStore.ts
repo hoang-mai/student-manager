@@ -33,11 +33,16 @@ export const useAuthStore = create<AuthState>()(
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         });
+        Cookies.set("accessToken", data.accessToken, {
+          expires: expiryDate || JWT_CONFIG.DEFAULT_EXPIRED_DATE,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
         Cookies.set("role", data.user.role, {
           expires: expiryDate || JWT_CONFIG.DEFAULT_EXPIRED_DATE,
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
-        })
+        });
         set({
           user: data.user,
           accessToken: data.accessToken,
@@ -47,6 +52,7 @@ export const useAuthStore = create<AuthState>()(
       },
       logout: () => {
         Cookies.remove("refreshToken");
+        Cookies.remove("accessToken");
         Cookies.remove("role");
         set({
           user: null,

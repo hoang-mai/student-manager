@@ -5,7 +5,7 @@ import { LoginResponse } from "@/types/auth";
 import { isTokenExpired } from "@/utils/fn-common";
 import { AUTH_ROUTES } from "@/constants/constants";
 
-const api = axios.create({
+const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     "Content-Type": "application/json",
@@ -33,15 +33,13 @@ const refreshAccessToken = async (refreshToken: string): Promise<string> => {
 
 let refreshPromise: Promise<string> | null = null;
 
-api.interceptors.request.use(
+apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const isAuthRoute = AUTH_ROUTES.some((route) =>
       config.url?.includes(route)
     );
 
-    if (isAuthRoute) {
-      return config;
-    }
+    if (isAuthRoute) return config;
 
     const { accessToken, refreshToken, logout } = useAuthStore.getState();
 
@@ -70,19 +68,12 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
+  (error: AxiosError) => Promise.reject(error)
 );
 
-api.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
-
-  (error: AxiosError<ApiResponse>) => {
-    return Promise.reject(error.response?.data || error);
-  }
+apiClient.interceptors.response.use(
+  (response) => response.data,
+  (error: AxiosError<ApiResponse>) => Promise.reject(error.response?.data || error)
 );
 
-export default api;
+export default apiClient;

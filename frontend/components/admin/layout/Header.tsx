@@ -48,7 +48,7 @@ export default function Header() {
           Hệ thống quản lý học viên
         </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
-          Học viện Kỹ thuật Quân sự
+          Admin Portal
         </span>
       </div>
 
@@ -70,10 +70,10 @@ export default function Header() {
               <div className={`flex items-center gap-3 transition-all group ${isOpen ? "opacity-80" : ""}`}>
                 <div className="flex flex-col text-right">
                   <span className="text-sm font-bold text-neutral-800 leading-none group-hover:text-primary-700 transition-colors">
-                    {user?.fullName || DEFAULT_VALUES.DEFAULT_COMMANDER_NAME}
+                    {user?.fullName || "System Admin"}
                   </span>
                   <span className="text-[10px] tracking-widest text-neutral-400 font-black uppercase mt-1">
-                    {ROLES.COMMANDER.name}
+                    {ROLES.ADMIN.name}
                   </span>
                 </div>
                 <div className="relative">

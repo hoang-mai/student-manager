@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { COMMANDER_MENU, MenuItem } from "@/constants/commander-menu";
+import { ADMIN_MENU, MenuItem } from "../../../constants/admin-menu";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
@@ -17,14 +17,14 @@ const Sidebar: React.FC = () => {
       {/* Header Sidebar */}
       <div className="relative flex items-center gap-3 p-6 h-20">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center text-white font-bold shrink-0 shadow-lg shadow-primary-600/20">
-          S
+          A
         </div>
         <div className="flex flex-col">
           <span className="font-black text-neutral-800 whitespace-nowrap uppercase tracking-tighter text-lg leading-tight">
             Vanguard
           </span>
           <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold leading-none">
-            Tactical Manager
+            Admin Portal
           </span>
         </div>
       </div>
@@ -32,10 +32,10 @@ const Sidebar: React.FC = () => {
       {/* Danh sách Menu */}
       <nav className="relative flex-1 overflow-y-auto py-4 px-4 no-scrollbar">
         <ul className="space-y-1.5">
-          {COMMANDER_MENU.map((item: MenuItem) => {
+          {ADMIN_MENU.map((item: MenuItem) => {
             const isActive =
               pathname === item.path ||
-              (item.path !== "/commander" && pathname.startsWith(item.path));
+              (item.path !== "/admin" && pathname.startsWith(item.path));
 
             return (
               <li key={item.code}>
@@ -66,8 +66,6 @@ const Sidebar: React.FC = () => {
           })}
         </ul>
       </nav>
-
-      
     </aside>
   );
 };

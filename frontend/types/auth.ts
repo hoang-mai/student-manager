@@ -8,7 +8,7 @@ export interface User {
   username: string;
   isAdmin: boolean;
   role: "ADMIN" | "COMMANDER" | "STUDENT";
-  refreshToken: string;
+  refreshToken: string | null;
   studentId: string | null;
   commanderId: string | null;
   createdAt: string;
