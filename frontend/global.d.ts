@@ -9,8 +9,8 @@ declare global {
 
   interface PaginationInfo {
     total: number;
-    page: number;
-    limit: number;
+    pageIndex: number;
+    pageSize: number;
     totalPages: number;
   }
 

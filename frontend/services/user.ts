@@ -1,65 +1,38 @@
-import api from "./axios";
+import apiClient from "./axios-client";
+import { ENDPOINTS } from "@/constants/endpoints";
 import { User } from "@/types/auth";
 import { 
   UserQueryParams, 
-  PaginatedResponse, 
   CreateUserDTO 
 } from "@/types/user";
 
 export const userService = {
-  /**
-   * Lấy danh sách người dùng có phân trang và lọc
-   */
-  getAllUsers: async (params?: UserQueryParams) => {
-    const response = await api.get<PaginatedResponse<User>>("/users", { params });
-    return response.data;
+
+  getAllUsers: async (params: UserQueryParams): Promise<PaginatedResponse<User>> => {
+    return apiClient.get(ENDPOINTS.USERS.BASE, { params });
+  },
+  
+  getUserById: async (id: string | number): Promise<ApiResponse<User>> => {
+    return apiClient.get(ENDPOINTS.USERS.DETAIL(id));
+  },
+  
+  createUser: async (data: CreateUserDTO): Promise<ApiResponse<User>> => {
+    return apiClient.post(ENDPOINTS.USERS.BASE, data);
   },
 
-  /**
-   * Lấy chi tiết một người dùng
-   */
-  getUserById: async (id: number) => {
-    const response = await api.get<{ data: User }>(`/users/${id}`);
-    return response.data;
+  updateUser: async (id: string | number, data: Partial<CreateUserDTO>): Promise<ApiResponse<User>> => {
+    return apiClient.put(ENDPOINTS.USERS.DETAIL(id), data);
+  },
+  
+  toggleActive: async (id: string | number): Promise<ApiResponse<User>> => {
+    return apiClient.patch(ENDPOINTS.USERS.TOGGLE_ACTIVE(id));
   },
 
-  /**
-   * Tạo người dùng mới
-   */
-  createUser: async (data: CreateUserDTO) => {
-    const response = await api.post<{ data: User }>("/users", data);
-    return response.data;
+  resetPassword: async (id: string | number, newPassword?: string) => {
+    return apiClient.patch(ENDPOINTS.USERS.RESET_PASSWORD(id), { newPassword });
   },
 
-  /**
-   * Cập nhật thông tin người dùng
-   */
-  updateUser: async (id: number, data: Partial<CreateUserDTO>) => {
-    const response = await api.put<{ data: User }>(`/users/${id}`, data);
-    return response.data;
-  },
-
-  /**
-   * Bật/Tắt trạng thái hoạt động của tài khoản
-   */
-  toggleActive: async (id: number) => {
-    const response = await api.patch<{ data: User }>(`/users/${id}/toggle-active`);
-    return response.data;
-  },
-
-  /**
-   * Đặt lại mật khẩu cho người dùng
-   */
-  resetPassword: async (id: number, newPassword?: string) => {
-    const response = await api.patch(`/users/${id}/reset-password`, { newPassword });
-    return response.data;
-  },
-
-  /**
-   * Xóa người dùng (Chỉ Admin)
-   */
-  deleteUser: async (id: number) => {
-    const response = await api.delete(`/users/${id}`);
-    return response.data;
+  deleteUser: async (id: string | number) => {
+    return apiClient.delete(ENDPOINTS.USERS.DETAIL(id));
   }
 };

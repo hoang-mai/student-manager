@@ -1,17 +1,17 @@
-import api from "./axios";
+import apiClient from "./axios-client";
 import { LoginFormValues, LoginResponse } from "@/types/auth";
 import { ENDPOINTS } from "@/constants/endpoints";
 
 export const authService = {
   login: async (data: LoginFormValues): Promise<ApiResponse<LoginResponse>> => {
-    return api.post(ENDPOINTS.AUTH.LOGIN, data);
+    return apiClient.post(ENDPOINTS.AUTH.LOGIN, data);
   },
 
   logout: async () => {
-    return api.post(ENDPOINTS.AUTH.LOGOUT);
+    return apiClient.post(ENDPOINTS.AUTH.LOGOUT);
   },
 
   getProfile: async () => {
-    return api.get(ENDPOINTS.AUTH.PROFILE);
+    return apiClient.get(ENDPOINTS.AUTH.PROFILE);
   },
 };
