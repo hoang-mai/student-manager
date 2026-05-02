@@ -6,8 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
-import { loginSchema } from "@/utils/validations/login";
-import type { LoginFormValues } from "@/types/auth";
+import { loginSchema, LoginFormValues } from "@/utils/validations";
 import { ROLES } from "@/constants/constants";
 import Link from "next/link";
 import { motion } from "motion/react";
@@ -19,6 +18,7 @@ import { useToastStore } from "@/store/useToastStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Divide from "@/library/Divide";
+import { LoginRequest } from "@/types/auth";
 
 export default function Main() {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +27,7 @@ export default function Main() {
   const { showLoading, hideLoading } = useLoadingStore();
   const { addToast } = useToastStore();
   const loginMutation = useMutation({
-    mutationFn: (data: LoginFormValues) => {
+    mutationFn: (data: LoginRequest) => {
       showLoading();
       return authService.login(data);
     },
@@ -126,6 +126,7 @@ export default function Main() {
             size="lg"
             floatingLabel={false}
             prefixIcon={<FiUser size={18} />}
+            isLoading={loginMutation.isPending}
             error={errors.username?.message}
             {...register("username")}
           />
@@ -137,6 +138,7 @@ export default function Main() {
             type={showPassword ? "text" : "password"}
             placeholder="Nhập mật khẩu"
             size="lg"
+            isLoading={loginMutation.isPending}
             prefixIcon={<FiLock size={18} />}
             suffixIcon={
               <button

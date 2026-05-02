@@ -3,20 +3,20 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ADMIN_MENU, MenuItem } from "../../../constants/admin-menu";
+import { ADMIN_MENU, MenuItem } from "@/constants/admin-menu";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="relative flex flex-col w-[280px] bg-white/70 backdrop-blur-xl border-r border-neutral-100/50 shadow-sm z-50 overflow-hidden">
+    <aside className="relative flex flex-col w-70 bg-white/70 backdrop-blur-xl border-r border-neutral-100/50 shadow-sm z-50 overflow-hidden">
       {/* Background blobs for flair */}
       <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary-100/30 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 -right-32 w-64 h-64 bg-secondary-100/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header Sidebar */}
       <div className="relative flex items-center gap-3 p-6 h-20">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center text-white font-bold shrink-0 shadow-lg shadow-primary-600/20">
+        <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary-600 to-primary-700 flex items-center justify-center text-white font-bold shrink-0 shadow-lg shadow-primary-600/20">
           A
         </div>
         <div className="flex flex-col">

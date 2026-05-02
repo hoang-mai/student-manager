@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   ColumnDef,
   VisibilityState,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 import { DragDropProvider, DragEndEvent } from "@dnd-kit/react";
 import { isSortable } from "@dnd-kit/react/sortable";
@@ -17,6 +18,7 @@ import TableToolbar from "@/library/Table/TableToolbar";
 import TableSkeleton from "@/library/Table/TableSkeleton";
 import TableBody from "@/library/Table/TableBody";
 import { DEFAULT_PAGE } from "@/constants/constants";
+import { FilterField } from "@/library/Table/TableFilter";
 
 export interface TableProps<TData, TParams = Record<string, unknown>> {
   /** Hàm gọi API lấy dữ liệu */
@@ -29,8 +31,10 @@ export interface TableProps<TData, TParams = Record<string, unknown>> {
   showIndex?: boolean;
   /** Hiển thị nút tùy chỉnh ẩn hiện cột (mặc định: true) */
   showVisibilityToggle?: boolean;
-  /** Các tham số query bổ sung (search, filter...) */
-  additionalParams?: TParams;
+  /** Cấu hình các trường lọc */
+  filterFields?: FilterField[];
+  /** Hiển thị bộ lọc (mặc định: true nếu có filterFields) */
+  showFilter?: boolean;
   /** Văn bản hiển thị khi không có dữ liệu */
   emptyText?: string;
   /** Class CSS bổ sung cho container của bảng */
@@ -44,8 +48,8 @@ const Table = <TData, TParams = Record<string, unknown>>({
   columns: userColumns,
   queryKey,
   showIndex = true,
-  showVisibilityToggle = true,
-  additionalParams = {} as TParams,
+  filterFields,
+  showFilter = true,
   emptyText = "Không có dữ liệu hiển thị",
   className = "",
   rowClassName = "",
@@ -56,15 +60,24 @@ const Table = <TData, TParams = Record<string, unknown>>({
   });
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const { data, isLoading } = useQuery({
-    queryKey: [...queryKey, pagination, additionalParams],
+    queryKey: [...queryKey, pagination, columnFilters],
     queryFn: async () => {
+      const filterParams = columnFilters.reduce(
+        (acc, filter) => {
+          acc[filter.id] = filter.value;
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
+
       return fetchData({
         page: pagination.pageIndex + 1,
         limit: pagination.pageSize,
-        ...additionalParams,
-      });
+        ...filterParams,
+      } as TParams);
     },
     placeholderData: keepPreviousData,
   });
@@ -96,14 +109,17 @@ const Table = <TData, TParams = Record<string, unknown>>({
     columns: finalColumns,
     pageCount: totalPages,
     manualPagination: true,
+    manualFiltering: true,
     state: {
       pagination,
       columnOrder,
       columnVisibility,
+      columnFilters,
     },
     onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -148,7 +164,12 @@ const Table = <TData, TParams = Record<string, unknown>>({
   return (
     <div className="space-y-4">
       {/* Table Toolbar */}
-      {showVisibilityToggle && <TableToolbar table={table} />}
+      <TableToolbar
+        table={table}
+        filterFields={filterFields}
+        showFilter={showFilter}
+        isLoading={isLoading}
+      />
 
       <DragDropProvider onDragEnd={handleDragEnd}>
         <div

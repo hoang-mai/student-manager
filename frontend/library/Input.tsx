@@ -122,7 +122,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               ${widthStyles}
               ${prefixIcon ? "pl-10!" : ""}
               ${suffixIcon ? "pr-10!" : ""}
-              disabled:opacity-50 disabled:cursor-not-allowed
+              ${disabled ? "opacity-50 cursor-not-allowed" : ""}
               ${className}
             `}
             {...props}
