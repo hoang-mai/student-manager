@@ -5,7 +5,7 @@ const { paginateQuery } = require('../utils/response');
 const ScientificTopic = db.scientificTopic;
 
 const create = async (data) => ScientificTopic.create(data);
-const getAll = async (query) => paginateQuery(ScientificTopic, query);
+const getAll = async (query) => paginateQuery(ScientificTopic, query, { filterFields: ['yearlyAchievementId', 'title', 'year', 'status'] });
 
 const getDetail = async (id) => {
   const record = await ScientificTopic.findByPk(id);

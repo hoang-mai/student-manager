@@ -5,7 +5,7 @@ const { paginateQuery } = require('../utils/response');
 const CommanderDutySchedule = db.commanderDutySchedule;
 
 const create = async (data) => CommanderDutySchedule.create(data);
-const getAll = async (query) => paginateQuery(CommanderDutySchedule, query);
+const getAll = async (query) => paginateQuery(CommanderDutySchedule, query, { filterFields: ['fullName', 'rank', 'position'] });
 
 const getDetail = async (id) => {
   const record = await CommanderDutySchedule.findByPk(id);

@@ -19,7 +19,7 @@ const Notification = db.notification;
 // ===================== CRUD Cơ bản =====================
 
 const create = async (data) => Student.create(data);
-const getAll = async (query) => paginateQuery(Student, query);
+const getAll = async (query) => paginateQuery(Student, query, { filterFields: ['studentId', 'fullName', 'gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId'] });
 
 const getDetail = async (id) => {
   const record = await Student.findByPk(id);
