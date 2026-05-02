@@ -1,47 +1,39 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  useReactTable,
-  getCoreRowModel,
-  ColumnDef,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
 import { userService } from "@/services/user";
-import { UserQueryParams, CreateUserDTO } from "@/types/user";
+import { CreateUserDTO } from "@/types/user";
 import { User } from "@/types/auth";
 import { ROLES } from "@/constants/constants";
 import { formatDate } from "@/utils/fn-common";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Button from "@/library/Button";
-import Divide from "@/library/Divide";
 import Table from "@/library/Table";
-import Select from "@/library/Select";
 import {
   HiOutlinePlus,
   HiOutlinePencil,
   HiOutlineLockClosed,
-  HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineHome,
   HiOutlineDownload,
   HiOutlineOfficeBuilding,
   HiOutlineRefresh,
-  HiOutlineX,
-  HiOutlineAdjustments,
 } from "react-icons/hi";
 import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import UserFormModal from "./UserFormModal";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 export default function Main() {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
 
-  // State tìm kiếm
+  // State tìm kiếm và filter
   const [search, setSearch] = useState("");
+  const [filterRole, setFilterRole] = useState(ROLES.STUDENT.role);
+  const [date, setDate] = useState("");
+  const [isFilterEnabled, setIsFilterEnabled] = useState(true);
 
   // State Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -151,43 +143,22 @@ export default function Main() {
     []
   );
 
-  // Mutation: Tạo người dùng
+  // Mutations
   const createMutation = useMutation({
     mutationFn: (userData: CreateUserDTO) => userService.createUser(userData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
       addToast({ message: "Thêm người dùng thành công!", variant: "success" });
       setIsModalOpen(false);
     },
-    onError: (err: unknown) => {
-      const error = err as { response?: { data?: { message?: string } } };
-      addToast({
-        message: error.response?.data?.message || "Thêm thất bại!",
-        variant: "error",
-      });
-    },
   });
 
-  // Mutation: Cập nhật người dùng
   const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string | number;
-      data: Partial<CreateUserDTO>;
-    }) => userService.updateUser(id, data),
+    mutationFn: ({ id, data }: { id: string | number; data: Partial<CreateUserDTO> }) => userService.updateUser(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
       addToast({ message: "Cập nhật thành công!", variant: "success" });
       setIsModalOpen(false);
-    },
-    onError: (err: unknown) => {
-      const error = err as { response?: { data?: { message?: string } } };
-      addToast({
-        message: error.response?.data?.message || "Cập nhật thất bại!",
-        variant: "error",
-      });
     },
   });
 
@@ -202,10 +173,6 @@ export default function Main() {
     } else {
       createMutation.mutate(formData);
     }
-  };
-
-  const handlePageChange = (newPageIndex: number) => {
-    setPagination((prev) => ({ ...prev, pageIndex: newPageIndex - 1 }));
   };
 
   return (
@@ -237,8 +204,6 @@ export default function Main() {
             Quản lý Trường
           </button>
 
-          {/* Visibility Toggle - Removed manual implementation, Smart Table will handle */}
-
           <Button
             variant="primary"
             icon={HiOutlinePlus}
@@ -254,58 +219,65 @@ export default function Main() {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center gap-4 bg-neutral-50/50 p-4 rounded-2xl border border-neutral-100">
-        <div className="relative flex-1 group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-primary-500 transition-colors">
-            <HiOutlineRefresh size={18} className="rotate-90" />
-          </div>
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo tên hoặc mã học viên..."
-            className="w-full h-11 pl-12 pr-4 bg-white border border-neutral-200 rounded-xl outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all text-sm"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="w-full md:w-64">
-          <Select
-            value={ROLES.STUDENT.role}
-            onChange={() => {}}
-            options={[
-              { value: ROLES.STUDENT.role, label: "Học viên" },
-              { value: ROLES.COMMANDER.role, label: "Chỉ huy" },
-              { value: ROLES.ADMIN.role, label: "Admin" },
-            ]}
-          />
-        </div>
-
-        <button
-          onClick={() => {
-            setSearch("");
-            queryClient.invalidateQueries({ queryKey: ["users"] });
-          }}
-          className="h-11 px-4 flex items-center justify-center gap-2 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all text-sm font-bold"
-        >
-          <HiOutlineRefresh size={18} />
-          <span className="hidden lg:inline text-[11px] font-black uppercase tracking-wider">
-            Làm mới
-          </span>
-        </button>
-      </div>
-
       <div className="bg-white overflow-hidden relative">
-        {/* Table Area */}
         <div className="px-4">
           <Table
             fetchData={userService.getAllUsers}
             columns={columns}
-            queryKey={["users"]}
-            additionalParams={{ search }}
+            queryKey={[QUERY_KEYS.USERS]}
+            additionalParams={{
+              search: isFilterEnabled ? search : "",
+              role: isFilterEnabled ? filterRole : "",
+              date: isFilterEnabled ? date : "",
+            }}
+            filterFields={[
+              {
+                type: "text",
+                key: "search",
+                label: "Tìm kiếm",
+                placeholder: "Tên hoặc mã học viên...",
+              },
+              {
+                type: "select",
+                key: "role",
+                label: "Vai trò",
+                options: [
+                  { value: "", label: "Tất cả vai trò" },
+                  { value: ROLES.STUDENT.role, label: "Học viên" },
+                  { value: ROLES.COMMANDER.role, label: "Chỉ huy" },
+                  { value: ROLES.ADMIN.role, label: "Admin" },
+                ],
+              },
+              {
+                type: "date",
+                key: "date",
+                label: "Ngày nhập ngũ",
+              },
+            ]}
+            onSearch={(values) => {
+              setSearch(values.search || "");
+              setFilterRole(values.role || "");
+              setDate(values.date || "");
+              setIsFilterEnabled(true);
+            }}
+            onReset={() => {
+              setSearch("");
+              setFilterRole(ROLES.STUDENT.role);
+              setDate("");
+              setIsFilterEnabled(true);
+              queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
+            }}
             emptyText="Không tìm thấy học viên nào phù hợp"
           />
         </div>
       </div>
+
+      <UserFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+        initialData={selectedUser}
+      />
     </AnimatedContainer>
   );
 }

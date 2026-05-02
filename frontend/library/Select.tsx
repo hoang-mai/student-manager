@@ -102,7 +102,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
 
     return (
       <div
-        className={`${fullWidth ? "w-full" : "inline-flex flex-col"} relative min-w-20`}
+        className={`${fullWidth ? "w-full" : "inline-flex flex-col"} relative min-w-20 ${floatingLabel ? "mt-1.5" : ""}`}
         ref={ref}
       >
         {label && (

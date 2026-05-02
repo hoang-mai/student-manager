@@ -1,18 +1,16 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { userService } from "@/services/user";
-import { UserQueryParams, CreateUserDTO } from "@/types/user";
+import { CreateUserDTO } from "@/types/user";
 import { User } from "@/types/auth";
 import { ROLES } from "@/constants/constants";
 import { formatDate } from "@/utils/fn-common";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Button from "@/library/Button";
-import Divide from "@/library/Divide";
 import Table from "@/library/Table";
-import Select from "@/library/Select";
 import {
   HiOutlinePlus,
   HiOutlinePencil,
@@ -20,27 +18,18 @@ import {
   HiOutlineChevronRight,
   HiOutlineHome,
   HiOutlineDownload,
-  HiOutlineRefresh,
 } from "react-icons/hi";
 import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import UserFormModal from "@/components/commander/accounts/UserFormModal";
-import { ENDPOINTS } from "@/constants/endpoints";
 import { QUERY_KEYS } from "@/constants/query-keys";
+import { FilterField } from "@/library/Table/TableFilter";
 
 export default function Main() {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
-
-  // State tìm kiếm và filter
-  const [search, setSearch] = useState("");
-
-  // State Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  // Cấu trúc cột cho Table
   const columns = useMemo<ColumnDef<User>[]>(
     () => [
       {
@@ -113,7 +102,27 @@ export default function Main() {
     []
   );
 
-  // Mutation: Tạo người dùng
+  const filterOptions = useMemo<FilterField[]>(() => [
+    {
+      type: "text",
+      id: "username",
+      label: "Tên đăng nhập",
+      placeholder: "Nhập tên đăng nhập...",
+    },
+    {
+      type: "select",
+      id: "role",
+      label: "Vai trò",
+      options: [
+        { value: "", label: "Tất cả vai trò" },
+        { value: ROLES.STUDENT.role, label: ROLES.STUDENT.name },
+        { value: ROLES.COMMANDER.role, label: ROLES.COMMANDER.name },
+        { value: ROLES.ADMIN.role, label: ROLES.ADMIN.name },
+      ],
+      placeholder: "Chọn vai trò...",
+    }
+  ], []);
+
   const createMutation = useMutation({
     mutationFn: (userData: CreateUserDTO) => userService.createUser(userData),
     onSuccess: () => {
@@ -201,54 +210,13 @@ export default function Main() {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center gap-4 bg-neutral-50/50 p-4 rounded-2xl border border-neutral-100">
-        <div className="relative flex-1 group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-primary-500 transition-colors">
-            <HiOutlineRefresh size={18} className="rotate-90" />
-          </div>
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo tên, username hoặc email..."
-            className="w-full h-11 pl-12 pr-4 bg-white border border-neutral-200 rounded-xl outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all text-sm"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="w-full md:w-64">
-          <Select
-            value={ROLES.STUDENT.role}
-            onChange={() => { }}
-            options={[
-              { value: ROLES.STUDENT.role, label: "Học viên" },
-              { value: ROLES.COMMANDER.role, label: "Chỉ huy" },
-              { value: ROLES.ADMIN.role, label: "Admin" },
-            ]}
-          />
-        </div>
-
-        <button
-          onClick={() => {
-            setSearch("");
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-          }}
-          className="h-11 px-4 flex items-center justify-center gap-2 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all text-sm font-bold"
-        >
-          <HiOutlineRefresh size={18} />
-          <span className="hidden lg:inline text-[11px] font-black uppercase tracking-wider">
-            Làm mới
-          </span>
-        </button>
-      </div>
-
       <div className="bg-white overflow-hidden relative">
-        {/* Table Area */}
         <div className="px-4">
           <Table
             fetchData={userService.getAllUsers}
             columns={columns}
             queryKey={[QUERY_KEYS.USERS]}
-            additionalParams={{ search }}
+            filterFields={filterOptions}
             emptyText="Không tìm thấy tài khoản nào phù hợp"
           />
         </div>

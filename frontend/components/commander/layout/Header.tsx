@@ -22,11 +22,23 @@ import Toggle from "@/library/Toggle";
 import { useTheme } from "next-themes";
 import Cookies from "js-cookie";
 import { THEMES } from "@/constants/constants";
+import { useQuery } from "@tanstack/react-query";
+import { authService } from "@/services/auth";
+import { useModalStore } from "@/store/useModalStore";
+import ChangePasswordForm from "@/components/admin/layout/header/ChangePasswordForm";
 
 export default function Header() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
+  const { openModal, closeModal } = useModalStore();
+
+  const { data: profileResponse } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => authService.getProfile(),
+  });
+
+  const profile = profileResponse?.data || user;
 
   const isDarkMode = theme === THEMES.DARK;
   const handleToggleTheme = () => {
@@ -38,6 +50,19 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     router.replace("/login");
+  };
+
+  const handleOpenChangePassword = () => {
+    openModal({
+      title: "Đổi mật khẩu",
+      content: (
+        <ChangePasswordForm
+          onSuccess={closeModal}
+          onCancel={closeModal}
+        />
+      ),
+      size: "md"
+    });
   };
 
   return (
@@ -70,14 +95,14 @@ export default function Header() {
               <div className={`flex items-center gap-3 transition-all group ${isOpen ? "opacity-80" : ""}`}>
                 <div className="flex flex-col text-right">
                   <span className="text-sm font-bold text-neutral-800 leading-none group-hover:text-primary-700 transition-colors">
-                    {user?.fullName || DEFAULT_VALUES.DEFAULT_COMMANDER_NAME}
+                    {profile?.fullName || DEFAULT_VALUES.DEFAULT_COMMANDER_NAME}
                   </span>
                   <span className="text-[10px] tracking-widest text-neutral-400 font-black uppercase mt-1">
                     {ROLES.COMMANDER.name}
                   </span>
                 </div>
                 <div className="relative">
-                  <Avatar src={user?.avatarUrl} alt={user?.fullName} size={40} className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`} />
+                  <Avatar src={profile?.avatarUrl} alt={profile?.fullName} size={40} className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`} />
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100 text-neutral-500">
                     <HiOutlineChevronDown size={10} className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
                   </div>
@@ -103,6 +128,7 @@ export default function Header() {
               {/* Đổi mật khẩu */}
               <motion.button
                 whileHover="hover"
+                onClick={handleOpenChangePassword}
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
