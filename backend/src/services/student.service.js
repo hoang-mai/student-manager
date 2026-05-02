@@ -38,20 +38,7 @@ const deleteRecord = async (id) => {
   return { deleted: true };
 };
 
-// ===================== HV-02: Profile =====================
-
-const getProfile = async (studentId) => {
-  const student = await Student.findByPk(studentId, {
-    include: [
-      { model: db.class },
-      { model: db.organization },
-      { model: db.university },
-      { model: db.educationLevel },
-    ],
-  });
-  if (!student) throw new NotFoundError('Không tìm thấy học viên');
-  return student;
-};
+// ===================== HV-02: Profile (xem profile dùng /api/auth/profile) =====================
 
 const updateProfile = async (studentId, data) => {
   const student = await Student.findByPk(studentId);
@@ -157,7 +144,7 @@ const getMyTuitionFees = async (studentId) => {
 
 // ===================== HV-09: Notifications =====================
 
-const getMyNotifications = async (studentId, query = {}) => {
+const getMyNotifications = async (userId, query = {}) => {
   const where = { studentId };
   if (query.type) where.type = query.type;
   if (query.isRead !== undefined) where.isRead = query.isRead === 'true';
@@ -165,21 +152,21 @@ const getMyNotifications = async (studentId, query = {}) => {
   return paginateQuery(Notification, query, { where, order: [['createdAt', 'DESC']] });
 };
 
-const getMyNotificationDetail = async (studentId, id) => {
+const getMyNotificationDetail = async (userId, id) => {
   const notif = await Notification.findOne({ where: { id, studentId } });
   if (!notif) throw new NotFoundError('Không tìm thấy thông báo');
   await notif.update({ isRead: true });
   return notif;
 };
 
-const markNotificationRead = async (studentId, id) => {
+const markNotificationRead = async (userId, id) => {
   const notif = await Notification.findOne({ where: { id, studentId } });
   if (!notif) throw new NotFoundError('Không tìm thấy thông báo');
   return notif.update({ isRead: true });
 };
 
-const markAllNotificationsRead = async (studentId) => {
-  await Notification.update({ isRead: true }, { where: { studentId } });
+const markAllNotificationsRead = async (userId) => {
+  await Notification.update({ isRead: true }, { where: { userId } });
   return { updated: true };
 };
 
@@ -189,8 +176,6 @@ module.exports = {
   getDetail,
   update,
   delete: deleteRecord,
-  getProfile,
-  updateProfile,
   uploadAvatar,
   getAcademicResults,
   getMyTimeTable,

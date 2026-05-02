@@ -71,6 +71,7 @@ db.scientificTopic = require('./scientificTopic.js')(sequelize, DataTypes);
 db.commanderDutySchedule = require('./commanderDutySchedule.js')(sequelize, DataTypes);
 db.cutRice = require('./cutRice.js')(sequelize, DataTypes);
 db.notification = require('./notification.js')(sequelize, DataTypes);
+db.gradeRequest = require('./gradeRequest.js')(sequelize, DataTypes);
 
 // ==========================
 // Relations
@@ -170,8 +171,22 @@ db.scientificTopic.belongsTo(db.yearlyAchievement, { foreignKey: 'yearly_achieve
 db.student.hasMany(db.cutRice, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.cutRice.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
-// Student 1:N Notification
-db.student.hasMany(db.notification, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-db.notification.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+// User 1:N Notification
+db.user.hasMany(db.notification, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.notification.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+
+// --- Nhóm Đề xuất ---
+
+// Student 1:N GradeRequest
+db.student.hasMany(db.gradeRequest, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.gradeRequest.belongsTo(db.student, { foreignKey: 'student_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+
+// SubjectResult 1:N GradeRequest
+db.subjectResult.hasMany(db.gradeRequest, { foreignKey: 'subject_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.gradeRequest.belongsTo(db.subjectResult, { foreignKey: 'subject_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+
+// User 1:N GradeRequest (reviewer)
+db.user.hasMany(db.gradeRequest, { foreignKey: 'reviewer_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.gradeRequest.belongsTo(db.user, { as: 'reviewer', foreignKey: 'reviewer_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
 module.exports = db;

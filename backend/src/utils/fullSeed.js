@@ -475,15 +475,25 @@ async function fullSeed() {
       const numNotifs = 2 + Math.floor(Math.random() * 4);
       const selected = [...notifTemplates].sort(() => 0.5 - Math.random()).slice(0, numNotifs);
 
+      // Find corresponding user for this student
+      const user = hocViens.find(u => u.studentId === student.id);
+      const userId = user ? user.id : student.id;
+
       for (const n of selected) {
         await db.notification.create({
-          studentId: student.id,
+          userId: userId,
           title: n.title,
           content: n.content,
           type: n.type,
           isRead: Math.random() > 0.5,
         });
       }
+    }
+
+    // Also create notifications for commanders
+    for (const cmdUser of [chiHuy1, chiHuy2]) {
+      await db.notification.create({ userId: cmdUser.id, title: 'Nhiệm vụ mới', content: 'Bạn được phân công phê duyệt đề xuất điểm học kỳ mới.', type: 'GENERAL', isRead: false });
+      await db.notification.create({ userId: cmdUser.id, title: 'Lịch trực tuần', content: 'Lịch trực tuần tới đã được cập nhật.', type: 'GENERAL', isRead: true });
     }
     console.log('Notifications seeded.');
 
@@ -505,6 +515,70 @@ async function fullSeed() {
       await db.commanderDutySchedule.create(d);
     }
     console.log(`CommanderDutySchedules seeded: ${dutyData.length}`);
+
+    // ==========================
+    // 18. GRADE REQUESTS
+    // ==========================
+    // Get first subject result of a student
+    const firstSubjects = await db.subjectResult.findAll({ limit: 5, order: [['createdAt', 'ASC']] });
+    if (firstSubjects.length >= 3) {
+      await db.gradeRequest.create({
+        studentId: students[0].id,
+        subjectResultId: firstSubjects[0].id,
+        requestType: 'UPDATE',
+        reason: 'Điểm thi cuối kỳ bị nhập sai, đề nghị cập nhật lại',
+        proposedLetterGrade: 'A',
+        proposedGradePoint4: 4.0,
+        proposedGradePoint10: 9.0,
+        attachmentUrl: '/uploads/evidence_001.pdf',
+        status: 'PENDING',
+      });
+      await db.gradeRequest.create({
+        studentId: students[1].id,
+        subjectResultId: firstSubjects[1].id,
+        requestType: 'UPDATE',
+        reason: 'Bài thi bị chấm nhầm, xin phúc khảo',
+        proposedLetterGrade: 'B+',
+        proposedGradePoint4: 3.5,
+        proposedGradePoint10: 8.0,
+        status: 'APPROVED',
+        reviewerId: chiHuy1.id,
+        reviewNote: 'Đồng ý cập nhật sau khi rà soát',
+        reviewedAt: new Date('2024-12-15'),
+      });
+      await db.gradeRequest.create({
+        studentId: students[2].id,
+        subjectResultId: firstSubjects[2].id,
+        requestType: 'DELETE',
+        reason: 'Môn học này không thuộc chương trình đào tạo',
+        status: 'REJECTED',
+        reviewerId: chiHuy2.id,
+        reviewNote: 'Môn học đúng chương trình, không thể xóa',
+        reviewedAt: new Date('2025-01-10'),
+      });
+      await db.gradeRequest.create({
+        studentId: students[3].id,
+        subjectResultId: firstSubjects[3].id,
+        requestType: 'UPDATE',
+        reason: 'Điểm quá trình chưa được cộng',
+        proposedLetterGrade: 'C+',
+        proposedGradePoint4: 2.5,
+        proposedGradePoint10: 6.5,
+        status: 'PENDING',
+      });
+      await db.gradeRequest.create({
+        studentId: students[4].id,
+        subjectResultId: firstSubjects[4].id,
+        requestType: 'UPDATE',
+        reason: 'Điểm cộng NCKH chưa được tính',
+        proposedLetterGrade: 'B',
+        proposedGradePoint4: 3.0,
+        proposedGradePoint10: 7.0,
+        status: 'PENDING',
+        attachmentUrl: '/uploads/nckh_evidence.pdf',
+      });
+    }
+    console.log('GradeRequests seeded.');
 
     console.log('\n✅ FULL SEED DATA CREATED SUCCESSFULLY');
     console.log('==============================');

@@ -5,46 +5,6 @@ const { authMiddleware, requireRole, requireStudent } = require('../middlewares/
 // ===================== Học viên tự truy cập =====================
 router.use(authMiddleware);
 
-/**
- * @swagger
- * /students/profile:
- *   get:
- *     tags: [Students]
- *     summary: HV-02 - Xem thông tin cá nhân
- *     description: Học viên xem hồ sơ cá nhân bao gồm thông tin lớp, đơn vị, trường, trình độ đào tạo
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Thông tin cá nhân học viên
- */
-router.get('/profile', requireStudent, controller.getProfile);
-
-/**
- * @swagger
- * /students/profile:
- *   put:
- *     tags: [Students]
- *     summary: HV-02 - Cập nhật thông tin cá nhân
- *     description: Học viên tự cập nhật địa chỉ, số điện thoại, email, ảnh đại diện, cấp bậc, chức vụ
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Cập nhật thành công
- */
-router.put('/profile', requireStudent, controller.updateProfile);
-
-/**
- * @swagger
- * /students/avatar:
- *   post:
- *     tags: [Students]
- *     summary: HV-02 - Upload ảnh đại diện
- *     description: Học viên cập nhật ảnh đại diện cá nhân
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Cập nhật ảnh đại diện thành công
- */
 router.post('/avatar', requireStudent, controller.uploadAvatar);
 
 /**
@@ -172,76 +132,6 @@ router.get('/achievements', requireStudent, controller.getMyAchievements);
  *         description: Danh sách học phí
  */
 router.get('/tuition-fees', requireStudent, controller.getMyTuitionFees);
-
-/**
- * @swagger
- * /students/notifications:
- *   get:
- *     tags: [Students]
- *     summary: HV-09 - Xem danh sách thông báo
- *     description: Học viên xem danh sách thông báo của mình. Hỗ trợ lọc theo type và isRead
- *     security: [{ BearerAuth: [] }]
- *     parameters:
- *       - name: type
- *         in: query
- *         schema: { type: string }
- *         description: Lọc theo loại thông báo (GENERAL, GRADE, CUT_RICE, ACHIEVEMENT)
- *       - name: isRead
- *         in: query
- *         schema: { type: string, enum: ['true', 'false'] }
- *         description: Lọc theo trạng thái đọc
- *     responses:
- *       200:
- *         description: Danh sách thông báo
- */
-router.get('/notifications', requireStudent, controller.getMyNotifications);
-
-/**
- * @swagger
- * /students/notifications/read-all:
- *   put:
- *     tags: [Students]
- *     summary: HV-09 - Đánh dấu đọc tất cả thông báo
- *     description: Học viên đánh dấu tất cả thông báo là đã đọc
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Đã đánh dấu đọc tất cả
- */
-router.put('/notifications/read-all', requireStudent, controller.markAllNotificationsRead);
-
-/**
- * @swagger
- * /students/notifications/{id}:
- *   get:
- *     tags: [Students]
- *     summary: HV-09 - Xem chi tiết thông báo
- *     description: Học viên xem chi tiết thông báo, tự động đánh dấu đã đọc
- *     security: [{ BearerAuth: [] }]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema: { type: string, format: uuid }
- *     responses:
- *       200:
- *         description: Chi tiết thông báo
- *   put:
- *     tags: [Students]
- *     summary: HV-09 - Đánh dấu đọc 1 thông báo
- *     description: Học viên đánh dấu 1 thông báo là đã đọc
- *     security: [{ BearerAuth: [] }]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema: { type: string, format: uuid }
- *     responses:
- *       200:
- *         description: Đã đánh dấu đọc
- */
-router.get('/notifications/:id', requireStudent, controller.getMyNotificationDetail);
-router.put('/notifications/:id/read', requireStudent, controller.markNotificationRead);
 
 // ===================== Chỉ huy / Admin quản lý toàn bộ =====================
 router.use(requireRole('ADMIN', 'COMMANDER'));
