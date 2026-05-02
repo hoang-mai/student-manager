@@ -14,7 +14,7 @@ const create = async (data) => {
   return User.create(data);
 };
 
-const getAll = async (query) => paginateQuery(User, query);
+const getAll = async (query) => paginateQuery(User, query, { filterFields: ['username', 'role', 'isAdmin'] });
 
 const getDetail = async (id) => {
   const record = await User.findByPk(id);

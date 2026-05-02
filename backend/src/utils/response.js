@@ -35,7 +35,27 @@ const paginateQuery = async (model, query = {}, options = {}) => {
   const page = Math.max(1, parseInt(query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 10));
   const offset = (page - 1) * limit;
-  const { count, rows } = await model.findAndCountAll({ ...options, offset, limit });
+
+  // --- Filter ---
+  const where = { ...(options.where || {}) };
+  const filterFields = (options.filterFields || []).concat(options.filters || []);
+  for (const field of filterFields) {
+    if (query[field] !== undefined) {
+      where[field] = query[field];
+    }
+  }
+
+  // --- Sort --- (mặc định: createdAt DESC, hệ thống tự xử lý)
+  let order = options.order || [['createdAt', 'DESC']];
+  if (query.sortBy) {
+    const sortOrder = query.sortOrder === 'desc' ? 'DESC' : 'ASC';
+    order = [[query.sortBy, sortOrder]];
+  }
+
+  const { count, rows } = await model.findAndCountAll({ ...options, where, order, offset, limit });
+  delete options.where;
+  delete options.filterFields;
+  delete options.filters;
 
   return {
     rows,

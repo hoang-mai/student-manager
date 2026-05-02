@@ -15,7 +15,7 @@ const Notification = db.notification;
 // ===================== CRUD Cơ bản =====================
 
 const create = async (data) => Commander.create(data);
-const getAll = async (query) => paginateQuery(Commander, query);
+const getAll = async (query) => paginateQuery(Commander, query, { filterFields: ['commanderId', 'fullName', 'gender', 'unit', 'rank', 'organization'] });
 
 const getDetail = async (id) => {
   const record = await Commander.findByPk(id);

@@ -5,7 +5,7 @@ const { paginateQuery } = require('../utils/response');
 const SemesterResult = db.semesterResult;
 
 const create = async (data) => SemesterResult.create(data);
-const getAll = async (query) => paginateQuery(SemesterResult, query);
+const getAll = async (query) => paginateQuery(SemesterResult, query, { filterFields: ['studentId', 'semester', 'schoolYear'] });
 
 const getDetail = async (id) => {
   const record = await SemesterResult.findByPk(id);

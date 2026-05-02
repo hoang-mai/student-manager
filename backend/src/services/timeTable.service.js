@@ -5,7 +5,7 @@ const { paginateQuery } = require('../utils/response');
 const TimeTable = db.timeTable;
 
 const create = async (data) => TimeTable.create(data);
-const getAll = async (query) => paginateQuery(TimeTable, query);
+const getAll = async (query) => paginateQuery(TimeTable, query, { filterFields: ['studentId'] });
 
 const getDetail = async (id) => {
   const record = await TimeTable.findByPk(id);
