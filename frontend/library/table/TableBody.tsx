@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import TableEmptyState from "./TableEmptyState";
 
 interface TableBodyProps<TData> {
-  /** Instance của TanStack Table */
+  /** Instance của TanStack table */
   table: TableInstance<TData>;
   /** Văn bản hiển thị khi không có dữ liệu */
   emptyText: string;

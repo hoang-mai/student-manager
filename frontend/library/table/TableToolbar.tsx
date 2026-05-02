@@ -6,7 +6,7 @@ import { HiOutlineAdjustments, HiOutlineFilter } from "react-icons/hi";
 import TableFilter, { FilterField } from "./TableFilter";
 
 interface TableToolbarProps<TData> {
-  /** Thao tác với bảng từ TanStack Table */
+  /** Thao tác với bảng từ TanStack table */
   table: Table<TData>;
   /** Cấu hình các trường lọc */
   filterFields?: FilterField[];

@@ -6,11 +6,10 @@ import { User } from "./auth";
 export type UserQueryParams = {
   page?: number;
   limit?: number;
-  search?: string;
+  username?: string;
   role?: string;
-  isActive?: boolean;
-  orderColumn?: string;
-  orderDirection?: "asc" | "desc";
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
 };
 
 /**
