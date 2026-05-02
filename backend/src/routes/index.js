@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 router.use('/auth', require('./auth.route'));
+router.use('/', require('./gradeRequest.route')); // must be before /students to avoid path conflict
 router.use('/users', require('./user.route'));
 router.use('/students', require('./student.route'));
 router.use('/commanders', require('./commander.route'));
@@ -22,4 +23,5 @@ router.use('/scientific-topics', require('./scientificTopic.route'));
 router.use('/cut-rice', require('./cutRice.route'));
 router.use('/commander-duty-schedules', require('./commanderDutySchedule.route'));
 router.use('/notifications', require('./notification.route'));
+
 module.exports = router;

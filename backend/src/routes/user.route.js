@@ -3,7 +3,7 @@ const controller = require('../controllers/user.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
 
 router.use(authMiddleware);
-router.use(requireRole('ADMIN'));
+router.use(requireRole('ADMIN', 'COMMANDER'));
 
 /**
  * @swagger
