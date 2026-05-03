@@ -3,12 +3,18 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const EducationLevel = db.educationLevel;
+const Organization = db.organization;
 
 const create = async (data) => EducationLevel.create(data);
-const getAll = async (query) => paginateQuery(EducationLevel, query, { filterFields: ['levelName', 'organizationId'] });
+const getAll = async (query) => paginateQuery(EducationLevel, query, {
+  filterFields: ['levelName', 'organizationId'],
+  include: [{ model: Organization }],
+});
 
 const getDetail = async (id) => {
-  const record = await EducationLevel.findByPk(id);
+  const record = await EducationLevel.findByPk(id, {
+    include: [{ model: Organization }],
+  });
   if (!record) throw new NotFoundError('Không tìm thấy trình độ đào tạo');
   return record;
 };

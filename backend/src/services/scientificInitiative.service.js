@@ -3,12 +3,18 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const ScientificInitiative = db.scientificInitiative;
+const YearlyAchievement = db.yearlyAchievement;
 
 const create = async (data) => ScientificInitiative.create(data);
-const getAll = async (query) => paginateQuery(ScientificInitiative, query, { filterFields: ['yearlyAchievementId', 'title', 'year', 'status'] });
+const getAll = async (query) => paginateQuery(ScientificInitiative, query, {
+  filterFields: ['yearlyAchievementId', 'title', 'year', 'status'],
+  include: [{ model: YearlyAchievement }],
+});
 
 const getDetail = async (id) => {
-  const record = await ScientificInitiative.findByPk(id);
+  const record = await ScientificInitiative.findByPk(id, {
+    include: [{ model: YearlyAchievement }],
+  });
   if (!record) throw new NotFoundError('Không tìm thấy sáng kiến');
   return record;
 };

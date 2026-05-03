@@ -32,6 +32,15 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
+// ===================== Export Excel =====================
+
+const exportStudents = asyncHandler(async (req, res) => {
+  const buffer = await service.exportStudents(req.query);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=danh-sach-hoc-vien.xlsx');
+  res.send(buffer);
+});
+
 // ===================== HV-02: Profile (xem/sửa dùng chung /api/auth/profile) =====================
 
 const uploadAvatar = asyncHandler(async (req, res) => {
@@ -119,6 +128,7 @@ const markAllNotificationsRead = asyncHandler(async (req, res) => {
 
 module.exports = {
   create, getAll, getDetail, update, delete: deleteRecord,
+  exportStudents,
   uploadAvatar,
   getAcademicResults,
   getMyTimeTable,

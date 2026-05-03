@@ -8,7 +8,15 @@ const EducationLevel = db.educationLevel;
 const Class = db.class;
 
 const create = async (data) => University.create(data);
-const getAll = async (query) => paginateQuery(University, query, { filterFields: ['universityCode', 'universityName', 'status'] });
+const getAll = async (query) => paginateQuery(University, query, {
+  filterFields: ['universityCode', 'universityName', 'status'],
+  include: [
+    {
+      model: Organization,
+      include: [{ model: EducationLevel, include: [Class] }],
+    },
+  ],
+});
 
 const getDetail = async (id) => {
   const record = await University.findByPk(id, {

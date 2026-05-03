@@ -51,7 +51,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 const toggleActive = asyncHandler(async (req, res) => {
   const result = await service.toggleActive(req.params.id);
-  const msg = result.status === 'ACTIVE' ? 'Mở khóa tài khoản thành công' : 'Khóa tài khoản thành công';
+  const msg = result.isActive ? 'Mở khóa tài khoản thành công' : 'Khóa tài khoản thành công';
   return success(res, result, msg);
 });
 

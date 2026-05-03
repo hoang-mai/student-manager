@@ -7,14 +7,22 @@ const success = (res, data = null, message = 'Thành công', statusCode = 200) =
   return res.status(statusCode).json(body);
 };
 
-const paginated = (res, data, pagination, message = 'Thành công', statusCode = 200) => {
-  return res.status(statusCode).json({
+const paginated = (res, data, pagination, summaryOrMessage, statusCode = 200) => {
+  const body = {
     success: true,
     statusCode,
-    message,
+    message: 'Thành công',
     data: serialize(data),
     pagination,
-  });
+  };
+
+  if (typeof summaryOrMessage === 'string') {
+    body.message = summaryOrMessage;
+  } else if (summaryOrMessage && typeof summaryOrMessage === 'object') {
+    body.summary = summaryOrMessage;
+  }
+
+  return res.status(statusCode).json(body);
 };
 
 const fail = (res, message = 'Lỗi máy chủ nội bộ', statusCode = 500, type) => {
