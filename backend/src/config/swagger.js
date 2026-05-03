@@ -108,6 +108,13 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
           responses: { 200: { description: 'OK' }, 401: { $ref: '#/components/responses/401' } },
         },
       },
+      '/auth/me': {
+        get: {
+          tags: ['Auth'], summary: 'Thông tin người dùng hiện tại',
+          description: 'Trả về User kèm Student (Class, Organization, University, EducationLevel) hoặc Commander tùy role.',
+          responses: { 200: { description: 'OK' } },
+        },
+      },
       // ==================== PROFILE (HV-02, dùng chung) ====================
       '/auth/profile': {
         get: {
@@ -421,6 +428,26 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
         put: { tags: ['Achievements'], summary: 'Cập nhật thành tích', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
         delete: { tags: ['Achievements'], summary: 'Xóa thành tích', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
       },
+      '/achievement-profiles/{id}': {
+        get: { tags: ['Achievements'], summary: 'Chi tiết hồ sơ thành tích', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Achievements'], summary: 'Cập nhật hồ sơ thành tích', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        delete: { tags: ['Achievements'], summary: 'Xóa hồ sơ thành tích', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+      },
+      '/yearly-achievements/{id}': {
+        get: { tags: ['Achievements'], summary: 'Chi tiết thành tích năm', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Achievements'], summary: 'Cập nhật thành tích năm', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        delete: { tags: ['Achievements'], summary: 'Xóa thành tích năm', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+      },
+      '/scientific-initiatives/{id}': {
+        get: { tags: ['Achievements'], summary: 'Chi tiết sáng kiến', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Achievements'], summary: 'Cập nhật sáng kiến', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        delete: { tags: ['Achievements'], summary: 'Xóa sáng kiến', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+      },
+      '/scientific-topics/{id}': {
+        get: { tags: ['Achievements'], summary: 'Chi tiết đề tài NCKH', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Achievements'], summary: 'Cập nhật đề tài NCKH', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        delete: { tags: ['Achievements'], summary: 'Xóa đề tài NCKH', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+      },
       // ==================== CUT RICE ====================
       '/cut-rice': {
         get: {
@@ -448,6 +475,11 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
           responses: { 200: { description: 'File Excel (.xlsx)' } },
         },
       },
+      '/cut-rice/{id}': {
+        get: { tags: ['Cut Rice'], summary: 'Chi tiết lịch cắt cơm', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Cut Rice'], summary: 'Cập nhật lịch cắt cơm', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        delete: { tags: ['Cut Rice'], summary: 'Xóa lịch cắt cơm', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+      },
       // ==================== TIME TABLES ====================
       '/time-tables': {
         get: {
@@ -468,6 +500,11 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
           description: 'Trả về danh sách lịch học dạng bảng phẳng (mỗi buổi học 1 dòng: Đơn vị, Họ tên, Số lịch, Môn học, Phòng, Tuần, Ngày, Giờ). Kèm summary { totalStudents, totalSchedules, totalSubjects, totalWeeks }.',
           responses: { 200: { description: 'OK + summary + data' } },
         },
+      },
+      '/time-tables/{id}': {
+        get: { tags: ['Time Tables'], summary: 'Chi tiết TKB', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Time Tables'], summary: 'Cập nhật TKB', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        delete: { tags: ['Time Tables'], summary: 'Xóa TKB', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
       },
       // ==================== ACADEMIC RESULTS ====================
       '/yearly-results': {
