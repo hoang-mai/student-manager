@@ -24,8 +24,8 @@ export const userService = {
     return apiClient.put(ENDPOINTS.USERS.DETAIL(id), data);
   },
   
-  toggleActive: async (id: string | number): Promise<ApiResponse<User>> => {
-    return apiClient.patch(ENDPOINTS.USERS.TOGGLE_ACTIVE(id));
+  toggleActive: async (id: string | number) => {
+    return apiClient.post(ENDPOINTS.USERS.TOGGLE_ACTIVE(id));
   },
 
   resetPassword: async (id: string | number, newPassword?: string) => {

@@ -11,6 +11,7 @@ import { formatDate } from "@/utils/fn-common";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Button from "@/library/Button";
 import Table from "@/library/Table";
+import Badge, { BadgeVariant } from "@/library/Badge";
 import {
   HiOutlinePlus,
   HiOutlinePencil,
@@ -18,17 +19,106 @@ import {
   HiOutlineChevronRight,
   HiOutlineHome,
   HiOutlineDownload,
+  HiOutlineTrash,
 } from "react-icons/hi";
 import { useToastStore } from "@/store/useToastStore";
 import UserFormModal from "@/components/commander/accounts/UserFormModal";
+import Tooltip from "@/library/Tooltip";
+import { FilterField } from "@/library/table/TableFilter";
+import { useConfirmStore } from "@/store/useConfirmStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { FilterField } from "../../../library/table/TableFilter";
+import { useLoadingStore } from "@/store/useLoadingStore";
 
 export default function Main() {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
+  const { showLoading, hideLoading } = useLoadingStore();
+  const toggleActiveMutation = useMutation({
+    mutationFn: (id: string | number) => {
+      setLoading(true);
+      showLoading();
+      return userService.toggleActive(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
+      addToast({ message: "Cập nhật trạng thái thành công!", variant: "success" });
+      closeConfirm();
+    },
+    onError: (err) => {
+      addToast({
+        message: err.message || "Cập nhật trạng thái thất bại!",
+        variant: "error",
+      });
+    },
+    onSettled: () => {
+      setLoading(false);
+      hideLoading();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string | number) => {
+      setLoading(true);
+      showLoading();
+      return userService.deleteUser(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
+      addToast({ message: "Xóa tài khoản thành công!", variant: "success" });
+      closeConfirm();
+    },
+    onError: (err) => {
+      addToast({
+        message: err.message || "Xóa tài khoản thất bại!",
+        variant: "error",
+      });
+    },
+    onSettled: () => {
+      setLoading(false);
+      hideLoading();
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (userData: CreateUserDTO) => userService.createUser(userData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
+      addToast({ message: "Thêm người dùng thành công!", variant: "success" });
+      setIsModalOpen(false);
+    },
+    onError: (err: unknown) => {
+      const error = err as { response?: { data?: { message?: string } } };
+      addToast({
+        message: error.response?.data?.message || "Thêm thất bại!",
+        variant: "error",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string | number;
+      data: Partial<CreateUserDTO>;
+    }) => userService.updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
+      addToast({ message: "Cập nhật thành công!", variant: "success" });
+      setIsModalOpen(false);
+    },
+    onError: (err: unknown) => {
+      const error = err as { response?: { data?: { message?: string } } };
+      addToast({
+        message: error.response?.data?.message || "Cập nhật thất bại!",
+        variant: "error",
+      });
+    },
+  });
 
   const columns = useMemo<ColumnDef<User>[]>(
     () => [
@@ -48,11 +138,19 @@ export default function Main() {
         id: "role",
         header: "Vai trò",
         accessorKey: "role",
-        cell: (info) => (
-          <span className="px-2 py-1 bg-neutral-100 text-neutral-600 rounded text-xs font-bold uppercase">
-            {info.row.original.role}
-          </span>
-        ),
+        cell: (info) => {
+          const role = info.row.original.role;
+          const variantMap: Record<string, BadgeVariant> = {
+            ADMIN: "primary",
+            COMMANDER: "secondary",
+            STUDENT: "neutral",
+          };
+          return (
+            <Badge variant={variantMap[role] || "neutral"}>
+              {ROLES[role].name}
+            </Badge>
+          );
+        },
       },
       {
         id: "createdAt",
@@ -80,26 +178,55 @@ export default function Main() {
         cell: (info) => {
           const user = info.row.original;
           return (
-            <div className="flex items-center justify-start">
-              <button
-                onClick={() => handleOpenModal(user)}
-                className="w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
-                title="Chỉnh sửa"
-              >
-                <HiOutlinePencil size={18} />
-              </button>
-              <button
-                className="w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-xl transition-all"
-                title="Khóa tài khoản"
-              >
-                <HiOutlineLockClosed size={18} />
-              </button>
+            <div className="flex items-center justify-start gap-1">
+              <Tooltip content="Chỉnh sửa tài khoản" position="top">
+                <button
+                  onClick={() => handleOpenModal(user)}
+                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+                >
+                  <HiOutlinePencil size={18} />
+                </button>
+              </Tooltip>
+
+              <Tooltip content={!user.deleteAt ? "Khóa tài khoản" : "Mở khóa tài khoản"} position="top">
+                <button
+                  onClick={() => openConfirm({
+                    title: user.deleteAt ? "Mở khóa tài khoản" : "Xác nhận khóa",
+                    message: `Bạn có chắc chắn muốn ${user.deleteAt ? "mở khóa" : "tạm khóa"} tài khoản "${user.username}" không?`,
+                    confirmText: user.deleteAt ? "Mở khóa" : "Khóa tài khoản",
+                    variant: user.deleteAt ? "primary" : "danger",
+                    onConfirm: () => {
+                      toggleActiveMutation.mutate(user.id);
+                    },
+                  })}
+                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-xl transition-all"
+                >
+                  <HiOutlineLockClosed size={18} />
+                </button>
+              </Tooltip>
+
+              <Tooltip content="Xóa tài khoản" position="top">
+                <button
+                  onClick={() =>
+                    openConfirm({
+                      title: "Xác nhận xóa",
+                      message: `Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản "${user.username}" không? Hành động này không thể hoàn tác.`,
+                      confirmText: "Xóa ngay",
+                      variant: "danger",
+                      onConfirm: () => deleteMutation.mutate(user.id),
+                    })
+                  }
+                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-error-600 hover:bg-error-50 rounded-xl transition-all"
+                >
+                  <HiOutlineTrash size={18} />
+                </button>
+              </Tooltip>
             </div>
           );
         },
       },
     ],
-    []
+    [openConfirm, toggleActiveMutation, deleteMutation]
   );
 
   const filterOptions = useMemo<FilterField[]>(
@@ -125,45 +252,6 @@ export default function Main() {
     ],
     []
   );
-
-  const createMutation = useMutation({
-    mutationFn: (userData: CreateUserDTO) => userService.createUser(userData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      addToast({ message: "Thêm người dùng thành công!", variant: "success" });
-      setIsModalOpen(false);
-    },
-    onError: (err: unknown) => {
-      const error = err as { response?: { data?: { message?: string } } };
-      addToast({
-        message: error.response?.data?.message || "Thêm thất bại!",
-        variant: "error",
-      });
-    },
-  });
-
-  // Mutation: Cập nhật người dùng
-  const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string | number;
-      data: Partial<CreateUserDTO>;
-    }) => userService.updateUser(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      addToast({ message: "Cập nhật thành công!", variant: "success" });
-      setIsModalOpen(false);
-    },
-    onError: (err: unknown) => {
-      const error = err as { response?: { data?: { message?: string } } };
-      addToast({
-        message: error.response?.data?.message || "Cập nhật thất bại!",
-        variant: "error",
-      });
-    },
-  });
 
   const handleOpenModal = (user: User | null = null) => {
     setSelectedUser(user);

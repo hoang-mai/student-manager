@@ -18,6 +18,7 @@ import TableHeader from "./table/TableHeader";
 import TableToolbar from "./table/TableToolbar";
 import TableSkeleton from "./table/TableSkeleton";
 import TableBody from "./table/TableBody";
+import TableErrorState from "./table/TableErrorState";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import { FilterField } from "./table/TableFilter";
 
@@ -64,7 +65,7 @@ const Table = <TData, TParams = Record<string, unknown>>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: [...queryKey, pagination, columnFilters, sorting],
     queryFn: async () => {
       const filterParams = columnFilters.reduce(
@@ -207,6 +208,12 @@ const Table = <TData, TParams = Record<string, unknown>>({
               <tbody>
                 {isLoading ? (
                   <TableSkeleton table={table} />
+                ) : isError ? (
+                  <TableErrorState 
+                    table={table} 
+                    error={error} 
+                    onRetry={() => refetch()} 
+                  />
                 ) : (
                   <TableBody
                     table={table}

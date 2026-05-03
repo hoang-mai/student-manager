@@ -49,9 +49,9 @@ const variantStyles: Record<ButtonVariant, string> = {
     active:bg-primary-100
   `,
   ghost: `
-    bg-transparent text-neutral-700 border border-transparent
-    hover:bg-neutral-100
-    active:bg-neutral-200
+    bg-transparent text-neutral-700 border border-neutral-300
+    hover:bg-neutral-50
+    active:bg-neutral-100
   `,
   danger: `
     bg-error-500 text-white border border-error-500
