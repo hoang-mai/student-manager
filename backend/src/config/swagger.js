@@ -144,6 +144,11 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
           responses: { 200: { description: 'OK' }, 404: { $ref: '#/components/responses/404' } },
         },
+        delete: {
+          tags: ['Notifications'], summary: 'Xóa thông báo',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { 200: { description: 'OK' } },
+        },
       },
       '/auth/notifications/{id}/read': {
         put: { tags: ['Notifications'], summary: 'Đánh dấu đã đọc', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
@@ -172,6 +177,7 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
       },
       '/students/cut-rice': {
         get: { tags: ['Students'], summary: 'HV-07: Xem lịch cắt cơm', description: 'Tự động tạo nếu chưa có. Dựa trên lịch học + thời gian đi lại + giờ ăn (06:00, 11:00, 17:30).', responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Students'], summary: 'HV-07: Cập nhật lịch cắt cơm', description: 'Học viên tự điều chỉnh lịch cắt cơm.', responses: { 200: { description: 'OK' } } },
       },
       '/students/achievements': {
         get: { tags: ['Students'], summary: 'HV-08: Xem thành tích', description: 'Bao gồm: achievements + achievementProfile + yearlyAchievements (kèm scientificInitiatives, scientificTopics).', responses: { 200: { description: 'OK' } } },
@@ -462,6 +468,7 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
           ],
           responses: { 200: { description: 'OK' } },
         },
+        post: { tags: ['Cut Rice'], summary: 'Thêm lịch cắt cơm', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/CutRice' } } } }, responses: { 201: { description: 'Created' } } },
       },
       '/cut-rice/export': {
         get: {
@@ -493,6 +500,7 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
           ],
           responses: { 200: { description: 'OK' } },
         },
+        post: { tags: ['Time Tables'], summary: 'Thêm TKB', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/TimeTable' } } } }, responses: { 201: { description: 'Created' } } },
       },
       '/time-tables/report': {
         get: {
@@ -558,21 +566,26 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
       // ==================== SCIENTIFIC (Thi đua & Nghiên cứu) ====================
       '/achievement-profiles': {
         get: { tags: ['Achievements'], summary: 'Hồ sơ thành tích', parameters: [{ name: 'studentId', in: 'query', schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        post: { tags: ['Achievements'], summary: 'Tạo hồ sơ thành tích', responses: { 201: { description: 'Created' } } },
       },
       '/yearly-achievements': {
         get: { tags: ['Achievements'], summary: 'Thành tích theo năm', parameters: [{ name: 'studentId', in: 'query', schema: { type: 'string' } }, { name: 'year', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
+        post: { tags: ['Achievements'], summary: 'Thêm thành tích năm', responses: { 201: { description: 'Created' } } },
       },
       '/scientific-initiatives': {
         get: { tags: ['Achievements'], summary: 'Sáng kiến', parameters: [{ name: 'yearlyAchievementId', in: 'query', schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        post: { tags: ['Achievements'], summary: 'Thêm sáng kiến', responses: { 201: { description: 'Created' } } },
       },
       '/scientific-topics': {
         get: { tags: ['Achievements'], summary: 'Đề tài NCKH', parameters: [{ name: 'yearlyAchievementId', in: 'query', schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        post: { tags: ['Achievements'], summary: 'Thêm đề tài NCKH', responses: { 201: { description: 'Created' } } },
       },
       // ==================== NOTIFICATIONS ADMIN ====================
       '/notifications': {
         get: { tags: ['Notifications'], summary: 'Admin: Tất cả thông báo', parameters: [{ name: 'userId', in: 'query', schema: { type: 'string' } }, { name: 'type', in: 'query', schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
       },
       '/notifications/{id}': {
+        get: { tags: ['Notifications'], summary: 'Chi tiết thông báo', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
         put: { tags: ['Notifications'], summary: 'Cập nhật thông báo', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
         delete: { tags: ['Notifications'], summary: 'Xóa thông báo', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
       },
