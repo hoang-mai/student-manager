@@ -186,6 +186,36 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
         put: { tags: ['Students'], summary: 'CH-03: Cập nhật học viên', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
         delete: { tags: ['Students'], summary: 'CH-03: Xóa học viên', description: 'Tự động xóa tất cả dữ liệu liên quan (user, KQHT, lịch học, cắt cơm, học phí, thành tích...).', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
       },
+      '/students/export': {
+        get: {
+          tags: ['Students'], summary: 'Xuất Excel danh sách học viên', description: 'Xuất toàn bộ thông tin học viên ra Excel. Chọn trường qua ?fields=fullName,rank,unit,class.className. Hỗ trợ filter: schoolYear, unit, enrollment, fullName, studentId.',
+          parameters: [
+            { name: 'fields', in: 'query', schema: { type: 'string' }, description: 'Các trường cần xuất (phân cách dấu phẩy). Bỏ trống = tất cả.' },
+            { name: 'schoolYear', in: 'query', schema: { type: 'string' }, description: 'Lọc theo năm học' },
+            { name: 'unit', in: 'query', schema: { type: 'string' }, description: 'Lọc theo đơn vị' },
+            { name: 'enrollment', in: 'query', schema: { type: 'integer' }, description: 'Lọc theo năm vào trường' },
+            { name: 'fullName', in: 'query', schema: { type: 'string' }, description: 'Tìm kiếm theo tên' },
+            { name: 'studentId', in: 'query', schema: { type: 'string' }, description: 'Tìm kiếm theo mã' },
+          ],
+          responses: { 200: { description: 'File Excel (.xlsx)' } },
+        },
+      },
+      '/students/export': {
+        get: {
+          tags: ['Students'],
+          summary: 'Xuất Excel danh sách học viên',
+          description: 'Xuất danh sách học viên ra Excel. Hỗ trợ chọn trường qua ?fields=fullName,rank,unit,class.className. Filter hỗ trợ: schoolYear, unit, enrollment, fullName, studentId.',
+          parameters: [
+            { name: 'fields', in: 'query', schema: { type: 'string' }, description: 'Các trường cần xuất, phân cách bằng dấu phẩy. Bỏ trống để xuất tất cả.' },
+            { name: 'schoolYear', in: 'query', schema: { type: 'string' } },
+            { name: 'unit', in: 'query', schema: { type: 'string' } },
+            { name: 'enrollment', in: 'query', schema: { type: 'integer' } },
+            { name: 'fullName', in: 'query', schema: { type: 'string' } },
+            { name: 'studentId', in: 'query', schema: { type: 'string' } },
+          ],
+          responses: { 200: { description: 'File Excel (.xlsx)' } },
+        },
+      },
       // ==================== GRADE REQUESTS (HV-04, HV-05 + CH-04) ====================
       '/students/grade-requests': {
         get: {
@@ -203,7 +233,22 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
         get: { tags: ['Grade Requests'], summary: 'HV-05: Chi tiết đề xuất', description: 'Kèm ghi chú từ Chỉ huy (reviewNote).', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
       },
       '/commanders/grade-requests': {
-        get: { tags: ['Grade Requests'], summary: 'CH-04: Tất cả đề xuất', description: 'Chỉ huy xem tất cả đề xuất. Filter: ?status=PENDING&studentId=.', parameters: [{ name: 'status', in: 'query', schema: { type: 'string' } }, { name: 'studentId', in: 'query', schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        get: {
+          tags: ['Grade Requests'], summary: 'CH-04: Tất cả đề xuất (phân trang + thống kê)',
+          description: 'Chỉ huy xem tất cả đề xuất. Trả về kèm summary { pending, approved, rejected, total }.',
+          parameters: [
+            { name: 'status', in: 'query', schema: { type: 'string', enum: ['PENDING', 'APPROVED', 'REJECTED'] } },
+            { name: 'studentId', in: 'query', schema: { type: 'string' } },
+            { name: 'requestType', in: 'query', schema: { type: 'string', enum: ['ADD', 'UPDATE', 'DELETE'] } },
+            { name: 'fullName', in: 'query', schema: { type: 'string' }, description: 'Tìm kiếm theo tên học viên' },
+            { name: 'unit', in: 'query', schema: { type: 'string' }, description: 'Lọc theo đơn vị' },
+            { name: 'semester', in: 'query', schema: { type: 'string' }, description: 'Lọc theo học kỳ' },
+            { name: 'schoolYear', in: 'query', schema: { type: 'string' }, description: 'Lọc theo năm học' },
+            { name: 'page', in: 'query', schema: { type: 'integer' } },
+            { name: 'limit', in: 'query', schema: { type: 'integer' } },
+          ],
+          responses: { 200: { description: 'OK + summary { pending, approved, rejected, total }' } },
+        },
       },
       '/commanders/grade-requests/{id}': {
         get: { tags: ['Grade Requests'], summary: 'CH-04: Chi tiết đề xuất', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
@@ -378,11 +423,51 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
       },
       // ==================== CUT RICE ====================
       '/cut-rice': {
-        get: { tags: ['Cut Rice'], summary: 'Danh sách lịch cắt cơm', description: 'Filter: ?studentId=&isAutoGenerated=.', parameters: [{ name: 'studentId', in: 'query', schema: { type: 'string' } }, { name: 'page', in: 'query', schema: { type: 'integer' } }, { name: 'limit', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
+        get: {
+          tags: ['Cut Rice'], summary: 'Danh sách lịch cắt cơm',
+          description: 'Trả về danh sách lịch cắt cơm kèm cột từng ngày (Sáng/Trưa/Tối). Filter: ?studentId=&unit=&fullName=.',
+          parameters: [
+            { name: 'studentId', in: 'query', schema: { type: 'string' } },
+            { name: 'unit', in: 'query', schema: { type: 'string' } },
+            { name: 'fullName', in: 'query', schema: { type: 'string' } },
+            { name: 'page', in: 'query', schema: { type: 'integer' } },
+            { name: 'limit', in: 'query', schema: { type: 'integer' } },
+          ],
+          responses: { 200: { description: 'OK' } },
+        },
+      },
+      '/cut-rice/export': {
+        get: {
+          tags: ['Cut Rice'], summary: 'Xuất Excel lịch cắt cơm',
+          description: 'Xuất lịch cắt cơm ra Excel. Cột: Đơn vị, Họ tên, MSSV, và 21 cột Sáng/Trưa/Tối cho 7 ngày.',
+          parameters: [
+            { name: 'unit', in: 'query', schema: { type: 'string' } },
+            { name: 'studentId', in: 'query', schema: { type: 'string' } },
+            { name: 'fullName', in: 'query', schema: { type: 'string' } },
+          ],
+          responses: { 200: { description: 'File Excel (.xlsx)' } },
+        },
       },
       // ==================== TIME TABLES ====================
       '/time-tables': {
-        get: { tags: ['Time Tables'], summary: 'Danh sách TKB', parameters: [{ name: 'studentId', in: 'query', schema: { type: 'string' } }, { name: 'page', in: 'query', schema: { type: 'integer' } }, { name: 'limit', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
+        get: {
+          tags: ['Time Tables'], summary: 'Danh sách TKB',
+          description: 'Filter: ?studentId=&fullName=. Mỗi record kèm scheduleCount, rooms, subjectNames.',
+          parameters: [
+            { name: 'studentId', in: 'query', schema: { type: 'string' } },
+            { name: 'fullName', in: 'query', schema: { type: 'string' }, description: 'Tìm kiếm theo tên học viên' },
+            { name: 'page', in: 'query', schema: { type: 'integer' } },
+            { name: 'limit', in: 'query', schema: { type: 'integer' } },
+          ],
+          responses: { 200: { description: 'OK' } },
+        },
+      },
+      '/time-tables/report': {
+        get: {
+          tags: ['Time Tables'], summary: 'Báo cáo lịch học (dạng phẳng)',
+          description: 'Trả về danh sách lịch học dạng bảng phẳng (mỗi buổi học 1 dòng: Đơn vị, Họ tên, Số lịch, Môn học, Phòng, Tuần, Ngày, Giờ). Kèm summary { totalStudents, totalSchedules, totalSubjects, totalWeeks }.',
+          responses: { 200: { description: 'OK + summary + data' } },
+        },
       },
       // ==================== ACADEMIC RESULTS ====================
       '/yearly-results': {
@@ -393,6 +478,27 @@ API cho 3 nhóm người dùng: **Học viên**, **Chỉ huy**, **Quản trị v
         get: { tags: ['Academic Results'], summary: 'Chi tiết', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
         put: { tags: ['Academic Results'], summary: 'Cập nhật', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
         delete: { tags: ['Academic Results'], summary: 'Xóa', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+      },
+      '/yearly-results/export': {
+        get: {
+          tags: ['Academic Results'], summary: 'Xuất Excel thống kê năm học',
+          description: 'Xuất dữ liệu thống kê năm học ra Excel. Hỗ trợ chọn cột qua ?fields= và sắp xếp qua sortBy/sortOrder.',
+          parameters: [
+            { name: 'fields', in: 'query', schema: { type: 'string' }, description: 'Các cột cần xuất (phân cách dấu phẩy)' },
+            { name: 'schoolYear', in: 'query', schema: { type: 'string' } },
+            { name: 'unit', in: 'query', schema: { type: 'string' } },
+            { name: 'studentId', in: 'query', schema: { type: 'string' } },
+            { name: 'fullName', in: 'query', schema: { type: 'string' } },
+            { name: 'gpaFrom', in: 'query', schema: { type: 'number' } },
+            { name: 'gpaTo', in: 'query', schema: { type: 'number' } },
+            { name: 'cpaFrom', in: 'query', schema: { type: 'number' } },
+            { name: 'cpaTo', in: 'query', schema: { type: 'number' } },
+            { name: 'isPartyMember', in: 'query', schema: { type: 'string', enum: ['true', 'false'] } },
+            { name: 'sortBy', in: 'query', schema: { type: 'string' } },
+            { name: 'sortOrder', in: 'query', schema: { type: 'string', enum: ['asc', 'desc'] } },
+          ],
+          responses: { 200: { description: 'File Excel (.xlsx)' } },
+        },
       },
       '/semester-results': {
         get: { tags: ['Academic Results'], summary: 'Danh sách KQ học kỳ', parameters: [{ name: 'studentId', in: 'query', schema: { type: 'string' } }, { name: 'page', in: 'query', schema: { type: 'integer' } }, { name: 'limit', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
