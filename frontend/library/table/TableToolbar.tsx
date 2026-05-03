@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Table } from "@tanstack/react-table";
-import { HiOutlineAdjustments, HiOutlineFilter } from "react-icons/hi";
+import { HiOutlineAdjustments, HiOutlineFilter, HiOutlinePlus } from "react-icons/hi";
 import TableFilter, { FilterField } from "./TableFilter";
 
 interface TableToolbarProps<TData> {
@@ -14,6 +14,10 @@ interface TableToolbarProps<TData> {
   showFilter?: boolean;
   /** Trạng thái loading */
   isLoading?: boolean;
+  /** Callback khi bấm nút thêm */
+  onAdd?: () => void;
+  /** Nhãn cho nút thêm */
+  addLabel?: string;
 }
 
 const TableToolbar = <TData,>({
@@ -21,12 +25,25 @@ const TableToolbar = <TData,>({
   filterFields,
   showFilter = true,
   isLoading = false,
+  onAdd,
+  addLabel,
 }: TableToolbarProps<TData>) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
     <div className="flex flex-col px-2">
       <div className="flex flex-row items-center justify-end gap-2 mb-4">
+        {onAdd && (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-primary-600 rounded-xl text-[11px] font-black uppercase tracking-wider text-white hover:bg-primary-700 hover:border-primary-700 transition-all shadow-lg shadow-primary-600/20 cursor-pointer active:scale-95"
+          >
+            <HiOutlinePlus size={16} />
+            {addLabel || "Thêm mới"}
+          </button>
+        )}
+
         {showFilter && filterFields && filterFields.length > 0 && (
           <button
             type="button"

@@ -24,6 +24,7 @@ import Cookies from "js-cookie";
 import { THEMES } from "@/constants/constants";
 import { useModalStore } from "@/store/useModalStore";
 import ChangePasswordForm from "@/components/admin/layout/header/ChangePasswordForm";
+import Typography from "@/library/Typography";
 
 export default function Header() {
   const router = useRouter();
@@ -60,12 +61,12 @@ export default function Header() {
     <header className="h-20 bg-white/80 backdrop-blur-md flex items-center px-8 shrink-0 justify-between z-40 relative">
       <Divide className="absolute bottom-0 left-0 w-full" />
       <div className="flex flex-col">
-        <h2 className="text-xl font-black text-neutral-800 uppercase tracking-tighter">
+        <Typography variant="h2" transform="uppercase">
           Hệ thống quản lý học viên
-        </h2>
-        <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
-          Admin Portal
-        </span>
+        </Typography>
+        <Typography variant="label" color="gray" tracking="widest" className="leading-none mt-0.5">
+          Quản trị hệ thống
+        </Typography>
       </div>
 
       <div className="flex items-center gap-6">
@@ -85,15 +86,15 @@ export default function Header() {
             trigger={(isOpen) => (
               <div className={`flex items-center gap-3 transition-all group ${isOpen ? "opacity-80" : ""}`}>
                 <div className="flex flex-col text-right">
-                  <span className="text-sm font-bold text-neutral-800 leading-none group-hover:text-primary-700 transition-colors">
-                    System Admin
-                  </span>
-                  <span className="text-[10px] tracking-widest text-neutral-400 font-black uppercase mt-1">
+                  <Typography variant="body" weight="bold" color="neutral" className="leading-none group-hover:text-primary-700 transition-colors">
+                    Quản trị hệ thống
+                  </Typography>
+                  <Typography variant="label" weight="black" color="gray" className="mt-1">
                     {ROLES.ADMIN.name}
-                  </span>
+                  </Typography>
                 </div>
                 <div className="relative">
-                  <Avatar src={undefined} alt="System Admin" size={40} className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`} />
+                  <Avatar src={undefined} alt="Quản trị hệ thống" size={40} className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`} />
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100 text-neutral-500">
                     <HiOutlineChevronDown size={10} className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
                   </div>
@@ -114,7 +115,7 @@ export default function Header() {
                     <HiOutlineLockClosed size={18} />
                   </motion.div>
                 </div>
-                Đổi mật khẩu
+                <Typography variant="body" weight="semibold">Đổi mật khẩu</Typography>
               </motion.button>
 
               {/* Chế độ tối */}
@@ -131,7 +132,7 @@ export default function Header() {
                     <HiOutlineMoon size={18} />
                   </motion.div>
                 </div>
-                Chế độ tối
+                <Typography variant="body" weight="semibold">Chế độ tối</Typography>
                 <Toggle
                   checked={isDarkMode}
                   onChange={handleToggleTheme}
@@ -153,7 +154,7 @@ export default function Header() {
                     <HiOutlineLogout size={18} />
                   </motion.div>
                 </div>
-                Đăng xuất
+                <Typography variant="body" weight="semibold">Đăng xuất</Typography>
               </motion.button>
             </div>
           </Dropdown>

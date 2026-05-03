@@ -18,6 +18,7 @@ import { useToastStore } from "@/store/useToastStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Divide from "@/library/Divide";
+import Typography from "@/library/Typography";
 import { LoginRequest } from "@/types/auth";
 
 export default function Main() {
@@ -107,18 +108,18 @@ export default function Main() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            <Image src="/logo.png" alt="Logo" width={70} height={70} priority />
+            <Image src="/logo.png" alt="Logo" width={70} height={70} priority style={{ height: "auto" }} />
           </div>
-          <h1 className="text-2xl font-bold text-neutral-900">
+          <Typography variant="h1" color="neutral" weight="bold">
             Quản lý Học viên
-          </h1>
-          <p className="text-neutral-700 text-sm mt-1">
+          </Typography>
+          <Typography variant="body" color="neutral" className="mt-1">
             Chào mừng bạn đến với hệ thống quản lý học viên - HVKHQS
-          </p>
+          </Typography>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <Input
             id="login-username"
             label="Tên đăng nhập"
@@ -157,9 +158,9 @@ export default function Main() {
           <div className="flex items-center justify-end">
             <Link
               href="/forgot-password"
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              className="text-primary-600 hover:text-primary-700 transition-colors"
             >
-              Quên mật khẩu?
+              <Typography variant="caption" weight="semibold">Quên mật khẩu?</Typography>
             </Link>
           </div>
 
@@ -175,22 +176,22 @@ export default function Main() {
           </Button>
         </form>
 
-        <div className="mt-2 flex items-center justify-center text-center flex-wrap gap-1">
-          <p className="text-neutral-900 text-sm">Bạn chưa có tài khoản?</p>
+        <div className="mt-4 flex items-baseline justify-center gap-1.5">
+          <Typography variant="caption" color="neutral">Bạn chưa có tài khoản?</Typography>
           <Link
             href="/register"
-            className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+            className="text-primary-600 hover:text-primary-700 transition-colors"
           >
-            Liên hệ với quản trị viên
+            <Typography variant="caption" weight="bold">Liên hệ với quản trị viên</Typography>
           </Link>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center pt-6">
-          <Divide className="mb-6" faded={true} />
-          <p className="text-neutral-700 text-xs">
+        <div className="mt-4 text-center pt-2">
+          <Divide className="mb-4" faded={true} />
+          <Typography variant="caption" color="neutral" className="opacity-70">
             © 2026 Hệ thống Quản lý Học viên
-          </p>
+          </Typography>
         </div>
       </AnimatedContainer>
     </div>

@@ -43,6 +43,10 @@ export interface TableProps<TData, TParams = Record<string, unknown>> {
   className?: string;
   /** Class CSS cho các hàng (tr) */
   rowClassName?: string;
+  /** Callback khi bấm nút thêm (nếu có sẽ hiện nút thêm) */
+  onAdd?: () => void;
+  /** Nhãn cho nút thêm */
+  addLabel?: string;
 }
 
 const Table = <TData, TParams = Record<string, unknown>>({
@@ -55,6 +59,8 @@ const Table = <TData, TParams = Record<string, unknown>>({
   emptyText = "Không có dữ liệu hiển thị",
   className = "",
   rowClassName = "",
+  onAdd,
+  addLabel,
 }: TableProps<TData, TParams>) => {
   const [pagination, setPagination] = useState({
     pageIndex: DEFAULT_PAGE.PAGE_INDEX,
@@ -184,6 +190,8 @@ const Table = <TData, TParams = Record<string, unknown>>({
         filterFields={filterFields}
         showFilter={showFilter}
         isLoading={isLoading}
+        onAdd={onAdd}
+        addLabel={addLabel}
       />
 
       <DragDropProvider onDragEnd={handleDragEnd}>

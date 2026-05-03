@@ -1,5 +1,6 @@
 import { InputHTMLAttributes, forwardRef, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import Typography from "./Typography";
 
 type InputSize = "sm" | "md" | "lg";
 type InputVariant = "outlined" | "filled";
@@ -92,16 +93,20 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={`${fullWidth ? "w-full" : "inline-flex flex-col"} relative ${floatingLabel ? "mt-1.5" : ""}`}>
         {label && (
-          <label
-            htmlFor={id}
+          <Typography
+            as="label"
+            variant={floatingLabel ? "caption" : "body"}
+            weight={floatingLabel ? "bold" : "semibold"}
+            color={error ? "error" : floatingLabel ? "gray" : "neutral"}
             className={
               floatingLabel
-                ? `absolute -top-2 left-3 z-10 px-1 text-xs font-bold rounded-md  ${error ? "text-error-500" : "text-neutral-500"} bg-white`
-                : `block text-sm font-medium text-neutral-700 mb-1.5 ${error ? "text-error-500" : ""}`
+                ? "absolute -top-2 left-3 z-10 px-1 rounded-md bg-white cursor-text"
+                : "block mb-1.5 ml-1"
             }
+            htmlFor={id}
           >
             {label}
-          </label>
+          </Typography>
         )}
         <div className="relative">
           {prefixIcon && (
@@ -135,15 +140,17 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
         <AnimatePresence mode="wait">
           {error && (
-            <motion.p
+            <motion.div
               key={error}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="text-error-500 text-xs mt-1.5 ml-0.5"
+              className="mt-0.5 ml-1"
             >
-              {error}
-            </motion.p>
+              <Typography variant="caption" weight="medium" color="error">
+                {error}
+              </Typography>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
