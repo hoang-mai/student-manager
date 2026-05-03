@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
     deleteAt: {
       type: DataTypes.DATE,
     },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
   }, {
     tableName: 'users',
     timestamps: true,

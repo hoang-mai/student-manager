@@ -3,6 +3,7 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const Commander = db.commander;
+const User = db.user;
 const Student = db.student;
 const YearlyResult = db.yearlyResult;
 const TimeTable = db.timeTable;
@@ -15,10 +16,15 @@ const Notification = db.notification;
 // ===================== CRUD Cơ bản =====================
 
 const create = async (data) => Commander.create(data);
-const getAll = async (query) => paginateQuery(Commander, query, { filterFields: ['commanderId', 'fullName', 'gender', 'unit', 'rank', 'organization'] });
+const getAll = async (query) => paginateQuery(Commander, query, {
+  filterFields: ['commanderId', 'fullName', 'gender', 'unit', 'rank', 'organization'],
+  include: [{ model: User, attributes: { exclude: ['password', 'refreshToken'] } }],
+});
 
 const getDetail = async (id) => {
-  const record = await Commander.findByPk(id);
+  const record = await Commander.findByPk(id, {
+    include: [{ model: User, attributes: { exclude: ['password', 'refreshToken'] } }],
+  });
   if (!record) throw new NotFoundError('Không tìm thấy chỉ huy');
   return record;
 };
@@ -142,7 +148,7 @@ const getAcademicReport = async (query = {}) => {
 
   const results = await YearlyResult.findAll({
     where,
-    include: [{ model: Student, attributes: ['id', 'studentId', 'fullName'] }],
+    include: [{ model: Student }],
   });
 
   const summary = {
@@ -172,7 +178,7 @@ const getPartyTrainingReport = async (query = {}) => {
 
   const results = await YearlyResult.findAll({
     where,
-    include: [{ model: Student, attributes: ['id', 'studentId', 'fullName'] }],
+    include: [{ model: Student }],
   });
 
   const partySummary = {};
@@ -190,12 +196,12 @@ const getPartyTrainingReport = async (query = {}) => {
 
 const getAchievementReport = async () => {
   const achievements = await Achievement.findAll({
-    include: [{ model: Student, attributes: ['id', 'studentId', 'fullName'] }],
+    include: [{ model: Student }],
     order: [['year', 'DESC']],
   });
 
   const yearlyAchievements = await YearlyAchievement.findAll({
-    include: [{ model: Student, attributes: ['id', 'studentId', 'fullName'] }],
+    include: [{ model: Student }],
     order: [['year', 'DESC']],
   });
 
@@ -222,7 +228,7 @@ const getTuitionReport = async (query = {}) => {
 
   const fees = await TuitionFee.findAll({
     where,
-    include: [{ model: Student, attributes: ['id', 'studentId', 'fullName'] }],
+    include: [{ model: Student }],
   });
 
   const summary = {

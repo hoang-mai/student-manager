@@ -1,5 +1,6 @@
 const db = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const GradeRequest = db.gradeRequest;
 const SubjectResult = db.subjectResult;
@@ -63,26 +64,59 @@ const getMyRequestDetail = async (studentId, id) => {
 
 const getAll = async (query = {}) => {
   const where = {};
+  const studentWhere = {};
+  const semesterWhere = {};
+
+  if (query.semester) semesterWhere.semester = query.semester;
+  if (query.schoolYear) semesterWhere.schoolYear = query.schoolYear;
+  const semesterRequired = Object.keys(semesterWhere).length > 0;
+
+  const include = [
+    {
+      model: SubjectResult,
+      include: [{ model: SemesterResult, ...(semesterRequired ? { where: semesterWhere, required: true } : {}) }],
+      ...(semesterRequired ? { required: true } : {}),
+    },
+    { model: Student },
+    { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
+  ];
+
   if (query.status) where.status = query.status;
   if (query.studentId) where.studentId = query.studentId;
+  if (query.requestType) where.requestType = query.requestType;
 
-  return GradeRequest.findAll({
-    where,
-    include: [
-      { model: SubjectResult },
-      { model: Student, attributes: ['id', 'studentId', 'fullName'] },
-      { model: User, as: 'reviewer', attributes: ['id', 'username'] },
-    ],
-    order: [['createdAt', 'DESC']],
-  });
+  if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
+  if (query.unit) studentWhere.unit = query.unit;
+
+  if (Object.keys(studentWhere).length > 0) {
+    include[1].where = studentWhere;
+    include[1].required = true;
+  }
+
+  const result = await paginateQuery(GradeRequest, query, { where, include, order: [['createdAt', 'DESC']] });
+
+  // Summary from DB
+  const summaryQuery = { where, include, attributes: ['id', 'status'] };
+  // Remove limit/offset for counting all
+  delete summaryQuery.limit;
+  delete summaryQuery.offset;
+  const allRecords = await GradeRequest.findAll(summaryQuery);
+  const summary = { pending: 0, approved: 0, rejected: 0, total: allRecords.length };
+  for (const r of allRecords) {
+    if (r.status === 'PENDING') summary.pending++;
+    else if (r.status === 'APPROVED') summary.approved++;
+    else if (r.status === 'REJECTED') summary.rejected++;
+  }
+
+  return { ...result, summary };
 };
 
 const getDetail = async (id) => {
   const req = await GradeRequest.findByPk(id, {
     include: [
       { model: SubjectResult },
-      { model: Student, attributes: ['id', 'studentId', 'fullName'] },
-      { model: User, as: 'reviewer', attributes: ['id', 'username'] },
+      { model: Student },
+      { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
     ],
   });
   if (!req) throw new NotFoundError('Không tìm thấy đề xuất');
@@ -193,7 +227,7 @@ const approve = async (id, reviewerId, reviewNote) => {
   }
 
   return req.reload({
-    include: [{ model: SubjectResult }, { model: Student, attributes: ['id', 'studentId', 'fullName'] }],
+    include: [{ model: SubjectResult }, { model: Student }],
   });
 };
 
@@ -219,7 +253,7 @@ const reject = async (id, reviewerId, reviewNote) => {
   }
 
   return req.reload({
-    include: [{ model: SubjectResult }, { model: Student, attributes: ['id', 'studentId', 'fullName'] }],
+    include: [{ model: SubjectResult }, { model: Student }],
   });
 };
 

@@ -25,7 +25,7 @@ const getMyRequestDetail = asyncHandler(async (req, res) => {
 
 const getAll = asyncHandler(async (req, res) => {
   const r = await service.getAll(req.query);
-  return success(res, r);
+  return paginated(res, r.rows, r.pagination, r.summary);
 });
 
 const getDetail = asyncHandler(async (req, res) => {
