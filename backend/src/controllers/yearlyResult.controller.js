@@ -30,4 +30,11 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+const exportYearlyResults = asyncHandler(async (req, res) => {
+  const buffer = await service.exportYearlyResults(req.query);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=thong-ke-nam-hoc.xlsx');
+  res.send(buffer);
+});
+
+module.exports = { create, getAll, getDetail, update, delete: deleteRecord, exportYearlyResults };

@@ -3,12 +3,28 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const YearlyAchievement = db.yearlyAchievement;
+const Student = db.student;
+const ScientificInitiative = db.scientificInitiative;
+const ScientificTopic = db.scientificTopic;
 
 const create = async (data) => YearlyAchievement.create(data);
-const getAll = async (query) => paginateQuery(YearlyAchievement, query, { filterFields: ['studentId', 'year', 'hasMinistryReward', 'hasNationalReward'] });
+const getAll = async (query) => paginateQuery(YearlyAchievement, query, {
+  filterFields: ['studentId', 'year', 'hasMinistryReward', 'hasNationalReward'],
+  include: [
+    { model: Student },
+    { model: ScientificInitiative },
+    { model: ScientificTopic },
+  ],
+});
 
 const getDetail = async (id) => {
-  const record = await YearlyAchievement.findByPk(id);
+  const record = await YearlyAchievement.findByPk(id, {
+    include: [
+      { model: Student },
+      { model: ScientificInitiative },
+      { model: ScientificTopic },
+    ],
+  });
   if (!record) throw new NotFoundError('Không tìm thấy thành tích năm');
   return record;
 };

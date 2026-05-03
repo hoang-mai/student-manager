@@ -3,12 +3,18 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const Model = db.achievementProfile;
+const Student = db.student;
 
 const create = async (data) => Model.create(data);
-const getAll = async (query) => paginateQuery(Model, query, { filterFields: ['studentId', 'eligibleForMinistryReward', 'eligibleForNationalReward'] });
+const getAll = async (query) => paginateQuery(Model, query, {
+  filterFields: ['studentId', 'eligibleForMinistryReward', 'eligibleForNationalReward'],
+  include: [{ model: Student }],
+});
 
 const getDetail = async (id) => {
-  const record = await Model.findByPk(id);
+  const record = await Model.findByPk(id, {
+    include: [{ model: Student }],
+  });
   if (!record) throw new NotFoundError('Không tìm thấy hồ sơ thành tích');
   return record;
 };

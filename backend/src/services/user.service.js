@@ -4,6 +4,8 @@ const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const User = db.user;
+const Student = db.student;
+const Commander = db.commander;
 
 // ===================== CRUD Cơ bản =====================
 
@@ -14,10 +16,21 @@ const create = async (data) => {
   return User.create(data);
 };
 
-const getAll = async (query) => paginateQuery(User, query, { filterFields: ['username', 'role', 'isAdmin'] });
+const getAll = async (query) => paginateQuery(User, query, {
+  filterFields: ['username', 'role', 'isAdmin', 'isActive'],
+  include: [
+    { model: Student },
+    { model: Commander },
+  ],
+});
 
 const getDetail = async (id) => {
-  const record = await User.findByPk(id);
+  const record = await User.findByPk(id, {
+    include: [
+      { model: Student },
+      { model: Commander },
+    ],
+  });
   if (!record) throw new NotFoundError('Không tìm thấy người dùng');
   return record;
 };
@@ -71,16 +84,12 @@ const resetPassword = async (userId, newPassword) => {
 };
 
 const toggleActive = async (userId) => {
-  const user = await User.findByPk(userId, { paranoid: false });
+  const user = await User.findByPk(userId);
   if (!user) throw new NotFoundError('Không tìm thấy người dùng');
 
-  if (user.deletedAt) {
-    await user.restore();
-    return { status: 'ACTIVE' };
-  } else {
-    await user.destroy();
-    return { status: 'LOCKED' };
-  }
+  const newStatus = !user.isActive;
+  await user.update({ isActive: newStatus });
+  return { isActive: newStatus };
 };
 
 module.exports = {

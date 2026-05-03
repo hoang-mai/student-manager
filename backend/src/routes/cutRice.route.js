@@ -7,6 +7,7 @@ router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
 router.get('/', controller.getAll);
+router.get('/export', controller.exportCutRice);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);
 router.delete('/:id', controller.delete);

@@ -30,4 +30,9 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+const getReport = asyncHandler(async (req, res) => {
+  const result = await service.getReport();
+  return success(res, result);
+});
+
+module.exports = { create, getAll, getDetail, update, delete: deleteRecord, getReport };
