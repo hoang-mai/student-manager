@@ -18,7 +18,8 @@ export default async function AdminAccountsPage() {
     queryKey: [
       QUERY_KEYS.USERS,
       { pageIndex: DEFAULT_PAGE.PAGE_INDEX, pageSize: DEFAULT_PAGE.PAGE_SIZE },
-      { search: "" }
+      [],
+      [],
     ],
     queryFn: async () => await apiServer.get(ENDPOINTS.USERS.BASE, {
       params: {

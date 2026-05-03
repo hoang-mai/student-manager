@@ -17,6 +17,7 @@ import OfflineDetector from "@/components/providers/OfflineDetector";
 import Loading from "@/components/modals/Loading";
 import Toast from "@/components/modals/Toast";
 import Modal from "@/components/modals/Modal";
+import ConfirmModal from "@/components/modals/Confirm";
 import { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { THEMES } from "@/constants/constants";
@@ -44,9 +45,10 @@ export default async function RootLayout({
         <QueryProvider>
           <ThemeProvider initialTheme={theme}>
             <OfflineDetector />
-            <Loading />
             <Toast />
+            <Loading />
             <Modal />
+            <ConfirmModal />
             {children}
           </ThemeProvider>
         </QueryProvider>

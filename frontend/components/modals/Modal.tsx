@@ -46,7 +46,7 @@ export default function Modal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={config?.closeOnOverlayClick !== false ? closeModal : undefined}
-            className={`absolute inset-0 bg-neutral-900/40 backdrop-blur-sm ${config?.overlayClassName || ""}`}
+            className={`absolute inset-0 bg-neutral-900/40 backdrop-blur-xs ${config?.overlayClassName || ""}`}
           />
 
           {/* Modal Container */}
