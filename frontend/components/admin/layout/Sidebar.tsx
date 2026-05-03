@@ -2,8 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ADMIN_MENU, MenuItem } from "@/constants/admin-menu";
+import Typography from "@/library/Typography";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
@@ -16,17 +18,12 @@ const Sidebar: React.FC = () => {
 
       {/* Header Sidebar */}
       <div className="relative flex items-center gap-3 p-6 h-20">
-        <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary-600 to-primary-700 flex items-center justify-center text-white font-bold shrink-0 shadow-lg shadow-primary-600/20">
-          A
+        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
+          <Image src="/logo.png" alt="Logo" width={32} height={32} style={{ height: "auto" }} />
         </div>
-        <div className="flex flex-col">
-          <span className="font-black text-neutral-800 whitespace-nowrap uppercase tracking-tighter text-lg leading-tight">
-            Vanguard
-          </span>
-          <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold leading-none">
-            Admin Portal
-          </span>
-        </div>
+        <Typography variant="h2" weight="black" className="leading-none">
+          Tiên Phong
+        </Typography>
       </div>
 
       {/* Danh sách Menu */}
@@ -52,9 +49,9 @@ const Sidebar: React.FC = () => {
                     className={`shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-white" : "text-neutral-400 group-hover:text-primary-600"}`}
                   />
 
-                  <span className="whitespace-nowrap overflow-hidden text-sm font-semibold tracking-tight">
+                  <Typography variant="body" weight="semibold" className="whitespace-nowrap overflow-hidden tracking-tight">
                     {item.title}
-                  </span>
+                  </Typography>
 
                   {/* Hover/Active Effect Layer */}
                   {isActive && (

@@ -19,7 +19,7 @@ const TableBody = <TData,>({
   rowClassName,
 }: TableBodyProps<TData>) => {
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {table.getRowModel().rows.length === 0 ? (
         <TableEmptyState table={table} emptyText={emptyText} />
       ) : (

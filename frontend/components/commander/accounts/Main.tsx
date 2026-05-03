@@ -23,6 +23,7 @@ import {
 } from "react-icons/hi";
 import { useToastStore } from "@/store/useToastStore";
 import UserFormModal from "./UserFormModal";
+import Typography from "@/library/Typography";
 import { QUERY_KEYS } from "@/constants/query-keys";
 
 export default function Main() {
@@ -54,12 +55,12 @@ export default function Main() {
                 {(user.username || "?").charAt(0).toUpperCase()}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-black text-neutral-800 uppercase tracking-tight leading-tight">
+                <Typography variant="body" weight="black" transform="uppercase" className="leading-tight">
                   {user.username}
-                </span>
-                <span className="text-[11px] font-bold text-neutral-400 italic">
+                </Typography>
+                <Typography variant="label" weight="bold" color="gray" className="italic normal-case tracking-normal">
                   Mã HV: 202400{user.id}
-                </span>
+                </Typography>
               </div>
             </div>
           );
@@ -70,7 +71,7 @@ export default function Main() {
         header: "Cấp bậc",
         accessorKey: "rank",
         cell: () => (
-          <span className="text-xs font-bold text-neutral-500">Học viên</span>
+          <Typography variant="caption" weight="bold" color="neutral">Học viên</Typography>
         ),
       },
       {
@@ -78,7 +79,7 @@ export default function Main() {
         header: "Đơn vị",
         accessorKey: "unit",
         cell: () => (
-          <span className="text-xs font-bold text-neutral-500">Đại đội 1</span>
+          <Typography variant="caption" weight="bold" color="neutral">Đại đội 1</Typography>
         ),
       },
       {
@@ -86,7 +87,7 @@ export default function Main() {
         header: "Chức vụ",
         accessorKey: "position",
         cell: () => (
-          <span className="text-xs font-bold text-neutral-500">Lớp trưởng</span>
+          <Typography variant="caption" weight="bold" color="neutral">Lớp trưởng</Typography>
         ),
       },
       {
@@ -94,9 +95,9 @@ export default function Main() {
         header: "Số điện thoại",
         accessorKey: "phone",
         cell: () => (
-          <span className="text-xs font-bold text-neutral-500 italic">
+          <Typography variant="caption" weight="bold" color="neutral" className="italic">
             0123.456.789
-          </span>
+          </Typography>
         ),
       },
       {
@@ -104,9 +105,9 @@ export default function Main() {
         header: "Ngày tạo",
         accessorKey: "createdAt",
         cell: (info) => (
-          <span className="text-sm font-semibold text-gray-500 ">
+          <Typography variant="caption" weight="semibold" color="gray">
             {formatDate(info.row.original.createdAt)}
-          </span>
+          </Typography>
         ),
       },
       {
@@ -114,9 +115,9 @@ export default function Main() {
         header: "Ngày cập nhật",
         accessorKey: "updatedAt",
         cell: (info) => (
-          <span className="text-sm font-semibold text-gray-500 ">
+          <Typography variant="caption" weight="semibold" color="gray">
             {formatDate(info.row.original.updatedAt)}
-          </span>
+          </Typography>
         ),
       },
       {
@@ -186,41 +187,41 @@ export default function Main() {
       variant="slideUp"
       className="space-y-8 relative rounded-2xl bg-white p-4"
     >
-      <div className="flex items-center gap-2 text-[11px] font-bold text-neutral-400 uppercase tracking-widest">
+      <div className="flex items-center gap-2 text-neutral-400">
         <HiOutlineHome size={14} className="mb-0.5" />
-        <span>Trang chủ</span>
+        <Typography variant="label">Trang chủ</Typography>
         <HiOutlineChevronRight size={12} />
-        <span className="text-primary-600">Danh sách học viên</span>
+        <Typography variant="label" color="primary">Danh sách học viên</Typography>
       </div>
 
       <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-black text-neutral-800 tracking-tight uppercase">
+          <Typography variant="h1" transform="uppercase">
             Danh sách học viên - Năm học
-          </h1>
+          </Typography>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 transition-all">
-            <HiOutlineRefresh size={16} />
-            Cập nhật học viên ra trường
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-all">
+            <HiOutlineRefresh size={16} className="text-neutral-600" />
+            <Typography variant="label" color="neutral">Cập nhật học viên ra trường</Typography>
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 transition-all">
-            <HiOutlineOfficeBuilding size={16} />
-            Quản lý Trường
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-all">
+            <HiOutlineOfficeBuilding size={16} className="text-neutral-600" />
+            <Typography variant="label" color="neutral">Quản lý Trường</Typography>
           </button>
 
           <Button
             variant="primary"
             icon={HiOutlinePlus}
             onClick={() => handleOpenModal()}
-            className="h-10 px-5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-primary-600/20"
+            className="h-10 px-5 rounded-xl shadow-lg shadow-primary-600/20"
           >
-            Thêm Học viên
+            <Typography variant="label" color="white">Thêm Học viên</Typography>
           </Button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 transition-all">
-            <HiOutlineDownload size={16} />
-            Xuất Excel QLCTNB
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-all">
+            <HiOutlineDownload size={16} className="text-neutral-600" />
+            <Typography variant="label" color="neutral">Xuất Excel QLCTNB</Typography>
           </button>
         </div>
       </div>
