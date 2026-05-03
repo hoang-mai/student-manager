@@ -330,7 +330,7 @@ const getMyTuitionFees = async (studentId) => {
 // ===================== HV-09: Notifications =====================
 
 const getMyNotifications = async (userId, query = {}) => {
-  const where = { studentId };
+  const where = { userId };
   if (query.type) where.type = query.type;
   if (query.isRead !== undefined) where.isRead = query.isRead === 'true';
 
@@ -338,14 +338,14 @@ const getMyNotifications = async (userId, query = {}) => {
 };
 
 const getMyNotificationDetail = async (userId, id) => {
-  const notif = await Notification.findOne({ where: { id, studentId } });
+  const notif = await Notification.findOne({ where: { id, userId } });
   if (!notif) throw new NotFoundError('Không tìm thấy thông báo');
   await notif.update({ isRead: true });
   return notif;
 };
 
 const markNotificationRead = async (userId, id) => {
-  const notif = await Notification.findOne({ where: { id, studentId } });
+  const notif = await Notification.findOne({ where: { id, userId } });
   if (!notif) throw new NotFoundError('Không tìm thấy thông báo');
   return notif.update({ isRead: true });
 };
