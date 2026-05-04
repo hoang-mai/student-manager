@@ -63,7 +63,15 @@ const create = async (data, requester) => {
 const getAll = async (query) => paginateQuery(User, query, {
   filterFields: ['username', 'role', 'isAdmin', 'isActive'],
   include: [
-    { model: Student },
+    {
+      model: Student,
+      include: [
+        { model: db.university },
+        { model: db.class },
+        { model: db.organization },
+        { model: db.educationLevel },
+      ],
+    },
     { model: Commander },
   ],
 });
@@ -71,7 +79,15 @@ const getAll = async (query) => paginateQuery(User, query, {
 const getDetail = async (id) => {
   const record = await User.findByPk(id, {
     include: [
-      { model: Student },
+      {
+        model: Student,
+        include: [
+          { model: db.university },
+          { model: db.class },
+          { model: db.organization },
+          { model: db.educationLevel },
+        ],
+      },
       { model: Commander },
     ],
   });
