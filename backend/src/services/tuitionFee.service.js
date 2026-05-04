@@ -1,4 +1,5 @@
 const db = require('../models');
+const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
@@ -10,12 +11,12 @@ const create = async (data) => TuitionFee.create(data);
 const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
-  const include = [{ model: Student, include: [{ model: University }] }];
+  const include = [{ model: User, include: [{ model: db.profile, include: [{ model: University }] }] }];
 
   if (query.semester) where.semester = query.semester;
   if (query.schoolYear) where.schoolYear = query.schoolYear;
   if (query.status) where.status = query.status;
-  if (query.studentId) where.studentId = query.studentId;
+  if (query.userId) where.userId = query.userId;
 
   if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
   if (query.unit) studentWhere.unit = query.unit;
@@ -30,7 +31,7 @@ const getAll = async (query) => {
 
 const getDetail = async (id) => {
   const record = await TuitionFee.findByPk(id, {
-    include: [{ model: Student }],
+    include: [{ model: User }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy học phí');
   return record;

@@ -1,4 +1,5 @@
 const db = require('../models');
+const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
@@ -8,12 +9,13 @@ const Student = db.student;
 const create = async (data) => TimeTable.create(data);
 const getAll = async (query) => {
   const opts = {
-    filterFields: ['studentId'],
-    include: [{ model: Student }],
+    filterFields: ['userId'],
+    include: [{ model: User, include: [{ model: db.profile }] }],
   };
 
   if (query.fullName) {
-    opts.include[0].where = { fullName: { [db.Sequelize.Op.like]: `%${query.fullName}%` } };
+    opts.include[0].include[0].where = { fullName: { [db.Sequelize.Op.like]: `%${query.fullName}%` } };
+    opts.include[0].include[0].required = true;
     opts.include[0].required = true;
   }
 
@@ -34,7 +36,7 @@ const getAll = async (query) => {
 
 const getDetail = async (id) => {
   const record = await TimeTable.findByPk(id, {
-    include: [{ model: Student }],
+    include: [{ model: User, include: [{ model: db.profile }] }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy thời khóa biểu');
   return record;
@@ -53,8 +55,7 @@ const deleteRecord = async (id) => {
 
 const getReport = async () => {
   const timetables = await TimeTable.findAll({
-    include: [{ model: Student }],
-    order: [[Student, 'unit', 'ASC'], [Student, 'fullName', 'ASC']],
+    include: [{ model: User, include: [{ model: db.profile }] }],
   });
 
   const rows = [];
@@ -64,9 +65,9 @@ const getReport = async () => {
   let totalSchedules = 0;
 
   for (const tt of timetables) {
-    const student = tt.Student;
+    const profile = tt.User?.Profile;
     const schedules = tt.schedules || [];
-    if (schedules.length > 0) studentSet.add(student?.studentId);
+    if (schedules.length > 0) studentSet.add(profile?.code);
 
     for (const s of schedules) {
       totalSchedules++;
@@ -74,8 +75,8 @@ const getReport = async () => {
       if (s.week) weekSet.add(s.week);
 
       rows.push({
-        unit: student?.unit || '',
-        fullName: student?.fullName || '',
+        unit: profile?.unit || '',
+        fullName: profile?.fullName || '',
         scheduleCount: schedules.length,
         subjectName: s.subjectName || '',
         room: s.room || '',

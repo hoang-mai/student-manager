@@ -7,17 +7,17 @@ const s = require('../validations/gradeRequest.validation');
 
 const create = asyncHandler(async (req, res) => {
   await validateOrThrow(s.create, req.body);
-  const r = await service.create(req.user.studentId, req.body);
+  const r = await service.create(req.userId, req.body);
   return success(res, r, 'Gửi đề xuất thành công', 201);
 });
 
 const getMyRequests = asyncHandler(async (req, res) => {
-  const r = await service.getMyRequests(req.user.studentId, req.query);
+  const r = await service.getMyRequests(req.userId, req.query);
   return success(res, r);
 });
 
 const getMyRequestDetail = asyncHandler(async (req, res) => {
-  const r = await service.getMyRequestDetail(req.user.studentId, req.params.id);
+  const r = await service.getMyRequestDetail(req.userId, req.params.id);
   return success(res, r);
 });
 

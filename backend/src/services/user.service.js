@@ -5,8 +5,17 @@ const { NotFoundError, BadRequestError, ForbiddenError } = require('../utils/api
 const { paginateQuery } = require('../utils/response');
 
 const User = db.user;
-const Student = db.student;
-const Commander = db.commander;
+const Profile = db.profile;
+
+const PROFILE_FIELDS = [
+  'code', 'fullName', 'email', 'gender', 'birthday', 'hometown', 'ethnicity',
+  'religion', 'currentAddress', 'placeOfBirth', 'phoneNumber', 'cccd',
+  'partyMemberCardNumber', 'unit', 'rank', 'positionGovernment', 'positionParty',
+  'fullPartyMember', 'probationaryPartyMember', 'dateOfEnlistment', 'avatar',
+  'enrollment', 'graduationDate', 'currentCpa4', 'currentCpa10', 'familyMember',
+  'foreignRelations', 'startWork', 'organization', 'classId', 'organizationId',
+  'universityId', 'educationLevelId',
+];
 
 const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
@@ -17,36 +26,32 @@ const _createProfile = async (data, requester) => {
     throw new ForbiddenError('Chỉ huy không thể tạo tài khoản chỉ huy');
   }
 
-  if (data.role === 'STUDENT' && data.fullName) {
-    if (data.studentId) {
-      const existing = await Student.findOne({ where: { studentId: data.studentId } });
-      if (existing) throw new BadRequestError(`Mã học viên ${data.studentId} đã tồn tại`);
+  if ((data.role === 'STUDENT' || data.role === 'COMMANDER') && data.fullName) {
+    if (data.code) {
+      const existing = await Profile.findOne({ where: { code: data.code } });
+      if (existing) throw new BadRequestError(`Mã ${data.code} đã tồn tại`);
     }
-    const student = await Student.create({
-      studentId: data.studentId || _generateCode('HV'),
-      fullName: data.fullName,
-      email: data.email,
-    });
-    data.studentId = student.id;
+
+    const prefix = data.role === 'COMMANDER' ? 'CH' : 'HV';
+    const code = data.code || _generateCode(prefix);
+
+    const profileData = { code, fullName: data.fullName, email: data.email };
+    for (const field of PROFILE_FIELDS) {
+      if (data[field] !== undefined && field !== 'code' && field !== 'fullName' && field !== 'email') {
+        profileData[field] = data[field];
+      }
+    }
+
+    const profile = await Profile.create(profileData);
+    data.profileId = profile.id;
   }
 
-  if (data.role === 'COMMANDER' && data.fullName) {
-    if (data.commanderId) {
-      const existing = await Commander.findOne({ where: { commanderId: data.commanderId } });
-      if (existing) throw new BadRequestError(`Mã chỉ huy ${data.commanderId} đã tồn tại`);
-    }
-    const commander = await Commander.create({
-      commanderId: data.commanderId || _generateCode('CH'),
-      fullName: data.fullName,
-      email: data.email,
-    });
-    data.commanderId = commander.id;
+  for (const field of PROFILE_FIELDS) {
+    delete data[field];
   }
 
   return data;
 };
-
-// ===================== CRUD Cơ bản =====================
 
 const create = async (data, requester) => {
   await _createProfile(data, requester);
@@ -55,8 +60,8 @@ const create = async (data, requester) => {
     data.password = await _hashPassword(data.password);
   }
 
-  delete data.fullName;
-  delete data.email;
+  data.isAdmin = data.role === 'ADMIN';
+
   return User.create(data);
 };
 
@@ -64,7 +69,7 @@ const getAll = async (query) => paginateQuery(User, query, {
   filterFields: ['username', 'role', 'isAdmin', 'isActive'],
   include: [
     {
-      model: Student,
+      model: Profile,
       include: [
         { model: db.university },
         { model: db.class },
@@ -72,7 +77,6 @@ const getAll = async (query) => paginateQuery(User, query, {
         { model: db.educationLevel },
       ],
     },
-    { model: Commander },
   ],
 });
 
@@ -80,7 +84,7 @@ const getDetail = async (id) => {
   const record = await User.findByPk(id, {
     include: [
       {
-        model: Student,
+        model: Profile,
         include: [
           { model: db.university },
           { model: db.class },
@@ -88,7 +92,6 @@ const getDetail = async (id) => {
           { model: db.educationLevel },
         ],
       },
-      { model: Commander },
     ],
   });
   if (!record) throw new NotFoundError('Không tìm thấy người dùng');
@@ -101,20 +104,16 @@ const update = async (id, data) => {
     data.password = await bcrypt.hash(data.password, 10);
   }
 
-  if (data.fullName || data.email) {
-    if (record.Student) {
-      await record.Student.update({
-        ...(data.fullName && { fullName: data.fullName }),
-        ...(data.email && { email: data.email }),
-      });
-    } else if (record.Commander) {
-      await record.Commander.update({
-        ...(data.fullName && { fullName: data.fullName }),
-        ...(data.email && { email: data.email }),
-      });
+  const hasProfileFields = PROFILE_FIELDS.some((f) => data[f] !== undefined);
+  if (hasProfileFields && record.Profile) {
+    const profileUpdate = {};
+    for (const field of PROFILE_FIELDS) {
+      if (data[field] !== undefined) {
+        profileUpdate[field] = data[field];
+        delete data[field];
+      }
     }
-    delete data.fullName;
-    delete data.email;
+    await record.Profile.update(profileUpdate);
   }
 
   return record.update(data);
@@ -125,8 +124,6 @@ const deleteRecord = async (id) => {
   await record.destroy();
   return { deleted: true };
 };
-
-// ===================== CH-01: Quản lý tài khoản học viên =====================
 
 const createBatchUsers = async (users, requester) => {
   const results = [];
@@ -146,8 +143,7 @@ const createBatchUsers = async (users, requester) => {
         password: hashedPassword,
         role: u.role || 'STUDENT',
         isAdmin: u.role === 'ADMIN',
-        studentId: u.role === 'STUDENT' ? u.studentId : null,
-        commanderId: u.role === 'COMMANDER' ? u.commanderId : null,
+        profileId: u.profileId || null,
       });
       results.push({ username: u.username, status: 'CREATED' });
     } catch (err) {
@@ -175,6 +171,30 @@ const toggleActive = async (userId) => {
   return { isActive: newStatus };
 };
 
+const getMyProfile = async (userId) => {
+  const user = await User.findByPk(userId, { include: [{ model: Profile }] });
+  if (!user || !user.Profile) throw new NotFoundError('Không tìm thấy hồ sơ');
+  return user.Profile;
+};
+
+const updateMyProfile = async (userId, data) => {
+  const user = await User.findByPk(userId, { include: [{ model: Profile }] });
+  if (!user || !user.Profile) throw new NotFoundError('Không tìm thấy hồ sơ');
+  const updateData = {};
+  for (const field of PROFILE_FIELDS) {
+    if (data[field] !== undefined) updateData[field] = data[field];
+  }
+  await user.Profile.update(updateData);
+  return user.Profile;
+};
+
+const uploadAvatar = async (userId, avatarUrl) => {
+  const user = await User.findByPk(userId, { include: [{ model: Profile }] });
+  if (!user || !user.Profile) throw new NotFoundError('Không tìm thấy hồ sơ');
+  await user.Profile.update({ avatar: avatarUrl });
+  return { avatar: avatarUrl };
+};
+
 module.exports = {
   create,
   getAll,
@@ -184,4 +204,7 @@ module.exports = {
   createBatchUsers,
   resetPassword,
   toggleActive,
+  getMyProfile,
+  updateMyProfile,
+  uploadAvatar,
 };

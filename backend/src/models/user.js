@@ -24,10 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     refreshToken: {
       type: DataTypes.TEXT,
     },
-    studentId: {
-      type: DataTypes.UUID,
-    },
-    commanderId: {
+    profileId: {
       type: DataTypes.UUID,
     },
     deleteAt: {

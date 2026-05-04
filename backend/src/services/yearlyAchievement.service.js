@@ -1,4 +1,5 @@
 const db = require('../models');
+const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
@@ -9,9 +10,9 @@ const ScientificTopic = db.scientificTopic;
 
 const create = async (data) => YearlyAchievement.create(data);
 const getAll = async (query) => paginateQuery(YearlyAchievement, query, {
-  filterFields: ['studentId', 'year', 'hasMinistryReward', 'hasNationalReward'],
+  filterFields: ['userId', 'year', 'hasMinistryReward', 'hasNationalReward'],
   include: [
-    { model: Student },
+    { model: User },
     { model: ScientificInitiative },
     { model: ScientificTopic },
   ],
@@ -20,7 +21,7 @@ const getAll = async (query) => paginateQuery(YearlyAchievement, query, {
 const getDetail = async (id) => {
   const record = await YearlyAchievement.findByPk(id, {
     include: [
-      { model: Student },
+      { model: User },
       { model: ScientificInitiative },
       { model: ScientificTopic },
     ],

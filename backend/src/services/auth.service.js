@@ -6,8 +6,7 @@ const { serialize } = require('../utils/serialize');
 const { NotFoundError, UnauthorizedError, BadRequestError } = require('../utils/apiError');
 
 const User = db.user;
-const Student = db.student;
-const Commander = db.commander;
+const Profile = db.profile;
 
 const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
@@ -39,7 +38,7 @@ const login = async (username, password) => {
 };
 
 const register = async (data) => {
-  const { username, password, role, studentId, commanderId, fullName, email } = data;
+  const { username, password, role, code, fullName, email } = data;
 
   const exist = await User.findOne({ where: { username } });
   if (exist) {
@@ -47,28 +46,18 @@ const register = async (data) => {
   }
 
   let profileId = null;
-  if (role === 'STUDENT' && fullName) {
-    if (studentId) {
-      const existing = await Student.findOne({ where: { studentId } });
-      if (existing) throw new BadRequestError(`Mã học viên ${studentId} đã tồn tại`);
+  if ((role === 'STUDENT' || role === 'COMMANDER') && fullName) {
+    if (code) {
+      const existing = await Profile.findOne({ where: { code } });
+      if (existing) throw new BadRequestError(`Mã ${code} đã tồn tại`);
     }
-    const student = await Student.create({
-      studentId: studentId || _generateCode('HV'),
+    const prefix = role === 'STUDENT' ? 'HV' : 'CH';
+    const profile = await Profile.create({
+      code: code || _generateCode(prefix),
       fullName,
       email,
     });
-    profileId = student.id;
-  } else if (role === 'COMMANDER' && fullName) {
-    if (commanderId) {
-      const existing = await Commander.findOne({ where: { commanderId } });
-      if (existing) throw new BadRequestError(`Mã chỉ huy ${commanderId} đã tồn tại`);
-    }
-    const commander = await Commander.create({
-      commanderId: commanderId || _generateCode('CH'),
-      fullName,
-      email,
-    });
-    profileId = commander.id;
+    profileId = profile.id;
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -77,8 +66,7 @@ const register = async (data) => {
     password: hashedPassword,
     role: role || 'STUDENT',
     isAdmin: role === 'ADMIN',
-    studentId: role === 'STUDENT' ? (profileId || studentId || null) : null,
-    commanderId: role === 'COMMANDER' ? (profileId || commanderId || null) : null,
+    profileId,
   });
 
   return _excludePassword(newUser);
