@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const create = yup.object({
-  semesterResultId: yup.string().uuid('semesterResultId không hợp lệ').required('Trường này là bắt buộc'),
+  semesterResultId: yup.string().uuid('Mã kết quả học kỳ không hợp lệ').required('Trường này là bắt buộc'),
   subjectCode: yup.string().max(50).required('Trường này là bắt buộc'),
   subjectName: yup.string().max(255).required('Trường này là bắt buộc'),
   credits: yup.number().integer().min(0),
@@ -11,7 +11,7 @@ const create = yup.object({
 });
 
 const update = yup.object({
-  semesterResultId: yup.string().uuid('semesterResultId không hợp lệ'),
+  semesterResultId: yup.string().uuid('Mã kết quả học kỳ không hợp lệ'),
   subjectCode: yup.string().max(50),
   subjectName: yup.string().max(255),
   credits: yup.number().integer().min(0),

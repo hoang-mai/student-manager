@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const create = yup.object({
-  userId: yup.string().uuid('userId không hợp lệ').required('Trường này là bắt buộc'),
+  userId: yup.string().uuid('Mã người dùng không hợp lệ').required('Trường này là bắt buộc'),
   schoolYear: yup.string().max(50).required('Trường này là bắt buộc'),
   averageGrade4: yup.number().min(0).max(4),
   averageGrade10: yup.number().min(0).max(10),
@@ -15,14 +15,14 @@ const create = yup.object({
   debtCredits: yup.number().integer().min(0),
   academicStatus: yup.string().max(50),
   studentLevel: yup.number().integer().min(0),
-  semesterIds: yup.string().uuid('semesterIds không hợp lệ'),
+  semesterIds: yup.string().uuid('Mã học kỳ không hợp lệ'),
   partyRating: yup.string().max(50),
   trainingRating: yup.string().max(50),
   partyRatingDecisionNumber: yup.string().max(100),
 });
 
 const update = yup.object({
-  userId: yup.string().uuid('userId không hợp lệ'),
+  userId: yup.string().uuid('Mã người dùng không hợp lệ'),
   schoolYear: yup.string().max(50),
   averageGrade4: yup.number().min(0).max(4),
   averageGrade10: yup.number().min(0).max(10),
@@ -36,7 +36,7 @@ const update = yup.object({
   debtCredits: yup.number().integer().min(0),
   academicStatus: yup.string().max(50),
   studentLevel: yup.number().integer().min(0),
-  semesterIds: yup.string().uuid('semesterIds không hợp lệ'),
+  semesterIds: yup.string().uuid('Mã học kỳ không hợp lệ'),
   partyRating: yup.string().max(50),
   trainingRating: yup.string().max(50),
   partyRatingDecisionNumber: yup.string().max(100),

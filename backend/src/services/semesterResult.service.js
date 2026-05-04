@@ -4,7 +4,7 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const SemesterResult = db.semesterResult;
-const Student = db.student;
+const Student = db.profile;
 const YearlyResult = db.yearlyResult;
 const SubjectResult = db.subjectResult;
 

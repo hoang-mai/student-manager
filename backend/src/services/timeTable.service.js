@@ -4,7 +4,7 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const TimeTable = db.timeTable;
-const Student = db.student;
+const Student = db.profile;
 
 const create = async (data) => TimeTable.create(data);
 const getAll = async (query) => {

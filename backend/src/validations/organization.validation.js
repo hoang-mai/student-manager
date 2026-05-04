@@ -5,7 +5,7 @@ const create = yup.object({
   travelTime: yup.number().integer().min(0),
   totalStudents: yup.number().integer().min(0),
   status: yup.string().max(50),
-  universityId: yup.string().uuid('universityId không hợp lệ'),
+  universityId: yup.string().uuid('Mã trường không hợp lệ'),
 });
 
 const update = yup.object({
@@ -13,7 +13,7 @@ const update = yup.object({
   travelTime: yup.number().integer().min(0),
   totalStudents: yup.number().integer().min(0),
   status: yup.string().max(50),
-  universityId: yup.string().uuid('universityId không hợp lệ'),
+  universityId: yup.string().uuid('Mã trường không hợp lệ'),
 });
 
 module.exports = { create, update };
