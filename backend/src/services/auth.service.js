@@ -1,10 +1,15 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const db = require('../models');
 const JwtService = require('./jwt.service');
 const { serialize } = require('../utils/serialize');
 const { NotFoundError, UnauthorizedError, BadRequestError } = require('../utils/apiError');
 
 const User = db.user;
+const Student = db.student;
+const Commander = db.commander;
+
+const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
 const _excludePassword = (user) => serialize(user);
 
@@ -34,11 +39,36 @@ const login = async (username, password) => {
 };
 
 const register = async (data) => {
-  const { username, password, role, studentId, commanderId } = data;
+  const { username, password, role, studentId, commanderId, fullName, email } = data;
 
   const exist = await User.findOne({ where: { username } });
   if (exist) {
     throw new BadRequestError('Tên đăng nhập đã tồn tại');
+  }
+
+  let profileId = null;
+  if (role === 'STUDENT' && fullName) {
+    if (studentId) {
+      const existing = await Student.findOne({ where: { studentId } });
+      if (existing) throw new BadRequestError(`Mã học viên ${studentId} đã tồn tại`);
+    }
+    const student = await Student.create({
+      studentId: studentId || _generateCode('HV'),
+      fullName,
+      email,
+    });
+    profileId = student.id;
+  } else if (role === 'COMMANDER' && fullName) {
+    if (commanderId) {
+      const existing = await Commander.findOne({ where: { commanderId } });
+      if (existing) throw new BadRequestError(`Mã chỉ huy ${commanderId} đã tồn tại`);
+    }
+    const commander = await Commander.create({
+      commanderId: commanderId || _generateCode('CH'),
+      fullName,
+      email,
+    });
+    profileId = commander.id;
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -47,8 +77,8 @@ const register = async (data) => {
     password: hashedPassword,
     role: role || 'STUDENT',
     isAdmin: role === 'ADMIN',
-    studentId: studentId || null,
-    commanderId: commanderId || null,
+    studentId: role === 'STUDENT' ? (profileId || studentId || null) : null,
+    commanderId: role === 'COMMANDER' ? (profileId || commanderId || null) : null,
   });
 
   return _excludePassword(newUser);

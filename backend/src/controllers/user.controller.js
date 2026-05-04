@@ -7,7 +7,7 @@ const s = require('../validations/user.validation');
 
 const create = asyncHandler(async (req, res) => {
   await validateOrThrow(s.create, req.body);
-  const result = await service.create(req.body);
+  const result = await service.create(req.body, req.user);
   return success(res, result, 'Tạo mới thành công', 201);
 });
 
@@ -39,7 +39,7 @@ const createBatchUsers = asyncHandler(async (req, res) => {
   for (const u of users) {
     await validateOrThrow(s.batch, u);
   }
-  const result = await service.createBatchUsers(users);
+  const result = await service.createBatchUsers(users, req.user);
   return success(res, result, 'Tạo tài khoản hàng loạt thành công', 201);
 });
 
