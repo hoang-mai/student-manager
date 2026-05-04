@@ -61,9 +61,14 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
   const onSubmit = (data: ChangePasswordFormValues) => {
@@ -95,6 +100,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
         }
         error={errors.oldPassword?.message}
         {...register("oldPassword")}
+        required={true}
       />
 
       <Input
@@ -102,6 +108,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
         type={showNewPassword ? "text" : "password"}
         placeholder="Nhập mật khẩu mới"
         isLoading={changePasswordMutation.isPending}
+        required={true}
         prefixIcon={<HiOutlineLockClosed size={18} />}
         suffixIcon={
           <button
@@ -139,6 +146,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
         }
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
+        required={true}
       />
 
       <div className="flex justify-end gap-3">
@@ -150,7 +158,11 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
         >
           Hủy bỏ
         </Button>
-        <Button type="submit" isLoading={changePasswordMutation.isPending}>
+        <Button
+          type="submit"
+          isLoading={changePasswordMutation.isPending}
+          disabled={!isDirty}
+        >
           Cập nhật mật khẩu
         </Button>
       </div>

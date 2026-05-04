@@ -35,6 +35,9 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 
   /** Trạng thái đang tải (vô hiệu hóa tương tác) */
   isLoading?: boolean;
+
+  /** Hiển thị dấu * bắt buộc */
+  required?: boolean;
 };
 
 const sizeStyles: Record<InputSize, string> = {
@@ -58,6 +61,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       disabled,
       isLoading,
       floatingLabel = true,
+      required,
       ...props
     },
     ref
@@ -106,6 +110,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             htmlFor={id}
           >
             {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
           </Typography>
         )}
         <div className="relative">

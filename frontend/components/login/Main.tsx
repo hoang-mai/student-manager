@@ -130,6 +130,7 @@ export default function Main() {
             isLoading={loginMutation.isPending}
             error={errors.username?.message}
             {...register("username")}
+            required={true}
           />
 
           <Input
@@ -152,6 +153,7 @@ export default function Main() {
             }
             error={errors.password?.message}
             {...register("password")}
+            required={true}
           />
 
           {/* Remember & Forgot */}

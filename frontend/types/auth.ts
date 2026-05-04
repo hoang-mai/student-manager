@@ -11,6 +11,7 @@ export interface User {
   id: string;
   username: string;
   isAdmin: boolean;
+  isActive: boolean;
   role: "ADMIN" | "COMMANDER" | "STUDENT";
   refreshToken: string | null;
   studentId: string | null;
@@ -20,8 +21,16 @@ export interface User {
   deleteAt: string | null;
 }
 
-export type LoginResponse = {
+export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
-};
+}
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  role: "ADMIN" | "COMMANDER" | "STUDENT";
+  fullName: string;
+  email: string;
+}

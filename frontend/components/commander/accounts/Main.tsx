@@ -146,7 +146,7 @@ export default function Main() {
 
   // Mutations
   const createMutation = useMutation({
-    mutationFn: (userData: CreateUserDTO) => userService.createUser(userData),
+    mutationFn: (userData: CreateUserDTO) => authService.register(userData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
       addToast({ message: "Thêm người dùng thành công!", variant: "success" });

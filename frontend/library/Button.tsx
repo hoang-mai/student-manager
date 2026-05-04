@@ -87,12 +87,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           inline-flex items-center justify-center
           rounded-xl font-semibold font-sans
           transition-all duration-200
-          cursor-pointer select-none
+          select-none
           outline-none
           ${sizeStyles[size]}
           ${variantStyles[variant]}
           ${fullWidth ? "w-full" : ""}
-          ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           ${className}
         `}
         {...props}

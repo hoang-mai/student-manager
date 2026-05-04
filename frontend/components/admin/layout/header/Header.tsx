@@ -65,7 +65,7 @@ export default function Header() {
           Hệ thống quản lý học viên
         </Typography>
         <Typography variant="label" color="gray" tracking="widest" className="leading-none mt-0.5">
-          Quản trị hệ thống
+          Chào mừng đến với hệ thống quản lý học viên
         </Typography>
       </div>
 

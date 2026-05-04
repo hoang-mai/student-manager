@@ -44,6 +44,8 @@ export interface SelectProps {
   placeholder?: string;
   /** Chiều cao tối đa của menu để tính toán flip (mặc định: 300) */
   menuHeight?: number;
+  /** Có bắt buộc hay không */
+  required?: boolean;
 }
 
 const sizeStyles: Record<SelectSize, string> = {
@@ -70,6 +72,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       onChange,
       placeholder = "Chọn...",
       menuHeight,
+      required,
     },
     ref
   ) => {
@@ -113,11 +116,12 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             color={error ? "error" : floatingLabel ? "gray" : "neutral"}
             className={
               floatingLabel
-                ? "absolute -top-2 left-3 z-10 px-1 rounded-md bg-white cursor-text"
+                ? "absolute -top-2 left-3 z-25 px-1 rounded-md bg-white cursor-text"
                 : "block mb-1.5 ml-1"
             }
           >
             {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
           </Typography>
         )}
 

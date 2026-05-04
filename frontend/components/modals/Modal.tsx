@@ -63,6 +63,7 @@ export default function Modal() {
             }}
             className={`
               relative w-full bg-white rounded-4xl shadow-2xl overflow-hidden flex flex-col
+              max-h-[calc(100vh-2rem)]
               ${sizeClasses[size || "md"]}
               ${config?.className || ""}
             `}
