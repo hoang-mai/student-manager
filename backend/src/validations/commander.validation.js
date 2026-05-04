@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const create = yup.object({
-  commanderId: yup.string().max(50).required('Trường này là bắt buộc'),
+  code: yup.string().max(50).required('Trường này là bắt buộc'),
   fullName: yup.string().max(100),
   gender: yup.string().max(20),
   birthday: yup.date(),
@@ -27,7 +27,7 @@ const create = yup.object({
 });
 
 const update = yup.object({
-  commanderId: yup.string().max(50),
+  code: yup.string().max(50),
   fullName: yup.string().max(100),
   gender: yup.string().max(20),
   birthday: yup.date(),

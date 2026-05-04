@@ -6,7 +6,7 @@ const GradeRequest = db.gradeRequest;
 const SubjectResult = db.subjectResult;
 const SemesterResult = db.semesterResult;
 const YearlyResult = db.yearlyResult;
-const Student = db.student;
+const Student = db.profile;
 const User = db.user;
 const Notification = db.notification;
 

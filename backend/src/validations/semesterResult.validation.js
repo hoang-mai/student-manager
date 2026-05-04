@@ -1,10 +1,10 @@
 const yup = require('yup');
 
 const create = yup.object({
-  userId: yup.string().uuid('userId không hợp lệ').required('Trường này là bắt buộc'),
+  userId: yup.string().uuid('Mã người dùng không hợp lệ').required('Trường này là bắt buộc'),
   semester: yup.string().max(50).required('Trường này là bắt buộc'),
   schoolYear: yup.string().max(50).required('Trường này là bắt buộc'),
-  yearlyResultId: yup.string().uuid('yearlyResultId không hợp lệ').required('Trường này là bắt buộc'),
+  yearlyResultId: yup.string().uuid('Mã kết quả năm không hợp lệ').required('Trường này là bắt buộc'),
   totalCredits: yup.number().integer().min(0),
   averageGrade4: yup.number().min(0).max(4),
   averageGrade10: yup.number().min(0).max(10),
@@ -16,10 +16,10 @@ const create = yup.object({
 });
 
 const update = yup.object({
-  userId: yup.string().uuid('userId không hợp lệ'),
+  userId: yup.string().uuid('Mã người dùng không hợp lệ'),
   semester: yup.string().max(50),
   schoolYear: yup.string().max(50),
-  yearlyResultId: yup.string().uuid('yearlyResultId không hợp lệ'),
+  yearlyResultId: yup.string().uuid('Mã kết quả năm không hợp lệ'),
   totalCredits: yup.number().integer().min(0),
   averageGrade4: yup.number().min(0).max(4),
   averageGrade10: yup.number().min(0).max(10),

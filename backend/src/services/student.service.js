@@ -2,7 +2,7 @@ const db = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
-const Student = db.student;
+const Student = db.profile;
 const Class = db.class;
 const Organization = db.organization;
 const University = db.university;

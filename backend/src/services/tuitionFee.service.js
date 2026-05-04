@@ -4,7 +4,7 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const TuitionFee = db.tuitionFee;
-const Student = db.student;
+const Student = db.profile;
 const University = db.university;
 
 const create = async (data) => TuitionFee.create(data);
