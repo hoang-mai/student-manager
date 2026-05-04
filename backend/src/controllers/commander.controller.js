@@ -35,7 +35,7 @@ const deleteRecord = asyncHandler(async (req, res) => {
 // ===================== CH-06: Tự động sinh lịch cắt cơm =====================
 
 const generateCutRice = asyncHandler(async (req, res) => {
-  const result = await service.generateCutRice(req.params.studentId);
+  const result = await service.generateCutRice(req.params.userId);
   return success(res, result, 'Tạo lịch cắt cơm tự động thành công');
 });
 

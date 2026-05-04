@@ -1,12 +1,17 @@
 const asyncHandler = require('express-async-handler');
 const service = require('../services/user.service');
+const studentService = require('../services/student.service');
+const commanderService = require('../services/commander.service');
 const { success, paginated, validateOrThrow } = require('../utils/response');
-const s = require('../validations/user.validation');
+const us = require('../validations/user.validation');
+const ss = require('../validations/student.validation');
+const cs = require('../validations/commander.validation');
+const crs = require('../validations/cutRice.validation');
 
-// ===================== CRUD Cơ bản =====================
+// ===================== User CRUD =====================
 
 const create = asyncHandler(async (req, res) => {
-  await validateOrThrow(s.create, req.body);
+  await validateOrThrow(us.create, req.body);
   const result = await service.create(req.body, req.user);
   return success(res, result, 'Tạo mới thành công', 201);
 });
@@ -22,7 +27,7 @@ const getDetail = asyncHandler(async (req, res) => {
 });
 
 const update = asyncHandler(async (req, res) => {
-  await validateOrThrow(s.update, req.body);
+  await validateOrThrow(us.update, req.body);
   const result = await service.update(req.params.id, req.body);
   return success(res, result, 'Cập nhật thành công');
 });
@@ -32,19 +37,17 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-// ===================== CH-01: Quản lý tài khoản =====================
-
 const createBatchUsers = asyncHandler(async (req, res) => {
   const users = req.body.users || [];
   for (const u of users) {
-    await validateOrThrow(s.batch, u);
+    await validateOrThrow(us.batch, u);
   }
   const result = await service.createBatchUsers(users, req.user);
   return success(res, result, 'Tạo tài khoản hàng loạt thành công', 201);
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
-  await validateOrThrow(s.resetPassword, req.body);
+  await validateOrThrow(us.resetPassword, req.body);
   const result = await service.resetPassword(req.params.id, req.body.newPassword);
   return success(res, result, 'Đặt lại mật khẩu thành công');
 });
@@ -53,6 +56,149 @@ const toggleActive = asyncHandler(async (req, res) => {
   const result = await service.toggleActive(req.params.id);
   const msg = result.isActive ? 'Mở khóa tài khoản thành công' : 'Khóa tài khoản thành công';
   return success(res, result, msg);
+});
+
+// ===================== Profile =====================
+
+const getMyProfile = asyncHandler(async (req, res) => {
+  const result = await service.getMyProfile(req.userId);
+  return success(res, result);
+});
+
+const updateMyProfile = asyncHandler(async (req, res) => {
+  const result = await service.updateMyProfile(req.userId, req.body);
+  return success(res, result, 'Cập nhật hồ sơ thành công');
+});
+
+const uploadAvatar = asyncHandler(async (req, res) => {
+  const result = await service.uploadAvatar(req.userId, req.body.avatar);
+  return success(res, result, 'Upload avatar thành công');
+});
+
+// ===================== Student: Học tập =====================
+
+const getAcademicResults = asyncHandler(async (req, res) => {
+  const result = await studentService.getAcademicResults(req.userId, req.query);
+  return success(res, result);
+});
+
+// ===================== Student: Thời khóa biểu =====================
+
+const getMyTimeTable = asyncHandler(async (req, res) => {
+  const result = await studentService.getMyTimeTable(req.userId);
+  return success(res, result);
+});
+
+const createMyTimeTable = asyncHandler(async (req, res) => {
+  await validateOrThrow(ss.timetable, req.body);
+  const result = await studentService.createMyTimeTable(req.userId, req.body);
+  return success(res, result, 'Thêm môn học thành công', 201);
+});
+
+const updateMyTimeTable = asyncHandler(async (req, res) => {
+  await validateOrThrow(ss.timetable, req.body);
+  const result = await studentService.updateMyTimeTable(req.userId, req.params.id, req.body);
+  return success(res, result, 'Cập nhật thời khóa biểu thành công');
+});
+
+const deleteMyTimeTable = asyncHandler(async (req, res) => {
+  await studentService.deleteMyTimeTable(req.userId, req.params.id);
+  return success(res, null, 'Xóa môn học thành công');
+});
+
+// ===================== Student: Cắt cơm =====================
+
+const getMyCutRice = asyncHandler(async (req, res) => {
+  const result = await studentService.getMyCutRice(req.userId);
+  return success(res, result);
+});
+
+const updateMyCutRice = asyncHandler(async (req, res) => {
+  await validateOrThrow(crs.cutRice || crs.update, req.body);
+  const result = await studentService.updateMyCutRice(req.userId, req.body);
+  return success(res, result, 'Cập nhật lịch cắt cơm thành công');
+});
+
+// ===================== Student: Thành tích & Học phí =====================
+
+const getMyAchievements = asyncHandler(async (req, res) => {
+  const result = await studentService.getMyAchievements(req.userId);
+  return success(res, result);
+});
+
+const getMyTuitionFees = asyncHandler(async (req, res) => {
+  const result = await studentService.getMyTuitionFees(req.userId);
+  return success(res, result);
+});
+
+// ===================== Admin/Commander: Quản lý hồ sơ =====================
+
+const createProfile = asyncHandler(async (req, res) => {
+  await validateOrThrow(ss.create, req.body);
+  const result = await studentService.create(req.body);
+  return success(res, result, 'Tạo hồ sơ thành công', 201);
+});
+
+const getAllProfiles = asyncHandler(async (req, res) => {
+  const result = await studentService.getAll(req.query);
+  return paginated(res, result.rows, result.pagination);
+});
+
+const getProfileDetail = asyncHandler(async (req, res) => {
+  const result = await studentService.getDetail(req.params.id);
+  return success(res, result);
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+  await validateOrThrow(ss.update, req.body);
+  const result = await studentService.update(req.params.id, req.body);
+  return success(res, result, 'Cập nhật hồ sơ thành công');
+});
+
+const deleteProfile = asyncHandler(async (req, res) => {
+  await studentService.delete(req.params.id);
+  return success(res, null, 'Xóa hồ sơ thành công');
+});
+
+const exportProfiles = asyncHandler(async (req, res) => {
+  const buffer = await studentService.exportStudents(req.query);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=danh-sach-ho-so.xlsx');
+  res.send(buffer);
+});
+
+// ===================== Commander: Cắt cơm hàng loạt =====================
+
+const generateCutRice = asyncHandler(async (req, res) => {
+  const result = await commanderService.generateCutRice(req.params.userId);
+  return success(res, result, 'Tạo lịch cắt cơm tự động thành công');
+});
+
+const generateAllCutRice = asyncHandler(async (req, res) => {
+  const result = await commanderService.generateAllCutRice();
+  return success(res, result, 'Tạo lịch cắt cơm hàng loạt thành công');
+});
+
+// ===================== Commander: Báo cáo =====================
+
+const getAcademicReport = asyncHandler(async (req, res) => {
+  const result = await commanderService.getAcademicReport(req.query);
+  return success(res, result);
+});
+
+const getPartyTrainingReport = asyncHandler(async (req, res) => {
+  const result = await commanderService.getPartyTrainingReport(req.query);
+  return success(res, result);
+});
+
+const getAchievementReport = asyncHandler(async (req, res) => {
+  const result = await commanderService.getAchievementReport();
+  return success(res, result);
+});
+
+const getTuitionReport = asyncHandler(async (req, res) => {
+  const result = await commanderService.getTuitionReport(req.query);
+  return success(res, result);
 });
 
 module.exports = {
@@ -64,4 +210,28 @@ module.exports = {
   createBatchUsers,
   resetPassword,
   toggleActive,
+  getMyProfile,
+  updateMyProfile,
+  uploadAvatar,
+  getAcademicResults,
+  getMyTimeTable,
+  createMyTimeTable,
+  updateMyTimeTable,
+  deleteMyTimeTable,
+  getMyCutRice,
+  updateMyCutRice,
+  getMyAchievements,
+  getMyTuitionFees,
+  createProfile,
+  getAllProfiles,
+  getProfileDetail,
+  updateProfile,
+  deleteProfile,
+  exportProfiles,
+  generateCutRice,
+  generateAllCutRice,
+  getAcademicReport,
+  getPartyTrainingReport,
+  getAchievementReport,
+  getTuitionReport,
 };

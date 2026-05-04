@@ -44,63 +44,63 @@ const exportStudents = asyncHandler(async (req, res) => {
 // ===================== HV-02: Profile (xem/sửa dùng chung /api/auth/profile) =====================
 
 const uploadAvatar = asyncHandler(async (req, res) => {
-  const result = await service.uploadAvatar(req.user.studentId, req.body.avatar);
+  const result = await service.uploadAvatar(req.user.userId, req.body.avatar);
   return success(res, result, 'Cập nhật ảnh đại diện thành công');
 });
 
 // ===================== HV-03: Academic Results =====================
 
 const getAcademicResults = asyncHandler(async (req, res) => {
-  const result = await service.getAcademicResults(req.user.studentId, req.query);
+  const result = await service.getAcademicResults(req.user.userId, req.query);
   return success(res, result);
 });
 
 // ===================== HV-06: TimeTable =====================
 
 const getMyTimeTable = asyncHandler(async (req, res) => {
-  const result = await service.getMyTimeTable(req.user.studentId);
+  const result = await service.getMyTimeTable(req.user.userId);
   return success(res, result);
 });
 
 const createMyTimeTable = asyncHandler(async (req, res) => {
   await validateOrThrow(s.timetable, req.body);
-  const result = await service.createMyTimeTable(req.user.studentId, req.body);
+  const result = await service.createMyTimeTable(req.user.userId, req.body);
   return success(res, result, 'Thêm môn học thành công', 201);
 });
 
 const updateMyTimeTable = asyncHandler(async (req, res) => {
   await validateOrThrow(s.timetable, req.body);
-  const result = await service.updateMyTimeTable(req.user.studentId, req.params.id, req.body);
+  const result = await service.updateMyTimeTable(req.user.userId, req.params.id, req.body);
   return success(res, result, 'Cập nhật thời khóa biểu thành công');
 });
 
 const deleteMyTimeTable = asyncHandler(async (req, res) => {
-  await service.deleteMyTimeTable(req.user.studentId, req.params.id);
+  await service.deleteMyTimeTable(req.user.userId, req.params.id);
   return success(res, null, 'Xóa môn học thành công');
 });
 
 // ===================== HV-07: Cut Rice =====================
 
 const getMyCutRice = asyncHandler(async (req, res) => {
-  const result = await service.getMyCutRice(req.user.studentId);
+  const result = await service.getMyCutRice(req.user.userId);
   return success(res, result);
 });
 
 const updateMyCutRice = asyncHandler(async (req, res) => {
   await validateOrThrow(s.cutRice, req.body);
-  const result = await service.updateMyCutRice(req.user.studentId, req.body);
+  const result = await service.updateMyCutRice(req.user.userId, req.body);
   return success(res, result, 'Cập nhật lịch cắt cơm thành công');
 });
 
 // ===================== HV-08: Achievements & Tuition =====================
 
 const getMyAchievements = asyncHandler(async (req, res) => {
-  const result = await service.getMyAchievements(req.user.studentId);
+  const result = await service.getMyAchievements(req.user.userId);
   return success(res, result);
 });
 
 const getMyTuitionFees = asyncHandler(async (req, res) => {
-  const result = await service.getMyTuitionFees(req.user.studentId);
+  const result = await service.getMyTuitionFees(req.user.userId);
   return success(res, result);
 });
 

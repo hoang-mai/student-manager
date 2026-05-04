@@ -1,10 +1,8 @@
 const router = require('express').Router();
 
 router.use('/auth', require('./auth.route'));
-router.use('/', require('./gradeRequest.route')); // must be before /students to avoid path conflict
+router.use('/', require('./gradeRequest.route'));
 router.use('/users', require('./user.route'));
-router.use('/students', require('./student.route'));
-router.use('/commanders', require('./commander.route'));
 router.use('/universities', require('./university.route'));
 router.use('/organizations', require('./organization.route'));
 router.use('/education-levels', require('./educationLevel.route'));

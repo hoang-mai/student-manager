@@ -1,4 +1,5 @@
 const db = require('../models');
+const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
@@ -9,9 +10,9 @@ const create = async (data) => Model.create(data);
 const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
-  const include = [{ model: Student }];
+  const include = [{ model: User }];
 
-  if (query.studentId) where.studentId = query.studentId;
+  if (query.userId) where.userId = query.userId;
   if (query.semester) where.semester = query.semester;
   if (query.schoolYear) where.schoolYear = query.schoolYear;
   if (query.year) where.year = query.year;
@@ -30,7 +31,7 @@ const getAll = async (query) => {
 
 const getDetail = async (id) => {
   const record = await Model.findByPk(id, {
-    include: [{ model: Student }],
+    include: [{ model: User }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy thành tích');
   return record;
