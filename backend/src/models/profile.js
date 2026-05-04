@@ -1,16 +1,19 @@
 module.exports = (sequelize, DataTypes) => {
-  const Student = sequelize.define('Student', {
+  const Profile = sequelize.define('Profile', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    studentId: {
+    code: {
       type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
     },
     fullName: {
+      type: DataTypes.STRING(100),
+    },
+    email: {
       type: DataTypes.STRING(100),
     },
     gender: {
@@ -37,20 +40,11 @@ module.exports = (sequelize, DataTypes) => {
     phoneNumber: {
       type: DataTypes.STRING(20),
     },
-    email: {
-      type: DataTypes.STRING(100),
-    },
-    cccdNumber: {
+    cccd: {
       type: DataTypes.STRING(20),
     },
     partyMemberCardNumber: {
       type: DataTypes.STRING(50),
-    },
-    enrollment: {
-      type: DataTypes.INTEGER,
-    },
-    graduationDate: {
-      type: DataTypes.DATE,
     },
     unit: {
       type: DataTypes.STRING(255),
@@ -76,6 +70,12 @@ module.exports = (sequelize, DataTypes) => {
     avatar: {
       type: DataTypes.STRING(255),
     },
+    enrollment: {
+      type: DataTypes.INTEGER,
+    },
+    graduationDate: {
+      type: DataTypes.DATE,
+    },
     currentCpa4: {
       type: DataTypes.DOUBLE,
     },
@@ -87,6 +87,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     foreignRelations: {
       type: DataTypes.JSONB,
+    },
+    startWork: {
+      type: DataTypes.INTEGER,
+    },
+    organization: {
+      type: DataTypes.STRING(255),
     },
     classId: {
       type: DataTypes.UUID,
@@ -101,10 +107,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
     },
   }, {
-    tableName: 'students',
+    tableName: 'profiles',
     timestamps: true,
     underscored: true,
   });
 
-  return Student;
+  return Profile;
 };

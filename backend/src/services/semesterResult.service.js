@@ -1,4 +1,5 @@
 const db = require('../models');
+const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
@@ -12,14 +13,14 @@ const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
   const include = [
-    { model: Student },
+    { model: User },
     { model: YearlyResult },
     { model: SubjectResult },
   ];
 
   if (query.semester) where.semester = query.semester;
   if (query.schoolYear) where.schoolYear = query.schoolYear;
-  if (query.studentId) where.studentId = query.studentId;
+  if (query.userId) where.userId = query.userId;
 
   if (query.gpaFrom !== undefined || query.gpaTo !== undefined) {
     where.averageGrade4 = {};
@@ -52,7 +53,7 @@ const getAll = async (query) => {
 const getDetail = async (id) => {
   const record = await SemesterResult.findByPk(id, {
     include: [
-      { model: Student },
+      { model: User },
       { model: YearlyResult },
       { model: SubjectResult },
     ],

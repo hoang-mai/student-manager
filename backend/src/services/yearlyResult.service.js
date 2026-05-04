@@ -1,4 +1,5 @@
 const db = require('../models');
+const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
@@ -13,12 +14,12 @@ const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
   const include = [
-    { model: Student, include: [{ model: University }, { model: Class }] },
+    { model: User, include: [{ model: db.profile, include: [{ model: University }, { model: Class }] }] },
     { model: SemesterResult },
   ];
 
   if (query.schoolYear) where.schoolYear = query.schoolYear;
-  if (query.studentId) where.studentId = query.studentId;
+  if (query.userId) where.userId = query.userId;
   if (query.academicStatus) where.academicStatus = query.academicStatus;
   if (query.partyRating) where.partyRating = query.partyRating;
   if (query.trainingRating) where.trainingRating = query.trainingRating;
@@ -64,7 +65,7 @@ const getAll = async (query) => {
 const getDetail = async (id) => {
   const record = await YearlyResult.findByPk(id, {
     include: [
-      { model: Student },
+      { model: User },
       { model: SemesterResult },
     ],
   });
@@ -88,7 +89,7 @@ const deleteRecord = async (id) => {
 const HEADERS = {
   'student.unit': 'Đơn vị',
   'student.fullName': 'Họ và tên',
-  'student.studentId': 'Mã học viên',
+  'student.code': 'Mã học viên',
   'student.university.universityName': 'Cơ sở đào tạo',
   'student.class.className': 'Lớp',
   'schoolYear': 'Năm học',
@@ -120,10 +121,10 @@ const resolveField = (obj, path) => {
 const exportYearlyResults = async (query) => {
   const where = {};
   const studentWhere = {};
-  const include = [{ model: Student, include: [{ model: University }] }];
+  const include = [{ model: User, include: [{ model: db.profile, include: [{ model: University }] }] }];
 
   if (query.schoolYear) where.schoolYear = query.schoolYear;
-  if (query.studentId) where.studentId = query.studentId;
+  if (query.userId) where.userId = query.userId;
 
   if (query.gpaFrom !== undefined || query.gpaTo !== undefined) {
     where.averageGrade4 = {};
@@ -171,9 +172,9 @@ const exportYearlyResults = async (query) => {
 
   for (const r of results) {
     const plain = r.get({ plain: true });
-    if (plain.Student) {
-      plain.student = plain.Student;
-      delete plain.Student;
+    if (plain.User) {
+      plain.student = plain.User;
+      delete plain.User;
     }
     worksheet.addRow(fields.map(f => resolveField(plain, f)));
   }

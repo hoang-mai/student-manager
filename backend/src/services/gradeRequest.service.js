@@ -12,18 +12,17 @@ const Notification = db.notification;
 
 // ===================== Student =====================
 
-const create = async (studentId, data) => {
+const create = async (userId, data) => {
   const subject = await SubjectResult.findByPk(data.subjectResultId);
   if (!subject) throw new BadRequestError('Không tìm thấy môn học');
 
-  // Verify subject belongs to this student
   const semResult = await SemesterResult.findByPk(subject.semesterResultId);
-  if (!semResult || semResult.studentId !== studentId) {
+  if (!semResult || semResult.userId !== userId) {
     throw new BadRequestError('Môn học không thuộc về học viên này');
   }
 
   return GradeRequest.create({
-    studentId,
+    userId,
     subjectResultId: data.subjectResultId,
     requestType: data.requestType,
     reason: data.reason,
@@ -34,8 +33,8 @@ const create = async (studentId, data) => {
   });
 };
 
-const getMyRequests = async (studentId, query = {}) => {
-  const where = { studentId };
+const getMyRequests = async (userId, query = {}) => {
+  const where = { userId };
   if (query.status) where.status = query.status;
 
   return GradeRequest.findAll({
@@ -48,9 +47,9 @@ const getMyRequests = async (studentId, query = {}) => {
   });
 };
 
-const getMyRequestDetail = async (studentId, id) => {
+const getMyRequestDetail = async (userId, id) => {
   const req = await GradeRequest.findOne({
-    where: { id, studentId },
+    where: { id, userId },
     include: [
       { model: SubjectResult },
       { model: User, as: 'reviewer', attributes: ['id', 'username'] },
@@ -77,12 +76,12 @@ const getAll = async (query = {}) => {
       include: [{ model: SemesterResult, ...(semesterRequired ? { where: semesterWhere, required: true } : {}) }],
       ...(semesterRequired ? { required: true } : {}),
     },
-    { model: Student },
+    { model: User },
     { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
   ];
 
   if (query.status) where.status = query.status;
-  if (query.studentId) where.studentId = query.studentId;
+  if (query.userId) where.userId = query.userId;
   if (query.requestType) where.requestType = query.requestType;
 
   if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
@@ -115,7 +114,7 @@ const getDetail = async (id) => {
   const req = await GradeRequest.findByPk(id, {
     include: [
       { model: SubjectResult },
-      { model: Student },
+      { model: User },
       { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
     ],
   });
@@ -180,10 +179,10 @@ async function recalculateCpa(subjectResultId) {
     debtCredits: yearDebt,
   });
 
-  // Update student
-  const student = await Student.findByPk(yearly.studentId);
-  if (student) {
-    await student.update({
+  // Update student profile
+  const user = await User.findByPk(yearly.userId, { include: [{ model: db.profile }] });
+  if (user && user.Profile) {
+    await user.Profile.update({
       currentCpa4: yearCredits ? parseFloat((yearPoint4 / yearCredits).toFixed(2)) : 0,
       currentCpa10: yearCredits ? parseFloat((yearPoint10 / yearCredits).toFixed(2)) : 0,
     });
@@ -216,7 +215,7 @@ const approve = async (id, reviewerId, reviewNote) => {
     reviewedAt: new Date(),
   });
 
-  const user = await User.findOne({ where: { studentId: req.studentId } });
+  const user = await User.findOne({ where: { userId: req.userId } });
   if (user) {
     await Notification.create({
       userId: user.id,
@@ -227,7 +226,7 @@ const approve = async (id, reviewerId, reviewNote) => {
   }
 
   return req.reload({
-    include: [{ model: SubjectResult }, { model: Student }],
+    include: [{ model: SubjectResult }, { model: User }],
   });
 };
 
@@ -242,7 +241,7 @@ const reject = async (id, reviewerId, reviewNote) => {
     reviewedAt: new Date(),
   });
 
-  const user = await User.findOne({ where: { studentId: req.studentId } });
+  const user = await User.findOne({ where: { userId: req.userId } });
   if (user) {
     await Notification.create({
       userId: user.id,
@@ -253,7 +252,7 @@ const reject = async (id, reviewerId, reviewNote) => {
   }
 
   return req.reload({
-    include: [{ model: SubjectResult }, { model: Student }],
+    include: [{ model: SubjectResult }, { model: User }],
   });
 };
 

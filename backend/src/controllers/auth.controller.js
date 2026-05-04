@@ -17,14 +17,11 @@ const login = asyncHandler(async (req, res) => {
 
 const me = asyncHandler(async (req, res) => {
   const include = [];
-  if (req.user.role === 'STUDENT') {
+  if (req.user.profileId) {
     include.push({
-      model: db.student,
+      model: db.profile,
       include: [{ model: db.class }, { model: db.organization }, { model: db.university }, { model: db.educationLevel }],
     });
-  }
-  if (req.user.role === 'COMMANDER') {
-    include.push({ model: db.commander });
   }
   const user = await db.user.findByPk(req.userId, { include });
   return success(res, user);
@@ -38,14 +35,10 @@ const updateProfile = asyncHandler(async (req, res) => {
     if (req.body[key] !== undefined) data[key] = req.body[key];
   }
 
-  if (req.user.role === 'STUDENT' && req.user.studentId) {
-    const student = await db.student.findByPk(req.user.studentId);
-    if (!student) throw new (require('../utils/apiError').NotFoundError)('Không tìm thấy học viên');
-    await student.update(data);
-  } else if (req.user.role === 'COMMANDER' && req.user.commanderId) {
-    const commander = await db.commander.findByPk(req.user.commanderId);
-    if (!commander) throw new (require('../utils/apiError').NotFoundError)('Không tìm thấy chỉ huy');
-    await commander.update(data);
+  if (req.user.profileId) {
+    const profile = await db.profile.findByPk(req.user.profileId);
+    if (!profile) throw new (require('../utils/apiError').NotFoundError)('Không tìm thấy hồ sơ');
+    await profile.update(data);
   } else {
     throw new (require('../utils/apiError').BadRequestError)('Không có hồ sơ để cập nhật');
   }
@@ -96,8 +89,7 @@ const register = asyncHandler(async (req, res) => {
     role: Yup.string().oneOf(['STUDENT', 'COMMANDER', 'ADMIN']),
     fullName: Yup.string().max(100),
     email: Yup.string().max(100).email('Email không hợp lệ'),
-    studentId: Yup.string().max(50),
-    commanderId: Yup.string().max(50),
+    code: Yup.string().max(50),
   });
   await validateOrThrow(schema, req.body);
 
