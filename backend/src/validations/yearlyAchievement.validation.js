@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const create = yup.object({
-  userId: yup.string().uuid('userId không hợp lệ').required('Trường này là bắt buộc'),
+  userId: yup.string().uuid('Mã người dùng không hợp lệ').required('Trường này là bắt buộc'),
   year: yup.number().integer().min(0).required('Trường này là bắt buộc'),
   decisionNumber: yup.string().max(100),
   decisionDate: yup.date(),
@@ -12,7 +12,7 @@ const create = yup.object({
 });
 
 const update = yup.object({
-  userId: yup.string().uuid('userId không hợp lệ'),
+  userId: yup.string().uuid('Mã người dùng không hợp lệ'),
   year: yup.number().integer().min(0),
   decisionNumber: yup.string().max(100),
   decisionDate: yup.date(),

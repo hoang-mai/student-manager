@@ -4,7 +4,7 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const CutRice = db.cutRice;
-const Student = db.student;
+const Student = db.profile;
 
 const create = async (data) => CutRice.create(data);
 const getAll = async (query) => {
@@ -74,8 +74,8 @@ const exportCutRice = async (query) => {
   const profileWhere = {};
   const include = [{ model: User, include: [{ model: db.profile }] }];
 
-  if (query.studentId) {
-    profileWhere.id = query.studentId;
+  if (query.userId) {
+    profileWhere.id = query.userId;
   }
   if (query.unit) {
     profileWhere.unit = query.unit;

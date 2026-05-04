@@ -4,7 +4,7 @@ const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const Model = db.achievement;
-const Student = db.student;
+const Student = db.profile;
 
 const create = async (data) => Model.create(data);
 const getAll = async (query) => {

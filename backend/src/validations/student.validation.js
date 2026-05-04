@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const create = yup.object({
-  studentId: yup.string().max(50).required('Trường này là bắt buộc'),
+  code: yup.string().max(50).required('Trường này là bắt buộc'),
   fullName: yup.string().max(100),
   gender: yup.string().max(20),
   birthday: yup.date(),
@@ -28,14 +28,14 @@ const create = yup.object({
   currentCpa10: yup.number().min(0).max(10),
   familyMember: yup.object(),
   foreignRelations: yup.object(),
-  classId: yup.string().uuid('classId không hợp lệ'),
-  organizationId: yup.string().uuid('organizationId không hợp lệ'),
-  universityId: yup.string().uuid('universityId không hợp lệ'),
-  educationLevelId: yup.string().uuid('educationLevelId không hợp lệ'),
+  classId: yup.string().uuid('Mã lớp không hợp lệ'),
+  organizationId: yup.string().uuid('Mã đơn vị không hợp lệ'),
+  universityId: yup.string().uuid('Mã trường không hợp lệ'),
+  educationLevelId: yup.string().uuid('Mã trình độ đào tạo không hợp lệ'),
 });
 
 const update = yup.object({
-  studentId: yup.string().max(50),
+  code: yup.string().max(50),
   fullName: yup.string().max(100),
   gender: yup.string().max(20),
   birthday: yup.date(),
@@ -62,10 +62,10 @@ const update = yup.object({
   currentCpa10: yup.number().min(0).max(10),
   familyMember: yup.object(),
   foreignRelations: yup.object(),
-  classId: yup.string().uuid('classId không hợp lệ'),
-  organizationId: yup.string().uuid('organizationId không hợp lệ'),
-  universityId: yup.string().uuid('universityId không hợp lệ'),
-  educationLevelId: yup.string().uuid('educationLevelId không hợp lệ'),
+  classId: yup.string().uuid('Mã lớp không hợp lệ'),
+  organizationId: yup.string().uuid('Mã đơn vị không hợp lệ'),
+  universityId: yup.string().uuid('Mã trường không hợp lệ'),
+  educationLevelId: yup.string().uuid('Mã trình độ đào tạo không hợp lệ'),
 });
 
 const profileUpdate = yup.object({

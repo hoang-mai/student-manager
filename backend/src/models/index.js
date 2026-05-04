@@ -178,8 +178,4 @@ db.gradeRequest.belongsTo(db.subjectResult, { foreignKey: 'subject_result_id', o
 db.user.hasMany(db.gradeRequest, { foreignKey: 'reviewer_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 db.gradeRequest.belongsTo(db.user, { as: 'reviewer', foreignKey: 'reviewer_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
-// Backward compatibility aliases
-db.student = db.profile;
-db.commander = db.profile;
-
 module.exports = db;
