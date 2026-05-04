@@ -50,17 +50,49 @@ export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 /**
  * Schema validation cho form thêm/sửa tài khoản (Admin)
  */
-export const userSchema = z.object({
+export const createUserSchema = z.object({
   username: z.string().min(3, "Username phải ít nhất 3 ký tự"),
-  email: z.string().email("Email không hợp lệ"),
-  full_name: z.string().min(1, "Họ và tên không được để trống"),
-  password: z
-    .string()
-    .min(6, "Mật khẩu phải ít nhất 6 ký tự")
-    .optional()
-    .or(z.literal("")),
-  role_id: z.coerce.number(),
+  email: z.email("Email không hợp lệ"),
+  fullName: z.string().min(1, "Họ và tên không được để trống"),
+  password: z.string().min(6, "Mật khẩu phải ít nhất 6 ký tự"),
+  role: z.enum(["STUDENT", "COMMANDER", "ADMIN"]),
 });
 
-export type UserFormValues = z.infer<typeof userSchema>;
+export const updateUserSchema = z.object({
+  fullName: z.string().min(1, "Họ và tên không được để trống"),
+  email: z.email("Email không hợp lệ"),
+});
 
+export type CreateUserFormValues = z.infer<typeof createUserSchema>;
+export type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
+
+/**
+ * Schema cho việc tạo tài khoản hàng loạt từ Excel
+ */
+export const batchUserSchema = z.array(
+  z.object({
+    username: z.string().min(3, "Username phải ít nhất 3 ký tự"),
+    fullName: z.string(),
+    email: z.email("Email không hợp lệ"),
+    role: z.enum(["STUDENT", "COMMANDER", "ADMIN"]),
+    password: z.string().min(6, "Mật khẩu phải ít nhất 6 ký tự").optional(),
+  })
+);
+
+export type BatchUserValues = z.infer<typeof batchUserSchema>;
+
+/**
+ * Schema cho file Excel tải lên
+ */
+export const batchExcelFileSchema = z.object({
+  file: z
+    .instanceof(File)
+    .refine((f) => f.size <= 5 * 1024 * 1024, "Dung lượng file tối đa là 5MB")
+    .refine(
+      (f) => /\.(xlsx|xls)$/i.test(f.name),
+      "Chỉ chấp nhận file Excel (.xlsx, .xls)"
+    ),
+});
+
+
+export type BatchExcelFileValues = z.infer<typeof batchExcelFileSchema>;

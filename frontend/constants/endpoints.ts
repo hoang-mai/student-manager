@@ -12,5 +12,6 @@ export const ENDPOINTS = {
     DETAIL: (id: string | number) => `${ENDPOINTS.USERS.BASE}/${id}`,
     TOGGLE_ACTIVE: (id: string | number) => `${ENDPOINTS.USERS.BASE}/${id}/toggle-active`,
     RESET_PASSWORD: (id: string | number) => `${ENDPOINTS.USERS.BASE}/${id}/reset-password`,
+    BATCH: "/api/users/batch",
   },
 };

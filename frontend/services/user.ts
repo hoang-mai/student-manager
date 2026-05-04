@@ -1,29 +1,27 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
-import { User } from "@/types/auth";
+import { CreateUserRequest } from "@/types/auth";
 import { 
-  UserQueryParams, 
-  CreateUserDTO 
+  User,
+  UserQueryRequest, 
+  UserDetailResponse,
+  UpdateUserRequest
 } from "@/types/user";
 
 export const userService = {
   getAllUsers: async (
-    params: UserQueryParams
-  ): Promise<PaginatedResponse<User>> => {
+    params: UserQueryRequest
+  ): Promise<PaginatedResponse<UserDetailResponse>> => {
     return apiClient.get(ENDPOINTS.USERS.BASE, { params });
   },
 
-  getUserById: async (id: string | number): Promise<ApiResponse<User>> => {
+  getUserById: async (id: string | number): Promise<ApiResponse<UserDetailResponse>> => {
     return apiClient.get(ENDPOINTS.USERS.DETAIL(id));
-  },
-
-  createUser: async (data: CreateUserDTO): Promise<ApiResponse<User>> => {
-    return apiClient.post(ENDPOINTS.USERS.BASE, data);
   },
 
   updateUser: async (
     id: string | number,
-    data: Partial<CreateUserDTO>
+    data: UpdateUserRequest
   ): Promise<ApiResponse<User>> => {
     return apiClient.put(ENDPOINTS.USERS.DETAIL(id), data);
   },
@@ -38,5 +36,9 @@ export const userService = {
 
   deleteUser: async (id: string | number) => {
     return apiClient.delete(ENDPOINTS.USERS.DETAIL(id));
+  },
+
+  createBatchUsers: async (data: CreateUserRequest[]) => {
+    return apiClient.post(ENDPOINTS.USERS.BATCH, { users: data });
   },
 };

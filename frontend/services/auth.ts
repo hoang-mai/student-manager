@@ -4,6 +4,7 @@ import {
   LoginResponse,
   LoginRequest,
   ChangePasswordRequest,
+  CreateUserRequest,
 } from "@/types/auth";
 
 export const authService = {
@@ -18,5 +19,9 @@ export const authService = {
 
   changePassword: async (data: ChangePasswordRequest) => {
     return apiClient.post(ENDPOINTS.AUTH.CHANGE_PASSWORD, data);
+  },
+
+  register: async (data: CreateUserRequest) => {
+    return apiClient.post(ENDPOINTS.AUTH.REGISTER, data);
   },
 };

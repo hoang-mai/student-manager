@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useMutation } from "@tanstack/react-query";
 import {
   HiOutlineLockClosed,
@@ -19,7 +18,7 @@ import {
   resetPasswordSchema,
   ResetPasswordFormValues,
 } from "@/utils/validations";
-import { User } from "@/types/auth";
+import { User } from "@/types/user";
 
 interface ResetPasswordFormProps {
   user: User;
@@ -63,9 +62,13 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
   const onSubmit = (data: ResetPasswordFormValues) => {
@@ -100,6 +103,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         }
         error={errors.newPassword?.message}
         {...register("newPassword")}
+        required={true}
       />
 
       <Input
@@ -123,6 +127,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         }
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
+        required={true}
       />
 
       <div className="flex justify-end gap-3 pt-4">
@@ -137,6 +142,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         <Button
           type="submit"
           isLoading={resetPasswordMutation.isPending}
+          disabled={!isDirty}
           className="bg-amber-500 hover:bg-amber-600 border-amber-500 hover:border-amber-600"
         >
           Đặt lại mật khẩu

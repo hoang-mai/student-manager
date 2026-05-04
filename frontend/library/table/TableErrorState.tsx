@@ -61,7 +61,7 @@ const TableErrorState = <TData,>({
             <button
               type="button"
               onClick={onRetry}
-              className="mt-2 px-6 py-2 bg-red-50 text-red-600 rounded-xl text-[11px] font-black uppercase tracking-wider hover:bg-red-100 transition-all border border-red-200 active:scale-95 shadow-sm"
+              className="cursor-pointer mt-2 px-6 py-2 bg-red-50 text-red-600 rounded-xl text-[11px] font-black uppercase tracking-wider hover:bg-red-100 transition-all border border-red-200 active:scale-95 shadow-sm"
             >
               Thử lại ngay
             </button>

@@ -1,22 +1,21 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
+import { UserDetailResponse, UpdateUserRequest } from "@/types/user";
 import { ROLES } from "@/constants/constants";
-import { User } from "@/types/auth";
-import { CreateUserDTO } from "@/types/user";
 import { userService } from "@/services/user";
 import { useToastStore } from "@/store/useToastStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { userSchema, UserFormValues } from "@/utils/validations";
+import { updateUserSchema, UpdateUserFormValues } from "@/utils/validations";
 
 interface UpdateUserFormProps {
-  user: User;
+  user: UserDetailResponse;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -31,7 +30,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
   const { showLoading, hideLoading } = useLoadingStore();
 
   const updateMutation = useMutation({
-    mutationFn: (data: Partial<CreateUserDTO>) => {
+    mutationFn: (data: UpdateUserRequest) => {
       showLoading();
       return userService.updateUser(user.id, data);
     },
@@ -52,90 +51,68 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    formState: { errors, isDirty },
+  } = useForm<UpdateUserFormValues>({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      email: user.student?.email || user.commander?.email || "",
+      fullName: user.student?.fullName || user.commander?.fullName || "",
+    }
   });
 
-  useEffect(() => {
-    const roleEntry = Object.values(ROLES).find((r) => r.role === user.role);
-    reset({
-      username: user.username,
-      email: user.email || "",
-      full_name: user.fullName || "",
-      role_id: roleEntry?.id || ROLES.STUDENT.id,
-      password: "", // Not used in update
-    });
-  }, [user, reset]);
 
-  const onSubmit = (data: UserFormValues) => {
-    // Filter out password if it's empty
-    const { password, ...updateData } = data;
-    updateMutation.mutate(updateData);
+  const onSubmit = (data: UpdateUserFormValues) => {
+    updateMutation.mutate(data);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="md:col-span-2">
-          <Input
-            label="Họ và tên"
-            placeholder="Ví dụ: Nguyễn Văn A"
-            {...register("full_name")}
-            error={errors.full_name?.message}
-          />
-        </div>
-
         <Input
-          label="Tên đăng nhập (Username)"
-          placeholder="Ví dụ: nguyenvana"
-          disabled={true}
-          {...register("username")}
-          error={errors.username?.message}
+          label="Họ và tên"
+          placeholder="Ví dụ: Nguyễn Văn A"
+          {...register("fullName")}
+          error={errors.fullName?.message}
+          isLoading={updateMutation.isPending}
         />
-
         <Input
           label="Email"
           placeholder="Ví dụ: a.nguyen@gmail.com"
           {...register("email")}
           error={errors.email?.message}
+          isLoading={updateMutation.isPending}
+        />
+        <Input
+          label="Tên đăng nhập (Username)"
+          value={user.username}
+          disabled={true}
+          readOnly={true}
         />
 
-        <div>
-          <label className="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">
-            Vai trò
-          </label>
-          <select
-            className={`w-full h-11 px-4 rounded-xl border ${
-              errors.role_id
-                ? "border-error-500 ring-1 ring-error-500"
-                : "border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-            } outline-none transition-all text-sm bg-white cursor-pointer`}
-            {...register("role_id")}
-          >
-            <option value={ROLES.STUDENT.id}>Học viên (Student)</option>
-            <option value={ROLES.COMMANDER.id}>Chỉ huy (Commander)</option>
-            <option value={ROLES.ADMIN.id}>Quản trị viên (Admin)</option>
-          </select>
-          {errors.role_id && (
-            <p className="mt-1 ml-1 text-xs text-error-500 font-medium">
-              {errors.role_id.message}
-            </p>
-          )}
-        </div>
+        <Input
+          label="Vai trò"
+          value={ROLES[user.role as keyof typeof ROLES]?.name || user.role}
+          disabled={true}
+          readOnly={true}
+        />
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-100 mt-6">
-        <Button variant="ghost" type="button" onClick={onCancel}>
-          Hủy bỏ
-        </Button>
-        <Button 
-          variant="primary" 
-          type="submit" 
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={onCancel}
           isLoading={updateMutation.isPending}
         >
-          Cập nhật tài khoản
+          Hủy bỏ
+        </Button>
+        <Button
+          variant="primary"
+          type="submit"
+          isLoading={updateMutation.isPending}
+          disabled={!isDirty}
+        >
+          Cập nhật hồ sơ
         </Button>
       </div>
     </form>
