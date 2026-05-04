@@ -94,8 +94,10 @@ const register = asyncHandler(async (req, res) => {
     username: Yup.string().required().min(3, 'Tên đăng nhập tối thiểu 3 ký tự'),
     password: Yup.string().required().min(6, 'Mật khẩu tối thiểu 6 ký tự'),
     role: Yup.string().oneOf(['STUDENT', 'COMMANDER', 'ADMIN']),
-    studentId: Yup.string().uuid().nullable(),
-    commanderId: Yup.string().uuid().nullable(),
+    fullName: Yup.string().max(100),
+    email: Yup.string().max(100).email('Email không hợp lệ'),
+    studentId: Yup.string().max(50),
+    commanderId: Yup.string().max(50),
   });
   await validateOrThrow(schema, req.body);
 

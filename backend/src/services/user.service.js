@@ -1,18 +1,62 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const db = require('../models');
-const { NotFoundError, BadRequestError } = require('../utils/apiError');
+const { NotFoundError, BadRequestError, ForbiddenError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const User = db.user;
 const Student = db.student;
 const Commander = db.commander;
 
+const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+
+const _hashPassword = (password) => bcrypt.hash(password || '123456', 10);
+
+const _createProfile = async (data, requester) => {
+  if (data.role === 'COMMANDER' && requester && requester.role === 'COMMANDER') {
+    throw new ForbiddenError('Chỉ huy không thể tạo tài khoản chỉ huy');
+  }
+
+  if (data.role === 'STUDENT' && data.fullName) {
+    if (data.studentId) {
+      const existing = await Student.findOne({ where: { studentId: data.studentId } });
+      if (existing) throw new BadRequestError(`Mã học viên ${data.studentId} đã tồn tại`);
+    }
+    const student = await Student.create({
+      studentId: data.studentId || _generateCode('HV'),
+      fullName: data.fullName,
+      email: data.email,
+    });
+    data.studentId = student.id;
+  }
+
+  if (data.role === 'COMMANDER' && data.fullName) {
+    if (data.commanderId) {
+      const existing = await Commander.findOne({ where: { commanderId: data.commanderId } });
+      if (existing) throw new BadRequestError(`Mã chỉ huy ${data.commanderId} đã tồn tại`);
+    }
+    const commander = await Commander.create({
+      commanderId: data.commanderId || _generateCode('CH'),
+      fullName: data.fullName,
+      email: data.email,
+    });
+    data.commanderId = commander.id;
+  }
+
+  return data;
+};
+
 // ===================== CRUD Cơ bản =====================
 
-const create = async (data) => {
+const create = async (data, requester) => {
+  await _createProfile(data, requester);
+
   if (data.password) {
-    data.password = await bcrypt.hash(data.password, 10);
+    data.password = await _hashPassword(data.password);
   }
+
+  delete data.fullName;
+  delete data.email;
   return User.create(data);
 };
 
@@ -40,6 +84,23 @@ const update = async (id, data) => {
   if (data.password) {
     data.password = await bcrypt.hash(data.password, 10);
   }
+
+  if (data.fullName || data.email) {
+    if (record.Student) {
+      await record.Student.update({
+        ...(data.fullName && { fullName: data.fullName }),
+        ...(data.email && { email: data.email }),
+      });
+    } else if (record.Commander) {
+      await record.Commander.update({
+        ...(data.fullName && { fullName: data.fullName }),
+        ...(data.email && { email: data.email }),
+      });
+    }
+    delete data.fullName;
+    delete data.email;
+  }
+
   return record.update(data);
 };
 
@@ -51,7 +112,7 @@ const deleteRecord = async (id) => {
 
 // ===================== CH-01: Quản lý tài khoản học viên =====================
 
-const createBatchUsers = async (users) => {
+const createBatchUsers = async (users, requester) => {
   const results = [];
   for (const u of users) {
     const exist = await User.findOne({ where: { username: u.username } });
@@ -60,16 +121,22 @@ const createBatchUsers = async (users) => {
       continue;
     }
 
-    const hashedPassword = await bcrypt.hash(u.password || '123456', 10);
-    await User.create({
-      username: u.username,
-      password: hashedPassword,
-      role: u.role || 'STUDENT',
-      isAdmin: u.role === 'ADMIN',
-      studentId: u.studentId || null,
-      commanderId: u.commanderId || null,
-    });
-    results.push({ username: u.username, status: 'CREATED' });
+    try {
+      await _createProfile(u, requester);
+
+      const hashedPassword = await _hashPassword(u.password);
+      await User.create({
+        username: u.username,
+        password: hashedPassword,
+        role: u.role || 'STUDENT',
+        isAdmin: u.role === 'ADMIN',
+        studentId: u.role === 'STUDENT' ? u.studentId : null,
+        commanderId: u.role === 'COMMANDER' ? u.commanderId : null,
+      });
+      results.push({ username: u.username, status: 'CREATED' });
+    } catch (err) {
+      results.push({ username: u.username, status: 'ERROR', message: err.message });
+    }
   }
   return results;
 };
