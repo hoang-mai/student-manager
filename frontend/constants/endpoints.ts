@@ -14,4 +14,11 @@ export const ENDPOINTS = {
     RESET_PASSWORD: (id: string | number) => `${ENDPOINTS.USERS.BASE}/${id}/reset-password`,
     BATCH: "/api/users/batch",
   },
+  TRAINING_UNITS: {
+    UNIVERSITIES: "/api/universities",
+    UNIVERSITY_HIERARCHY: "/api/universities/hierarchy",
+    ORGANIZATIONS: "/api/organizations",
+    EDUCATION_LEVELS: "/api/education-levels",
+    CLASSES: "/api/classes",
+  },
 };

@@ -32,6 +32,7 @@ import ResetPasswordForm from "./ResetPasswordForm";
 import CreateUserForm from "./CreateUserForm";
 import UpdateUserForm from "./UpdateUserForm";
 import DetailUserForm from "./DetailUserForm";
+import Link from "next/link";
 
 export default function Main() {
   const queryClient = useQueryClient();
@@ -352,10 +353,15 @@ export default function Main() {
       className="space-y-8 relative rounded-2xl bg-white p-4"
     >
       <div className="flex items-center gap-2 text-neutral-400">
-        <HiOutlineHome size={14} className="mb-0.5" />
-        <Typography variant="label" tracking="wide">
-          Trang chủ
-        </Typography>
+        <Link 
+          href="/admin" 
+          className="flex items-center gap-2 hover:text-primary-600 transition-colors cursor-pointer group"
+        >
+          <HiOutlineHome size={14} className="mb-0.5 group-hover:scale-110 transition-transform" />
+          <Typography variant="label" tracking="wide" className="cursor-pointer">
+            Tổng quan
+          </Typography>
+        </Link>
         <HiOutlineChevronRight size={12} />
         <Typography variant="label" color="primary" tracking="wide">
           Quản lý tài khoản
