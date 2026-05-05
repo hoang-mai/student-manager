@@ -47,6 +47,8 @@ router.get('/reports/tuition', controller.getTuitionReport);
 
 // ===================== Admin/Commander: User CRUD =====================
 router.post('/batch', controller.createBatchUsers);
+router.post('/batch-users', controller.createBatchUsersProfiles);
+router.put('/batch-profiles', controller.updateBatchProfiles);
 router.post('/:id/reset-password', controller.resetPassword);
 router.post('/:id/toggle-active', controller.toggleActive);
 

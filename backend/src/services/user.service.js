@@ -195,6 +195,54 @@ const uploadAvatar = async (userId, avatarUrl) => {
   return { avatar: avatarUrl };
 };
 
+const createBatchUsersProfiles = async (users, requester) => {
+  const results = [];
+  for (const u of users) {
+    const exist = await User.findOne({ where: { username: u.username } });
+    if (exist) {
+      results.push({ username: u.username, status: 'SKIPPED', message: 'Tên đăng nhập đã tồn tại' });
+      continue;
+    }
+    try {
+      await _createProfile(u, requester);
+      const hashedPassword = await _hashPassword(u.password || '123456');
+      const user = await User.create({
+        username: u.username,
+        password: hashedPassword,
+        role: u.role || 'STUDENT',
+        isAdmin: u.role === 'ADMIN',
+        profileId: u.profileId || null,
+      });
+      results.push({ id: user.id, username: u.username, profileId: u.profileId, status: 'CREATED' });
+    } catch (err) {
+      results.push({ username: u.username, status: 'ERROR', message: err.message });
+    }
+  }
+  return results;
+};
+
+const updateBatchProfiles = async (profiles) => {
+  const results = [];
+  for (const p of profiles) {
+    try {
+      const profile = await Profile.findOne({ where: { code: p.code } });
+      if (!profile) {
+        results.push({ code: p.code, status: 'ERROR', message: 'Không tìm thấy hồ sơ' });
+        continue;
+      }
+      const updateData = {};
+      for (const field of PROFILE_FIELDS) {
+        if (p[field] !== undefined) updateData[field] = p[field];
+      }
+      await profile.update(updateData);
+      results.push({ code: p.code, status: 'UPDATED' });
+    } catch (err) {
+      results.push({ code: p.code, status: 'ERROR', message: err.message });
+    }
+  }
+  return results;
+};
+
 module.exports = {
   create,
   getAll,
@@ -207,4 +255,6 @@ module.exports = {
   getMyProfile,
   updateMyProfile,
   uploadAvatar,
+  createBatchUsersProfiles,
+  updateBatchProfiles,
 };
