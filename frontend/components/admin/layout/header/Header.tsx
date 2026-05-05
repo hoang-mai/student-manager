@@ -1,19 +1,17 @@
 "use client";
 
 import { useAuthStore } from "@/store/useAuthStore";
-import { ROLES, DEFAULT_VALUES } from "@/constants/constants";
+import { ROLES } from "@/constants/constants";
 import Avatar from "@/library/Avatar";
 import {
   HiOutlineLogout,
   HiOutlineBell,
   HiOutlineChevronDown,
-  HiOutlineUser,
   HiOutlineLockClosed,
-  HiOutlineMoon
+  HiOutlineMoon,
 } from "react-icons/hi";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 
 import Dropdown from "@/library/Dropdown";
 
@@ -48,12 +46,9 @@ export default function Header() {
     openModal({
       title: "Đổi mật khẩu",
       content: (
-        <ChangePasswordForm
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <ChangePasswordForm onSuccess={closeModal} onCancel={closeModal} />
       ),
-      size: "md"
+      size: "md",
     });
   };
 
@@ -64,7 +59,12 @@ export default function Header() {
         <Typography variant="h2" transform="uppercase">
           Hệ thống quản lý học viên
         </Typography>
-        <Typography variant="label" color="gray" tracking="widest" className="leading-none mt-0.5">
+        <Typography
+          variant="label"
+          color="gray"
+          tracking="widest"
+          className="leading-none mt-0.5"
+        >
           Chào mừng đến với hệ thống quản lý học viên
         </Typography>
       </div>
@@ -84,19 +84,39 @@ export default function Header() {
 
           <Dropdown
             trigger={(isOpen) => (
-              <div className={`flex items-center gap-3 transition-all group ${isOpen ? "opacity-80" : ""}`}>
+              <div
+                className={`flex items-center gap-3 transition-all group ${isOpen ? "opacity-80" : ""}`}
+              >
                 <div className="flex flex-col text-right">
-                  <Typography variant="body" weight="bold" color="neutral" className="leading-none group-hover:text-primary-700 transition-colors">
+                  <Typography
+                    variant="body"
+                    weight="bold"
+                    color="neutral"
+                    className="leading-none group-hover:text-primary-700 transition-colors"
+                  >
                     Quản trị hệ thống
                   </Typography>
-                  <Typography variant="label" weight="black" color="gray" className="mt-1">
+                  <Typography
+                    variant="label"
+                    weight="black"
+                    color="gray"
+                    className="mt-1"
+                  >
                     {ROLES.ADMIN.name}
                   </Typography>
                 </div>
                 <div className="relative">
-                  <Avatar src={undefined} alt="Quản trị hệ thống" size={40} className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`} />
+                  <Avatar
+                    src={undefined}
+                    alt="Quản trị hệ thống"
+                    size={40}
+                    className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`}
+                  />
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100 text-neutral-500">
-                    <HiOutlineChevronDown size={10} className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                    <HiOutlineChevronDown
+                      size={10}
+                      className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                    />
                   </div>
                 </div>
               </div>
@@ -111,11 +131,16 @@ export default function Header() {
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
-                  <motion.div variants={{ hover: { y: -2, scale: 1.1 } }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                  <motion.div
+                    variants={{ hover: { y: -2, scale: 1.1 } }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
                     <HiOutlineLockClosed size={18} />
                   </motion.div>
                 </div>
-                <Typography variant="body" weight="semibold">Đổi mật khẩu</Typography>
+                <Typography variant="body" weight="semibold">
+                  Đổi mật khẩu
+                </Typography>
               </motion.button>
 
               {/* Chế độ tối */}
@@ -128,11 +153,16 @@ export default function Header() {
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
-                  <motion.div variants={{ hover: { rotate: -20, scale: 1.1 } }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                  <motion.div
+                    variants={{ hover: { rotate: -20, scale: 1.1 } }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
                     <HiOutlineMoon size={18} />
                   </motion.div>
                 </div>
-                <Typography variant="body" weight="semibold">Chế độ tối</Typography>
+                <Typography variant="body" weight="semibold">
+                  Chế độ tối
+                </Typography>
                 <Toggle
                   checked={isDarkMode}
                   onChange={handleToggleTheme}
@@ -150,11 +180,16 @@ export default function Header() {
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-neutral-600 transition-all text-left group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-error-400 group-hover:bg-error-50 group-hover:text-error-600 transition-all">
-                  <motion.div variants={{ hover: { x: 3, scale: 1.1 } }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                  <motion.div
+                    variants={{ hover: { x: 3, scale: 1.1 } }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
                     <HiOutlineLogout size={18} />
                   </motion.div>
                 </div>
-                <Typography variant="body" weight="semibold">Đăng xuất</Typography>
+                <Typography variant="body" weight="semibold">
+                  Đăng xuất
+                </Typography>
               </motion.button>
             </div>
           </Dropdown>

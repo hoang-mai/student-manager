@@ -7,7 +7,7 @@ import { ENDPOINTS } from "@/constants/endpoints";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Quản lý tài khoản (Admin) | Student Manager",
+  title: "Quản lý tài khoản (Admin) | Hệ thống quản lý học viên",
   description: "Quản lý tài khoản toàn hệ thống",
 };
 

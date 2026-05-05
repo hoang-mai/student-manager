@@ -19,7 +19,13 @@ const Sidebar: React.FC = () => {
       {/* Header Sidebar */}
       <div className="relative flex items-center gap-3 p-6 h-20">
         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
-          <Image src="/logo.png" alt="Logo" width={32} height={32} style={{ height: "auto" }} />
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={32}
+            height={32}
+            style={{ height: "auto" }}
+          />
         </div>
         <Typography variant="h2" weight="black" className="leading-none">
           Tiên Phong
@@ -35,7 +41,7 @@ const Sidebar: React.FC = () => {
               (item.path !== "/admin" && pathname.startsWith(item.path));
 
             return (
-              <li key={item.code}>
+              <li key={item.title}>
                 <Link
                   href={item.path}
                   className={`flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden ${
@@ -49,7 +55,11 @@ const Sidebar: React.FC = () => {
                     className={`shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-white" : "text-neutral-400 group-hover:text-primary-600"}`}
                   />
 
-                  <Typography variant="body" weight="semibold" className="whitespace-nowrap overflow-hidden tracking-tight">
+                  <Typography
+                    variant="body"
+                    weight="semibold"
+                    className="whitespace-nowrap overflow-hidden tracking-tight"
+                  >
                     {item.title}
                   </Typography>
 
