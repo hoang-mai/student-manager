@@ -163,7 +163,135 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
         },
       },
       '/users/batch': {
-        post: { tags: ['Users'], summary: 'CH-01: Tạo hàng loạt', description: 'Mỗi user có thể kèm fullName/email để tự tạo Profile.', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', properties: { users: { type: 'array', items: { type: 'object', properties: { username: { type: 'string' }, password: { type: 'string' }, role: { type: 'string' }, fullName: { type: 'string' }, email: { type: 'string' }, code: { type: 'string' } } } } } } } } }, responses: { 201: { description: 'Created [{username, status}]' } } },
+        post: { tags: ['Users'], summary: 'CH-01: Tạo hàng loạt (deprecated)', description: 'Mỗi user có thể kèm fullName/email để tự tạo Profile.', deprecated: true, requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', properties: { users: { type: 'array', items: { type: 'object', properties: { username: { type: 'string' }, password: { type: 'string' }, role: { type: 'string' }, fullName: { type: 'string' }, email: { type: 'string' }, code: { type: 'string' } } } } } } } } }, responses: { 201: { description: 'Created [{username, status}]' } } },
+      },
+      '/users/batch-users': {
+        post: {
+          tags: ['Users'],
+          summary: 'CH-01: Tạo hàng loạt user + profile',
+          description: 'Tạo danh sách tài khoản kèm hồ sơ học viên. Mỗi item được xử lý độc lập, item lỗi không ảnh hưởng item khác.',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['users'],
+                  properties: {
+                    users: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        required: ['username'],
+                        properties: {
+                          username: { type: 'string', description: 'Tên đăng nhập' },
+                          password: { type: 'string', description: 'Mật khẩu (mặc định 123456)' },
+                          role: { type: 'string', enum: ['STUDENT', 'COMMANDER', 'ADMIN'], default: 'STUDENT' },
+                          fullName: { type: 'string', description: 'Họ tên' },
+                          email: { type: 'string' },
+                          code: { type: 'string', description: 'Mã HV/CH (tự sinh nếu không cung cấp)' },
+                          phoneNumber: { type: 'string' },
+                          gender: { type: 'string' },
+                          birthday: { type: 'string', format: 'date' },
+                          hometown: { type: 'string' },
+                          enrollment: { type: 'integer' },
+                          classId: { type: 'string', format: 'uuid' },
+                          organizationId: { type: 'string', format: 'uuid' },
+                          universityId: { type: 'string', format: 'uuid' },
+                          educationLevelId: { type: 'string', format: 'uuid' },
+                        },
+                      },
+                    },
+                  },
+                },
+                example: {
+                  users: [
+                    {
+                      username: 'hv001',
+                      password: '123456',
+                      role: 'STUDENT',
+                      fullName: 'Nguyễn Văn A',
+                      email: 'a@example.com',
+                      code: 'HV001',
+                      phoneNumber: '0123456789',
+                      gender: 'Nam',
+                      birthday: '2000-01-01',
+                      hometown: 'Hà Nội',
+                      enrollment: 2024,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          responses: {
+            201: { description: '[{ id, username, profileId, status }]' },
+            400: { $ref: '#/components/responses/400' },
+            401: { $ref: '#/components/responses/401' },
+            403: { $ref: '#/components/responses/403' },
+          },
+        },
+      },
+      '/users/batch-profiles': {
+        put: {
+          tags: ['Users'],
+          summary: 'CH-01: Cập nhật hàng loạt profile theo mã code',
+          description: 'Cập nhật thông tin hồ sơ hàng loạt dựa trên mã code (mã HV/CH). Mỗi item được xử lý độc lập, item lỗi không ảnh hưởng item khác.',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    required: ['code'],
+                    properties: {
+                      code: { type: 'string', description: 'Mã HV/CH để xác định hồ sơ' },
+                      fullName: { type: 'string' },
+                      email: { type: 'string' },
+                      phoneNumber: { type: 'string' },
+                      gender: { type: 'string' },
+                      birthday: { type: 'string', format: 'date' },
+                      hometown: { type: 'string' },
+                      ethnicity: { type: 'string' },
+                      religion: { type: 'string' },
+                      currentAddress: { type: 'string' },
+                      placeOfBirth: { type: 'string' },
+                      cccd: { type: 'string' },
+                      partyMemberCardNumber: { type: 'string' },
+                      unit: { type: 'string' },
+                      rank: { type: 'string' },
+                      positionGovernment: { type: 'string' },
+                      positionParty: { type: 'string' },
+                      fullPartyMember: { type: 'string', format: 'date' },
+                      probationaryPartyMember: { type: 'string', format: 'date' },
+                      dateOfEnlistment: { type: 'string', format: 'date' },
+                      enrollment: { type: 'integer' },
+                      graduationDate: { type: 'string', format: 'date' },
+                      currentCpa4: { type: 'number' },
+                      currentCpa10: { type: 'number' },
+                      classId: { type: 'string', format: 'uuid' },
+                      organizationId: { type: 'string', format: 'uuid' },
+                      universityId: { type: 'string', format: 'uuid' },
+                      educationLevelId: { type: 'string', format: 'uuid' },
+                    },
+                  },
+                },
+                example: [
+                  { code: 'HV001', phoneNumber: '0987654321', currentAddress: '123 Đường Mới' },
+                  { code: 'HV002', email: 'updated@example.com', rank: 'Thượng sĩ' },
+                ],
+              },
+            },
+          },
+          responses: {
+            200: { description: '[{ code, status }]' },
+            400: { $ref: '#/components/responses/400' },
+            401: { $ref: '#/components/responses/401' },
+            403: { $ref: '#/components/responses/403' },
+          },
+        },
       },
       '/users/{id}': {
         get: { tags: ['Users'], summary: 'Chi tiết tài khoản (kèm Profile + University/Class/Org/EduLevel)', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },

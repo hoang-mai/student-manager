@@ -36,6 +36,21 @@ const createBatchUsers = asyncHandler(async (req, res) => {
   return success(res, result, 'Tạo tài khoản hàng loạt thành công', 201);
 });
 
+const createBatchUsersProfiles = asyncHandler(async (req, res) => {
+  const users = req.body.users || [];
+  for (const u of users) {
+    await validateOrThrow(us.batch, u);
+  }
+  const result = await service.createBatchUsersProfiles(users, req.user);
+  return success(res, result, 'Tạo tài khoản và hồ sơ hàng loạt thành công', 201);
+});
+
+const updateBatchProfiles = asyncHandler(async (req, res) => {
+  await validateOrThrow(us.batchProfileUpdate, req.body);
+  const result = await service.updateBatchProfiles(req.body);
+  return success(res, result, 'Cập nhật hồ sơ hàng loạt thành công');
+});
+
 const resetPassword = asyncHandler(async (req, res) => {
   const result = await service.resetPassword(req.params.id, req.body.newPassword);
   return success(res, result, 'Đặt lại mật khẩu thành công');
@@ -54,6 +69,8 @@ module.exports = {
   update,
   delete: deleteRecord,
   createBatchUsers,
+  createBatchUsersProfiles,
+  updateBatchProfiles,
   resetPassword,
   toggleActive,
 };

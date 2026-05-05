@@ -66,8 +66,15 @@ const batch = yup.object({
   ...profileFields,
 });
 
+const batchProfileUpdate = yup.array().of(
+  yup.object({
+    code: yup.string().required('Trường này là bắt buộc'),
+    ...profileFields,
+  }),
+);
+
 const resetPassword = yup.object({
   newPassword: yup.string().min(6).required('Trường này là bắt buộc'),
 });
 
-module.exports = { create, update, batch, resetPassword };
+module.exports = { create, update, batch, batchProfileUpdate, resetPassword };
