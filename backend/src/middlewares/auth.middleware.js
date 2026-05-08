@@ -45,7 +45,7 @@ const requireRole = (...roleNames) => {
 
 const requireStudent = asyncHandler(async (req, res, next) => {
   if (process.env.SERVER_JWT === 'false') return next();
-  if (!req.user || !req.user.studentId) {
+  if (!req.user || req.user.role !== 'STUDENT') {
     throw new ForbiddenError('Chỉ học viên mới có quyền truy cập');
   }
   return next();
