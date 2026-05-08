@@ -13,14 +13,20 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   if (!token) throw new BadTokenError();
 
   const decoded = JwtService.jwtVerify(token);
-  const user = await User.findByPk(decoded.userId);
+  const user = await User.findByPk(decoded.userId, {
+    include: [{ model: db.profile }],
+  });
   if (!user) {
     throw new BadTokenError('Tài khoản không tồn tại');
   }
 
   const plainUser = serialize(user);
   req.userId = plainUser.id;
-  req.user = plainUser;
+  req.user = {
+    ...plainUser,
+    profileId: plainUser.profileId || null,
+    organizationId: plainUser.Profile ? plainUser.Profile.organizationId : null,
+  };
   return next();
 });
 
@@ -45,8 +51,11 @@ const requireStudent = asyncHandler(async (req, res, next) => {
   return next();
 });
 
+const requireAdmin = requireRole('ADMIN');
+
 module.exports = {
   authMiddleware,
   requireRole,
   requireStudent,
+  requireAdmin,
 };
