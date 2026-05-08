@@ -38,7 +38,7 @@ const login = async (username, password) => {
 };
 
 const register = async (data) => {
-  const { username, password, role, code, fullName, email } = data;
+  const { username, password, role, fullName, email, code } = data;
 
   const exist = await User.findOne({ where: { username } });
   if (exist) {
@@ -51,7 +51,7 @@ const register = async (data) => {
       const existing = await Profile.findOne({ where: { code } });
       if (existing) throw new BadRequestError(`Mã ${code} đã tồn tại`);
     }
-    const prefix = role === 'STUDENT' ? 'HV' : 'CH';
+    const prefix = (role === 'STUDENT' ? 'HV' : 'CH');
     const profile = await Profile.create({
       code: code || _generateCode(prefix),
       fullName,

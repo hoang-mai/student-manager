@@ -28,12 +28,12 @@ const getDetail = asyncHandler(async (req, res) => {
 
 const update = asyncHandler(async (req, res) => {
   await validateOrThrow(us.update, req.body);
-  const result = await service.update(req.params.id, req.body);
+  const result = await service.update(req.params.id, req.body, req.user);
   return success(res, result, 'Cập nhật thành công');
 });
 
 const deleteRecord = asyncHandler(async (req, res) => {
-  await service.delete(req.params.id);
+  await service.delete(req.params.id, req.user);
   return success(res, null, 'Xóa thành công');
 });
 
@@ -63,12 +63,12 @@ const updateBatchProfiles = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res) => {
   await validateOrThrow(us.resetPassword, req.body);
-  const result = await service.resetPassword(req.params.id, req.body.newPassword);
+  const result = await service.resetPassword(req.params.id, req.body.newPassword, req.user);
   return success(res, result, 'Đặt lại mật khẩu thành công');
 });
 
 const toggleActive = asyncHandler(async (req, res) => {
-  const result = await service.toggleActive(req.params.id);
+  const result = await service.toggleActive(req.params.id, req.user);
   const msg = result.isActive ? 'Mở khóa tài khoản thành công' : 'Khóa tài khoản thành công';
   return success(res, result, msg);
 });

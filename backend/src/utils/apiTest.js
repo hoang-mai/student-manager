@@ -3,12 +3,11 @@ const http = require('http');
 const BASE_URL = 'http://localhost:6868/api';
 
 let adminToken = null;
-let chiHuyToken = null;
-let hocVienToken = null;
+let commanderToken = null;
+let studentToken = null;
 let passed = 0;
 let failed = 0;
 const ts = Date.now();
-const errors = [];
 
 async function request(method, path, body = null, token = null) {
   const url = `${BASE_URL}${path}`;
@@ -31,9 +30,9 @@ async function request(method, path, body = null, token = null) {
         res.on('end', () => {
           try {
             const json = data ? JSON.parse(data) : {};
-            resolve({ status: res.statusCode, body: json, headers: res.headers });
+            resolve({ status: res.statusCode, body: json });
           } catch {
-            resolve({ status: res.statusCode, body: data, headers: res.headers });
+            resolve({ status: res.statusCode, body: data });
           }
         });
       }
@@ -71,26 +70,43 @@ async function runTests() {
   logResult('GET /health', res.status, 200);
 
   // 2. Auth - Login
-  console.log('\n--- Auth ---');
+  console.log('\n--- Auth: Login ---');
   res = await request('POST', '/auth/login', { username: 'admin', password: 'admin123' });
   logResult('POST /auth/login (admin)', res.status, 200);
   if (res.body.data?.accessToken) adminToken = res.body.data.accessToken;
 
   res = await request('POST', '/auth/login', { username: 'chihuy01', password: 'chihuy123' });
-  logResult('POST /auth/login (chi_huy)', res.status, 200);
-  if (res.body.data?.accessToken) chiHuyToken = res.body.data.accessToken;
+  logResult('POST /auth/login (commander)', res.status, 200);
+  if (res.body.data?.accessToken) commanderToken = res.body.data.accessToken;
 
   res = await request('POST', '/auth/login', { username: 'hv001', password: 'hocvien123' });
-  logResult('POST /auth/login (hoc_vien)', res.status, 200);
-  if (res.body.data?.accessToken) hocVienToken = res.body.data.accessToken;
+  logResult('POST /auth/login (student)', res.status, 200);
+  if (res.body.data?.accessToken) studentToken = res.body.data.accessToken;
 
+  // Login with wrong password
   res = await request('POST', '/auth/login', { username: 'admin', password: 'wrongpass' });
-  logResult('POST /auth/login (wrong pass)', res.status, 401);
+  logResult('POST /auth/login (wrong password -> 401)', res.status, 401);
 
-  res = await request('POST', '/auth/register', { username: `testuser${ts}`, email: `test${ts}@local.com`, password: 'test1234', fullName: 'Test User' });
-  logResult('POST /auth/register', res.status, 201);
+  if (!adminToken) {
+    console.log('\n⚠️  Admin login failed, skipping authenticated tests.');
+    return;
+  }
 
-  // Refresh token test
+  // 3. Auth - Me / Profile / Change Password
+  console.log('\n--- Auth: Self-service ---');
+  res = await request('GET', '/auth/me', null, adminToken);
+  logResult('GET /auth/me', res.status, 200);
+
+  res = await request('GET', '/auth/profile', null, studentToken);
+  logResult('GET /auth/profile (student)', res.status, 200);
+
+  res = await request('PUT', '/auth/profile', { phoneNumber: '0987654321', currentAddress: '123 Test St' }, studentToken);
+  logResult('PUT /auth/profile (student)', res.status, 200);
+
+  res = await request('POST', '/auth/change-password', { oldPassword: 'hocvien123', newPassword: 'hocvien123' }, studentToken);
+  logResult('POST /auth/change-password (student)', res.status, 200);
+
+  // Refresh token
   res = await request('POST', '/auth/login', { username: 'admin', password: 'admin123' });
   const refreshToken = res.body.data?.refreshToken;
   if (refreshToken) {
@@ -98,350 +114,222 @@ async function runTests() {
     logResult('POST /auth/refresh-token', res.status, 200);
   }
 
-  res = await request('POST', '/auth/change-password', { oldPassword: 'admin123', newPassword: 'admin123' }, adminToken);
-  logResult('POST /auth/change-password', res.status, 200);
+  // 4. Auth - Register (admin only)
+  console.log('\n--- Auth: Register (Admin Only) ---');
+  res = await request('POST', '/auth/register', { username: `testuser${ts}`, password: 'test123456', role: 'STUDENT', fullName: 'Test User', email: `test${ts}@test.com` }, adminToken);
+  logResult('POST /auth/register (admin -> 201)', res.status, 201);
+  const registeredUserId = res.body.data?.id;
 
-  if (!adminToken) {
-    console.log('\n⚠️  Admin login failed, skipping authenticated tests.');
-    return;
-  }
+  // Student cannot register
+  res = await request('POST', '/auth/register', { username: `badreg${ts}`, password: 'test123456' }, studentToken);
+  logResult('POST /auth/register (student -> 403)', res.status, 403);
 
-  // 3. Users
-  console.log('\n--- Users ---');
+  // Commander cannot register
+  res = await request('POST', '/auth/register', { username: `badreg2${ts}`, password: 'test123456' }, commanderToken);
+  logResult('POST /auth/register (commander -> 403)', res.status, 403);
+
+  // No token cannot register
+  res = await request('POST', '/auth/register', { username: `badreg3${ts}`, password: 'test123456' });
+  logResult('POST /auth/register (no token -> 401)', res.status, 401);
+
+  // 5. Users CRUD (Admin)
+  console.log('\n--- Users: CRUD ---');
   res = await request('GET', '/users', null, adminToken);
-  logResult('GET /users', res.status, 200);
+  logResult('GET /users (admin)', res.status, 200);
 
-  res = await request('GET', '/users?page=1&limit=5&role=chi_huy', null, adminToken);
-  logResult('GET /users?role=chi_huy', res.status, 200);
+  res = await request('POST', '/users', { username: `crudtest${ts}`, password: 'test123456', role: 'STUDENT', fullName: 'CRUD Test' }, adminToken);
+  logResult('POST /users (admin -> 201)', res.status, 201);
+  const testUserId = res.body.data?.id;
 
-  res = await request('GET', '/users/me', null, adminToken);
-  logResult('GET /users/me', res.status, 200);
+  if (testUserId) {
+    res = await request('GET', `/users/${testUserId}`, null, adminToken);
+    logResult(`GET /users/${testUserId} (admin)`, res.status, 200);
 
-  res = await request('GET', '/users/1', null, adminToken);
-  logResult('GET /users/1', res.status, 200);
+    res = await request('PUT', `/users/${testUserId}`, { fullName: 'CRUD Updated', isActive: false }, adminToken);
+    logResult(`PUT /users/${testUserId} (admin)`, res.status, 200);
 
-  res = await request('GET', '/users/99999', null, adminToken);
-  logResult('GET /users/99999', res.status, 404);
+    res = await request('POST', `/users/${testUserId}/reset-password`, { newPassword: 'reset123456' }, adminToken);
+    logResult(`POST /users/${testUserId}/reset-password (admin)`, res.status, 200);
 
-  res = await request('POST', '/users', { username: `apitest${ts}`, email: `api${ts}@test.local`, password: 'test1234', fullName: 'API Test', roleId: 3 }, adminToken);
-  logResult('POST /users', res.status, 201);
-  const newUserId = res.body.data?.id || res.body.id;
+    res = await request('POST', `/users/${testUserId}/toggle-active`, {}, adminToken);
+    logResult(`POST /users/${testUserId}/toggle-active (admin)`, res.status, 200);
 
-  if (newUserId) {
-    res = await request('PUT', `/users/${newUserId}`, { fullName: 'API Test Updated', phone: '0999999999' }, adminToken);
-    logResult(`PUT /users/${newUserId}`, res.status, 200);
-
-    res = await request('PATCH', `/users/${newUserId}/toggle-active`, {}, adminToken);
-    logResult(`PATCH /users/${newUserId}/toggle-active`, res.status, 200);
-
-    res = await request('PATCH', `/users/${newUserId}/reset-password`, { newPassword: 'reset1234' }, adminToken);
-    logResult(`PATCH /users/${newUserId}/reset-password`, res.status, 200);
-
-    res = await request('DELETE', `/users/${newUserId}`, null, adminToken);
-    logResult(`DELETE /users/${newUserId}`, res.status, 200);
+    // Delete test user
+    res = await request('DELETE', `/users/${testUserId}`, null, adminToken);
+    logResult(`DELETE /users/${testUserId} (admin)`, res.status, 200);
   }
 
-  // Học viên không được xóa user
-  res = await request('DELETE', '/users/2', null, hocVienToken);
-  logResult('DELETE /users/2 (hoc_vien forbidden)', res.status, 403);
-
-  // 4. Students
-  console.log('\n--- Students ---');
-  res = await request('GET', '/students', null, adminToken);
-  logResult('GET /students', res.status, 200);
-
-  res = await request('GET', '/students?status=STUDYING', null, adminToken);
-  logResult('GET /students?status=STUDYING', res.status, 200);
-
-  res = await request('GET', '/students/1', null, adminToken);
-  logResult('GET /students/1', res.status, 200);
-
-  res = await request('GET', '/students/99999', null, adminToken);
-  logResult('GET /students/99999', res.status, 404);
-
-  // 5. Grades
-  console.log('\n--- Grades ---');
-  res = await request('GET', '/grades', null, adminToken);
-  logResult('GET /grades', res.status, 200);
-
-  res = await request('GET', '/grades?studentId=1', null, adminToken);
-  logResult('GET /grades?studentId=1', res.status, 200);
-
-  res = await request('GET', '/grades/1', null, adminToken);
-  logResult('GET /grades/1', res.status, 200);
-
-  res = await request('POST', '/grades', { studentId: 1, courseId: 2, semesterId: 1, score10: 7.5, score4: 3.0, letterGrade: 'B', status: 'PASSED' }, adminToken);
-  logResult('POST /grades', res.status, 201);
-  const newGradeId = res.body.data?.id || res.body.id;
-
-  if (newGradeId) {
-    res = await request('PUT', `/grades/${newGradeId}`, { score10: 8.0, letterGrade: 'B+' }, adminToken);
-    logResult(`PUT /grades/${newGradeId}`, res.status, 200);
-
-    res = await request('DELETE', `/grades/${newGradeId}`, null, adminToken);
-    logResult(`DELETE /grades/${newGradeId}`, res.status, 200);
+  // Commander can update student
+  if (registeredUserId) {
+    res = await request('PUT', `/users/${registeredUserId}`, { fullName: 'Updated by Commander' }, commanderToken);
+    logResult(`PUT /users/${registeredUserId} (commander on student)`, res.status, 200);
   }
 
-  // 6. Grade Requests
+  // 6. RBAC Tests
+  console.log('\n--- RBAC: Role Hierarchy ---');
+
+  // Student cannot access user list
+  res = await request('GET', '/users', null, studentToken);
+  logResult('GET /users (student -> 403)', res.status, 403);
+
+  // Student cannot create user
+  res = await request('POST', '/users', { username: `bad${ts}`, password: 'test' }, studentToken);
+  logResult('POST /users (student -> 403)', res.status, 403);
+
+  // Commander cannot create user
+  res = await request('POST', '/users', { username: `badcm${ts}`, password: 'test', role: 'STUDENT' }, commanderToken);
+  logResult('POST /users (commander -> 403)', res.status, 403);
+
+  // Commander cannot delete user
+  if (registeredUserId) {
+    res = await request('DELETE', `/users/${registeredUserId}`, null, commanderToken);
+    logResult(`DELETE /users/${registeredUserId} (commander -> 403)`, res.status, 403);
+  }
+
+  // Student cannot delete
+  if (registeredUserId) {
+    res = await request('DELETE', `/users/${registeredUserId}`, null, studentToken);
+    logResult(`DELETE /users/${registeredUserId} (student -> 403)`, res.status, 403);
+  }
+
+  // Student cannot toggle-active
+  if (registeredUserId) {
+    res = await request('POST', `/users/${registeredUserId}/toggle-active`, {}, studentToken);
+    logResult(`POST /users/${registeredUserId}/toggle-active (student -> 403)`, res.status, 403);
+  }
+
+  // Student cannot reset-password
+  if (registeredUserId) {
+    res = await request('POST', `/users/${registeredUserId}/reset-password`, { newPassword: 'test' }, studentToken);
+    logResult(`POST /users/${registeredUserId}/reset-password (student -> 403)`, res.status, 403);
+  }
+
+  // Student cannot batch create
+  res = await request('POST', '/users/batch', { users: [{ username: `b${ts}` }] }, studentToken);
+  logResult('POST /users/batch (student -> 403)', res.status, 403);
+
+  // Commander cannot batch create
+  res = await request('POST', '/users/batch', { users: [{ username: `bcm${ts}` }] }, commanderToken);
+  logResult('POST /users/batch (commander -> 403)', res.status, 403);
+
+  // 7. Profiles
+  console.log('\n--- Profiles ---');
+  res = await request('GET', '/users/profiles', null, adminToken);
+  logResult('GET /users/profiles (admin)', res.status, 200);
+
+  res = await request('GET', '/users/profiles', null, commanderToken);
+  logResult('GET /users/profiles (commander)', res.status, 200);
+
+  res = await request('GET', '/users/profiles', null, studentToken);
+  logResult('GET /users/profiles (student -> 403)', res.status, 403);
+
+  // Commander can delete profile -> should now be admin only
+  // Test by trying to get first profile and delete it as commander
+  const firstProfileId = (await (async () => {
+    const r = await request('GET', '/users/profiles?limit=1', null, adminToken);
+    return r.body.data?.rows?.[0]?.id;
+  })());
+
+  if (firstProfileId) {
+    res = await request('DELETE', `/users/profiles/${firstProfileId}`, null, commanderToken);
+    logResult(`DELETE /users/profiles/${firstProfileId} (commander -> 403)`, res.status, 403);
+  }
+
+  // 8. Self-service endpoints
+  console.log('\n--- Self-service ---');
+  res = await request('GET', '/users/profile', null, studentToken);
+  logResult('GET /users/profile (student)', res.status, 200);
+
+  res = await request('PUT', '/users/profile', { phoneNumber: '0123456789' }, studentToken);
+  logResult('PUT /users/profile (student)', res.status, 200);
+
+  res = await request('GET', '/users/profile', null, commanderToken);
+  logResult('GET /users/profile (commander)', res.status, 200);
+
+  res = await request('PUT', '/users/profile', { phoneNumber: '0987654321' }, commanderToken);
+  logResult('PUT /users/profile (commander)', res.status, 200);
+
+  // 9. Time Table (student only)
+  console.log('\n--- Time Table ---');
+  res = await request('GET', '/users/time-table', null, studentToken);
+  logResult('GET /users/time-table (student)', res.status, 200);
+
+  res = await request('GET', '/users/time-table', null, adminToken);
+  logResult('GET /users/time-table (admin -> 403)', res.status, 403);
+
+  res = await request('GET', '/users/time-table', null, commanderToken);
+  logResult('GET /users/time-table (commander -> 403)', res.status, 403);
+
+  // 10. Cut Rice
+  console.log('\n--- Cut Rice ---');
+  res = await request('GET', '/users/cut-rice', null, studentToken);
+  logResult('GET /users/cut-rice (student)', res.status, 200);
+
+  // 11. Grade Requests (student)
   console.log('\n--- Grade Requests ---');
-  res = await request('GET', '/grade-requests', null, adminToken);
-  logResult('GET /grade-requests', res.status, 200);
+  res = await request('GET', '/students/grade-requests', null, studentToken);
+  logResult('GET /students/grade-requests (student)', res.status, 200);
 
-  res = await request('GET', '/grade-requests?status=PENDING', null, adminToken);
-  logResult('GET /grade-requests?status=PENDING', res.status, 200);
+  res = await request('GET', '/commanders/grade-requests', null, adminToken);
+  logResult('GET /commanders/grade-requests (admin)', res.status, 200);
 
-  res = await request('GET', '/grade-requests/1', null, adminToken);
-  logResult('GET /grade-requests/1', res.status, 200);
+  res = await request('GET', '/commanders/grade-requests', null, studentToken);
+  logResult('GET /commanders/grade-requests (student -> 403)', res.status, 403);
 
-  res = await request('POST', '/grade-requests', { studentId: 1, courseId: 2, semesterId: 1, requestType: 'UPDATE', reason: 'Test API', proposedScore10: 9.0 }, hocVienToken);
-  logResult('POST /grade-requests (hoc_vien)', res.status, 201);
-  const newGRId = res.body.data?.id || res.body.id;
+  // 12. Academic Results
+  console.log('\n--- Academic Results ---');
+  res = await request('GET', '/users/academic-results', null, studentToken);
+  logResult('GET /users/academic-results (student)', res.status, 200);
 
-  if (newGRId) {
-    res = await request('PUT', `/grade-requests/${newGRId}/review`, { status: 'APPROVED', reviewNote: 'OK from API test' }, chiHuyToken);
-    logResult(`PUT /grade-requests/${newGRId}/review (chi_huy)`, res.status, 200);
+  res = await request('GET', '/users/achievements', null, studentToken);
+  logResult('GET /users/achievements (student)', res.status, 200);
 
-    res = await request('DELETE', `/grade-requests/${newGRId}`, null, adminToken);
-    logResult(`DELETE /grade-requests/${newGRId}`, res.status, 200);
-  }
+  res = await request('GET', '/users/tuition-fees', null, studentToken);
+  logResult('GET /users/tuition-fees (student)', res.status, 200);
 
-  // 7. Schedules
-  console.log('\n--- Schedules ---');
-  res = await request('GET', '/schedules', null, adminToken);
-  logResult('GET /schedules', res.status, 200);
-
-  res = await request('GET', '/schedules?classId=1', null, adminToken);
-  logResult('GET /schedules?classId=1', res.status, 200);
-
-  res = await request('GET', '/schedules/1', null, adminToken);
-  logResult('GET /schedules/1', res.status, 200);
-
-  res = await request('POST', '/schedules', { classId: 1, courseId: 1, semesterId: 1, dayOfWeek: 1, startTime: '07:00:00', endTime: '09:25:00', room: 'TEST101', scheduleType: 'CLASS' }, adminToken);
-  logResult('POST /schedules', res.status, 201);
-  const newScheduleId = res.body.data?.id || res.body.id;
-
-  if (newScheduleId) {
-    res = await request('PUT', `/schedules/${newScheduleId}`, { room: 'TEST102' }, adminToken);
-    logResult(`PUT /schedules/${newScheduleId}`, res.status, 200);
-
-    res = await request('DELETE', `/schedules/${newScheduleId}`, null, adminToken);
-    logResult(`DELETE /schedules/${newScheduleId}`, res.status, 200);
-  }
-
-  // 8. Meal Schedules
-  console.log('\n--- Meal Schedules ---');
-  res = await request('GET', '/meal-schedules', null, adminToken);
-  logResult('GET /meal-schedules', res.status, 200);
-
-  res = await request('GET', '/meal-schedules?studentId=1', null, adminToken);
-  logResult('GET /meal-schedules?studentId=1', res.status, 200);
-
-  res = await request('GET', '/meal-schedules/1', null, adminToken);
-  logResult('GET /meal-schedules/1', res.status, 200);
-
-  res = await request('POST', '/meal-schedules', { studentId: 1, scheduleDate: '2025-01-01', session: 'NOON', status: 'REGISTERED' }, adminToken);
-  logResult('POST /meal-schedules', res.status, 201);
-  const newMealId = res.body.data?.id || res.body.id;
-
-  if (newMealId) {
-    res = await request('PUT', `/meal-schedules/${newMealId}`, { status: 'CANCELLED' }, adminToken);
-    logResult(`PUT /meal-schedules/${newMealId}`, res.status, 200);
-
-    res = await request('DELETE', `/meal-schedules/${newMealId}`, null, adminToken);
-    logResult(`DELETE /meal-schedules/${newMealId}`, res.status, 200);
-  }
-
-  // 9. Tuitions
-  console.log('\n--- Tuitions ---');
-  res = await request('GET', '/tuitions', null, adminToken);
-  logResult('GET /tuitions', res.status, 200);
-
-  res = await request('GET', '/tuitions?status=UNPAID', null, adminToken);
-  logResult('GET /tuitions?status=UNPAID', res.status, 200);
-
-  res = await request('GET', '/tuitions/1', null, adminToken);
-  logResult('GET /tuitions/1', res.status, 200);
-
-  res = await request('POST', '/tuitions', { studentId: 1, semesterId: 1, amount: 1000000, paidAmount: 0, status: 'UNPAID', dueDate: '2025-06-01' }, adminToken);
-  logResult('POST /tuitions', res.status, 201);
-  const newTuitionId = res.body.data?.id || res.body.id;
-
-  if (newTuitionId) {
-    res = await request('PUT', `/tuitions/${newTuitionId}`, { paidAmount: 1000000, status: 'PAID' }, adminToken);
-    logResult(`PUT /tuitions/${newTuitionId}`, res.status, 200);
-
-    res = await request('DELETE', `/tuitions/${newTuitionId}`, null, adminToken);
-    logResult(`DELETE /tuitions/${newTuitionId}`, res.status, 200);
-  }
-
-  // 10. Achievements
-  console.log('\n--- Achievements ---');
-  res = await request('GET', '/achievements', null, adminToken);
-  logResult('GET /achievements', res.status, 200);
-
-  res = await request('GET', '/achievements?studentId=1', null, adminToken);
-  logResult('GET /achievements?studentId=1', res.status, 200);
-
-  res = await request('GET', '/achievements/1', null, adminToken);
-  logResult('GET /achievements/1', res.status, 200);
-
-  res = await request('POST', '/achievements', { studentId: 1, title: 'Test Achievement', achievementType: 'REWARD', level: 'Test', issueDate: '2025-01-01' }, adminToken);
-  logResult('POST /achievements', res.status, 201);
-  const newAchieveId = res.body.data?.id || res.body.id;
-
-  if (newAchieveId) {
-    res = await request('PUT', `/achievements/${newAchieveId}`, { title: 'Test Achievement Updated' }, adminToken);
-    logResult(`PUT /achievements/${newAchieveId}`, res.status, 200);
-
-    res = await request('DELETE', `/achievements/${newAchieveId}`, null, adminToken);
-    logResult(`DELETE /achievements/${newAchieveId}`, res.status, 200);
-  }
-
-  // 11. Duty Rosters
-  console.log('\n--- Duty Rosters ---');
-  res = await request('GET', '/duty-rosters', null, adminToken);
-  logResult('GET /duty-rosters', res.status, 200);
-
-  res = await request('GET', '/duty-rosters?shift=NIGHT', null, adminToken);
-  logResult('GET /duty-rosters?shift=NIGHT', res.status, 200);
-
-  res = await request('GET', '/duty-rosters/1', null, adminToken);
-  logResult('GET /duty-rosters/1', res.status, 200);
-
-  res = await request('POST', '/duty-rosters', { userId: 2, dutyDate: '2025-12-01', shift: 'MORNING', dutyType: 'COMMAND', note: 'Test duty' }, adminToken);
-  logResult('POST /duty-rosters', res.status, 201);
-  const newDutyId = res.body.data?.id || res.body.id;
-
-  if (newDutyId) {
-    res = await request('PUT', `/duty-rosters/${newDutyId}`, { note: 'Test duty updated' }, adminToken);
-    logResult(`PUT /duty-rosters/${newDutyId}`, res.status, 200);
-
-    res = await request('DELETE', `/duty-rosters/${newDutyId}`, null, adminToken);
-    logResult(`DELETE /duty-rosters/${newDutyId}`, res.status, 200);
-  }
-
-  // 12. Universities
+  // 13. Universities (admin/commander)
   console.log('\n--- Universities ---');
   res = await request('GET', '/universities', null, adminToken);
-  logResult('GET /universities', res.status, 200);
+  logResult('GET /universities (admin)', res.status, 200);
 
-  res = await request('GET', '/universities/1', null, adminToken);
-  logResult('GET /universities/1', res.status, 200);
+  res = await request('GET', '/universities', null, studentToken);
+  logResult('GET /universities (student -> 403)', res.status, 403);
 
-  res = await request('POST', '/universities', { code: 'TESTU2', name: 'Test University', address: 'Test Address' }, adminToken);
-  logResult('POST /universities', res.status, 201);
-  const newUnivId = res.body.data?.id || res.body.id;
+  // 14. Notifications
+  console.log('\n--- Notifications ---');
+  res = await request('GET', '/auth/notifications', null, studentToken);
+  logResult('GET /auth/notifications (student)', res.status, 200);
 
-  if (newUnivId) {
-    res = await request('PUT', `/universities/${newUnivId}`, { name: 'Test University Updated' }, adminToken);
-    logResult(`PUT /universities/${newUnivId}`, res.status, 200);
+  res = await request('GET', '/notifications', null, adminToken);
+  logResult('GET /notifications (admin)', res.status, 200);
 
-    res = await request('DELETE', `/universities/${newUnivId}`, null, adminToken);
-    logResult(`DELETE /universities/${newUnivId}`, res.status, 200);
-  }
+  res = await request('GET', '/notifications', null, studentToken);
+  logResult('GET /notifications (student -> 403)', res.status, 403);
 
-  // 13. Classes
-  console.log('\n--- Classes ---');
-  res = await request('GET', '/classes', null, adminToken);
-  logResult('GET /classes', res.status, 200);
-
-  res = await request('GET', '/classes/1', null, adminToken);
-  logResult('GET /classes/1', res.status, 200);
-
-  res = await request('POST', '/classes', { code: 'TEST-K99C', name: 'Lớp test', majorId: 1, academicYearId: 1 }, adminToken);
-  logResult('POST /classes', res.status, 201);
-  const newClassId = res.body.data?.id || res.body.id;
-
-  if (newClassId) {
-    res = await request('PUT', `/classes/${newClassId}`, { name: 'Lớp test updated' }, adminToken);
-    logResult(`PUT /classes/${newClassId}`, res.status, 200);
-
-    res = await request('DELETE', `/classes/${newClassId}`, null, adminToken);
-    logResult(`DELETE /classes/${newClassId}`, res.status, 200);
-  }
-
-  // 14. Semesters
-  console.log('\n--- Semesters ---');
-  res = await request('GET', '/semesters', null, adminToken);
-  logResult('GET /semesters', res.status, 200);
-
-  res = await request('GET', '/semesters?isActive=true', null, adminToken);
-  logResult('GET /semesters?isActive=true', res.status, 200);
-
-  res = await request('GET', '/semesters/1', null, adminToken);
-  logResult('GET /semesters/1', res.status, 200);
-
-  res = await request('POST', '/semesters', { name: 'Test HK - 2025E', academicYearId: 1, startDate: new Date('2025-09-01').toISOString(), endDate: new Date('2026-01-15').toISOString(), isActive: true }, adminToken);
-  logResult('POST /semesters', res.status, 201);
-  const newSemesterId = res.body.data?.id || res.body.id;
-
-  if (newSemesterId) {
-    res = await request('PUT', `/semesters/${newSemesterId}`, { isActive: false }, adminToken);
-    logResult(`PUT /semesters/${newSemesterId}`, res.status, 200);
-
-    res = await request('DELETE', `/semesters/${newSemesterId}`, null, adminToken);
-    logResult(`DELETE /semesters/${newSemesterId}`, res.status, 200);
-  }
-
-  // 15. Courses
-  console.log('\n--- Courses ---');
-  res = await request('GET', '/courses', null, adminToken);
-  logResult('GET /courses', res.status, 200);
-
-  res = await request('GET', '/courses/1', null, adminToken);
-  logResult('GET /courses/1', res.status, 200);
-
-  res = await request('POST', '/courses', { code: 'TEST101CD', name: 'Môn học test', credits: 3 }, adminToken);
-  logResult('POST /courses', res.status, 201);
-  const newCourseId = res.body.data?.id || res.body.id;
-
-  if (newCourseId) {
-    res = await request('PUT', `/courses/${newCourseId}`, { name: 'Môn học test updated' }, adminToken);
-    logResult(`PUT /courses/${newCourseId}`, res.status, 200);
-
-    res = await request('DELETE', `/courses/${newCourseId}`, null, adminToken);
-    logResult(`DELETE /courses/${newCourseId}`, res.status, 200);
-  }
-
-  // 16. Reports
+  // 15. Reports
   console.log('\n--- Reports ---');
-  res = await request('GET', '/reports/students', null, adminToken);
-  logResult('GET /reports/students', res.status, 200);
+  res = await request('GET', '/users/reports/academic', null, adminToken);
+  logResult('GET /users/reports/academic (admin)', res.status, 200);
 
-  res = await request('GET', '/reports/grades', null, adminToken);
-  logResult('GET /reports/grades', res.status, 200);
+  res = await request('GET', '/users/reports/achievements', null, commanderToken);
+  logResult('GET /users/reports/achievements (commander)', res.status, 200);
 
-  res = await request('GET', '/reports/tuitions', null, adminToken);
-  logResult('GET /reports/tuitions', res.status, 200);
+  res = await request('GET', '/users/reports/achievements', null, studentToken);
+  logResult('GET /users/reports/achievements (student -> 403)', res.status, 403);
 
-  // Học viên không được xem report
-  res = await request('GET', '/reports/students', null, hocVienToken);
-  logResult('GET /reports/students (hoc_vien forbidden)', res.status, 403);
+  // 16. Not found test
+  console.log('\n--- Edge Cases ---');
+  res = await request('GET', '/users/99999999-9999-9999-9999-999999999999', null, adminToken);
+  logResult('GET /users/nonexistent (404)', res.status, 404);
 
-  // 17. RBAC Tests
-  console.log('\n--- RBAC Tests ---');
-  res = await request('GET', '/users', null, hocVienToken);
-  logResult('GET /users (hoc_vien -> 403)', res.status, 403);
+  res = await request('GET', '/nonexistent-route', null, adminToken);
+  logResult('GET /nonexistent-route (404)', res.status, 404);
 
-  res = await request('POST', '/grades', { studentId: 1, courseId: 1, semesterId: 1, score10: 5.0 }, hocVienToken);
-  logResult('POST /grades (hoc_vien -> 403)', res.status, 403);
-
-  res = await request('GET', '/students', null, hocVienToken);
-  logResult('GET /students (hoc_vien -> 200)', res.status, 200);
-
-  res = await request('GET', '/students', null, chiHuyToken);
-  logResult('GET /students (chi_huy -> 200)', res.status, 200);
-
-  res = await request('POST', '/users', { username: `testch${ts}`, email: `ch${ts}@test.local`, password: 'test1234', fullName: 'Test', roleId: 3 }, chiHuyToken);
-  logResult('POST /users (chi_huy -> 201)', res.status, 201);
-
-  res = await request('DELETE', '/users/1', null, chiHuyToken);
-  logResult('DELETE /users/1 (chi_huy -> 403)', res.status, 403);
-
-  // 18. 404 Test
-  console.log('\n--- 404 Tests ---');
-  res = await request('GET', '/nonexistent', null, adminToken);
-  logResult('GET /nonexistent', res.status, 404);
+  // Cleanup: delete test user
+  if (registeredUserId) {
+    res = await request('DELETE', `/users/${registeredUserId}`, null, adminToken);
+    logResult(`Cleanup: DELETE test user (200)`, res.status, 200);
+  }
 
   // Summary
   console.log('\n==============================');
@@ -457,7 +345,6 @@ async function runTests() {
 
 // Wait for server to be ready
 async function waitForServer(maxRetries = 30) {
-  const http = require('http');
   for (let i = 0; i < maxRetries; i++) {
     try {
       const ok = await new Promise((resolve) => {

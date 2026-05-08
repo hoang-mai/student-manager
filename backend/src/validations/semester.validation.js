@@ -6,8 +6,8 @@ const create = yup.object({
 });
 
 const update = yup.object({
-  code: yup.string().max(50),
-  schoolYear: yup.string().max(50),
+  code: yup.string().max(50).nullable(),
+  schoolYear: yup.string().max(50).nullable(),
 });
 
 const gradeConvert = yup.object({
