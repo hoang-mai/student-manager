@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const controller = require('../controllers/user.controller');
-const { authMiddleware, requireRole, requireStudent } = require('../middlewares/auth.middleware');
+const { authMiddleware, requireRole, requireStudent, requireAdmin } = require('../middlewares/auth.middleware');
 
 router.use(authMiddleware);
 
@@ -33,7 +33,7 @@ router.get('/profiles/export', controller.exportProfiles);
 router.get('/profiles', controller.getAllProfiles);
 router.get('/profiles/:id', controller.getProfileDetail);
 router.put('/profiles/:id', controller.updateProfile);
-router.delete('/profiles/:id', controller.deleteProfile);
+router.delete('/profiles/:id', requireAdmin, controller.deleteProfile);
 
 // ===================== Commander: Cắt cơm hàng loạt =====================
 router.post('/cut-rice/generate/:userId', controller.generateCutRice);
@@ -45,17 +45,20 @@ router.get('/reports/party-training', controller.getPartyTrainingReport);
 router.get('/reports/achievements', controller.getAchievementReport);
 router.get('/reports/tuition', controller.getTuitionReport);
 
-// ===================== Admin/Commander: User CRUD =====================
-router.post('/batch', controller.createBatchUsers);
-router.post('/batch-users', controller.createBatchUsersProfiles);
+// ===================== Admin/Commander: User CRUD (read + update) =====================
 router.put('/batch-profiles', controller.updateBatchProfiles);
-router.post('/:id/reset-password', controller.resetPassword);
-router.post('/:id/toggle-active', controller.toggleActive);
-
-router.post('/', controller.create);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);
+
+// ===================== Admin only =====================
+router.use(requireAdmin);
+
+router.post('/', controller.create);
+router.post('/batch', controller.createBatchUsers);
+router.post('/batch-users', controller.createBatchUsersProfiles);
+router.post('/:id/reset-password', controller.resetPassword);
+router.post('/:id/toggle-active', controller.toggleActive);
 router.delete('/:id', controller.delete);
 
 module.exports = router;

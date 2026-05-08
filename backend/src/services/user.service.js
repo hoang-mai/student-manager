@@ -21,7 +21,17 @@ const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('he
 
 const _hashPassword = (password) => bcrypt.hash(password || '123456', 10);
 
+const _checkRoleHierarchy = (requester, targetRole) => {
+  if (!requester) return;
+  if (requester.role === 'COMMANDER' && (targetRole === 'ADMIN' || targetRole === 'COMMANDER')) {
+    throw new ForbiddenError('Chỉ huy không thể quản lý tài khoản chỉ huy hoặc admin');
+  }
+};
+
 const _createProfile = async (data, requester) => {
+  if (data.role === 'ADMIN' && requester && requester.role !== 'ADMIN') {
+    throw new ForbiddenError('Chỉ admin mới có thể tạo tài khoản admin');
+  }
   if (data.role === 'COMMANDER' && requester && requester.role === 'COMMANDER') {
     throw new ForbiddenError('Chỉ huy không thể tạo tài khoản chỉ huy');
   }
@@ -98,8 +108,12 @@ const getDetail = async (id) => {
   return record;
 };
 
-const update = async (id, data) => {
+const update = async (id, data, requester) => {
   const record = await getDetail(id);
+  _checkRoleHierarchy(requester, record.role);
+  if (data.role) {
+    _checkRoleHierarchy(requester, data.role);
+  }
   if (data.password) {
     data.password = await bcrypt.hash(data.password, 10);
   }
@@ -119,8 +133,9 @@ const update = async (id, data) => {
   return record.update(data);
 };
 
-const deleteRecord = async (id) => {
+const deleteRecord = async (id, requester) => {
   const record = await getDetail(id);
+  _checkRoleHierarchy(requester, record.role);
   await record.destroy();
   return { deleted: true };
 };
@@ -153,18 +168,20 @@ const createBatchUsers = async (users, requester) => {
   return results;
 };
 
-const resetPassword = async (userId, newPassword) => {
+const resetPassword = async (userId, newPassword, requester) => {
   const user = await User.findByPk(userId);
   if (!user) throw new NotFoundError('Không tìm thấy người dùng');
+  _checkRoleHierarchy(requester, user.role);
 
   const hashedPassword = await bcrypt.hash(newPassword || '123456', 10);
   await user.update({ password: hashedPassword });
   return { message: 'Đặt lại mật khẩu thành công' };
 };
 
-const toggleActive = async (userId) => {
+const toggleActive = async (userId, requester) => {
   const user = await User.findByPk(userId);
   if (!user) throw new NotFoundError('Không tìm thấy người dùng');
+  _checkRoleHierarchy(requester, user.role);
 
   const newStatus = !user.isActive;
   await user.update({ isActive: newStatus });

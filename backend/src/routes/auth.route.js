@@ -1,12 +1,12 @@
 const router = require('express').Router();
 const ctrl = require('../controllers/auth.controller');
-const { authMiddleware } = require('../middlewares/auth.middleware');
+const { authMiddleware, requireAdmin } = require('../middlewares/auth.middleware');
 
 router.post('/login', ctrl.login);
 router.get('/me', authMiddleware, ctrl.me);
 router.get('/profile', authMiddleware, ctrl.me);
 router.put('/profile', authMiddleware, ctrl.updateProfile);
-router.post('/register', ctrl.register);
+router.post('/register', authMiddleware, requireAdmin, ctrl.register);
 router.post('/refresh-token', ctrl.refreshToken);
 router.post('/change-password', authMiddleware, ctrl.changePassword);
 

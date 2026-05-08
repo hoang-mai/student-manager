@@ -11,9 +11,20 @@ const options = {
 
 API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
 
+## Phân quyền
+
+| Hành động | STUDENT | COMMANDER | ADMIN |
+|-----------|:---:|:---:|:---:|
+| Tự sửa profile, đổi mật khẩu | ✅ | ✅ | ✅ |
+| Đăng ký / Tạo user | ❌ | ❌ | ✅ |
+| Sửa user | ❌ | ✅ (chỉ STUDENT) | ✅ |
+| Xóa user, reset password, khóa/mở | ❌ | ❌ | ✅ |
+| Quản lý hồ sơ, Xóa hồ sơ | ❌ | ✅ (chỉ STUDENT) | ✅ |
+| Dữ liệu khác (achievement, fee, report...) | ❌ | ✅ | ✅ |
+
 ## Kiến trúc
 - **User** 1:1 **Profile** (gộp Student + Commander)
-- Child models (YearlyResult, TimeTable, CutRice, ...) → FK: \`userId\`
+- Child models → FK: \`userId\`
 - Profile → FK: \`classId\`, \`organizationId\`, \`universityId\`, \`educationLevelId\`
 
 ## Auth
@@ -114,9 +125,9 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
       },
       '/auth/register': {
         post: {
-          tags: ['Auth'], summary: 'HV-01: Đăng ký', security: [],
+          tags: ['Auth'], summary: 'ADMIN: Đăng ký tài khoản mới', description: '**Admin only.** Tạo tài khoản STUDENT/COMMANDER/ADMIN.',
           requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['username', 'password'], properties: { username: { type: 'string' }, password: { type: 'string', minLength: 6 }, role: { type: 'string', enum: ['STUDENT', 'COMMANDER', 'ADMIN'] }, fullName: { type: 'string' }, email: { type: 'string' }, code: { type: 'string', description: 'Mã HV/CH' } } } } } },
-          responses: { 201: { description: 'Created' } },
+          responses: { 201: { description: 'Created' }, 401: { $ref: '#/components/responses/401' }, 403: { $ref: '#/components/responses/403' } },
         },
       },
       '/auth/refresh-token': {
@@ -130,7 +141,7 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
       },
       '/auth/profile': {
         get: { tags: ['Auth', 'Profile'], summary: 'HV-02: Xem hồ sơ cá nhân', responses: { 200: { description: 'OK' } } },
-        put: { tags: ['Auth', 'Profile'], summary: 'HV-02: Cập nhật hồ sơ', requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { currentAddress: { type: 'string' }, phoneNumber: { type: 'string' }, email: { type: 'string' }, rank: { type: 'string' }, unit: { type: 'string' }, positionGovernment: { type: 'string' }, positionParty: { type: 'string' } } } } } }, responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Auth', 'Profile'], summary: 'HV-02: Cập nhật hồ sơ cá nhân', description: 'Tất cả role đều có quyền. Cập nhật mọi field của Profile (trừ code).', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/Profile' } } } }, responses: { 200: { description: 'OK' } } },
       },
 
       // ═══════════ NOTIFICATIONS (HV-09) ═══════════
@@ -156,20 +167,20 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
           responses: { 200: { description: 'User[] + Profile (nested University/Class/Org/EduLevel)' } },
         },
         post: {
-          tags: ['Users'], summary: 'CH-01: Tạo tài khoản + tự động tạo Profile',
-          description: 'Nếu role=STUDENT/COMMANDER và có fullName → tự tạo Profile. code tự sinh nếu không cung cấp.',
+          tags: ['Users'], summary: 'ADMIN: Tạo tài khoản + tự động tạo Profile',
+          description: '**Admin only.** Nếu role=STUDENT/COMMANDER và có fullName → tự tạo Profile. code tự sinh nếu không cung cấp.',
           requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['username', 'password'], properties: { username: { type: 'string' }, password: { type: 'string', minLength: 6 }, role: { type: 'string', enum: ['STUDENT', 'COMMANDER', 'ADMIN'] }, fullName: { type: 'string' }, email: { type: 'string' }, code: { type: 'string' }, classId: { type: 'string' }, organizationId: { type: 'string' }, universityId: { type: 'string' }, educationLevelId: { type: 'string' }, phoneNumber: { type: 'string' }, unit: { type: 'string' }, rank: { type: 'string' }, enrollment: { type: 'integer' } } } } } },
-          responses: { 201: { description: 'Created' } },
+          responses: { 201: { description: 'Created' }, 401: { $ref: '#/components/responses/401' }, 403: { $ref: '#/components/responses/403' } },
         },
       },
       '/users/batch': {
-        post: { tags: ['Users'], summary: 'CH-01: Tạo hàng loạt (deprecated)', description: 'Mỗi user có thể kèm fullName/email để tự tạo Profile.', deprecated: true, requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', properties: { users: { type: 'array', items: { type: 'object', properties: { username: { type: 'string' }, password: { type: 'string' }, role: { type: 'string' }, fullName: { type: 'string' }, email: { type: 'string' }, code: { type: 'string' } } } } } } } } }, responses: { 201: { description: 'Created [{username, status}]' } } },
+        post: { tags: ['Users'], summary: 'ADMIN: Tạo hàng loạt', description: '**Admin only.** Mỗi user có thể kèm fullName/email để tự tạo Profile.', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', properties: { users: { type: 'array', items: { type: 'object', properties: { username: { type: 'string' }, password: { type: 'string' }, role: { type: 'string' }, fullName: { type: 'string' }, email: { type: 'string' }, code: { type: 'string' } } } } } } } } }, responses: { 201: { description: 'Created [{username, status}]' }, 403: { $ref: '#/components/responses/403' } } },
       },
       '/users/batch-users': {
         post: {
           tags: ['Users'],
-          summary: 'CH-01: Tạo hàng loạt user + profile',
-          description: 'Tạo danh sách tài khoản kèm hồ sơ học viên. Mỗi item được xử lý độc lập, item lỗi không ảnh hưởng item khác.',
+          summary: 'ADMIN: Tạo hàng loạt user + profile',
+          description: '**Admin only.** Tạo danh sách tài khoản kèm hồ sơ học viên.',
           requestBody: {
             required: true,
             content: {
@@ -235,8 +246,8 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
       '/users/batch-profiles': {
         put: {
           tags: ['Users'],
-          summary: 'CH-01: Cập nhật hàng loạt profile theo mã code',
-          description: 'Cập nhật thông tin hồ sơ hàng loạt dựa trên mã code (mã HV/CH). Mỗi item được xử lý độc lập, item lỗi không ảnh hưởng item khác.',
+          summary: 'Cập nhật hàng loạt profile theo mã code',
+          description: '**Admin + Commander.** Cập nhật thông tin hồ sơ hàng loạt dựa trên mã code.',
           requestBody: {
             required: true,
             content: {
@@ -294,15 +305,15 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
         },
       },
       '/users/{id}': {
-        get: { tags: ['Users'], summary: 'Chi tiết tài khoản (kèm Profile + University/Class/Org/EduLevel)', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
-        put: { tags: ['Users'], summary: 'Cập nhật tài khoản + Profile (nếu có fullName/email...)', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
-        delete: { tags: ['Users'], summary: 'Xóa tài khoản (soft delete)', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        get: { tags: ['Users'], summary: 'Chi tiết tài khoản (kèm Profile + nested)', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Users'], summary: 'Cập nhật tài khoản + Profile', description: '**Admin + Commander (chỉ STUDENT).** Commander không thể sửa ADMIN/COMMANDER.', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' }, 403: { $ref: '#/components/responses/403' } } },
+        delete: { tags: ['Users'], summary: 'ADMIN: Xóa tài khoản (soft delete)', description: '**Admin only.**', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' }, 403: { $ref: '#/components/responses/403' } } },
       },
       '/users/{id}/reset-password': {
-        post: { tags: ['Users'], summary: 'CH-01: Reset mật khẩu', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { newPassword: { type: 'string', minLength: 6 } } } } } }, responses: { 200: { description: 'OK' } } },
+        post: { tags: ['Users'], summary: 'ADMIN: Reset mật khẩu', description: '**Admin only.** Commander không thể reset password của ADMIN/COMMANDER.', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { newPassword: { type: 'string', minLength: 6 } } } } } }, responses: { 200: { description: 'OK' }, 403: { $ref: '#/components/responses/403' } } },
       },
       '/users/{id}/toggle-active': {
-        post: { tags: ['Users'], summary: 'CH-01: Khóa/Mở khóa', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        post: { tags: ['Users'], summary: 'ADMIN: Khóa/Mở khóa', description: '**Admin only.** Commander không thể toggle ADMIN/COMMANDER.', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' }, 403: { $ref: '#/components/responses/403' } } },
       },
 
       // ═══════════ PROFILE (HV-02 + CH-03) ═══════════
@@ -350,7 +361,7 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
       '/users/profiles/{id}': {
         get: { tags: ['Profiles'], summary: 'CH-03: Chi tiết hồ sơ', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
         put: { tags: ['Profiles'], summary: 'CH-03: Cập nhật hồ sơ', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
-        delete: { tags: ['Profiles'], summary: 'CH-03: Xóa hồ sơ', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        delete: { tags: ['Profiles'], summary: 'ADMIN: Xóa hồ sơ', description: '**Admin only.**', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' }, 403: { $ref: '#/components/responses/403' } } },
       },
 
       // ═══════════ CUT RICE (CH-06) ═══════════
