@@ -7,7 +7,7 @@ const success = (res, data = null, message = 'Thành công', statusCode = 200) =
   return res.status(statusCode).json(body);
 };
 
-const paginated = (res, data, pagination, summaryOrMessage, statusCode = 200) => {
+const paginated = (res, data, pagination, summaryOrMessage, statusCode = 200, extra = {}) => {
   const body = {
     success: true,
     statusCode,
@@ -20,6 +20,12 @@ const paginated = (res, data, pagination, summaryOrMessage, statusCode = 200) =>
     body.message = summaryOrMessage;
   } else if (summaryOrMessage && typeof summaryOrMessage === 'object') {
     body.summary = summaryOrMessage;
+  }
+
+  if (extra && typeof extra === 'object') {
+    for (const [key, value] of Object.entries(extra)) {
+      body[key] = serialize(value);
+    }
   }
 
   return res.status(statusCode).json(body);

@@ -11,7 +11,44 @@ const create = asyncHandler(async (req, res) => {
 
 const getAll = asyncHandler(async (req, res) => {
   const result = await service.getAll(req.query);
-  return paginated(res, result.rows, result.pagination);
+
+  const educationLevels = [];
+  const organizations = [];
+  const universities = [];
+  const elIds = new Set();
+  const orgIds = new Set();
+  const uniIds = new Set();
+
+  const rows = result.rows.map(r => {
+    const plain = r.get({ plain: true });
+    const el = plain.EducationLevel;
+
+    if (el && !elIds.has(el.id)) {
+      elIds.add(el.id);
+      educationLevels.push(el);
+    }
+
+    const org = el?.Organization;
+    if (org && !orgIds.has(org.id)) {
+      orgIds.add(org.id);
+      organizations.push(org);
+    }
+
+    const uni = org?.University;
+    if (uni && !uniIds.has(uni.id)) {
+      uniIds.add(uni.id);
+      universities.push(uni);
+    }
+
+    delete plain.EducationLevel;
+    return plain;
+  });
+
+  return paginated(res, rows, result.pagination, undefined, 200, {
+    educationLevels,
+    organizations,
+    universities,
+  });
 });
 
 const getDetail = asyncHandler(async (req, res) => {

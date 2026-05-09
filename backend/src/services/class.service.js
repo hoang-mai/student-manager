@@ -4,11 +4,19 @@ const { paginateQuery } = require('../utils/response');
 
 const Class = db.class;
 const EducationLevel = db.educationLevel;
+const Organization = db.organization;
+const University = db.university;
 
 const create = async (data) => Class.create(data);
 const getAll = async (query) => paginateQuery(Class, query, {
   filterFields: ['className', 'educationLevelId'],
-  include: [{ model: EducationLevel }],
+  include: [{
+    model: EducationLevel,
+    include: [{
+      model: Organization,
+      include: [{ model: University }],
+    }],
+  }],
 });
 
 const getDetail = async (id) => {

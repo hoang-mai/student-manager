@@ -11,7 +11,18 @@ const create = asyncHandler(async (req, res) => {
 
 const getAll = asyncHandler(async (req, res) => {
   const result = await service.getAll(req.query);
-  return paginated(res, result.rows, result.pagination);
+
+  const universities = [...new Map(
+    result.rows.map(r => r.University).filter(Boolean).map(u => [u.id, u])
+  ).values()];
+
+  const rows = result.rows.map(r => {
+    const plain = r.get({ plain: true });
+    delete plain.University;
+    return plain;
+  });
+
+  return paginated(res, rows, result.pagination, undefined, 200, { universities });
 });
 
 const getDetail = asyncHandler(async (req, res) => {
