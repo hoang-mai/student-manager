@@ -1,16 +1,36 @@
-export type LoginFormValues = {
+export interface LoginRequest {
   username: string;
   password: string;
-  remember?: boolean;
-};
+}
 
-export type LoginResponse = {
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
+export interface User {
+  id: string;
+  username: string;
+  isAdmin: boolean;
+  isActive: boolean;
+  role: "ADMIN" | "COMMANDER" | "STUDENT";
+  refreshToken: string | null;
+  studentId: string | null;
+  commanderId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deleteAt: string | null;
+}
+
+export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: {
-    id: string;
-    username: string;
-    fullName: string;
-    role: string;
-  };
-};
+  user: User;
+}
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  role: "ADMIN" | "COMMANDER" | "STUDENT";
+  fullName: string;
+  email?: string;
+}

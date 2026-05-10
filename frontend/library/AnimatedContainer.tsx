@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { motion, HTMLMotionProps } from "motion/react";
+import { motion, HTMLMotionProps, Variants } from "motion/react";
 
 type AnimationVariant =
   | "fade"
@@ -12,7 +12,7 @@ type AnimationVariant =
   | "scale"
   | "diagonalUp";
 
-interface AnimatedContainerProps extends HTMLMotionProps<"div"> {
+export interface AnimatedContainerProps extends HTMLMotionProps<"div"> {
   /** Nội dung bên trong container */
   children: ReactNode;
 
@@ -41,7 +41,7 @@ interface AnimatedContainerProps extends HTMLMotionProps<"div"> {
   y?: number;
 }
 
-const variants: Record<AnimationVariant, any> = {
+const variants: Record<AnimationVariant, Variants> = {
   fade: {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
@@ -76,7 +76,7 @@ const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
   children,
   variant = "slideUp",
   delay = 0,
-  duration = 0.5,
+  duration = 0.4,
   staggerChildren = 0.1,
   x,
   y,
