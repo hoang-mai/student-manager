@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { ROLES, DEFAULT_VALUES } from "@/constants/constants";
 import Avatar from "@/library/Avatar";
