@@ -43,7 +43,7 @@ export default function OfflineDetector() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [addToast, removeToast]);
+  }, [addToast, queryClient, removeToast]);
 
   return null;
 }

@@ -84,20 +84,6 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     mutation.mutate(data);
   };
 
-  const SectionHeader = ({ title }: { title: string }) => (
-    <div className="flex items-center gap-3 mb-6">
-      <div className="w-2 h-8 bg-primary-500 rounded-full" />
-      <Typography
-        variant="h4"
-        weight="bold"
-        transform="uppercase"
-        className="tracking-tight text-neutral-800"
-      >
-        {title}
-      </Typography>
-    </div>
-  );
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -317,3 +303,17 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     </form>
   );
 }
+
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-2 h-8 bg-primary-500 rounded-full" />
+    <Typography
+      variant="h4"
+      weight="bold"
+      transform="uppercase"
+      className="tracking-tight text-neutral-800"
+    >
+      {title}
+    </Typography>
+  </div>
+);

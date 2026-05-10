@@ -21,7 +21,6 @@ import { useModalStore } from "@/store/useModalStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useToastStore } from "@/store/useToastStore";
 import Badge from "@/library/Badge";
-import Skeleton from "@/library/Skeleton";
 import Tooltip from "@/library/Tooltip";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import ErrorState from "@/library/ErrorState";

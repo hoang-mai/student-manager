@@ -53,9 +53,14 @@ export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 const baseProfileSchema = z.object({
   code: z.string().nullable().or(z.literal("")).optional(),
   fullName: z.string().min(1, "Họ và tên không được để trống"),
-  email: z.string().email("Email không hợp lệ").nullable().or(z.literal("")).optional(),
+  email: z.email("Email không hợp lệ").nullable().or(z.literal("")).optional(),
   phoneNumber: z.string().nullable().or(z.literal("")).optional(),
-  birthday: z.string().nullable().or(z.literal("")).transform(v => v === "" ? null : v).optional(),
+  birthday: z
+    .string()
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => (v === "" ? null : v))
+    .optional(),
   cccd: z.string().nullable().or(z.literal("")).optional(),
   gender: z.enum(["MALE", "FEMALE"]).nullable().optional(),
   hometown: z.string().nullable().or(z.literal("")).optional(),
@@ -67,10 +72,25 @@ const baseProfileSchema = z.object({
   positionGovernment: z.string().nullable().or(z.literal("")).optional(),
   positionParty: z.string().nullable().or(z.literal("")).optional(),
   currentAddress: z.string().nullable().or(z.literal("")).optional(),
-  dateOfEnlistment: z.string().nullable().or(z.literal("")).transform(v => v === "" ? null : v).optional(),
+  dateOfEnlistment: z
+    .string()
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => (v === "" ? null : v))
+    .optional(),
   partyMemberCardNumber: z.string().nullable().or(z.literal("")).optional(),
-  probationaryPartyMember: z.string().nullable().or(z.literal("")).transform(v => v === "" ? null : v).optional(),
-  fullPartyMember: z.string().nullable().or(z.literal("")).transform(v => v === "" ? null : v).optional(),
+  probationaryPartyMember: z
+    .string()
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => (v === "" ? null : v))
+    .optional(),
+  fullPartyMember: z
+    .string()
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => (v === "" ? null : v))
+    .optional(),
   familyMember: z.string().nullable().or(z.literal("")).optional(),
   foreignRelations: z.string().nullable().or(z.literal("")).optional(),
 });
@@ -79,11 +99,16 @@ const studentFields = z.object({
   enrollment: z.coerce.number().nullable().optional(),
   currentCpa4: z.coerce.number().nullable().optional(),
   currentCpa10: z.coerce.number().nullable().optional(),
-  graduationDate: z.string().nullable().or(z.literal("")).transform(v => v === "" ? null : v).optional(),
+  graduationDate: z
+    .string()
+    .nullable()
+    .or(z.literal(""))
+    .transform((v) => (v === "" ? null : v))
+    .optional(),
 });
 
 const commanderFields = z.object({
-  startWork: z.coerce.number().nullable().optional()
+  startWork: z.coerce.number().nullable().optional(),
 });
 
 export const createUserSchema = z.object({
@@ -135,7 +160,11 @@ export const batchUserSchema = z.array(
   z.object({
     username: z.string().min(3, "Username phải ít nhất 3 ký tự"),
     fullName: z.string().min(1, "Họ và tên không được để trống"),
-    email: z.email("Email không hợp lệ").nullable().or(z.literal("")).optional(),
+    email: z
+      .email("Email không hợp lệ")
+      .nullable()
+      .or(z.literal(""))
+      .optional(),
     role: z.enum(["STUDENT", "COMMANDER", "ADMIN"], "Role không hợp lệ"),
     password: z.string().min(6, "Mật khẩu phải ít nhất 6 ký tự").optional(),
   })
@@ -156,7 +185,6 @@ export const batchExcelFileSchema = z.object({
     ),
 });
 
-
 export type BatchExcelFileValues = z.infer<typeof batchExcelFileSchema>;
 
 /**
@@ -166,7 +194,11 @@ export const batchUpdateStudentSchema = z.array(
   z.object({
     code: z.string().min(1, "Mã học viên không được để trống"),
     fullName: z.string().min(1, "Họ và tên không được để trống"),
-    email: z.email("Email không hợp lệ").nullable().or(z.literal("")).optional(),
+    email: z
+      .email("Email không hợp lệ")
+      .nullable()
+      .or(z.literal(""))
+      .optional(),
     phoneNumber: z.string().nullable().or(z.literal("")).optional(),
     birthday: z.string().nullable().or(z.literal("")).optional(),
     cccd: z.string().nullable().or(z.literal("")).optional(),
@@ -197,8 +229,14 @@ export type BatchUpdateStudentValues = z.infer<typeof batchUpdateStudentSchema>;
  * Schema validation cho form thêm/sửa trường đại học
  */
 export const universitySchema = z.object({
-  universityCode: z.string().min(1, "Mã trường là bắt buộc").max(50, "Tối đa 50 ký tự"),
-  universityName: z.string().min(1, "Tên trường là bắt buộc").max(255, "Tối đa 255 ký tự"),
+  universityCode: z
+    .string()
+    .min(1, "Mã trường là bắt buộc")
+    .max(50, "Tối đa 50 ký tự"),
+  universityName: z
+    .string()
+    .min(1, "Tên trường là bắt buộc")
+    .max(255, "Tối đa 255 ký tự"),
   status: z.enum(["ACTIVE", "INACTIVE"], "Trạng thái không hợp lệ"),
 });
 
@@ -241,7 +279,9 @@ export const createOrganizationSchema = z.object({
   universityId: z.string().min(1, "University ID là bắt buộc"),
 });
 
-export type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>;
+export type CreateOrganizationFormValues = z.infer<
+  typeof createOrganizationSchema
+>;
 
 /**
  * Schema validation cho form cập nhật đơn vị (Organization)
@@ -252,7 +292,9 @@ export const updateOrganizationSchema = z.object({
   universityId: z.string().min(1, "University ID là bắt buộc"),
 });
 
-export type UpdateOrganizationFormValues = z.infer<typeof updateOrganizationSchema>;
+export type UpdateOrganizationFormValues = z.infer<
+  typeof updateOrganizationSchema
+>;
 
 /**
  * Schema validation cho form thêm trình độ (EducationLevel)
@@ -262,7 +304,9 @@ export const createEducationLevelSchema = z.object({
   organizationId: z.string().min(1, "Organization ID is required"),
 });
 
-export type CreateEducationLevelFormValues = z.infer<typeof createEducationLevelSchema>;
+export type CreateEducationLevelFormValues = z.infer<
+  typeof createEducationLevelSchema
+>;
 
 /**
  * Schema validation cho form cập nhật trình độ (EducationLevel)
@@ -272,7 +316,9 @@ export const updateEducationLevelSchema = z.object({
   organizationId: z.string().min(1, "Organization ID is required"),
 });
 
-export type UpdateEducationLevelFormValues = z.infer<typeof updateEducationLevelSchema>;
+export type UpdateEducationLevelFormValues = z.infer<
+  typeof updateEducationLevelSchema
+>;
 
 /**
  * Schema validation cho form thêm lớp học (Class)
@@ -295,5 +341,3 @@ export const updateClassSchema = z.object({
 });
 
 export type UpdateClassFormValues = z.infer<typeof updateClassSchema>;
-
-
