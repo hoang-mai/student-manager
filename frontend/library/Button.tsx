@@ -1,4 +1,9 @@
-import { ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
+import {
+  ButtonHTMLAttributes,
+  ElementType,
+  forwardRef,
+  type ReactNode,
+} from "react";
 
 type ButtonSize = "sm" | "md" | "lg";
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
@@ -23,11 +28,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   suffixIcon?: ReactNode;
 
   /** Icon component (từ react-icons, ví dụ: HiOutlinePlus) */
-  icon?: React.ElementType;
+  icon?: ElementType;
 
   /** Class CSS tùy chỉnh cho icon */
   iconClassName?: string;
-};
+}
 
 const sizeStyles: Record<ButtonSize, string> = {
   sm: "h-9 px-4 text-sm gap-1.5",
@@ -102,8 +107,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {Icon && (
-          <Icon 
-            size={size === "sm" ? 16 : size === "md" ? 18 : 20} 
+          <Icon
+            size={size === "sm" ? 16 : size === "md" ? 18 : 20}
             className={iconClassName}
           />
         )}

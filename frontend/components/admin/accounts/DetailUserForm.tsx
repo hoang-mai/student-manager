@@ -12,7 +12,6 @@ import DetailUserSkeleton from "./DetailUserSkeleton";
 import Avatar from "@/library/Avatar";
 import {
   HiOutlineMail,
-  HiOutlineShieldCheck,
   HiOutlineClock,
   HiOutlineIdentification,
   HiOutlineAcademicCap,
@@ -25,7 +24,7 @@ import {
   HiOutlineLibrary,
   HiOutlineChartBar,
   HiOutlineSparkles,
-  HiOutlineUserGroup
+  HiOutlineUserGroup,
 } from "react-icons/hi";
 import { UserDetailResponse } from "@/types/user";
 
@@ -34,11 +33,21 @@ interface DetailUserFormProps {
   initialData: UserDetailResponse;
 }
 
-const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) => {
-  const { data: response, isPending, isPlaceholderData, isError } = useQuery({
+const DetailUserForm: React.FC<DetailUserFormProps> = ({
+  userId,
+  initialData,
+}) => {
+  const {
+    data: response,
+    isPending,
+    isPlaceholderData,
+    isError,
+  } = useQuery({
     queryKey: [QUERY_KEYS.USERS, userId],
     queryFn: () => userService.getUserById(userId),
-    placeholderData: initialData ? { data: initialData, statusCode: 200, message: "Initial" } : undefined,
+    placeholderData: initialData
+      ? { data: initialData, statusCode: 200, message: "Initial" }
+      : undefined,
   });
 
   const user = response?.data;
@@ -87,20 +96,44 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Account Section */}
         <section className="space-y-4">
-          <Typography variant="label" weight="black" transform="uppercase" color="primary" tracking="widest">
+          <Typography
+            variant="label"
+            weight="black"
+            transform="uppercase"
+            color="primary"
+            tracking="widest"
+          >
             Thông tin tài khoản
           </Typography>
 
           <div className="space-y-4 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
-            <DetailItem icon={<HiOutlineIdentification />} label="Tên đăng nhập" value={user.username} />
-            <DetailItem icon={<HiOutlineClock />} label="Ngày tạo" value={formatDateTime(user.createdAt)} />
-            <DetailItem icon={<HiOutlineClock />} label="Cập nhật cuối" value={formatDateTime(user.updatedAt)} />
+            <DetailItem
+              icon={<HiOutlineIdentification />}
+              label="Tên đăng nhập"
+              value={user.username}
+            />
+            <DetailItem
+              icon={<HiOutlineClock />}
+              label="Ngày tạo"
+              value={formatDateTime(user.createdAt)}
+            />
+            <DetailItem
+              icon={<HiOutlineClock />}
+              label="Cập nhật cuối"
+              value={formatDateTime(user.updatedAt)}
+            />
           </div>
         </section>
 
         {/* Contact Section */}
         <section className="space-y-4">
-          <Typography variant="label" weight="black" transform="uppercase" color="primary" tracking="widest">
+          <Typography
+            variant="label"
+            weight="black"
+            transform="uppercase"
+            color="primary"
+            tracking="widest"
+          >
             Thông tin liên hệ
           </Typography>
 
@@ -128,7 +161,13 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
           <>
             {/* Personal Info Section */}
             <section className="space-y-4">
-              <Typography variant="label" weight="black" transform="uppercase" color="primary" tracking="widest">
+              <Typography
+                variant="label"
+                weight="black"
+                transform="uppercase"
+                color="primary"
+                tracking="widest"
+              >
                 Thông tin cá nhân
               </Typography>
 
@@ -144,7 +183,9 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
                     label="Giới tính"
                     value={
                       user.profile.gender
-                        ? user.profile.gender === "MALE" ? "Nam" : "Nữ"
+                        ? user.profile.gender === "MALE"
+                          ? "Nam"
+                          : "Nữ"
                         : null
                     }
                   />
@@ -183,8 +224,16 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
 
             {/* Work & Position Section */}
             <section className="space-y-4">
-              <Typography variant="label" weight="black" transform="uppercase" color="primary" tracking="widest">
-                {user.role === "STUDENT" ? "Học tập & Công tác" : "Công tác & Chức vụ"}
+              <Typography
+                variant="label"
+                weight="black"
+                transform="uppercase"
+                color="primary"
+                tracking="widest"
+              >
+                {user.role === "STUDENT"
+                  ? "Học tập & Công tác"
+                  : "Công tác & Chức vụ"}
               </Typography>
 
               <div className="space-y-4 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
@@ -195,10 +244,18 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
                     value={user.profile.rank}
                   />
                   {user.role === "STUDENT" && (
-                    <DetailItem icon={<HiOutlineLibrary />} label="Khóa" value={user.profile.enrollment} />
+                    <DetailItem
+                      icon={<HiOutlineLibrary />}
+                      label="Khóa"
+                      value={user.profile.enrollment}
+                    />
                   )}
                   {user.role === "COMMANDER" && (
-                    <DetailItem icon={<HiOutlineLibrary />} label="Năm công tác" value={user.profile.startWork} />
+                    <DetailItem
+                      icon={<HiOutlineLibrary />}
+                      label="Năm công tác"
+                      value={user.profile.startWork}
+                    />
                   )}
                   <DetailItem
                     icon={<HiOutlineOfficeBuilding />}
@@ -244,14 +301,26 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
                     value={formatDate(user.profile.dateOfEnlistment)}
                   />
                   {user.role === "STUDENT" && (
-                    <DetailItem icon={<HiOutlineCalendar />} label="Ngày tốt nghiệp" value={formatDate(user.profile.graduationDate)} />
+                    <DetailItem
+                      icon={<HiOutlineCalendar />}
+                      label="Ngày tốt nghiệp"
+                      value={formatDate(user.profile.graduationDate)}
+                    />
                   )}
                 </div>
 
                 {user.role === "STUDENT" && (
                   <div className="grid grid-cols-2 gap-4">
-                    <DetailItem icon={<HiOutlineChartBar />} label="CPA (Hệ 4)" value={user.profile.currentCpa4} />
-                    <DetailItem icon={<HiOutlineChartBar />} label="CPA (Hệ 10)" value={user.profile.currentCpa10} />
+                    <DetailItem
+                      icon={<HiOutlineChartBar />}
+                      label="CPA (Hệ 4)"
+                      value={user.profile.currentCpa4}
+                    />
+                    <DetailItem
+                      icon={<HiOutlineChartBar />}
+                      label="CPA (Hệ 10)"
+                      value={user.profile.currentCpa10}
+                    />
                   </div>
                 )}
               </div>
@@ -259,7 +328,13 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
 
             {/* Political & Background Section */}
             <section className="md:col-span-2 space-y-4">
-              <Typography variant="label" weight="black" transform="uppercase" color="primary" tracking="widest">
+              <Typography
+                variant="label"
+                weight="black"
+                transform="uppercase"
+                color="primary"
+                tracking="widest"
+              >
                 Đảng & Đoàn - Quan hệ
               </Typography>
 
@@ -309,17 +384,29 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
   );
 };
 
-const DetailItem: React.FC<{ icon: React.ReactNode; label: string; value: string | number | null | undefined }> = ({ icon, label, value }) => (
+const DetailItem: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  value: string | number | null | undefined;
+}> = ({ icon, label, value }) => (
   <div className="flex items-start gap-3">
-    <div className="mt-1 text-neutral-400">
-      {icon}
-    </div>
+    <div className="mt-1 text-neutral-400">{icon}</div>
     <div className="flex-1 min-w-0">
-      <Typography variant="caption" color="gray" className="block leading-none mb-1">
+      <Typography
+        variant="caption"
+        color="gray"
+        className="block leading-none mb-1"
+      >
         {label}
       </Typography>
-      <Typography variant="body" weight="semibold" className="block whitespace-pre-wrap break-words">
-        {value !== null && value !== undefined && value !== "" ? value : "Chưa cập nhật"}
+      <Typography
+        variant="body"
+        weight="semibold"
+        className="block whitespace-pre-wrap wrap-break-word"
+      >
+        {value !== null && value !== undefined && value !== ""
+          ? value
+          : "Chưa cập nhật"}
       </Typography>
     </div>
   </div>

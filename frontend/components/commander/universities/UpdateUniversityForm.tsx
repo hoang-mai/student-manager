@@ -20,7 +20,11 @@ interface Props {
   onCancel: () => void;
 }
 
-export default function UpdateUniversityForm({ university, onSuccess, onCancel }: Props) {
+export default function UpdateUniversityForm({
+  university,
+  onSuccess,
+  onCancel,
+}: Props) {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
   const { showLoading, hideLoading } = useLoadingStore();
@@ -35,7 +39,7 @@ export default function UpdateUniversityForm({ university, onSuccess, onCancel }
       addToast({ message: "Cập nhật thành công!", variant: "success" });
       onSuccess();
     },
-    onError: (err: any) => {
+    onError: (err) => {
       addToast({
         message: err.message || "Cập nhật thất bại!",
         variant: "error",
@@ -63,7 +67,10 @@ export default function UpdateUniversityForm({ university, onSuccess, onCancel }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col py-2 gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col py-2 gap-4"
+    >
       <div className="flex-1 px-4 py-4 space-y-8">
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">

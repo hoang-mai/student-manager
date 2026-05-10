@@ -3,34 +3,37 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { COMMANDER_MENU, MenuItem } from "@/constants/commanderMenu";
+import { COMMANDER_MENU, MenuItem } from "@/constants/commander-menu";
+import Typography from "@/library/Typography";
+import Image from "next/image";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="relative flex flex-col w-[280px] bg-white/70 backdrop-blur-xl border-r border-neutral-100/50 shadow-sm z-50 overflow-hidden">
+    <aside className="relative flex flex-col w-70 bg-white/70 backdrop-blur-xl border-r border-neutral-100/50 shadow-sm z-50 overflow-hidden">
       {/* Background blobs for flair */}
       <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary-100/30 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 -right-32 w-64 h-64 bg-secondary-100/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header Sidebar */}
       <div className="relative flex items-center gap-3 p-6 h-20">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center text-white font-bold shrink-0 shadow-lg shadow-primary-600/20">
-          S
+        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={32}
+            height={32}
+            style={{ height: "auto" }}
+          />
         </div>
-        <div className="flex flex-col">
-          <span className="font-black text-neutral-800 whitespace-nowrap uppercase tracking-tighter text-lg leading-tight">
-            Vanguard
-          </span>
-          <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold leading-none">
-            Tactical Manager
-          </span>
-        </div>
+        <Typography variant="h2" weight="black" className="leading-none">
+          Tiên Phong
+        </Typography>
       </div>
 
       {/* Danh sách Menu */}
-      <nav className="relative flex-1 overflow-y-auto py-4 px-4 custom-scrollbar">
+      <nav className="relative flex-1 overflow-y-auto py-4 px-4 no-scrollbar">
         <ul className="space-y-1.5">
           {COMMANDER_MENU.map((item: MenuItem) => {
             const isActive =
@@ -38,7 +41,7 @@ const Sidebar: React.FC = () => {
               (item.path !== "/commander" && pathname.startsWith(item.path));
 
             return (
-              <li key={item.code}>
+              <li key={item.title}>
                 <Link
                   href={item.path}
                   className={`flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden ${
@@ -66,8 +69,6 @@ const Sidebar: React.FC = () => {
           })}
         </ul>
       </nav>
-
-      
     </aside>
   );
 };

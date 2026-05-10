@@ -13,7 +13,7 @@ export interface User {
   isAdmin: boolean;
   isActive: boolean;
   role: "ADMIN" | "COMMANDER" | "STUDENT";
-  refreshToken: string | null;
+  refreshToken: string;
   studentId: string | null;
   commanderId: string | null;
   createdAt: string;

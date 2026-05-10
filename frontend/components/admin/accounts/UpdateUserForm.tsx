@@ -94,22 +94,11 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
     updateMutation.mutate(data);
   };
 
-  const SectionHeader = ({ title }: { title: string }) => (
-    <div className="flex items-center gap-3 mb-6">
-      <div className="w-2 h-8 bg-primary-500 rounded-full" />
-      <Typography
-        variant="h4"
-        weight="bold"
-        transform="uppercase"
-        className="tracking-tight text-neutral-800"
-      >
-        {title}
-      </Typography>
-    </div>
-  );
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh] py-2 gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col max-h-[85vh] py-2 gap-4"
+    >
       <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-12">
         {/* Thông tin cơ bản & liên hệ */}
         <section>
@@ -406,3 +395,17 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
 };
 
 export default UpdateUserForm;
+
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-2 h-8 bg-primary-500 rounded-full" />
+    <Typography
+      variant="h4"
+      weight="bold"
+      transform="uppercase"
+      className="tracking-tight text-neutral-800"
+    >
+      {title}
+    </Typography>
+  </div>
+);

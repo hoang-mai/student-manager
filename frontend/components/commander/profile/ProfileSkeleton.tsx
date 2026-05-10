@@ -6,23 +6,28 @@ import Skeleton from "@/library/Skeleton";
 const ProfileSkeleton = () => (
   <div className="max-w-6xl mx-auto space-y-8 pb-20 px-4 md:px-0">
     {/* Header Skeleton */}
-    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/30 backdrop-blur-sm p-6 rounded-[32px] border border-white/60 shadow-sm">
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/30 backdrop-blur-sm p-6 rounded-4xl border border-white/60 shadow-sm">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
         <div className="relative">
-          <Skeleton variant="circular" width={120} height={120} className="border-4 border-white" />
+          <Skeleton
+            variant="circular"
+            width={120}
+            height={120}
+            className="border-4 border-white"
+          />
           <div className="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-white p-1">
-             <Skeleton variant="circular" width="100%" height="100%" />
+            <Skeleton variant="circular" width="100%" height="100%" />
           </div>
         </div>
-        
+
         <div className="text-center md:text-left flex flex-col gap-3">
           <div className="flex flex-col md:flex-row items-center gap-3">
             <Skeleton variant="rounded" width={280} height={36} />
             <Skeleton variant="rounded" width={90} height={24} />
           </div>
-          
-            <Skeleton variant="rounded" width={160} height={20} />
-            <Skeleton variant="rounded" width={110} height={24} />
+
+          <Skeleton variant="rounded" width={160} height={20} />
+          <Skeleton variant="rounded" width={110} height={24} />
         </div>
       </div>
       <div className="flex justify-center md:justify-end">
@@ -33,7 +38,7 @@ const ProfileSkeleton = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       {/* Left Column Skeleton */}
       <div className="lg:col-span-2 flex flex-col gap-8">
-        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-[32px] p-8 shadow-sm">
+        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-4xl p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-2 h-8 bg-primary-200 rounded-full animate-pulse" />
             <Skeleton variant="rounded" width={200} height={28} />
@@ -45,7 +50,7 @@ const ProfileSkeleton = () => (
           </div>
         </div>
 
-        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-[32px] p-8 shadow-sm">
+        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-4xl p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-2 h-8 bg-secondary-200 rounded-full animate-pulse" />
             <Skeleton variant="rounded" width={220} height={28} />
@@ -60,7 +65,7 @@ const ProfileSkeleton = () => (
 
       {/* Right Column Skeleton */}
       <div className="flex flex-col gap-8">
-        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-[32px] p-8 shadow-sm">
+        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-4xl p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-2 h-8 bg-primary-200 rounded-full animate-pulse" />
             <Skeleton variant="rounded" width={180} height={28} />
@@ -72,14 +77,19 @@ const ProfileSkeleton = () => (
           </div>
         </div>
 
-        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-[32px] p-8 shadow-sm">
+        <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-4xl p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-2 h-8 bg-secondary-200 rounded-full animate-pulse" />
             <Skeleton variant="rounded" width={160} height={28} />
           </div>
           <div className="flex flex-col gap-2">
             {[1, 2].map((i) => (
-              <Skeleton key={i} variant="rounded" height={52} className="rounded-xl" />
+              <Skeleton
+                key={i}
+                variant="rounded"
+                height={52}
+                className="rounded-xl"
+              />
             ))}
           </div>
         </div>

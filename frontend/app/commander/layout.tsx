@@ -1,27 +1,43 @@
-import React from "react";
+import {
+  HydrationBoundary,
+  dehydrate,
+  QueryClient,
+} from "@tanstack/react-query";
 import Sidebar from "@/components/commander/layout/Sidebar";
-import Header from "@/components/commander/layout/Header";
+import Header from "@/components/commander/layout/header/Header";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import apiServer from "@/services/axios-server";
+import { ENDPOINTS } from "@/constants/endpoints";
 
-export default function CommanderLayout({
+export default async function CommanderLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: [QUERY_KEYS.PROFILE],
+    queryFn: async () => await apiServer.get(ENDPOINTS.AUTH.PROFILE),
+  });
+
   return (
-    <div className="flex h-screen bg-neutral-50 overflow-hidden text-neutral-900 ">
-      {/* Sidebar cố định bên trái */}
-      <Sidebar />
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="flex h-screen bg-neutral-50 overflow-hidden text-neutral-900 ">
+        {/* Sidebar cố định bên trái */}
+        <Sidebar />
 
-      {/* Vùng nội dung chính */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Header trên cùng */}
-        <Header />
+        {/* Vùng nội dung chính */}
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+          {/* Header trên cùng */}
+          <Header />
 
-        {/* Nội dung trang */}
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-          {children}
-        </div>
-      </main>
-    </div>
+          {/* Nội dung trang */}
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            {children}
+          </div>
+        </main>
+      </div>
+    </HydrationBoundary>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organizations";
 import { QUERY_KEYS } from "@/constants/query-keys";
@@ -14,7 +13,10 @@ import { Organization } from "@/types/organizations";
 import Divide from "@/library/Divide";
 import { useLoadingStore } from "@/store/useLoadingStore";
 
-import { updateOrganizationSchema, UpdateOrganizationFormValues } from "@/utils/validations";
+import {
+  updateOrganizationSchema,
+  UpdateOrganizationFormValues,
+} from "@/utils/validations";
 
 interface Props {
   organization: Organization;
@@ -23,7 +25,12 @@ interface Props {
   onCancel: () => void;
 }
 
-export default function UpdateOrganizationForm({ organization, universityId, onSuccess, onCancel }: Props) {
+export default function UpdateOrganizationForm({
+  organization,
+  universityId,
+  onSuccess,
+  onCancel,
+}: Props) {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
   const { showLoading, hideLoading } = useLoadingStore();
@@ -47,7 +54,9 @@ export default function UpdateOrganizationForm({ organization, universityId, onS
       return organizationService.updateOrganization(organization.id, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
+      });
       addToast({
         message: "Cập nhật đơn vị thành công!",
         variant: "success",
@@ -66,7 +75,10 @@ export default function UpdateOrganizationForm({ organization, universityId, onS
   });
 
   return (
-    <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-6 py-2">
+    <form
+      onSubmit={handleSubmit((data) => mutation.mutate(data))}
+      className="space-y-6 py-2"
+    >
       <Input
         label="Tên đơn vị / Chuyên ngành"
         placeholder="VD: Khoa Công nghệ thông tin..."

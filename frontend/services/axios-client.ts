@@ -73,7 +73,8 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => response.data,
-  (error: AxiosError<ApiResponse>) => Promise.reject(error.response?.data || error)
+  (error: AxiosError<ApiResponse>) =>
+    Promise.reject(error.response?.data || error)
 );
 
 export default apiClient;
