@@ -1,13 +1,20 @@
 const db = require('../models');
 const { NotFoundError } = require('../utils/apiError');
+const { paginateQuery } = require('../utils/response');
 
 const Organization = db.organization;
+const University = db.university;
 
 const create = async (data) => Organization.create(data);
-const getAll = async () => Organization.findAll();
+const getAll = async (query) => paginateQuery(Organization, query, {
+  filterFields: ['organizationName', 'status', 'universityId'],
+  include: [{ model: University }],
+});
 
 const getDetail = async (id) => {
-  const record = await Organization.findByPk(id);
+  const record = await Organization.findByPk(id, {
+    include: [{ model: University }],
+  });
   if (!record) throw new NotFoundError('Không tìm thấy đơn vị');
   return record;
 };

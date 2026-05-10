@@ -5,7 +5,7 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
 router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
-router.post('/', controller.create);
+// Chỉ GET + PUT (đánh dấu đọc) + DELETE, không POST (hệ thống tự tạo)
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);
