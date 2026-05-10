@@ -2,7 +2,6 @@ import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { CreateUserRequest } from "@/types/auth";
 import {
-  User,
   UserQueryRequest,
   UserDetailResponse,
   UpdateProfileRequest,
@@ -21,10 +20,7 @@ export const userService = {
     return apiClient.get(ENDPOINTS.USERS.DETAIL(id));
   },
 
-  updateUser: async (
-    id: string | number,
-    data: UpdateProfileRequest
-  ) => {
+  updateUser: async (id: string | number, data: UpdateProfileRequest) => {
     return apiClient.put(ENDPOINTS.USERS.DETAIL(id), data);
   },
 

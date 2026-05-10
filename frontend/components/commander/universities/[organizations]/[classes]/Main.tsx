@@ -46,7 +46,7 @@ export default function Main({ educationLevelId }: Props) {
     });
   };
 
-  const handleOpenUpdateClassModal = (cls: Class) => {
+  const handleOpenUpdateClassModal = useCallback((cls: Class) => {
     openModal({
       title: "Chỉnh sửa lớp học",
       content: (
@@ -59,7 +59,7 @@ export default function Main({ educationLevelId }: Props) {
       ),
       size: "md",
     });
-  };
+  }, [educationLevelId, openModal, closeModal]);
 
   const deleteClassMutation = useMutation({
     mutationFn: (id: string) => {
@@ -157,7 +157,7 @@ export default function Main({ educationLevelId }: Props) {
         },
       },
     ],
-    [educationLevelId, openConfirm, deleteClassMutation]
+    [handleOpenUpdateClassModal, openConfirm, deleteClassMutation]
   );
 
   const filterOptions = useMemo<FilterField[]>(

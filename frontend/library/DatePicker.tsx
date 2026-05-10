@@ -2,12 +2,11 @@
 
 import React, { useState, forwardRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  HiOutlineCalendar, 
-  HiOutlineChevronLeft, 
+import {
+  HiOutlineCalendar,
+  HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineChevronDown,
-  HiOutlineCheck
 } from "react-icons/hi";
 import Dropdown from "@/library/Dropdown";
 import Typography from "./Typography";
@@ -52,8 +51,18 @@ const sizeStyles: Record<DatePickerSize, string> = {
 
 const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const MONTHS = [
-  "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-  "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+  "Tháng 1",
+  "Tháng 2",
+  "Tháng 3",
+  "Tháng 4",
+  "Tháng 5",
+  "Tháng 6",
+  "Tháng 7",
+  "Tháng 8",
+  "Tháng 9",
+  "Tháng 10",
+  "Tháng 11",
+  "Tháng 12",
 ];
 
 const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
@@ -82,7 +91,7 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     // Initialize view date from value
     useEffect(() => {
       if (value) {
-        const parts = value.split('-');
+        const parts = value.split("-");
         if (parts.length === 3) {
           const y = parseInt(parts[0]);
           const m = parseInt(parts[1]) - 1;
@@ -94,12 +103,12 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
 
     const selectedDateParts = useMemo(() => {
       if (!value) return null;
-      const parts = value.split('-');
+      const parts = value.split("-");
       if (parts.length !== 3) return null;
       return {
         year: parseInt(parts[0]),
         month: parseInt(parts[1]) - 1,
-        day: parseInt(parts[2])
+        day: parseInt(parts[2]),
       };
     }, [value]);
 
@@ -117,23 +126,28 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       `,
     };
 
-    const errorStyles = error ? "!border-error-200 hover:!border-error-400" : "";
-    const disabledStyles = disabled || isLoading
+    const errorStyles = error
+      ? "!border-error-200 hover:!border-error-400"
+      : "";
+    const disabledStyles =
+      disabled || isLoading
         ? "!border-neutral-200 hover:!border-neutral-200 opacity-50 !cursor-not-allowed pointer-events-none"
         : "";
 
     // Calendar generation logic
-    const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+    const daysInMonth = (year: number, month: number) =>
+      new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = (year: number, month: number) =>
+      new Date(year, month, 1).getDay();
 
     const generateCalendarDays = () => {
       const year = viewDate.getFullYear();
       const month = viewDate.getMonth();
       const totalDays = daysInMonth(year, month);
       const startOffset = firstDayOfMonth(year, month);
-      
+
       const days = [];
-      
+
       // Prev month days
       const prevMonthTotalDays = daysInMonth(year, month - 1);
       for (let i = startOffset - 1; i >= 0; i--) {
@@ -141,20 +155,20 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
           day: prevMonthTotalDays - i,
           month: month - 1,
           year,
-          currentMonth: false
+          currentMonth: false,
         });
       }
-      
+
       // Current month days
       for (let i = 1; i <= totalDays; i++) {
         days.push({
           day: i,
           month,
           year,
-          currentMonth: true
+          currentMonth: true,
         });
       }
-      
+
       // Next month days
       const remaining = 42 - days.length;
       for (let i = 1; i <= remaining; i++) {
@@ -162,26 +176,30 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
           day: i,
           month: month + 1,
           year,
-          currentMonth: false
+          currentMonth: false,
         });
       }
-      
+
       return days;
     };
 
     const handleDateSelect = (day: number, month: number, year: number) => {
-      const formatted = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+      const formatted = `${year}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
       onChange?.(formatted);
     };
 
     const navigateMonth = (direction: number) => {
-      const newDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + direction, 1);
+      const newDate = new Date(
+        viewDate.getFullYear(),
+        viewDate.getMonth() + direction,
+        1
+      );
       setViewDate(newDate);
     };
 
     const formatDisplayDate = (val?: string | null) => {
       if (!val) return placeholder;
-      const parts = val.split('-');
+      const parts = val.split("-");
       if (parts.length !== 3) return placeholder;
       const [y, m, d] = parts;
       return `${d}/${m}/${y}`;
@@ -225,9 +243,9 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
           className={fullWidth ? "w-full" : ""}
           menuHeight={380}
           targetY={8}
-          dropdownClassName={(placement) => `
-            w-80 bg-white border-2 border-primary-500 p-3 rounded-2xl shadow-xl z-50
-          `}
+          dropdownClassName={
+            "w-80 bg-white border-2 border-primary-500 p-3 rounded-2xl shadow-xl z-50"
+          }
           trigger={(isOpen) => (
             <div
               className={`
@@ -242,8 +260,13 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
               `}
             >
               <div className="flex items-center gap-2 truncate">
-                <HiOutlineCalendar size={18} className="text-neutral-400 shrink-0" />
-                <span className={!value ? "text-neutral-400" : "text-neutral-800"}>
+                <HiOutlineCalendar
+                  size={18}
+                  className="text-neutral-400 shrink-0"
+                />
+                <span
+                  className={!value ? "text-neutral-400" : "text-neutral-800"}
+                >
                   {formatDisplayDate(value)}
                 </span>
               </div>
@@ -258,28 +281,43 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
             {viewMode === "calendar" ? (
               <>
                 {/* Calendar Header */}
-                <div className="flex items-center justify-between px-1" onClick={(e) => e.stopPropagation()}>
-                  <button 
+                <div
+                  className="flex items-center justify-between px-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); setViewMode("year"); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewMode("year");
+                    }}
                     className="flex items-center gap-1 hover:bg-neutral-100 px-2 py-1 rounded-lg transition-colors group cursor-pointer"
                   >
                     <Typography variant="body" weight="bold" color="neutral">
                       {MONTHS[viewDate.getMonth()]}, {viewDate.getFullYear()}
                     </Typography>
-                    <HiOutlineChevronDown size={14} className="text-neutral-400 group-hover:text-primary-500 transition-colors" />
+                    <HiOutlineChevronDown
+                      size={14}
+                      className="text-neutral-400 group-hover:text-primary-500 transition-colors"
+                    />
                   </button>
                   <div className="flex items-center gap-1">
-                    <button 
+                    <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); navigateMonth(-1); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigateMonth(-1);
+                      }}
                       className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-500 transition-colors cursor-pointer"
                     >
                       <HiOutlineChevronLeft size={18} />
                     </button>
-                    <button 
+                    <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); navigateMonth(1); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigateMonth(1);
+                      }}
                       className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-500 transition-colors cursor-pointer"
                     >
                       <HiOutlineChevronRight size={18} />
@@ -288,44 +326,52 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
                 </div>
 
                 {/* Weekdays */}
-                <div 
+                <div
                   className="grid gap-1"
-                  style={{ gridTemplateColumns: 'repeat(7, minmax(0, 1fr))' }}
+                  style={{ gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {WEEKDAYS.map(day => (
+                  {WEEKDAYS.map((day) => (
                     <div key={day} className="text-center py-2">
-                      <Typography variant="caption" weight="bold" color="gray">{day}</Typography>
+                      <Typography variant="caption" weight="bold" color="gray">
+                        {day}
+                      </Typography>
                     </div>
                   ))}
                 </div>
 
                 {/* Days Grid */}
-                <div 
+                <div
                   className="grid gap-1"
-                  style={{ gridTemplateColumns: 'repeat(7, minmax(0, 1fr))' }}
+                  style={{ gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}
                 >
                   {generateCalendarDays().map((dateObj, idx) => {
-                    const isSelected = selectedDateParts && 
-                      selectedDateParts.day === dateObj.day && 
-                      selectedDateParts.month === dateObj.month && 
+                    const isSelected =
+                      selectedDateParts &&
+                      selectedDateParts.day === dateObj.day &&
+                      selectedDateParts.month === dateObj.month &&
                       selectedDateParts.year === dateObj.year;
-                    
-                    const isToday = new Date().getDate() === dateObj.day && 
-                      new Date().getMonth() === dateObj.month && 
+
+                    const isToday =
+                      new Date().getDate() === dateObj.day &&
+                      new Date().getMonth() === dateObj.month &&
                       new Date().getFullYear() === dateObj.year;
 
                     return (
                       <button
                         key={idx}
                         type="button"
-                        onClick={(e) => {
-                          handleDateSelect(dateObj.day, dateObj.month, dateObj.year);
+                        onClick={() => {
+                          handleDateSelect(
+                            dateObj.day,
+                            dateObj.month,
+                            dateObj.year
+                          );
                         }}
                         className={`
                           aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all cursor-pointer
                           ${!dateObj.currentMonth ? "text-neutral-300" : "text-neutral-700 hover:bg-primary-50 hover:text-primary-600"}
-                          ${isSelected ? "!bg-primary-500 !text-white shadow-md shadow-primary-200 scale-110 z-10" : ""}
+                          ${isSelected ? "bg-primary-500! text-white! shadow-md shadow-primary-200 scale-110 z-10" : ""}
                           ${isToday && !isSelected ? "border border-primary-500 text-primary-600" : ""}
                         `}
                       >
@@ -339,21 +385,26 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
               <>
                 {/* Year Selection View */}
                 <div className="flex items-center justify-between mb-2">
-                  <Typography variant="body" weight="bold">Chọn năm</Typography>
-                  <button 
+                  <Typography variant="body" weight="bold">
+                    Chọn năm
+                  </Typography>
+                  <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); setViewMode("calendar"); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewMode("calendar");
+                    }}
                     className="text-xs font-bold text-primary-600 hover:underline cursor-pointer"
                   >
                     Quay lại
                   </button>
                 </div>
-                <div 
+                <div
                   className="grid gap-2 max-h-60 overflow-y-auto custom-scrollbar pr-1"
-                  style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}
+                  style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {years.map(y => (
+                  {years.map((y) => (
                     <button
                       key={y}
                       type="button"
@@ -373,11 +424,14 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
                 </div>
               </>
             )}
-            
+
             {/* Quick Actions */}
             {viewMode === "calendar" && value && (
-              <div className="flex items-center justify-end pt-2 border-t border-neutral-100 mt-1" onClick={(e) => e.stopPropagation()}>
-                <button 
+              <div
+                className="flex items-center justify-end pt-2 border-t border-neutral-100 mt-1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();

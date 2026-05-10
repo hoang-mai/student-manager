@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useInfiniteQuery, useQueryClient, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useInfiniteQuery,
+  useQueryClient,
+  useQuery,
+} from "@tanstack/react-query";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -72,8 +77,8 @@ export default function Main({ universityId }: Props) {
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      const { pageIndex, totalPages } = lastPage.pagination;
-      return pageIndex < totalPages ? pageIndex + 1 : undefined;
+      const { page, totalPages } = lastPage.pagination;
+      return page < totalPages ? page + 1 : undefined;
     },
     select: (data) => data.pages.flatMap((page) => page.data || []),
   });
@@ -92,7 +97,9 @@ export default function Main({ universityId }: Props) {
       return organizationService.deleteOrganization(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
+      });
       addToast({ message: "Xóa đơn vị thành công", variant: "success" });
       closeConfirm();
     },
@@ -101,7 +108,6 @@ export default function Main({ universityId }: Props) {
       hideLoading();
     },
   });
-
 
   const toggleOrganizationStatusMutation = useMutation({
     mutationFn: ({
@@ -116,7 +122,9 @@ export default function Main({ universityId }: Props) {
       return organizationService.toggleOrganizationStatus(id, status);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
+      });
       addToast({
         message: "Cập nhật trạng thái thành công",
         variant: "success",
@@ -147,7 +155,7 @@ export default function Main({ universityId }: Props) {
       ),
       size: "md",
     });
-  }
+  };
 
   const handleOpenUpdateOrgModal = (org: Organization) => {
     openModal({
@@ -162,7 +170,7 @@ export default function Main({ universityId }: Props) {
       ),
       size: "md",
     });
-  }
+  };
 
   if (isLoading) {
     return <OrganizationSkeleton />;
@@ -179,13 +187,26 @@ export default function Main({ universityId }: Props) {
     >
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-neutral-400">
-        <Link href="/commander" className="flex items-center gap-2 hover:text-primary-600 transition-colors group">
-          <HiOutlineHome size={14} className="mb-0.5 group-hover:scale-110 transition-transform" />
-          <Typography variant="label" tracking="wide">Tổng quan</Typography>
+        <Link
+          href="/commander"
+          className="flex items-center gap-2 hover:text-primary-600 transition-colors group"
+        >
+          <HiOutlineHome
+            size={14}
+            className="mb-0.5 group-hover:scale-110 transition-transform"
+          />
+          <Typography variant="label" tracking="wide">
+            Tổng quan
+          </Typography>
         </Link>
         <HiOutlineChevronRight size={12} />
-        <Link href="/commander/universities" className="hover:text-primary-600 transition-colors">
-          <Typography variant="label" tracking="wide">Cơ sở đào tạo</Typography>
+        <Link
+          href="/commander/universities"
+          className="hover:text-primary-600 transition-colors"
+        >
+          <Typography variant="label" tracking="wide">
+            Cơ sở đào tạo
+          </Typography>
         </Link>
         <HiOutlineChevronRight size={12} />
         {isLoading ? (
@@ -225,28 +246,43 @@ export default function Main({ universityId }: Props) {
         {organizations && organizations.length > 0 ? (
           <div className="grid gap-4">
             {organizations.map((org) => (
-              <div key={org.id} className="bg-white border border-neutral-100 rounded-2xl p-5 hover:shadow-md transition-all group">
+              <div
+                key={org.id}
+                className="bg-white border border-neutral-100 rounded-2xl p-5 hover:shadow-md transition-all group"
+              >
                 <div className="flex items-center justify-between">
-                  <div className="flex flex-1 items-center gap-4 cursor-pointer"
+                  <div
+                    className="flex flex-1 items-center gap-4 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleExpand(org.id);
-                    }}>
+                    }}
+                  >
                     <div className="w-12 h-12 rounded-xl bg-secondary-50 flex items-center justify-center text-secondary-600">
                       <HiOutlineCollection size={24} />
                     </div>
                     <div>
-                      <Typography variant="h3" weight="bold">{org.organizationName}</Typography>
+                      <Typography variant="h3" weight="bold">
+                        {org.organizationName}
+                      </Typography>
                       <div className="flex items-center gap-4 mt-1">
                         <div className="flex items-center gap-1 text-neutral-400">
                           <HiOutlineClock size={14} />
-                          <Typography variant="caption">Di chuyển: {org.travelTime} phút</Typography>
+                          <Typography variant="caption">
+                            Di chuyển: {org.travelTime} phút
+                          </Typography>
                         </div>
                         <div className="flex items-center gap-1 text-neutral-400">
                           <HiOutlineUserGroup size={14} />
-                          <Typography variant="caption">{org.totalStudents} học viên</Typography>
+                          <Typography variant="caption">
+                            {org.totalStudents} học viên
+                          </Typography>
                         </div>
-                        <Badge variant={org.status === "ACTIVE" ? "success" : "neutral"}>
+                        <Badge
+                          variant={
+                            org.status === "ACTIVE" ? "success" : "neutral"
+                          }
+                        >
                           {org.status === "ACTIVE" ? "Hoạt động" : "Tạm dừng"}
                         </Badge>
                       </div>
@@ -270,7 +306,9 @@ export default function Main({ universityId }: Props) {
                                 : "Xác nhận kích hoạt",
                             message: `Bạn có chắc chắn muốn ${org.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} đơn vị "${org.organizationName}" không?`,
                             confirmText:
-                              org.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
+                              org.status === "ACTIVE"
+                                ? "Tạm dừng"
+                                : "Kích hoạt",
                             variant:
                               org.status === "ACTIVE" ? "danger" : "primary",
                             onConfirm: () =>
@@ -280,10 +318,11 @@ export default function Main({ universityId }: Props) {
                               }),
                           })
                         }
-                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${org.status === "ACTIVE"
-                          ? "hover:bg-amber-50 hover:text-amber-600"
-                          : "hover:bg-emerald-50 hover:text-emerald-600"
-                          }`}
+                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${
+                          org.status === "ACTIVE"
+                            ? "hover:bg-amber-50 hover:text-amber-600"
+                            : "hover:bg-emerald-50 hover:text-emerald-600"
+                        }`}
                       >
                         {org.status === "ACTIVE" ? (
                           <HiOutlineLockOpen size={18} />
@@ -293,7 +332,10 @@ export default function Main({ universityId }: Props) {
                       </button>
                     </Tooltip>
                     <Tooltip content="Chỉnh sửa" position="top">
-                      <button onClick={() => handleOpenUpdateOrgModal(org)} className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                      <button
+                        onClick={() => handleOpenUpdateOrgModal(org)}
+                        className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                      >
                         <HiOutlinePencil size={18} />
                       </button>
                     </Tooltip>
@@ -303,7 +345,8 @@ export default function Main({ universityId }: Props) {
                           openConfirm({
                             title: "Xác nhận xóa",
                             message: `Xóa đơn vị "${org.organizationName}"?`,
-                            onConfirm: () => deleteOrganizationMutation.mutate(org.id),
+                            onConfirm: () =>
+                              deleteOrganizationMutation.mutate(org.id),
                             variant: "danger",
                           })
                         }
@@ -319,7 +362,10 @@ export default function Main({ universityId }: Props) {
                         }}
                         className={`cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl transition-all ${expandedIds.includes(org.id) ? "bg-primary-50 text-primary-600" : "text-neutral-400 hover:bg-neutral-50"}`}
                       >
-                        <HiOutlineChevronDown size={18} className={`transition-transform ${expandedIds.includes(org.id) ? "rotate-180" : ""}`} />
+                        <HiOutlineChevronDown
+                          size={18}
+                          className={`transition-transform ${expandedIds.includes(org.id) ? "rotate-180" : ""}`}
+                        />
                       </button>
                     </Tooltip>
                   </div>
@@ -334,7 +380,10 @@ export default function Main({ universityId }: Props) {
                       className="overflow-hidden"
                     >
                       <div className="mt-4 pt-4 border-t border-neutral-50">
-                        <OrganizationLevelsList orgId={org.id} universityId={universityId} />
+                        <OrganizationLevelsList
+                          orgId={org.id}
+                          universityId={universityId}
+                        />
                       </div>
                     </motion.div>
                   )}
@@ -344,7 +393,9 @@ export default function Main({ universityId }: Props) {
           </div>
         ) : (
           <div className="text-center py-20 bg-neutral-50 rounded-3xl border border-dashed border-neutral-200">
-            <Typography color="gray">Chưa có chuyên ngành / đơn vị nào</Typography>
+            <Typography color="gray">
+              Chưa có chuyên ngành / đơn vị nào
+            </Typography>
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 "use client";
- 
+
 import React from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,19 +17,19 @@ import Typography from "@/library/Typography";
 import { useModalStore } from "@/store/useModalStore";
 import DatePicker from "@/library/DatePicker";
 import Divide from "@/library/Divide";
- 
+
 import { profileSchema, ProfileFormValues } from "@/utils/validations";
- 
+
 interface ProfileFormProps {
   initialData: Commander;
 }
- 
+
 export default function ProfileForm({ initialData }: ProfileFormProps) {
   const queryClient = useQueryClient();
   const { closeModal } = useModalStore();
   const { addToast } = useToastStore();
   const { showLoading, hideLoading } = useLoadingStore();
- 
+
   const {
     register,
     handleSubmit,
@@ -60,7 +60,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       partyMemberCardNumber: initialData?.partyMemberCardNumber || "",
     },
   });
- 
+
   const mutation = useMutation({
     mutationFn: (data: ProfileFormValues) => {
       showLoading();
@@ -71,16 +71,19 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       addToast({ message: "Cập nhật hồ sơ thành công", variant: "success" });
       closeModal();
     },
-    onError: (error: any) => {
-      addToast({ message: error?.message || "Cập nhật thất bại", variant: "error" });
+    onError: (error) => {
+      addToast({
+        message: error?.message || "Cập nhật thất bại",
+        variant: "error",
+      });
     },
     onSettled: () => hideLoading(),
   });
- 
+
   const onSubmit: SubmitHandler<ProfileFormValues> = (data) => {
     mutation.mutate(data);
   };
- 
+
   const SectionHeader = ({ title }: { title: string }) => (
     <div className="flex items-center gap-3 mb-6">
       <div className="w-2 h-8 bg-primary-500 rounded-full" />
@@ -94,9 +97,12 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       </Typography>
     </div>
   );
- 
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh] py-2 gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col max-h-[85vh] py-2 gap-4"
+    >
       <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-12">
         {/* Thông tin cá nhân */}
         <section>
@@ -171,7 +177,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             />
           </div>
         </section>
- 
+
         {/* Địa chỉ & Quê quán */}
         <section>
           <SectionHeader title="Địa chỉ & Quê quán" />
@@ -198,7 +204,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             </div>
           </div>
         </section>
- 
+
         {/* Công tác & Chính quyền */}
         <section>
           <SectionHeader title="Công tác & Chính quyền" />
@@ -242,7 +248,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             />
           </div>
         </section>
- 
+
         {/* Đảng & Đoàn - Quan hệ */}
         <section>
           <SectionHeader title="Đảng & Đoàn - Quan hệ" />
@@ -286,21 +292,21 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
         </section>
       </div>
- 
+
       <div className="flex flex-col gap-4">
         <Divide />
         <div className="flex items-center justify-end gap-3 px-4">
-          <Button 
-            variant="ghost" 
-            type="button" 
+          <Button
+            variant="ghost"
+            type="button"
             onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ
           </Button>
-          <Button 
-            variant="primary" 
-            type="submit" 
+          <Button
+            variant="primary"
+            type="submit"
             isLoading={mutation.isPending}
             disabled={!isDirty}
           >

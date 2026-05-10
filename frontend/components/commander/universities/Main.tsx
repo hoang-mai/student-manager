@@ -1,6 +1,10 @@
 "use client";
 
-import { useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   HiOutlineHome,
   HiOutlineChevronRight,
@@ -57,8 +61,8 @@ export default function Main() {
       }),
     initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
     getNextPageParam: (lastPage) => {
-      const { pageIndex, totalPages } = lastPage.pagination;
-      return pageIndex < totalPages ? pageIndex + 1 : undefined;
+      const { page, totalPages } = lastPage.pagination;
+      return page < totalPages ? page + 1 : undefined;
     },
     select: (data) => data.pages.flatMap((page) => page.data || []),
   });
@@ -103,23 +107,23 @@ export default function Main() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.UNIVERSITIES] });
-      addToast({ message: "Xóa trường đại học thành công", variant: "success" });
+      addToast({
+        message: "Xóa trường đại học thành công",
+        variant: "success",
+      });
       closeConfirm();
     },
     onSettled: () => {
       setLoading(false);
       hideLoading();
-    }
+    },
   });
 
   const handleOpenCreateModal = () => {
     openModal({
       title: "Thêm trường đại học",
       content: (
-        <CreateUniversityForm
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <CreateUniversityForm onSuccess={closeModal} onCancel={closeModal} />
       ),
       size: "md",
     });
@@ -226,7 +230,6 @@ export default function Main() {
                       </Badge>
                     </div>
                   </div>
-
                 </Link>
                 <div className="flex gap-2">
                   <Tooltip
@@ -256,10 +259,11 @@ export default function Main() {
                             }),
                         })
                       }
-                      className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${uni.status === "ACTIVE"
-                        ? "hover:bg-amber-50 hover:text-amber-600"
-                        : "hover:bg-emerald-50 hover:text-emerald-600"
-                        }`}
+                      className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${
+                        uni.status === "ACTIVE"
+                          ? "hover:bg-amber-50 hover:text-amber-600"
+                          : "hover:bg-emerald-50 hover:text-emerald-600"
+                      }`}
                     >
                       {uni.status === "ACTIVE" ? (
                         <HiOutlineLockOpen size={20} />
