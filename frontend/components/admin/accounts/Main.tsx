@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { userService } from "@/services/user";
 import { UserDetailResponse } from "@/types/user";
 import { ROLES } from "@/constants/constants";
-import { formatDate } from "@/utils/fn-common";
+import { formatDateTime } from "@/utils/fn-common";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Table from "@/library/Table";
 import Badge, { BadgeVariant } from "@/library/Badge";
@@ -32,6 +32,7 @@ import ResetPasswordForm from "./ResetPasswordForm";
 import CreateUserForm from "./CreateUserForm";
 import UpdateUserForm from "./UpdateUserForm";
 import DetailUserForm from "./DetailUserForm";
+import UpdateBatchStudents from "./UpdateBatchStudents";
 import Link from "next/link";
 
 export default function Main() {
@@ -108,7 +109,7 @@ export default function Main() {
             onCancel={closeModal}
           />
         ),
-        size: "md",
+        size: "lg",
       });
     },
     [openModal, closeModal]
@@ -124,6 +125,19 @@ export default function Main() {
     },
     [openModal]
   );
+
+  const handleOpenBulkUpdateModal = useCallback(() => {
+    openModal({
+      title: "Cập nhật học viên hàng loạt",
+      content: (
+        <UpdateBatchStudents
+          onSuccess={closeModal}
+          onCancel={closeModal}
+        />
+      ),
+      size: "md",
+    });
+  }, [openModal, closeModal]);
 
   const columns = useMemo<ColumnDef<UserDetailResponse>[]>(
     () => [
@@ -143,7 +157,7 @@ export default function Main() {
         id: "info",
         header: "Thông tin cá nhân",
         cell: (info) => {
-          const { fullName, email } = info.row.original.commander || info.row.original.student || {};
+          const { fullName, email } = info.row.original.profile || {};
           return (
             <div className="flex flex-col gap-0.5">
               <Typography variant="body" weight="semibold" color="neutral">
@@ -192,8 +206,8 @@ export default function Main() {
         header: "Ngày tạo",
         accessorKey: "createdAt",
         cell: (info) => (
-          <Typography variant="caption" weight="semibold" color="gray">
-            {formatDate(info.row.original.createdAt)}
+          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
+            {formatDateTime(info.row.original.createdAt)}
           </Typography>
         ),
       },
@@ -202,8 +216,8 @@ export default function Main() {
         header: "Ngày cập nhật",
         accessorKey: "updatedAt",
         cell: (info) => (
-          <Typography variant="caption" weight="semibold" color="gray">
-            {formatDate(info.row.original.updatedAt)}
+          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
+            {formatDateTime(info.row.original.updatedAt)}
           </Typography>
         ),
       },
@@ -350,11 +364,11 @@ export default function Main() {
   return (
     <AnimatedContainer
       variant="slideUp"
-      className="space-y-8 relative rounded-2xl bg-white p-4"
+      className="space-y-8 rounded-2xl bg-white p-6 min-h-screen"
     >
       <div className="flex items-center gap-2 text-neutral-400">
-        <Link 
-          href="/admin" 
+        <Link
+          href="/admin"
           className="flex items-center gap-2 hover:text-primary-600 transition-colors cursor-pointer group"
         >
           <HiOutlineHome size={14} className="mb-0.5 group-hover:scale-110 transition-transform" />
@@ -395,6 +409,8 @@ export default function Main() {
             emptyText="Không tìm thấy tài khoản nào phù hợp"
             onAdd={handleOpenCreateModal}
             addLabel="Thêm tài khoản"
+            onBulkUpdate={handleOpenBulkUpdateModal}
+            bulkUpdateLabel="Cập nhật hàng loạt"
           />
         </div>
       </div>

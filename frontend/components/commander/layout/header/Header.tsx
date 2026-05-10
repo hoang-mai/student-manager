@@ -94,7 +94,7 @@ export default function Header() {
               >
                 <div className="flex flex-col text-right">
                   <span className="text-sm font-bold text-neutral-800 leading-none group-hover:text-primary-700 transition-colors">
-                    {profile?.commander?.fullName || DEFAULT_VALUES.DEFAULT_COMMANDER_NAME}
+                    {profile?.profile?.fullName || DEFAULT_VALUES.DEFAULT_COMMANDER_NAME}
                   </span>
                   <span className="text-[10px] tracking-widest text-neutral-400 font-black uppercase mt-1">
                     {ROLES.COMMANDER.name}
@@ -102,8 +102,8 @@ export default function Header() {
                 </div>
                 <div className="relative">
                   <Avatar
-                    src={profile?.commander?.avatar}
-                    alt={profile?.commander?.fullName}
+                    src={profile?.profile?.avatar}
+                    alt={profile?.profile?.fullName}
                     size={40}
                     className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`}
                   />

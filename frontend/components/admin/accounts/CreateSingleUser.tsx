@@ -57,7 +57,7 @@ const CreateSingleUser: React.FC<CreateSingleUserProps> = ({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
       username: "",
-      email: "",
+      email: undefined,
       fullName: "",
       password: "",
       role: "STUDENT",
@@ -134,7 +134,6 @@ const CreateSingleUser: React.FC<CreateSingleUserProps> = ({
           {...register("email")}
           error={errors.email?.message}
           isLoading={createMutation.isPending}
-          required={true}
         />
       </div>
 

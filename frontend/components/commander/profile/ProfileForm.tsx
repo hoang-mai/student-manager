@@ -1,7 +1,7 @@
 "use client";
-
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+ 
+import React from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,50 +9,40 @@ import { authService } from "@/services/auth";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { Commander } from "@/types/user";
 import { useToastStore } from "@/store/useToastStore";
+import { useLoadingStore } from "@/store/useLoadingStore";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
+import Select from "@/library/Select";
+import Typography from "@/library/Typography";
 import { useModalStore } from "@/store/useModalStore";
-
-const profileSchema = z.object({
-  fullName: z.string().min(1, "Họ tên không được để trống"),
-  email: z.string().email("Email không hợp lệ"),
-  phoneNumber: z.string().min(10, "Số điện thoại không hợp lệ"),
-  birthday: z.string().optional(),
-  cccd: z.string().optional(),
-  currentAddress: z.string().optional(),
-  hometown: z.string().optional(),
-  placeOfBirth: z.string().optional(),
-  ethnicity: z.string().optional(),
-  religion: z.string().optional(),
-  rank: z.string().optional(),
-  unit: z.string().optional(),
-  positionGovernment: z.string().optional(),
-  positionParty: z.string().optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
-
+import DatePicker from "@/library/DatePicker";
+import Divide from "@/library/Divide";
+ 
+import { profileSchema, ProfileFormValues } from "@/utils/validations";
+ 
 interface ProfileFormProps {
-  initialData?: Commander | null;
+  initialData: Commander;
 }
-
+ 
 export default function ProfileForm({ initialData }: ProfileFormProps) {
   const queryClient = useQueryClient();
   const { closeModal } = useModalStore();
   const { addToast } = useToastStore();
-
+  const { showLoading, hideLoading } = useLoadingStore();
+ 
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors },
+    control,
+    formState: { errors, isDirty },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      fullName: initialData?.fullName || "",
+      fullName: initialData.fullName,
       email: initialData?.email || "",
       phoneNumber: initialData?.phoneNumber || "",
-      birthday: initialData?.birthday ? new Date(initialData.birthday).toISOString().split('T')[0] : "",
+      birthday: initialData?.birthday,
+      gender: initialData?.gender || "MALE",
       cccd: initialData?.cccd || "",
       currentAddress: initialData?.currentAddress || "",
       hometown: initialData?.hometown || "",
@@ -63,11 +53,19 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       unit: initialData?.unit || "",
       positionGovernment: initialData?.positionGovernment || "",
       positionParty: initialData?.positionParty || "",
+      startWork: initialData?.startWork || 0,
+      dateOfEnlistment: initialData?.dateOfEnlistment || "",
+      probationaryPartyMember: initialData?.probationaryPartyMember || "",
+      fullPartyMember: initialData?.fullPartyMember || "",
+      partyMemberCardNumber: initialData?.partyMemberCardNumber || "",
     },
   });
-
+ 
   const mutation = useMutation({
-    mutationFn: (data: ProfileFormValues) => authService.updateProfile(data),
+    mutationFn: (data: ProfileFormValues) => {
+      showLoading();
+      return authService.updateProfile(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PROFILE] });
       addToast({ message: "Cập nhật hồ sơ thành công", variant: "success" });
@@ -76,108 +74,239 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     onError: (error: any) => {
       addToast({ message: error?.message || "Cập nhật thất bại", variant: "error" });
     },
+    onSettled: () => hideLoading(),
   });
-
-  const onSubmit = (data: ProfileFormValues) => {
+ 
+  const onSubmit: SubmitHandler<ProfileFormValues> = (data) => {
     mutation.mutate(data);
   };
-
+ 
+  const SectionHeader = ({ title }: { title: string }) => (
+    <div className="flex items-center gap-3 mb-6">
+      <div className="w-2 h-8 bg-primary-500 rounded-full" />
+      <Typography
+        variant="h4"
+        weight="bold"
+        transform="uppercase"
+        className="tracking-tight text-neutral-800"
+      >
+        {title}
+      </Typography>
+    </div>
+  );
+ 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Họ và tên"
-          placeholder="Nhập họ và tên"
-          error={errors.fullName?.message}
-          {...register("fullName")}
-        />
-        <Input
-          label="Email"
-          placeholder="Nhập email"
-          error={errors.email?.message}
-          {...register("email")}
-        />
-        <Input
-          label="Số điện thoại"
-          placeholder="Nhập số điện thoại"
-          error={errors.phoneNumber?.message}
-          {...register("phoneNumber")}
-        />
-        <Input
-          label="Ngày sinh"
-          type="date"
-          error={errors.birthday?.message}
-          {...register("birthday")}
-        />
-        <Input
-          label="Số CCCD"
-          placeholder="Nhập số CCCD"
-          error={errors.cccd?.message}
-          {...register("cccd")}
-        />
-        <Input
-          label="Quê quán"
-          placeholder="Nhập quê quán"
-          error={errors.hometown?.message}
-          {...register("hometown")}
-        />
-        <Input
-          label="Dân tộc"
-          placeholder="Nhập dân tộc"
-          error={errors.ethnicity?.message}
-          {...register("ethnicity")}
-        />
-        <Input
-          label="Tôn giáo"
-          placeholder="Nhập tôn giáo"
-          error={errors.religion?.message}
-          {...register("religion")}
-        />
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh] py-2 gap-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-12">
+        {/* Thông tin cá nhân */}
+        <section>
+          <SectionHeader title="Thông tin cá nhân" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <Input
+              label="Họ và tên"
+              placeholder="Nhập họ và tên"
+              error={errors.fullName?.message}
+              {...register("fullName")}
+              required
+            />
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Giới tính"
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={[
+                    { label: "Nam", value: "MALE" },
+                    { label: "Nữ", value: "FEMALE" },
+                  ]}
+                  error={errors.gender?.message}
+                  required
+                />
+              )}
+            />
+            <Input
+              label="Email"
+              placeholder="Nhập email"
+              error={errors.email?.message}
+              {...register("email")}
+            />
+            <Input
+              label="Số điện thoại"
+              placeholder="Nhập số điện thoại"
+              error={errors.phoneNumber?.message}
+              {...register("phoneNumber")}
+              required
+            />
+            <Controller
+              name="birthday"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  label="Ngày sinh"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.birthday?.message}
+                />
+              )}
+            />
+            <Input
+              label="Số CCCD"
+              placeholder="Nhập số CCCD"
+              error={errors.cccd?.message}
+              {...register("cccd")}
+            />
+            <Input
+              label="Dân tộc"
+              placeholder="Nhập dân tộc"
+              error={errors.ethnicity?.message}
+              {...register("ethnicity")}
+            />
+            <Input
+              label="Tôn giáo"
+              placeholder="Nhập tôn giáo"
+              error={errors.religion?.message}
+              {...register("religion")}
+            />
+          </div>
+        </section>
+ 
+        {/* Địa chỉ & Quê quán */}
+        <section>
+          <SectionHeader title="Địa chỉ & Quê quán" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <Input
+              label="Quê quán"
+              placeholder="Nhập quê quán"
+              error={errors.hometown?.message}
+              {...register("hometown")}
+            />
+            <Input
+              label="Nơi sinh"
+              placeholder="Nhập nơi sinh"
+              error={errors.placeOfBirth?.message}
+              {...register("placeOfBirth")}
+            />
+            <div className="md:col-span-2">
+              <Input
+                label="Địa chỉ hiện tại"
+                placeholder="Nhập địa chỉ"
+                error={errors.currentAddress?.message}
+                {...register("currentAddress")}
+              />
+            </div>
+          </div>
+        </section>
+ 
+        {/* Công tác & Chính quyền */}
+        <section>
+          <SectionHeader title="Công tác & Chính quyền" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <Input
+              label="Cấp bậc"
+              placeholder="Nhập cấp bậc"
+              error={errors.rank?.message}
+              {...register("rank")}
+            />
+            <Input
+              label="Đơn vị"
+              placeholder="Nhập đơn vị"
+              error={errors.unit?.message}
+              {...register("unit")}
+            />
+            <Input
+              label="Chức vụ chính quyền"
+              placeholder="Nhập chức vụ"
+              error={errors.positionGovernment?.message}
+              {...register("positionGovernment")}
+            />
+            <Input
+              label="Năm bắt đầu công tác"
+              type="number"
+              placeholder="Nhập năm bắt đầu công tác"
+              error={errors.startWork?.message}
+              {...register("startWork", { valueAsNumber: true })}
+            />
+            <Controller
+              name="dateOfEnlistment"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  label="Ngày nhập ngũ"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.dateOfEnlistment?.message}
+                />
+              )}
+            />
+          </div>
+        </section>
+ 
+        {/* Đảng & Đoàn - Quan hệ */}
+        <section>
+          <SectionHeader title="Đảng & Đoàn - Quan hệ" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <Input
+              label="Chức vụ Đảng"
+              placeholder="Nhập chức vụ Đảng"
+              error={errors.positionParty?.message}
+              {...register("positionParty")}
+            />
+            <Input
+              label="Số thẻ Đảng"
+              placeholder="Nhập số thẻ Đảng"
+              error={errors.partyMemberCardNumber?.message}
+              {...register("partyMemberCardNumber")}
+            />
+            <Controller
+              name="probationaryPartyMember"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  label="Ngày vào Đảng (dự bị)"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.probationaryPartyMember?.message}
+                />
+              )}
+            />
+            <Controller
+              name="fullPartyMember"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  label="Ngày vào Đảng (chính thức)"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.fullPartyMember?.message}
+                />
+              )}
+            />
+          </div>
+        </section>
       </div>
-
-      <div className="pt-4 border-t border-neutral-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="Cấp bậc"
-            placeholder="Nhập cấp bậc"
-            error={errors.rank?.message}
-            {...register("rank")}
-          />
-          <Input
-            label="Đơn vị"
-            placeholder="Nhập đơn vị"
-            error={errors.unit?.message}
-            {...register("unit")}
-          />
-          <Input
-            label="Chức vụ chính quyền"
-            placeholder="Nhập chức vụ"
-            error={errors.positionGovernment?.message}
-            {...register("positionGovernment")}
-          />
-          <Input
-            label="Chức vụ Đảng"
-            placeholder="Nhập chức vụ Đảng"
-            error={errors.positionParty?.message}
-            {...register("positionParty")}
-          />
+ 
+      <div className="flex flex-col gap-4">
+        <Divide />
+        <div className="flex items-center justify-end gap-3 px-4">
+          <Button 
+            variant="ghost" 
+            type="button" 
+            onClick={closeModal}
+            isLoading={mutation.isPending}
+          >
+            Hủy bỏ
+          </Button>
+          <Button 
+            variant="primary" 
+            type="submit" 
+            isLoading={mutation.isPending}
+            disabled={!isDirty}
+          >
+            Lưu hồ sơ
+          </Button>
         </div>
-      </div>
-
-      <Input
-        label="Địa chỉ hiện tại"
-        placeholder="Nhập địa chỉ"
-        error={errors.currentAddress?.message}
-        {...register("currentAddress")}
-      />
-
-      <div className="flex justify-end gap-3 pt-4">
-        <Button variant="neutral" type="button" onClick={closeModal}>
-          Hủy bỏ
-        </Button>
-        <Button variant="primary" type="submit" isLoading={mutation.isPending}>
-          Lưu thay đổi
-        </Button>
       </div>
     </form>
   );

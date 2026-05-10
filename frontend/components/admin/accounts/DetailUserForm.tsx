@@ -4,7 +4,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { userService } from "@/services/user";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { formatDate, formatOnlyDate } from "@/utils/fn-common";
+import { formatDateTime, formatDate } from "@/utils/fn-common";
 import { ROLES } from "@/constants/constants";
 import Typography from "@/library/Typography";
 import Badge from "@/library/Badge";
@@ -62,25 +62,22 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
       {/* Header Info */}
       <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50/50 border border-neutral-100">
         <Avatar
-          src={user.student?.avatar || user.commander?.avatar}
-          alt={user.student?.fullName || user.commander?.fullName || user.username}
+          src={user.profile?.avatar}
+          alt={user.profile?.fullName || user.username}
           size={64}
           iconSize={32}
         />
         <div>
           <Typography variant="h2" weight="bold">
-            {user.student?.fullName || user.commander?.fullName || user.username}
+            {user.profile?.fullName || user.username}
           </Typography>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant={user.isActive ? "success" : "error"}>
               {user.isActive ? "Đang hoạt động" : "Đã khóa"}
             </Badge>
             <Badge variant="primary">{roleInfo?.name || user.role}</Badge>
-            {user.student && (
-              <Badge variant="neutral">{user.student.studentId}</Badge>
-            )}
-            {user.commander && (
-              <Badge variant="neutral">{user.commander.commanderId}</Badge>
+            {user.profile && (
+              <Badge variant="neutral">{user.profile.code}</Badge>
             )}
           </div>
         </div>
@@ -96,8 +93,8 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
 
           <div className="space-y-4 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
             <DetailItem icon={<HiOutlineIdentification />} label="Tên đăng nhập" value={user.username} />
-            <DetailItem icon={<HiOutlineClock />} label="Ngày tạo" value={formatDate(user.createdAt)} />
-            <DetailItem icon={<HiOutlineClock />} label="Cập nhật cuối" value={formatDate(user.updatedAt)} />
+            <DetailItem icon={<HiOutlineClock />} label="Ngày tạo" value={formatDateTime(user.createdAt)} />
+            <DetailItem icon={<HiOutlineClock />} label="Cập nhật cuối" value={formatDateTime(user.updatedAt)} />
           </div>
         </section>
 
@@ -111,23 +108,23 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
             <DetailItem
               icon={<HiOutlineMail />}
               label="Email"
-              value={user.student?.email || user.commander?.email || `${user.username}@hvkq.edu.vn`}
+              value={user.profile?.email}
             />
             <DetailItem
               icon={<HiOutlinePhone />}
               label="Số điện thoại"
-              value={user.student?.phoneNumber || user.commander?.phoneNumber || "Chưa cập nhật"}
+              value={user.profile?.phoneNumber || "Chưa cập nhật"}
             />
             <DetailItem
               icon={<HiOutlineLocationMarker />}
               label="Địa chỉ hiện tại"
-              value={user.student?.currentAddress || user.commander?.currentAddress || "Chưa cập nhật"}
+              value={user.profile?.currentAddress || "Chưa cập nhật"}
             />
           </div>
         </section>
 
-        {/* Profile Data (Student or Commander) */}
-        {(user.student || user.commander) && (
+        {/* Profile Data */}
+        {user.profile && (
           <>
             {/* Personal Info Section */}
             <section className="space-y-4">
@@ -140,14 +137,14 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
                   <DetailItem
                     icon={<HiOutlineCake />}
                     label="Ngày sinh"
-                    value={formatOnlyDate(user.student?.birthday || user.commander?.birthday)}
+                    value={formatDate(user.profile.birthday)}
                   />
                   <DetailItem
                     icon={<HiOutlineUserGroup />}
                     label="Giới tính"
                     value={
-                      (user.student?.gender || user.commander?.gender)
-                        ? (user.student?.gender || user.commander?.gender) === "MALE" ? "Nam" : "Nữ"
+                      user.profile.gender
+                        ? user.profile.gender === "MALE" ? "Nam" : "Nữ"
                         : null
                     }
                   />
@@ -155,30 +152,30 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
                 <DetailItem
                   icon={<HiOutlineIdentification />}
                   label="Số CCCD"
-                  value={user.student?.cccdNumber || user.commander?.cccd}
+                  value={user.profile.cccd}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <DetailItem
                     icon={<HiOutlineLocationMarker />}
                     label="Quê quán"
-                    value={user.student?.hometown || user.commander?.hometown}
+                    value={user.profile.hometown}
                   />
                   <DetailItem
                     icon={<HiOutlineLocationMarker />}
                     label="Nơi sinh"
-                    value={user.student?.placeOfBirth || user.commander?.placeOfBirth}
+                    value={user.profile.placeOfBirth}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <DetailItem
                     icon={<HiOutlineSparkles />}
                     label="Dân tộc"
-                    value={user.student?.ethnicity || user.commander?.ethnicity}
+                    value={user.profile.ethnicity}
                   />
                   <DetailItem
                     icon={<HiOutlineSparkles />}
                     label="Tôn giáo"
-                    value={user.student?.religion || user.commander?.religion}
+                    value={user.profile.religion}
                   />
                 </div>
               </div>
@@ -195,68 +192,66 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
                   <DetailItem
                     icon={<HiOutlineBadgeCheck />}
                     label="Cấp bậc"
-                    value={user.student?.rank || user.commander?.rank}
+                    value={user.profile.rank}
                   />
-                  {user.student && (
-                    <DetailItem icon={<HiOutlineLibrary />} label="Khóa" value={user.student.enrollment} />
+                  {user.role === "STUDENT" && (
+                    <DetailItem icon={<HiOutlineLibrary />} label="Khóa" value={user.profile.enrollment} />
                   )}
-                  {user.commander && (
-                    <DetailItem icon={<HiOutlineLibrary />} label="Năm công tác" value={user.commander.startWork} />
+                  {user.role === "COMMANDER" && (
+                    <DetailItem icon={<HiOutlineLibrary />} label="Năm công tác" value={user.profile.startWork} />
                   )}
                   <DetailItem
                     icon={<HiOutlineOfficeBuilding />}
                     label="Đơn vị"
-                    value={user.student?.unit || user.commander?.unit}
+                    value={user.profile.unit}
                   />
                   <DetailItem
                     icon={<HiOutlineAcademicCap />}
                     label="Chức vụ chính quyền"
-                    value={user.student?.positionGovernment || user.commander?.positionGovernment}
+                    value={user.profile.positionGovernment}
                   />
                 </div>
 
-                {user.student && (
+                {user.role === "STUDENT" && (
                   <div className="grid grid-cols-2 gap-4">
                     <DetailItem
                       icon={<HiOutlineLibrary />}
                       label="Trường đại học"
-                      value={user.student.university?.universityName}
+                      value={user.profile.university?.universityName}
                     />
                     <DetailItem
                       icon={<HiOutlineUserGroup />}
                       label="Lớp"
-                      value={user.student.class?.className}
+                      value={user.profile.class?.className}
                     />
                     <DetailItem
                       icon={<HiOutlineOfficeBuilding />}
                       label="Ngành"
-                      value={user.student?.organization?.organizationName}
+                      value={user.profile.organization?.organizationName}
                     />
                     <DetailItem
                       icon={<HiOutlineAcademicCap />}
                       label="Trình độ đào tạo"
-                      value={user.student.educationLevel?.levelName}
+                      value={user.profile.educationLevel?.levelName}
                     />
                   </div>
                 )}
-
-
 
                 <div className="grid grid-cols-2 gap-4">
                   <DetailItem
                     icon={<HiOutlineCalendar />}
                     label="Ngày nhập ngũ"
-                    value={formatOnlyDate(user.student?.dateOfEnlistment || user.commander?.dateOfEnlistment)}
+                    value={formatDate(user.profile.dateOfEnlistment)}
                   />
-                  {user.student && (
-                    <DetailItem icon={<HiOutlineCalendar />} label="Ngày tốt nghiệp" value={formatOnlyDate(user.student.graduationDate)} />
+                  {user.role === "STUDENT" && (
+                    <DetailItem icon={<HiOutlineCalendar />} label="Ngày tốt nghiệp" value={formatDate(user.profile.graduationDate)} />
                   )}
                 </div>
 
-                {user.student && (
+                {user.role === "STUDENT" && (
                   <div className="grid grid-cols-2 gap-4">
-                    <DetailItem icon={<HiOutlineChartBar />} label="CPA (Hệ 4)" value={user.student.currentCpa4} />
-                    <DetailItem icon={<HiOutlineChartBar />} label="CPA (Hệ 10)" value={user.student.currentCpa10} />
+                    <DetailItem icon={<HiOutlineChartBar />} label="CPA (Hệ 4)" value={user.profile.currentCpa4} />
+                    <DetailItem icon={<HiOutlineChartBar />} label="CPA (Hệ 10)" value={user.profile.currentCpa10} />
                   </div>
                 )}
               </div>
@@ -273,36 +268,36 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({ userId, initialData }) 
                   <DetailItem
                     icon={<HiOutlineBadgeCheck />}
                     label="Chức vụ Đảng"
-                    value={user.student?.positionParty || user.commander?.positionParty || "Chưa có"}
+                    value={user.profile.positionParty || "Chưa có"}
                   />
                   <DetailItem
                     icon={<HiOutlineIdentification />}
                     label="Số thẻ Đảng"
-                    value={user.student?.partyMemberCardNumber || user.commander?.partyMemberCardNumber || "Chưa có"}
+                    value={user.profile.partyMemberCardNumber || "Chưa có"}
                   />
                 </div>
                 <div className="space-y-4">
                   <DetailItem
                     icon={<HiOutlineCalendar />}
                     label="Vào Đảng (dự bị)"
-                    value={formatOnlyDate(user.student?.probationaryPartyMember || user.commander?.probationaryPartyMember)}
+                    value={formatDate(user.profile.probationaryPartyMember)}
                   />
                   <DetailItem
                     icon={<HiOutlineCalendar />}
                     label="Vào Đảng (chính thức)"
-                    value={formatOnlyDate(user.student?.fullPartyMember || user.commander?.fullPartyMember)}
+                    value={formatDate(user.profile.fullPartyMember)}
                   />
                 </div>
                 <div className="space-y-4">
                   <DetailItem
                     icon={<HiOutlineUserGroup />}
                     label="Thành phần gia đình"
-                    value={user.student?.familyMember || "Chưa cập nhật"}
+                    value={user.profile.familyMember || "Chưa cập nhật"}
                   />
                   <DetailItem
                     icon={<HiOutlineLibrary />}
                     label="Quan hệ nước ngoài"
-                    value={user.student?.foreignRelations || "Không có"}
+                    value={user.profile.foreignRelations || "Không có"}
                   />
                 </div>
               </div>

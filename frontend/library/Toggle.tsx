@@ -19,10 +19,28 @@ export interface ToggleProps {
   activeColor?: string;
 }
 
-const sizeStyles: Record<ToggleSize, { width: string; height: string; thumb: string; translate: string }> = {
-  sm: { width: "w-8", height: "h-4", thumb: "w-3 h-3", translate: "translate-x-4" },
-  md: { width: "w-11", height: "h-6", thumb: "w-5 h-5", translate: "translate-x-5" },
-  lg: { width: "w-14", height: "h-8", thumb: "w-7 h-7", translate: "translate-x-6" },
+const sizeStyles: Record<
+  ToggleSize,
+  { width: string; height: string; thumb: string; translate: string }
+> = {
+  sm: {
+    width: "w-8",
+    height: "h-4",
+    thumb: "w-3 h-3",
+    translate: "translate-x-4",
+  },
+  md: {
+    width: "w-11",
+    height: "h-6",
+    thumb: "w-5 h-5",
+    translate: "translate-x-5",
+  },
+  lg: {
+    width: "w-14",
+    height: "h-8",
+    thumb: "w-7 h-7",
+    translate: "translate-x-6",
+  },
 };
 
 export default function Toggle({
@@ -43,7 +61,7 @@ export default function Toggle({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`
-        relative inline-flex flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent 
+        relative inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent 
         transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
         ${checked ? activeColor : "bg-neutral-200"}
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}

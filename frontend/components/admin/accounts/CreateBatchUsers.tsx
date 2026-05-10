@@ -188,96 +188,55 @@ const CreateBatchUsers: React.FC<CreateBatchUsersProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-start gap-4">
-        <div className="p-2 rounded-xl bg-blue-100 text-blue-600">
-          <HiOutlineDownload size={24} />
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh]">
+      <div className="flex-1 overflow-y-auto px-1 custom-scrollbar space-y-6">
+        <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-start gap-4">
+          <div className="p-2 rounded-xl bg-blue-100 text-blue-600">
+            <HiOutlineDownload size={24} />
+          </div>
+          <div className="flex-1">
+            <Typography variant="body" weight="bold" color="primary">Hướng dẫn tạo hàng loạt</Typography>
+            <Typography variant="caption" color="gray" className="block mt-1">
+              Sử dụng file mẫu Excel. Cột hỗ trợ: Tên đăng nhập, Họ và tên, Email, Vai trò.
+            </Typography>
+            <button type="button" onClick={downloadTemplate} className="mt-3 text-sm font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer">
+              Tải file mẫu (.xlsx)
+            </button>
+          </div>
         </div>
-        <div className="flex-1">
-          <Typography variant="body" weight="bold" color="primary">Hướng dẫn tạo hàng loạt</Typography>
-          <Typography variant="caption" color="gray" className="block mt-1">
-            Sử dụng file mẫu Excel. Cột hỗ trợ: Tên đăng nhập, Họ và tên, Email, Vai trò.
-          </Typography>
-          <button type="button" onClick={downloadTemplate} className="mt-3 text-sm font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer">
-            Tải file mẫu (.xlsx)
-          </button>
-        </div>
+
+        <Controller
+          name="file"
+          control={control}
+          render={({ field }) => (
+            <FileUpload
+              label="Chọn file danh sách"
+              value={field.value}
+              onFileSelect={(file) => {
+                field.onChange(file);
+                handleExcelParsing(file);
+              }}
+              onRemove={() => {
+                setParsedData([]);
+              }}
+              accept=".xlsx, .xls"
+              error={errors.file?.message}
+              isLoading={batchMutation.isPending || isParsing}
+              required
+            />
+          )}
+        />
+
+        {isParsing && (
+          <div className="py-8 text-center bg-neutral-50 rounded-xl border border-dashed border-neutral-200">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
+            <Typography variant="caption" color="gray">Đang phân tích dữ liệu Excel...</Typography>
+          </div>
+        )}
+
       </div>
 
-      <Controller
-        name="file"
-        control={control}
-        render={({ field }) => (
-          <FileUpload
-            label="Chọn file danh sách"
-            value={field.value}
-            onFileSelect={(file) => {
-              field.onChange(file);
-              handleExcelParsing(file);
-            }}
-            onRemove={() => {
-              setParsedData([]);
-            }}
-            accept=".xlsx, .xls"
-            error={errors.file?.message}
-            isLoading={batchMutation.isPending || isParsing}
-            required
-          />
-        )}
-      />
-
-      {isParsing && (
-        <div className="py-8 text-center bg-neutral-50 rounded-xl border border-dashed border-neutral-200">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
-          <Typography variant="caption" color="gray">Đang phân tích dữ liệu Excel...</Typography>
-        </div>
-      )}
-
-      {!isParsing && parsedData.length > 0 && (
-        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center gap-2 text-primary-600">
-            <HiOutlineTable size={20} />
-            <Typography variant="body" weight="bold">Xem trước dữ liệu ({parsedData.length} dòng)</Typography>
-          </div>
-          <div className="max-h-62.5 overflow-auto border border-neutral-100 rounded-xl">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead className="bg-neutral-50 sticky top-0 z-10">
-                <tr>
-                  <th className="px-3 py-2 font-bold border-b border-neutral-100">Username</th>
-                  <th className="px-3 py-2 font-bold border-b border-neutral-100">Họ tên</th>
-                  <th className="px-3 py-2 font-bold border-b border-neutral-100">Vai trò</th>
-                </tr>
-              </thead>
-              <tbody>
-                {parsedData.slice(0, 10).map((row, idx) => {
-                  const variantMap: Record<string, BadgeVariant> = {
-                    ADMIN: "primary",
-                    COMMANDER: "secondary",
-                    STUDENT: "neutral",
-                  };
-                  return (
-                    <tr key={idx} className="hover:bg-neutral-50/50 transition-colors">
-                      <td className="px-3 py-2 border-b border-neutral-100 font-medium">{row.username}</td>
-                      <td className="px-3 py-2 border-b border-neutral-100">{row.fullName || "-"}</td>
-                      <td className="px-3 py-2 border-b border-neutral-100">
-                        <Badge variant={variantMap[row.role] || "neutral"}>
-                          {ROLES[row.role].name}
-                        </Badge>
-                      </td>
-                    </tr>
-                  )
-                })
-                }
-              </tbody>
-            </table>
-            {parsedData.length > 10 && (
-              <div className="p-2 text-center bg-neutral-50/30 text-neutral-400 italic text-xs">Và {parsedData.length - 10} người dùng khác...</div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100 mt-6">
+      <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100">
         <Button variant="ghost" type="button" onClick={onCancel} disabled={batchMutation.isPending || isParsing}>Hủy bỏ</Button>
         <Button variant="primary" type="submit" isLoading={batchMutation.isPending} disabled={!isDirty || parsedData.length === 0 || isParsing}>
           Tạo {parsedData.length} tài khoản
