@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
 type ButtonSize = "sm" | "md" | "lg";
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Kích thước nút: sm (nhỏ), md (vừa), lg (lớn) */
   size?: ButtonSize;
 
@@ -14,13 +14,19 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   fullWidth?: boolean;
 
   /** Trạng thái đang tải (hiển thị spinner nếu có và vô hiệu hóa nút) */
-  loading?: boolean;
+  isLoading?: boolean;
 
   /** Icon hiển thị ở phía trước văn bản */
   prefixIcon?: ReactNode;
 
   /** Icon hiển thị ở phía sau văn bản */
   suffixIcon?: ReactNode;
+
+  /** Icon component (từ react-icons, ví dụ: HiOutlinePlus) */
+  icon?: React.ElementType;
+
+  /** Class CSS tùy chỉnh cho icon */
+  iconClassName?: string;
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -46,9 +52,9 @@ const variantStyles: Record<ButtonVariant, string> = {
     active:bg-primary-100
   `,
   ghost: `
-    bg-transparent text-neutral-700 border border-transparent
-    hover:bg-neutral-100
-    active:bg-neutral-200
+    bg-transparent text-neutral-700 border border-neutral-300
+    hover:bg-neutral-50
+    active:bg-neutral-100
   `,
   danger: `
     bg-error-500 text-white border border-error-500
@@ -63,9 +69,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       size = "md",
       variant = "primary",
       fullWidth = false,
-      loading = false,
+      isLoading = false,
       prefixIcon,
       suffixIcon,
+      icon: Icon,
+      iconClassName = "",
       children,
       disabled,
       className = "",
@@ -73,7 +81,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const isDisabled = disabled || loading;
+    const isDisabled = disabled || isLoading;
 
     return (
       <button
@@ -83,16 +91,22 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           inline-flex items-center justify-center
           rounded-xl font-semibold font-sans
           transition-all duration-200
-          cursor-pointer select-none
+          select-none
           outline-none
           ${sizeStyles[size]}
           ${variantStyles[variant]}
           ${fullWidth ? "w-full" : ""}
-          ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           ${className}
         `}
         {...props}
       >
+        {Icon && (
+          <Icon 
+            size={size === "sm" ? 16 : size === "md" ? 18 : 20} 
+            className={iconClassName}
+          />
+        )}
         {prefixIcon && prefixIcon}
         {children}
         {suffixIcon && suffixIcon}

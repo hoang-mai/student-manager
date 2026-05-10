@@ -1,15 +1,19 @@
 import { InputHTMLAttributes, forwardRef, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import Typography from "./Typography";
 
 type InputSize = "sm" | "md" | "lg";
 type InputVariant = "outlined" | "filled";
 
-type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   /** Nhãn hiển thị phía trên ô nhập liệu */
   label?: string;
 
   /** Thông báo lỗi hiển thị phía dưới ô nhập liệu (nếu có) */
   error?: string;
+
+  /** Kiểu hiển thị label: true (nằm đè lên viền) hoặc false (nằm phía trên) */
+  floatingLabel?: boolean;
 
   /** Kích thước của ô nhập liệu: sm (nhỏ), md (trung bình), lg (lớn) */
   size?: InputSize;
@@ -30,7 +34,10 @@ type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   disabled?: boolean;
 
   /** Trạng thái đang tải (vô hiệu hóa tương tác) */
-  loading?: boolean;
+  isLoading?: boolean;
+
+  /** Hiển thị dấu * bắt buộc */
+  required?: boolean;
 };
 
 const sizeStyles: Record<InputSize, string> = {
@@ -52,7 +59,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       className = "",
       id,
       disabled,
-      loading,
+      isLoading,
+      floatingLabel = true,
+      required,
       ...props
     },
     ref
@@ -86,14 +95,23 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const widthStyles = fullWidth ? "w-full" : "";
 
     return (
-      <div className={`${fullWidth ? "w-full" : "inline-flex flex-col"}`}>
+      <div className={`${fullWidth ? "w-full" : "inline-flex flex-col"} relative ${floatingLabel ? "mt-1.5" : ""}`}>
         {label && (
-          <label
+          <Typography
+            as="label"
+            variant={floatingLabel ? "caption" : "body"}
+            weight={floatingLabel ? "bold" : "semibold"}
+            color={error ? "error" : floatingLabel ? "gray" : "neutral"}
+            className={
+              floatingLabel
+                ? "absolute -top-2 left-3 z-10 px-1 rounded-md bg-white cursor-text"
+                : "block mb-1.5 ml-1"
+            }
             htmlFor={id}
-            className="block text-sm font-medium text-neutral-700 mb-1.5"
           >
             {label}
-          </label>
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </Typography>
         )}
         <div className="relative">
           {prefixIcon && (
@@ -104,7 +122,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={id}
-            disabled={disabled || loading}
+            disabled={disabled || isLoading}
             className={`
               ${baseStyles}
               ${sizeStyles[size]}
@@ -114,7 +132,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               ${widthStyles}
               ${prefixIcon ? "pl-10!" : ""}
               ${suffixIcon ? "pr-10!" : ""}
-              disabled:opacity-50 disabled:cursor-not-allowed
+              ${disabled ? "opacity-50 cursor-not-allowed" : ""}
               ${className}
             `}
             {...props}
@@ -127,15 +145,17 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
         <AnimatePresence mode="wait">
           {error && (
-            <motion.p
+            <motion.div
               key={error}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="text-error-500 text-xs mt-1.5 ml-0.5"
+              className="mt-0.5 ml-1"
             >
-              {error}
-            </motion.p>
+              <Typography variant="caption" weight="medium" color="error">
+                {error}
+              </Typography>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

@@ -3,7 +3,7 @@ import React from "react";
 /**
  * Thuộc tính cho component Skeleton.
  */
-type SkeletonProps = {
+export interface SkeletonProps {
   /** Chiều rộng của skeleton (ví dụ: '100%', 200, 'fit-content'). */
   width?: string | number;
   /** Chiều cao của skeleton (ví dụ: '1em', 48, '100%'). */

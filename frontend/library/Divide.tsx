@@ -2,7 +2,7 @@
 
 import React from "react";
 
-interface DivideProps {
+export interface DivideProps {
   /** Hướng của đường kẻ: horizontal (ngang) hoặc vertical (dọc) */
   orientation?: "horizontal" | "vertical";
   /** Độ dày của đường kẻ (pixel) */
