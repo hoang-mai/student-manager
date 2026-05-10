@@ -1,15 +1,17 @@
 const asyncHandler = require('express-async-handler');
 const service = require('../services/university.service');
-const { success } = require('../utils/response');
+const { success, paginated, validateOrThrow } = require('../utils/response');
+const s = require('../validations/university.validation');
 
 const create = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.create, req.body);
   const result = await service.create(req.body);
   return success(res, result, 'Tạo mới thành công', 201);
 });
 
 const getAll = asyncHandler(async (req, res) => {
-  const result = await service.getAll();
-  return success(res, result);
+  const result = await service.getAll(req.query);
+  return paginated(res, result.rows, result.pagination);
 });
 
 const getDetail = asyncHandler(async (req, res) => {
@@ -17,7 +19,13 @@ const getDetail = asyncHandler(async (req, res) => {
   return success(res, result);
 });
 
+const getHierarchy = asyncHandler(async (req, res) => {
+  const result = await service.getHierarchy();
+  return success(res, result);
+});
+
 const update = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.update, req.body);
   const result = await service.update(req.params.id, req.body);
   return success(res, result, 'Cập nhật thành công');
 });
@@ -27,4 +35,4 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, getAll, getDetail, getHierarchy, update, delete: deleteRecord };

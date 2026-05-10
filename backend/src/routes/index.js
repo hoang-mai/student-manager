@@ -1,9 +1,8 @@
 const router = require('express').Router();
 
 router.use('/auth', require('./auth.route'));
+router.use('/', require('./gradeRequest.route'));
 router.use('/users', require('./user.route'));
-router.use('/students', require('./student.route'));
-router.use('/commanders', require('./commander.route'));
 router.use('/universities', require('./university.route'));
 router.use('/organizations', require('./organization.route'));
 router.use('/education-levels', require('./educationLevel.route'));
@@ -22,4 +21,5 @@ router.use('/scientific-topics', require('./scientificTopic.route'));
 router.use('/cut-rice', require('./cutRice.route'));
 router.use('/commander-duty-schedules', require('./commanderDutySchedule.route'));
 router.use('/notifications', require('./notification.route'));
+
 module.exports = router;
