@@ -83,6 +83,7 @@ export interface Organization {
   updatedAt?: string;
 }
 
+
 export interface EducationLevel {
   id: string;
   levelName: string;

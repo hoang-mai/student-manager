@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
@@ -30,25 +30,6 @@ const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   onPageSizeChange,
 }) => {
-  // Bắt sự kiện phím sang trái/phải để chuyển trang
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Chỉ bắt sự kiện nếu không đang tập trung vào các ô nhập liệu
-      const target = e.target as HTMLElement;
-      const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
-      if (isInput) return;
-
-      if (e.key === "ArrowLeft") {
-        if (pageIndex > 1) onPageChange(pageIndex - 1);
-      } else if (e.key === "ArrowRight") {
-        if (pageIndex < totalPages) onPageChange(pageIndex + 1);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [pageIndex, totalPages, onPageChange]);
-
   const getPages = () => {
     const pages = [];
     const start = Math.max(1, pageIndex - 2);
@@ -152,9 +133,10 @@ const PageButton: React.FC<PageButtonProps> = ({ num, active, onClick }) => (
     onClick={() => onClick(num)}
     className={`
       w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors cursor-pointer
-      ${active
-        ? "bg-primary-600 text-white font-semibold"
-        : "text-neutral-600 hover:bg-neutral-50 border border-transparent hover:border-neutral-200"
+      ${
+        active
+          ? "bg-primary-600 text-white font-semibold"
+          : "text-neutral-600 hover:bg-neutral-50 border border-transparent hover:border-neutral-200"
       }
     `}
   >
