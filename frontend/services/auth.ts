@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from "./axios-client";
 import { LoginFormValues, LoginResponse } from "@/types/auth";
 import { ENDPOINTS } from "@/constants/endpoints";
 
