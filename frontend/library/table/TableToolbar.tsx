@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { Table } from "@tanstack/react-table";
-import { HiOutlineAdjustments, HiOutlineFilter, HiOutlinePlus } from "react-icons/hi";
+import { HiOutlineAdjustments, HiOutlineFilter, HiOutlinePlus, HiOutlineUpload } from "react-icons/hi";
 import TableFilter, { FilterField } from "./TableFilter";
+import Button from "@/library/Button";
 
 interface TableToolbarProps<TData> {
   /** Thao tác với bảng từ TanStack table */
@@ -18,6 +19,10 @@ interface TableToolbarProps<TData> {
   onAdd?: () => void;
   /** Nhãn cho nút thêm */
   addLabel?: string;
+  /** Callback khi bấm nút cập nhật hàng loạt */
+  onBulkUpdate?: () => void;
+  /** Nhãn cho nút cập nhật hàng loạt */
+  bulkUpdateLabel?: string;
 }
 
 const TableToolbar = <TData,>({
@@ -27,32 +32,45 @@ const TableToolbar = <TData,>({
   isLoading = false,
   onAdd,
   addLabel,
+  onBulkUpdate,
+  bulkUpdateLabel,
 }: TableToolbarProps<TData>) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
     <div className="flex flex-col px-2">
       <div className="flex flex-row items-center justify-end gap-2 mb-4">
+        {onBulkUpdate && (
+          <Button
+            type="button"
+            onClick={onBulkUpdate}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary-500 border border-secondary-500 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-secondary-600 hover:border-secondary-600 transition-all shadow-lg shadow-secondary-500/20 cursor-pointer active:scale-95 h-auto"
+            icon={HiOutlineUpload}
+            iconClassName="text-white"
+          >
+            {bulkUpdateLabel || "Cập nhật hàng loạt"}
+          </Button>
+        )}
+
         {onAdd && (
-          <button
+          <Button
             type="button"
             onClick={onAdd}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-primary-600 rounded-xl text-[11px] font-black uppercase tracking-wider text-white hover:bg-primary-700 hover:border-primary-700 transition-all shadow-lg shadow-primary-600/20 cursor-pointer active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-primary-600 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-primary-700 hover:border-primary-700 transition-all shadow-lg shadow-primary-600/20 cursor-pointer active:scale-95 h-auto"
+            icon={HiOutlinePlus}
           >
-            <HiOutlinePlus size={16} />
             {addLabel || "Thêm mới"}
-          </button>
+          </Button>
         )}
 
         {showFilter && filterFields && filterFields.length > 0 && (
           <button
             type="button"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shadow-sm border cursor-pointer ${
-              isFilterOpen
-                ? "bg-primary-50 border-primary-200 text-primary-600"
-                : "bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shadow-sm border cursor-pointer ${isFilterOpen
+              ? "bg-primary-50 border-primary-200 text-primary-600"
+              : "bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50"
+              }`}
           >
             <HiOutlineFilter
               size={16}

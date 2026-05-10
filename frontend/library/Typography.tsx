@@ -6,6 +6,9 @@ export type TypographyVariant =
   | "h1"
   | "h2"
   | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
   | "body"
   | "label"
   | "caption"
@@ -71,6 +74,9 @@ const Typography: React.FC<TypographyProps> = ({
       h1: "h1",
       h2: "h2",
       h3: "h3",
+      h4: "h4",
+      h5: "h5",
+      h6: "h6",
       body: "p",
       label: "span",
       caption: "span",
@@ -83,6 +89,9 @@ const Typography: React.FC<TypographyProps> = ({
     h1: "text-2xl tracking-tight",
     h2: "text-xl tracking-tight",
     h3: "text-lg tracking-tight",
+    h4: "text-base tracking-tight",
+    h5: "text-sm tracking-tight",
+    h6: "text-xs tracking-tight",
     body: "text-sm",
     label: "text-[11px] uppercase tracking-[0.2em]",
     caption: "text-xs",
@@ -114,6 +123,9 @@ const Typography: React.FC<TypographyProps> = ({
     h1: "black",
     h2: "bold",
     h3: "bold",
+    h4: "bold",
+    h5: "bold",
+    h6: "bold",
     body: "semibold",
     label: "black",
     caption: "bold",

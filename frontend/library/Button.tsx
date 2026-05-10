@@ -24,6 +24,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
   /** Icon component (từ react-icons, ví dụ: HiOutlinePlus) */
   icon?: React.ElementType;
+
+  /** Class CSS tùy chỉnh cho icon */
+  iconClassName?: string;
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -70,6 +73,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       prefixIcon,
       suffixIcon,
       icon: Icon,
+      iconClassName = "",
       children,
       disabled,
       className = "",
@@ -97,7 +101,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         `}
         {...props}
       >
-        {Icon && <Icon size={size === "sm" ? 16 : size === "md" ? 18 : 20} />}
+        {Icon && (
+          <Icon 
+            size={size === "sm" ? 16 : size === "md" ? 18 : 20} 
+            className={iconClassName}
+          />
+        )}
         {prefixIcon && prefixIcon}
         {children}
         {suffixIcon && suffixIcon}

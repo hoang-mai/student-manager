@@ -1,36 +1,165 @@
-import { User } from "./auth";
 
-/**
- * Tham số truy vấn cho danh sách người dùng
- */
-export type UserQueryParams = {
+export interface User {
+  id: string;
+  username: string;
+  isAdmin: boolean;
+  isActive: boolean;
+  role: "ADMIN" | "COMMANDER" | "STUDENT";
+  refreshToken: string | null;
+  profileId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deleteAt: string | null;
+}
+
+export interface UserQueryRequest {
   page?: number;
   limit?: number;
-  search?: string;
+  username?: string;
   role?: string;
   isActive?: boolean;
-};
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
 
-/**
- * Cấu trúc phản hồi phân trang
- */
-export type PaginatedResponse<T> = {
-  data: T[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-};
+export interface UpdateProfileRequest {
+  username?: string;
+  code?: string;
+  fullName?: string;
+  email?: string | null;
+  phoneNumber?: string | null;
+  birthday?: string | null;
+  cccd?: string | null;
+  gender?: "MALE" | "FEMALE";
+  hometown?: string | null;
+  placeOfBirth?: string | null;
+  ethnicity?: string | null;
+  religion?: string | null;
+  rank?: string | null;
+  unit?: string | null;
+  positionGovernment?: string | null;
+  positionParty?: string | null;
+  currentAddress?: string | null;
+  dateOfEnlistment?: string | null;
+  enrollment?: number | null;
+  currentCpa4?: number | null;
+  currentCpa10?: number | null;
+  graduationDate?: string | null;
+  partyMemberCardNumber?: string | null;
+  probationaryPartyMember?: string | null;
+  fullPartyMember?: string | null;
+  familyMember?: string | null;
+  foreignRelations?: string | null;
+  startWork?: number | null;
+}
 
-/**
- * DTO cho việc tạo mới hoặc cập nhật người dùng
- */
-export type CreateUserDTO = {
-  username: string;
+export interface University {
+  id: string;
+  universityCode: string;
+  universityName: string;
+  totalStudents: number;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Class {
+  id: string;
+  className: string;
+  studentCount: number;
+  educationLevelId: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Organization {
+  id: string;
+  organizationName: string;
+  travelTime: number;
+  totalStudents: number;
+  status: string;
+  universityId: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface EducationLevel {
+  id: string;
+  levelName: string;
+  organizationId: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Student {
+  id: string;
+  code: string;
+  fullName: string;
+  avatar: string | null;
+  birthday: string;
+  cccd: string;
+  classId: string;
+  createdAt: string;
+  currentAddress: string;
+  currentCpa4: number;
+  currentCpa10: number;
+  dateOfEnlistment: string;
+  educationLevelId: string;
   email: string;
-  password?: string;
-  full_name: string;
-  role_id: number;
-};
+  enrollment: number;
+  ethnicity: string;
+  familyMember: any | null;
+  foreignRelations: any | null;
+  fullPartyMember: string | null;
+  gender: "MALE" | "FEMALE";
+  graduationDate: string | null;
+  hometown: string;
+  organizationId: string;
+  partyMemberCardNumber: string | null;
+  phoneNumber: string;
+  placeOfBirth: string;
+  positionGovernment: string;
+  positionParty: string;
+  probationaryPartyMember: string | null;
+  rank: string;
+  religion: string;
+  unit: string;
+  universityId: string;
+  updatedAt: string;
+  university?: University;
+  class?: Class;
+  organization?: Organization;
+  educationLevel?: EducationLevel;
+}
+
+export interface Commander {
+  id: string;
+  code: string;
+  fullName: string;
+  avatar: string | null;
+  birthday: string;
+  cccd: string;
+  currentAddress: string;
+  email: string;
+  gender: "MALE" | "FEMALE";
+  phoneNumber: string;
+  rank: string;
+  unit: string;
+  positionGovernment: string;
+  positionParty: string;
+  startWork: number;
+  hometown: string;
+  placeOfBirth: string;
+  ethnicity: string;
+  religion: string;
+  dateOfEnlistment: string | null;
+  fullPartyMember: string | null;
+  probationaryPartyMember: string | null;
+  partyMemberCardNumber: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserDetailResponse extends User {
+  profile: (Student & Commander) | null;
+}

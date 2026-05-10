@@ -34,8 +34,8 @@ export interface SelectProps {
   isLoading?: boolean;
   /** Danh sách tùy chọn */
   options?: SelectOption[];
-  /** Giá trị hiện tại */
-  value?: string | number;
+  /** Giá trị của input */
+  value?: string | number | null;
   /** Hàm callback trả về trực tiếp giá trị (thay vì event) */
   onChange?: (value: string | number) => void;
   /** Class CSS tùy chỉnh */

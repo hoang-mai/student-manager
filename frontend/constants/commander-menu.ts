@@ -33,7 +33,7 @@ export const COMMANDER_MENU: MenuItem[] = [
   },
   {
     title: 'Cơ sở đào tạo',
-    path: '/commander/training-units',
+    path: '/commander/universities',
     icon: HiOutlineOfficeBuilding,
   },
   {

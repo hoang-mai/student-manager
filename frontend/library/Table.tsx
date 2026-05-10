@@ -47,6 +47,10 @@ export interface TableProps<TData, TParams = Record<string, unknown>> {
   onAdd?: () => void;
   /** Nhãn cho nút thêm */
   addLabel?: string;
+  /** Callback khi bấm nút cập nhật hàng loạt */
+  onBulkUpdate?: () => void;
+  /** Nhãn cho nút cập nhật hàng loạt */
+  bulkUpdateLabel?: string;
 }
 
 const Table = <TData, TParams = Record<string, unknown>>({
@@ -61,6 +65,8 @@ const Table = <TData, TParams = Record<string, unknown>>({
   rowClassName = "",
   onAdd,
   addLabel,
+  onBulkUpdate,
+  bulkUpdateLabel,
 }: TableProps<TData, TParams>) => {
   const [pagination, setPagination] = useState({
     pageIndex: DEFAULT_PAGE.PAGE_INDEX,
@@ -192,6 +198,8 @@ const Table = <TData, TParams = Record<string, unknown>>({
         isLoading={isLoading}
         onAdd={onAdd}
         addLabel={addLabel}
+        onBulkUpdate={onBulkUpdate}
+        bulkUpdateLabel={bulkUpdateLabel}
       />
 
       <DragDropProvider onDragEnd={handleDragEnd}>

@@ -37,7 +37,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   };
 
   const hideTooltip = () => {
-    clearInterval(timeout);
+    clearTimeout(timeout);
     setIsVisible(false);
   };
 
@@ -60,6 +60,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       className="relative flex items-center"
       onMouseEnter={showTooltip}
       onMouseLeave={hideTooltip}
+      onClick={hideTooltip}
     >
       {children}
       <AnimatePresence>
