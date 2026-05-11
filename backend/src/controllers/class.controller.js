@@ -40,8 +40,19 @@ const getAll = asyncHandler(async (req, res) => {
       universities.push(uni);
     }
 
-    delete plain.EducationLevel;
-    return plain;
+    return {
+      id: plain.id,
+      className: plain.className,
+      studentCount: plain.studentCount,
+      educationLevelId: plain.educationLevelId,
+      levelName: el?.levelName || null,
+      organizationName: org?.organizationName || null,
+      organizationId: org?.id || null,
+      universityName: uni?.universityName || null,
+      universityId: uni?.id || null,
+      createdAt: plain.createdAt,
+      updatedAt: plain.updatedAt,
+    };
   });
 
   return paginated(res, rows, result.pagination, undefined, 200, {
