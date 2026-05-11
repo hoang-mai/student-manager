@@ -2,6 +2,12 @@ export interface Class {
   id: string;
   className: string;
   studentCount: number;
+  educationLevelId: string;
+  levelName: string | null;
+  organizationName: string | null;
+  organizationId: string | null;
+  universityName: string | null;
+  universityId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,4 +29,8 @@ export interface ClassQueryRequest {
   limit?: number;
   educationLevelId?: string;
   className?: string;
+  universityId?: string;
+  universityName?: string;
+  organizationName?: string;
+  levelName?: string;
 }
