@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  params: { organizations: string };
+  params: Promise<{ organizations: string }>;
 }
 
 export default async function OrganizationPage({ params }: Props) {

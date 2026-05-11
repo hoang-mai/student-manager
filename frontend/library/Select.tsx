@@ -42,8 +42,8 @@ export interface SelectProps {
   className?: string;
   /** Chữ mờ khi chưa chọn */
   placeholder?: string;
-  /** Chiều cao tối đa của menu để tính toán flip (mặc định: 300) */
-  menuHeight?: number;
+  /** Số lượng mục tối đa hiển thị trước khi có thanh cuộn (mặc định: 5) */
+  maxVisibleItems?: number;
   /** Có bắt buộc hay không */
   required?: boolean;
 }
@@ -71,7 +71,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       value,
       onChange,
       placeholder = "Chọn...",
-      menuHeight,
+      maxVisibleItems = 5,
       required,
     },
     ref
@@ -128,10 +128,10 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
         <Dropdown
           align="left"
           className={fullWidth ? "w-full" : ""}
-          menuHeight={menuHeight}
           targetY={0}
+          fullwidth={true}
           dropdownClassName={(placement) => `
-            w-full bg-white border-2 border-primary-500 p-1.5
+            bg-white border-2 border-primary-500 p-1.5
             ${placement === "bottom" ? "rounded-b-2xl rounded-t-none -mt-[2px]" : "rounded-t-2xl rounded-b-none -mb-[2px]"}
           `}
           trigger={(isOpen, placement) => (
@@ -171,8 +171,8 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
           )}
         >
           <div
-            style={menuHeight ? { maxHeight: menuHeight - 16 } : {}}
-            className={`${!menuHeight ? "max-h-60" : ""} overflow-y-auto custom-scrollbar flex flex-col gap-1`}
+            style={{ maxHeight: `${maxVisibleItems * 40}px` }}
+            className="overflow-y-auto custom-scrollbar flex flex-col gap-1"
           >
             {options.map((opt) => {
               const isSelected = String(opt.value) === String(value);

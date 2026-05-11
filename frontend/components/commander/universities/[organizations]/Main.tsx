@@ -36,6 +36,7 @@ import { useModalStore } from "@/store/useModalStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { organizationService } from "@/services/organizations";
+import { universityService } from "@/services/universities";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import { Organization, EducationLevel } from "@/types/organizations";
@@ -81,6 +82,12 @@ export default function Main({ universityId }: Props) {
       return page < totalPages ? page + 1 : undefined;
     },
     select: (data) => data.pages.flatMap((page) => page.data || []),
+  });
+
+  const { data: universityData, isLoading: isUniversityLoading, isError: isUniversityError } = useQuery({
+    queryKey: [QUERY_KEYS.UNIVERSITIES, universityId],
+    queryFn: () => universityService.getUniversity(universityId),
+    select: (res) => res.data,
   });
 
   useInfiniteScroll({
@@ -172,11 +179,11 @@ export default function Main({ universityId }: Props) {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isUniversityLoading) {
     return <OrganizationSkeleton />;
   }
 
-  if (isError) {
+  if (isError || isUniversityError) {
     return <ErrorState onRetry={() => refetch()} />;
   }
 
@@ -209,23 +216,19 @@ export default function Main({ universityId }: Props) {
           </Typography>
         </Link>
         <HiOutlineChevronRight size={12} />
-        {isLoading ? (
-          <Skeleton width={120} height={16} />
-        ) : (
-          <Typography variant="label" color="primary" tracking="wide">
-            {organizations?.[0].university.universityName}
-          </Typography>
-        )}
+        <Typography variant="label" color="primary" tracking="wide">
+          {universityData?.universityName}
+        </Typography>
       </div>
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          {isLoading ? (
+          {isUniversityLoading ? (
             <Skeleton width={400} height={32} />
           ) : (
             <Typography variant="h1" transform="uppercase">
-              {`Ngành đào tạo - ${organizations?.[0].university.universityName}`}
+              {`Ngành đào tạo - ${universityData?.universityName}`}
             </Typography>
           )}
           <Typography variant="body" color="gray" className="mt-1">
@@ -318,11 +321,10 @@ export default function Main({ universityId }: Props) {
                               }),
                           })
                         }
-                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${
-                          org.status === "ACTIVE"
+                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${org.status === "ACTIVE"
                             ? "hover:bg-amber-50 hover:text-amber-600"
                             : "hover:bg-emerald-50 hover:text-emerald-600"
-                        }`}
+                          }`}
                       >
                         {org.status === "ACTIVE" ? (
                           <HiOutlineLockOpen size={18} />

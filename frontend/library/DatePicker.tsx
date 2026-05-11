@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, forwardRef, useEffect, useMemo } from "react";
+import { useState, forwardRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   HiOutlineCalendar,
@@ -91,7 +91,8 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     // Initialize view date from value
     useEffect(() => {
       if (value) {
-        const parts = value.split("-");
+        const dateStr = value.split("T")[0];
+        const parts = dateStr.split("-");
         if (parts.length === 3) {
           const y = parseInt(parts[0]);
           const m = parseInt(parts[1]) - 1;
@@ -103,7 +104,8 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
 
     const selectedDateParts = useMemo(() => {
       if (!value) return null;
-      const parts = value.split("-");
+      const dateStr = value.split("T")[0];
+      const parts = dateStr.split("-");
       if (parts.length !== 3) return null;
       return {
         year: parseInt(parts[0]),
@@ -199,7 +201,8 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
 
     const formatDisplayDate = (val?: string | null) => {
       if (!val) return placeholder;
-      const parts = val.split("-");
+      const dateStr = val.split("T")[0];
+      const parts = dateStr.split("-");
       if (parts.length !== 3) return placeholder;
       const [y, m, d] = parts;
       return `${d}/${m}/${y}`;
@@ -241,7 +244,6 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         <Dropdown
           align="left"
           className={fullWidth ? "w-full" : ""}
-          menuHeight={380}
           targetY={8}
           dropdownClassName={
             "w-80 bg-white border-2 border-primary-500 p-3 rounded-2xl shadow-xl z-50"

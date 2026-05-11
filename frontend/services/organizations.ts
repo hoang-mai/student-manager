@@ -19,6 +19,12 @@ export const organizationService = {
     return apiClient.get(ENDPOINTS.ORGANIZATIONS.BASE, { params });
   },
 
+  getOrganization: async (
+    id: string
+  ): Promise<ApiResponse<Organization>> => {
+    return apiClient.get(`${ENDPOINTS.ORGANIZATIONS.BASE}/${id}`);
+  },
+
   createOrganization: async (
     data: CreateOrganizationRequest
   ) => {
@@ -54,6 +60,12 @@ export const organizationService = {
     params?: EducationLevelQueryRequest
   ): Promise<PaginatedResponse<EducationLevel>> => {
     return apiClient.get(ENDPOINTS.EDUCATION_LEVELS.BASE, { params });
+  },
+
+  getEducationLevel: async (
+    id: string
+  ): Promise<ApiResponse<EducationLevel>> => {
+    return apiClient.get(`${ENDPOINTS.EDUCATION_LEVELS.BASE}/${id}`);
   },
 
   createEducationLevel: async (

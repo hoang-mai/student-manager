@@ -10,7 +10,6 @@ export interface Organization {
   totalStudents: number;
   status: 'ACTIVE' | 'INACTIVE';
   universityId: string;
-  university: University;
 }
 
 /**

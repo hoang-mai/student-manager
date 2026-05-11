@@ -11,7 +11,7 @@ export const JWT_CONFIG = {
 };
 
 export const PROTECTED_ROUTES = ["/student", "/commander", "/admin"];
-export const AUTH_ROUTES = ["/login", "/register"];
+export const AUTH_ROUTES = ["/login"];
 
 export const ROLES = {
   ADMIN: { id: 1, name: "Admin", role: "ADMIN", path: "/admin" },

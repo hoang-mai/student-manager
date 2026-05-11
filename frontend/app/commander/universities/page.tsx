@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: "Quản lý thông tin các trường đại học, chuyên ngành, trình độ đào tạo và lớp học.",
 };
 
-export default function TrainingUnitsPage() {
+export default function UniversitiesPage() {
   return <Main />;
 }

@@ -2,13 +2,16 @@
 
 import { useMemo, useCallback } from "react";
 import Typography from "@/library/Typography";
+import Skeleton from "@/library/Skeleton";
 import AnimatedContainer from "@/library/AnimatedContainer";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useToastStore } from "@/store/useToastStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
 import { classService } from "@/services/classes";
+import { organizationService } from "@/services/organizations";
+import { universityService } from "@/services/universities";
 import { Class } from "@/types/classes";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import CreateClassForm from "./CreateClassForm";
@@ -20,17 +23,38 @@ import Tooltip from "@/library/Tooltip";
 import { HiOutlinePencil, HiOutlineTrash, HiOutlineHome, HiOutlineChevronRight } from "react-icons/hi";
 import Link from "next/link";
 import { formatDateTime } from "@/utils/fn-common";
+import ErrorState from "@/library/ErrorState";
 
 interface Props {
+  universityId: string;
+  organizationId: string;
   educationLevelId: string;
 }
 
-export default function Main({ educationLevelId }: Props) {
+export default function Main({ universityId, organizationId, educationLevelId }: Props) {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
   const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
   const { openModal, closeModal } = useModalStore();
   const { showLoading, hideLoading } = useLoadingStore();
+
+  const { data: organizationData, isLoading: isOrganizationLoading, isError: isOrganizationError, refetch: refetchOrganization } = useQuery({
+    queryKey: [QUERY_KEYS.ORGANIZATIONS, organizationId],
+    queryFn: () => organizationService.getOrganization(organizationId),
+    select: (res) => res.data,
+  });
+
+  const { data: universityData, isLoading: isUniversityLoading, isError: isUniversityError, refetch: refetchUniversity } = useQuery({
+    queryKey: [QUERY_KEYS.UNIVERSITIES, universityId],
+    queryFn: () => universityService.getUniversity(universityId),
+    select: (res) => res.data,
+  });
+
+  const { data: educationLevelData, isLoading: isEducationLevelLoading, isError: isEducationLevelError, refetch: refetchEducationLevel } = useQuery({
+    queryKey: [QUERY_KEYS.EDUCATION_LEVELS, educationLevelId],
+    queryFn: () => organizationService.getEducationLevel(educationLevelId),
+    select: (res) => res.data,
+  });
 
   const handleOpenCreateClassModal = () => {
     openModal({
@@ -172,6 +196,10 @@ export default function Main({ educationLevelId }: Props) {
     []
   );
 
+  if (isOrganizationError || isUniversityError || isEducationLevelError) {
+    return <ErrorState onRetry={() => { refetchOrganization(); refetchUniversity(); refetchEducationLevel(); }} />;
+  }
+
   return (
     <AnimatedContainer variant="slideUp" className="space-y-8 relative rounded-2xl bg-white p-6 min-h-screen">
       <div className="flex items-center gap-2 text-neutral-400">
@@ -180,17 +208,46 @@ export default function Main({ educationLevelId }: Props) {
           <Typography variant="label" tracking="wide">Tổng quan</Typography>
         </Link>
         <HiOutlineChevronRight size={12} />
-        <Link href="/commander/universities" className="hover:text-primary-600 transition-colors cursor-pointer">
-          <Typography variant="label" tracking="wide">Cơ sở đào tạo</Typography>
+        <Link
+          href="/commander/universities"
+          className="hover:text-primary-600 transition-colors"
+        >
+          <Typography variant="label" tracking="wide">
+            Cơ sở đào tạo
+          </Typography>
         </Link>
         <HiOutlineChevronRight size={12} />
-        <Typography variant="label" color="primary" tracking="wide">Quản lý lớp học</Typography>
+        <Link href={`/commander/universities/${universityId}`} className="hover:text-primary-600 transition-colors cursor-pointer">
+          {isUniversityLoading ? (
+            <Skeleton width={80} height={14} />
+          ) : (
+            <Typography variant="label" tracking="wide">
+              {universityData?.universityName}
+            </Typography>
+          )}
+        </Link>
+        <HiOutlineChevronRight size={12} />
+        {isOrganizationLoading ? (
+          <Skeleton width={80} height={14} />
+        ) : (
+          <Typography variant="label" tracking="wide">
+            {organizationData?.organizationName}
+          </Typography>
+        )}
+        <HiOutlineChevronRight size={12} />
+        {isEducationLevelLoading ? (
+          <Skeleton width={80} height={14} />
+        ) : (
+          <Typography variant="label" color="primary" tracking="wide">
+            {educationLevelData?.levelName}
+          </Typography>
+        )}
       </div>
 
       <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
           <Typography variant="h1" transform="uppercase">
-            Quản lý lớp học
+            {isEducationLevelLoading ? "..." : `Lớp học - ${educationLevelData?.levelName}`}
           </Typography>
         </div>
       </div>

@@ -14,6 +14,12 @@ export const universityService = {
     return apiClient.get(ENDPOINTS.UNIVERSITIES.BASE, { params });
   },
 
+  getUniversity: async (
+    id: string
+  ): Promise<ApiResponse<University>> => {
+    return apiClient.get(`${ENDPOINTS.UNIVERSITIES.BASE}/${id}`);
+  },
+
   createUniversity: async (
     data: CreateUniversityRequest
   ) => {
