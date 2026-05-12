@@ -1,4 +1,5 @@
 const yup = require('yup');
+const { RANKS } = require('../utils/constants');
 
 const profileFields = {
   code: yup.string().max(50).nullable(),
@@ -15,7 +16,7 @@ const profileFields = {
   cccd: yup.string().max(20).nullable(),
   partyMemberCardNumber: yup.string().max(50).nullable(),
   unit: yup.string().max(255).nullable(),
-  rank: yup.string().max(50).nullable(),
+  rank: yup.string().oneOf(RANKS, 'Cấp bậc không hợp lệ').nullable(),
   positionGovernment: yup.string().max(100).nullable(),
   positionParty: yup.string().max(100).nullable(),
   fullPartyMember: yup.date().nullable(),
@@ -67,7 +68,7 @@ const update = yup.object({
   cccd: yup.string().max(20).nullable(),
   partyMemberCardNumber: yup.string().max(50).nullable(),
   unit: yup.string().max(255).nullable(),
-  rank: yup.string().max(50).nullable(),
+  rank: yup.string().oneOf(RANKS, 'Cấp bậc không hợp lệ').nullable(),
   positionGovernment: yup.string().max(100).nullable(),
   positionParty: yup.string().max(100).nullable(),
   fullPartyMember: yup.date().nullable(),
@@ -114,7 +115,7 @@ const batchProfileUpdate = yup.array().of(
     cccd: yup.string().max(20).nullable(),
     partyMemberCardNumber: yup.string().max(50).nullable(),
     unit: yup.string().max(255).nullable(),
-    rank: yup.string().max(50).nullable(),
+    rank: yup.string().oneOf(RANKS, 'Cấp bậc không hợp lệ').nullable(),
     positionGovernment: yup.string().max(100).nullable(),
     positionParty: yup.string().max(100).nullable(),
     fullPartyMember: yup.date().nullable(),

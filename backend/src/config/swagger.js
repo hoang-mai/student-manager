@@ -78,7 +78,7 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
             currentAddress: { type: 'string' }, placeOfBirth: { type: 'string' },
             phoneNumber: { type: 'string' }, cccd: { type: 'string' },
             partyMemberCardNumber: { type: 'string' },
-            unit: { type: 'string' }, rank: { type: 'string' },
+            unit: { type: 'string' }, rank: { type: 'string', enum: ['Binh nhì', 'Binh nhất', 'Hạ sĩ', 'Trung sĩ', 'Thượng sĩ', 'Thiếu úy', 'Trung úy', 'Thượng úy', 'Đại úy', 'Thiếu tá', 'Trung tá', 'Thượng tá', 'Đại tá', 'Thiếu tướng', 'Trung tướng', 'Thượng tướng', 'Đại tướng'], description: 'Cấp bậc quân hàm' },
             positionGovernment: { type: 'string' }, positionParty: { type: 'string' },
             fullPartyMember: { type: 'string', format: 'date' },
             probationaryPartyMember: { type: 'string', format: 'date' },
@@ -445,8 +445,43 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
 
       // ═══════════ CLASSES (CH-02) ═══════════
       '/classes': {
-        get: { tags: ['Classes'], summary: 'Danh sách lớp', parameters: [{ name: 'educationLevelId', in: 'query', schema: { type: 'string' } }, { name: 'page', in: 'query', schema: { type: 'integer' } }, { name: 'limit', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
-        post: { tags: ['Classes'], summary: 'Tạo lớp', requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { className: { type: 'string' }, classCode: { type: 'string' }, educationLevelId: { type: 'string' } } } } } }, responses: { 201: { description: 'Created' } } },
+        get: {
+          tags: ['Classes'], summary: 'Danh sách lớp',
+          description: 'Trả về: className, studentCount, levelName, organizationName, universityName. Có thể lọc theo className (tìm kiếm), educationLevelId, organizationId, universityId, universityName, organizationName, levelName. Sắp xếp: sortBy=className|studentCount|createdAt|levelName|organizationName|universityName.',
+          parameters: [
+            { name: 'className', in: 'query', schema: { type: 'string' }, description: 'Tìm kiếm theo tên lớp' },
+            { name: 'educationLevelId', in: 'query', schema: { type: 'string' }, description: 'Lọc theo trình độ đào tạo' },
+            { name: 'organizationId', in: 'query', schema: { type: 'string' }, description: 'Lọc theo đơn vị/ngành' },
+            { name: 'universityId', in: 'query', schema: { type: 'string' }, description: 'Lọc theo trường' },
+            { name: 'universityName', in: 'query', schema: { type: 'string' }, description: 'Lọc theo tên trường' },
+            { name: 'organizationName', in: 'query', schema: { type: 'string' }, description: 'Lọc theo tên đơn vị' },
+            { name: 'levelName', in: 'query', schema: { type: 'string' }, description: 'Lọc theo tên trình độ' },
+            { name: 'sortBy', in: 'query', schema: { type: 'string' }, description: 'Sắp xếp theo: className, studentCount, levelName, organizationName, universityName, createdAt' },
+            { name: 'sortOrder', in: 'query', schema: { type: 'string', enum: ['asc', 'desc'] } },
+            { name: 'page', in: 'query', schema: { type: 'integer' } },
+            { name: 'limit', in: 'query', schema: { type: 'integer' } },
+          ],
+          responses: { 200: { description: 'OK' } },
+        },
+        post: { tags: ['Classes'], summary: 'Tạo lớp', requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { className: { type: 'string' }, studentCount: { type: 'integer' }, educationLevelId: { type: 'string' } } } } } }, responses: { 201: { description: 'Created' } } },
+      },
+      '/classes/{id}/students': {
+        get: {
+          tags: ['Classes'], summary: 'Danh sách học viên trong lớp',
+          description: 'Vào bên trong lớp xem danh sách học viên. Filter: ?code=&fullName=&gender=&enrollment=&unit=&rank=',
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Mã lớp' },
+            { name: 'code', in: 'query', schema: { type: 'string' }, description: 'Mã học viên' },
+            { name: 'fullName', in: 'query', schema: { type: 'string' }, description: 'Tìm kiếm theo tên' },
+            { name: 'gender', in: 'query', schema: { type: 'string' }, description: 'Giới tính' },
+            { name: 'enrollment', in: 'query', schema: { type: 'integer' }, description: 'Khóa học' },
+            { name: 'unit', in: 'query', schema: { type: 'string' }, description: 'Đơn vị' },
+            { name: 'rank', in: 'query', schema: { type: 'string' }, description: 'Cấp bậc' },
+            { name: 'page', in: 'query', schema: { type: 'integer' } },
+            { name: 'limit', in: 'query', schema: { type: 'integer' } },
+          ],
+          responses: { 200: { description: 'Profile[] (học viên trong lớp)' } },
+        },
       },
       '/classes/{id}': {
         get: { tags: ['Classes'], summary: 'Chi tiết', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },

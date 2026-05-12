@@ -1,4 +1,5 @@
 const yup = require('yup');
+const { RANKS } = require('../utils/constants');
 
 const create = yup.object({
   code: yup.string().max(50).required('Trường này là bắt buộc'),
@@ -17,7 +18,7 @@ const create = yup.object({
   startWork: yup.number().integer().min(0).nullable(),
   organization: yup.string().max(255).nullable(),
   unit: yup.string().max(255).nullable(),
-  rank: yup.string().max(50).nullable(),
+  rank: yup.string().oneOf(RANKS, 'Cấp bậc không hợp lệ').nullable(),
   positionGovernment: yup.string().max(100).nullable(),
   positionParty: yup.string().max(100).nullable(),
   fullPartyMember: yup.date().nullable(),
@@ -43,7 +44,7 @@ const update = yup.object({
   startWork: yup.number().integer().min(0).nullable(),
   organization: yup.string().max(255).nullable(),
   unit: yup.string().max(255).nullable(),
-  rank: yup.string().max(50).nullable(),
+  rank: yup.string().oneOf(RANKS, 'Cấp bậc không hợp lệ').nullable(),
   positionGovernment: yup.string().max(100).nullable(),
   positionParty: yup.string().max(100).nullable(),
   fullPartyMember: yup.date().nullable(),
@@ -68,7 +69,7 @@ const profileUpdate = yup.object({
   startWork: yup.number().integer().min(0).nullable(),
   organization: yup.string().max(255).nullable(),
   unit: yup.string().max(255).nullable(),
-  rank: yup.string().max(50).nullable(),
+  rank: yup.string().oneOf(RANKS, 'Cấp bậc không hợp lệ').nullable(),
   positionGovernment: yup.string().max(100).nullable(),
   positionParty: yup.string().max(100).nullable(),
   fullPartyMember: yup.date().nullable(),
