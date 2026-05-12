@@ -19,6 +19,7 @@ const query = yup.object({
   sortOrder: yup.string().oneOf(['asc', 'desc']).nullable(),
   className: yup.string().max(255).nullable(),
   educationLevelId: yup.string().uuid('Mã trình độ đào tạo không hợp lệ').nullable(),
+  organizationId: yup.string().uuid('Mã đơn vị trực thuộc không hợp lệ').nullable(),
   universityId: yup.string().uuid('Mã cơ sở đào tạo không hợp lệ').nullable(),
   universityName: yup.string().max(255).nullable(),
   organizationName: yup.string().max(255).nullable(),

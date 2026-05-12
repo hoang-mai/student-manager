@@ -73,9 +73,14 @@ const update = asyncHandler(async (req, res) => {
   return success(res, result, 'Cập nhật thành công');
 });
 
+const getStudents = asyncHandler(async (req, res) => {
+  const result = await service.getStudents(req.params.id, req.query);
+  return paginated(res, result.rows, result.pagination);
+});
+
 const deleteRecord = asyncHandler(async (req, res) => {
   await service.delete(req.params.id);
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, getAll, getDetail, getStudents, update, delete: deleteRecord };
