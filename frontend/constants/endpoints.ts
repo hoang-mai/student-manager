@@ -29,4 +29,7 @@ export const ENDPOINTS = {
   CLASSES: {
     BASE: "/api/classes",
   },
+  DUTY_SCHEDULES: {
+    BASE: "/api/commander-duty-schedules",
+  },
 };

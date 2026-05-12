@@ -33,7 +33,7 @@ export default function CreateUniversityForm({ onSuccess, onCancel }: Props) {
       addToast({ message: "Thêm mới thành công!", variant: "success" });
       onSuccess();
     },
-    onError: (err: any) => {
+    onError: (err) => {
       addToast({
         message: err.message || "Thêm mới thất bại!",
         variant: "error",

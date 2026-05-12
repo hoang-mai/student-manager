@@ -37,6 +37,11 @@ export const COMMANDER_MENU: MenuItem[] = [
     icon: HiOutlineOfficeBuilding,
   },
   {
+    title: 'Quản lý lớp học',
+    path: '/commander/classes',
+    icon: HiOutlineViewGrid,
+  },
+  {
     title: 'Hồ sơ học viên',
     path: '/commander/profiles',
     icon: HiOutlineIdentification,
@@ -73,7 +78,7 @@ export const COMMANDER_MENU: MenuItem[] = [
   },
   {
     title: 'Phân công lịch trực',
-    path: '/commander/duty-roster',
+    path: '/commander/duty-schedules',
     icon: HiOutlineClipboardList,
   },
   {

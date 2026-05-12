@@ -13,8 +13,6 @@ interface TableToolbarProps<TData> {
   filterFields?: FilterField[];
   /** Hiển thị bộ lọc (mặc định: true nếu có filterFields) */
   showFilter?: boolean;
-  /** Trạng thái loading */
-  isLoading?: boolean;
   /** Callback khi bấm nút thêm */
   onAdd?: () => void;
   /** Nhãn cho nút thêm */
@@ -29,7 +27,6 @@ const TableToolbar = <TData,>({
   table,
   filterFields,
   showFilter = true,
-  isLoading = false,
   onAdd,
   addLabel,
   onBulkUpdate,
@@ -93,7 +90,7 @@ const TableToolbar = <TData,>({
                 Tùy chỉnh hiển thị
               </span>
             </div>
-            <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-0.5 px-1">
+            <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-0.5 px-1">
               {table.getAllLeafColumns().map((column) => {
                 if (column.id === "stt" || column.id === "actions") return null;
                 return (
@@ -140,7 +137,6 @@ const TableToolbar = <TData,>({
           table={table}
           fields={filterFields}
           isOpen={isFilterOpen}
-          isLoading={isLoading}
         />
       )}
     </div>

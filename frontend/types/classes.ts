@@ -4,6 +4,12 @@ export interface Class {
   studentCount: number;
   createdAt: string;
   updatedAt: string;
+  universityId?: string;
+  universityName?: string;
+  organizationId?: string;
+  organizationName?: string;
+  educationLevelId?: string;
+  levelName?: string;
 }
 
 export interface CreateClassRequest {
@@ -15,7 +21,6 @@ export interface CreateClassRequest {
 export interface UpdateClassRequest {
   className?: string;
   studentCount?: number;
-  educationLevelId?: string;
 }
 
 export interface ClassQueryRequest {

@@ -6,7 +6,7 @@ import {
   ChangePasswordRequest,
   CreateUserRequest,
 } from "@/types/auth";
-import { UserDetailResponse } from "@/types/user";
+import { UserDetailResponse, UpdateProfileRequest } from "@/types/user";
 
 export const authService = {
   login: async (data: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
@@ -21,7 +21,7 @@ export const authService = {
     return apiClient.post(ENDPOINTS.AUTH.CHANGE_PASSWORD, data);
   },
 
-  updateProfile: async (data: any) => {
+  updateProfile: async (data: UpdateProfileRequest) => {
     return apiClient.put(ENDPOINTS.AUTH.PROFILE, data);
   },
 

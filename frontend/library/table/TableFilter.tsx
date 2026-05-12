@@ -27,6 +27,14 @@ export interface FilterField {
   options?: SelectOption[];
   /** Gợi ý nhập liệu */
   placeholder?: string;
+  /** Có đang tải dữ liệu lần đầu không */
+  isLoading?: boolean;
+  /** Có trang tiếp theo không (cho infinite scroll) */
+  hasNextPage?: boolean;
+  /** Đang tải trang tiếp theo không */
+  isFetchingNextPage?: boolean;
+  /** Hàm callback để tải thêm dữ liệu */
+  onLoadMore?: () => void;
 }
 
 interface TableFilterProps<TData> {
@@ -36,15 +44,12 @@ interface TableFilterProps<TData> {
   fields: FilterField[];
   /** Mở/Đóng bộ lọc */
   isOpen?: boolean;
-  /** Trạng thái loading */
-  isLoading?: boolean;
 }
 
 const TableFilter = <TData,>({
   table,
   fields,
   isOpen = false,
-  isLoading = false,
 }: TableFilterProps<TData>) => {
   const { control, handleSubmit, reset, register } =
     useForm<Record<string, string | number>>();
@@ -96,7 +101,10 @@ const TableFilter = <TData,>({
                             options={field.options}
                             placeholder={field.placeholder}
                             prefixIcon={<HiOutlineTag size={16} />}
-                            isLoading={isLoading}
+                            hasNextPage={field.hasNextPage}
+                            isFetchingNextPage={field.isFetchingNextPage}
+                            onLoadMore={field.onLoadMore}
+                            isLoading={field.isLoading}
                           />
                         )}
                       />
@@ -108,7 +116,6 @@ const TableFilter = <TData,>({
                         label={field.label}
                         placeholder={field.placeholder}
                         prefixIcon={<Icon size={16} />}
-                        isLoading={isLoading}
                       />
                     )}
                   </div>

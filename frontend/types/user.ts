@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   username: string;
@@ -83,7 +82,6 @@ export interface Organization {
   updatedAt?: string;
 }
 
-
 export interface EducationLevel {
   id: string;
   levelName: string;
@@ -109,8 +107,8 @@ export interface Student {
   email: string;
   enrollment: number;
   ethnicity: string;
-  familyMember: any | null;
-  foreignRelations: any | null;
+  familyMember: string | null;
+  foreignRelations: string | null;
   fullPartyMember: string | null;
   gender: "MALE" | "FEMALE";
   graduationDate: string | null;

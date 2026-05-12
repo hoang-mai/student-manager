@@ -2,15 +2,13 @@
 
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { HiOutlineDownload, HiOutlineTable } from "react-icons/hi";
+import { HiOutlineDownload } from "react-icons/hi";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as XLSX from "xlsx";
-import { z } from "zod";
 import Button from "@/library/Button";
 import Typography from "@/library/Typography";
 import FileUpload from "@/library/FileUpload";
-import Badge, { BadgeVariant } from "@/library/Badge";
 import { userService } from "@/services/user";
 import { useToastStore } from "@/store/useToastStore";
 import { useLoadingStore } from "@/store/useLoadingStore";
@@ -21,7 +19,6 @@ import {
   batchExcelFileSchema,
   BatchExcelFileValues,
 } from "@/utils/validations";
-import { ROLES } from "@/constants/constants";
 
 interface CreateBatchUsersProps {
   onSuccess: () => void;
@@ -78,7 +75,9 @@ const CreateBatchUsers: React.FC<CreateBatchUsersProps> = ({
         // Mapping Excel headers to API fields
         const mappedData = json
           .map((row) => {
-            const rawRole = String(row["Vai trò"] || "").trim().toLowerCase();
+            const rawRole = String(row["Vai trò"] || "")
+              .trim()
+              .toLowerCase();
             const roleMap: Record<string, "STUDENT" | "COMMANDER" | "ADMIN"> = {
               "chỉ huy": "COMMANDER",
               "quản trị viên": "ADMIN",
@@ -109,11 +108,14 @@ const CreateBatchUsers: React.FC<CreateBatchUsersProps> = ({
 
         setParsedData(result.data as CreateUserRequest[]);
         if (result.data.length === 0) {
-          addToast({ message: "File Excel không có dữ liệu hợp lệ!", variant: "error" });
+          addToast({
+            message: "File Excel không có dữ liệu hợp lệ!",
+            variant: "error",
+          });
           resetField("file");
           setParsedData([]);
         }
-      } catch (err) {
+      } catch {
         addToast({ message: "Lỗi định dạng file Excel!", variant: "error" });
         resetField("file");
         setParsedData([]);
@@ -143,14 +145,20 @@ const CreateBatchUsers: React.FC<CreateBatchUsersProps> = ({
       onSuccess();
     },
     onError: (err: Error) => {
-      addToast({ message: err.message || "Thêm người dùng thất bại!", variant: "error" });
+      addToast({
+        message: err.message || "Thêm người dùng thất bại!",
+        variant: "error",
+      });
     },
     onSettled: () => hideLoading(),
   });
 
   const onSubmit = () => {
     if (parsedData.length === 0) {
-      addToast({ message: "Vui lòng chọn file có dữ liệu hợp lệ!", variant: "error" });
+      addToast({
+        message: "Vui lòng chọn file có dữ liệu hợp lệ!",
+        variant: "error",
+      });
       return;
     }
     batchMutation.mutate(parsedData);
@@ -175,8 +183,13 @@ const CreateBatchUsers: React.FC<CreateBatchUsersProps> = ({
     const worksheet = XLSX.utils.json_to_sheet(templateData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sach nguoi dung");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const data = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
     const url = window.URL.createObjectURL(data);
     const link = document.createElement("a");
     link.href = url;
@@ -188,18 +201,28 @@ const CreateBatchUsers: React.FC<CreateBatchUsersProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh]">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col max-h-[85vh]"
+    >
       <div className="flex-1 overflow-y-auto px-1 custom-scrollbar space-y-6">
         <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-start gap-4">
           <div className="p-2 rounded-xl bg-blue-100 text-blue-600">
             <HiOutlineDownload size={24} />
           </div>
           <div className="flex-1">
-            <Typography variant="body" weight="bold" color="primary">Hướng dẫn tạo hàng loạt</Typography>
-            <Typography variant="caption" color="gray" className="block mt-1">
-              Sử dụng file mẫu Excel. Cột hỗ trợ: Tên đăng nhập, Họ và tên, Email, Vai trò.
+            <Typography variant="body" weight="bold" color="primary">
+              Hướng dẫn tạo hàng loạt
             </Typography>
-            <button type="button" onClick={downloadTemplate} className="mt-3 text-sm font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer">
+            <Typography variant="caption" color="gray" className="block mt-1">
+              Sử dụng file mẫu Excel. Cột hỗ trợ: Tên đăng nhập, Họ và tên,
+              Email, Vai trò.
+            </Typography>
+            <button
+              type="button"
+              onClick={downloadTemplate}
+              className="mt-3 text-sm font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer"
+            >
               Tải file mẫu (.xlsx)
             </button>
           </div>
@@ -230,15 +253,28 @@ const CreateBatchUsers: React.FC<CreateBatchUsersProps> = ({
         {isParsing && (
           <div className="py-8 text-center bg-neutral-50 rounded-xl border border-dashed border-neutral-200">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
-            <Typography variant="caption" color="gray">Đang phân tích dữ liệu Excel...</Typography>
+            <Typography variant="caption" color="gray">
+              Đang phân tích dữ liệu Excel...
+            </Typography>
           </div>
         )}
-
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100">
-        <Button variant="ghost" type="button" onClick={onCancel} disabled={batchMutation.isPending || isParsing}>Hủy bỏ</Button>
-        <Button variant="primary" type="submit" isLoading={batchMutation.isPending} disabled={!isDirty || parsedData.length === 0 || isParsing}>
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={onCancel}
+          disabled={batchMutation.isPending || isParsing}
+        >
+          Hủy bỏ
+        </Button>
+        <Button
+          variant="primary"
+          type="submit"
+          isLoading={batchMutation.isPending}
+          disabled={!isDirty || parsedData.length === 0 || isParsing}
+        >
           Tạo {parsedData.length} tài khoản
         </Button>
       </div>

@@ -1,5 +1,3 @@
-import { University } from "./universities";
-
 /**
  * Đơn vị (Khoa/Phòng)
  */
@@ -8,7 +6,7 @@ export interface Organization {
   organizationName: string;
   travelTime: number;
   totalStudents: number;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: "ACTIVE" | "INACTIVE";
   universityId: string;
 }
 
@@ -45,7 +43,7 @@ export interface CreateOrganizationRequest {
   organizationName: string;
   travelTime: number;
   universityId: string;
-  status?: 'ACTIVE' | 'INACTIVE';
+  status?: "ACTIVE" | "INACTIVE";
 }
 
 /**
@@ -54,8 +52,7 @@ export interface CreateOrganizationRequest {
 export interface UpdateOrganizationRequest {
   organizationName?: string;
   travelTime?: number;
-  universityId?: string;
-  status?: 'ACTIVE' | 'INACTIVE';
+  status?: "ACTIVE" | "INACTIVE";
 }
 
 /**
@@ -71,6 +68,4 @@ export interface CreateEducationLevelRequest {
  */
 export interface UpdateEducationLevelRequest {
   levelName?: string;
-  organizationId?: string;
 }
-

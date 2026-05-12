@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback } from "react";
 import Typography from "@/library/Typography";
-import Skeleton from "@/library/Skeleton";
+import ClassSkeleton from "./ClassSkeleton";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useToastStore } from "@/store/useToastStore";
@@ -24,6 +24,7 @@ import { HiOutlinePencil, HiOutlineTrash, HiOutlineHome, HiOutlineChevronRight }
 import Link from "next/link";
 import { formatDateTime } from "@/utils/fn-common";
 import ErrorState from "@/library/ErrorState";
+import useTableQuery from "@/hooks/useTableQuery";
 
 interface Props {
   universityId: string;
@@ -54,6 +55,22 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     queryKey: [QUERY_KEYS.EDUCATION_LEVELS, educationLevelId],
     queryFn: () => organizationService.getEducationLevel(educationLevelId),
     select: (res) => res.data,
+  });
+
+  const {
+    data: classesData,
+    isLoading: isClassesLoading,
+    isError: isClassesError,
+    refetch: refetchClasses,
+    pagination,
+    setPagination,
+    columnFilters,
+    setColumnFilters,
+    sorting,
+    setSorting,
+  } = useTableQuery<Class>({
+    queryKey: [QUERY_KEYS.CLASSES, educationLevelId],
+    fetchData: (params) => classService.getClasses({ ...params, educationLevelId }),
   });
 
   const handleOpenCreateClassModal = () => {
@@ -96,6 +113,10 @@ export default function Main({ universityId, organizationId, educationLevelId }:
       addToast({ message: "Xóa lớp thành công", variant: "success" });
       closeConfirm();
     },
+    onError: (error) => {
+      addToast({ message: error?.message || "Xóa lớp thất bại", variant: "error" });
+      closeConfirm();
+    },
     onSettled: () => {
       setLoading(false);
       hideLoading();
@@ -117,7 +138,7 @@ export default function Main({ universityId, organizationId, educationLevelId }:
       },
       {
         id: "studentCount",
-        header: "Số học viên",
+        header: "Số học viên",
         accessorKey: "studentCount",
         cell: (info) => (
           <Typography variant="body" color="neutral">
@@ -196,8 +217,12 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     []
   );
 
-  if (isOrganizationError || isUniversityError || isEducationLevelError) {
-    return <ErrorState onRetry={() => { refetchOrganization(); refetchUniversity(); refetchEducationLevel(); }} />;
+  if (isOrganizationLoading || isUniversityLoading || isEducationLevelLoading || isClassesLoading) {
+    return <ClassSkeleton />;
+  }
+
+  if (isOrganizationError || isUniversityError || isEducationLevelError || isClassesError) {
+    return <ErrorState onRetry={() => { refetchOrganization(); refetchUniversity(); refetchEducationLevel(); refetchClasses(); }} />;
   }
 
   return (
@@ -218,36 +243,24 @@ export default function Main({ universityId, organizationId, educationLevelId }:
         </Link>
         <HiOutlineChevronRight size={12} />
         <Link href={`/commander/universities/${universityId}`} className="hover:text-primary-600 transition-colors cursor-pointer">
-          {isUniversityLoading ? (
-            <Skeleton width={80} height={14} />
-          ) : (
-            <Typography variant="label" tracking="wide">
-              {universityData?.universityName}
-            </Typography>
-          )}
+          <Typography variant="label" tracking="wide">
+            {universityData?.universityName}
+          </Typography>
         </Link>
         <HiOutlineChevronRight size={12} />
-        {isOrganizationLoading ? (
-          <Skeleton width={80} height={14} />
-        ) : (
-          <Typography variant="label" tracking="wide">
-            {organizationData?.organizationName}
-          </Typography>
-        )}
+        <Typography variant="label" tracking="wide">
+          {organizationData?.organizationName}
+        </Typography>
         <HiOutlineChevronRight size={12} />
-        {isEducationLevelLoading ? (
-          <Skeleton width={80} height={14} />
-        ) : (
-          <Typography variant="label" color="primary" tracking="wide">
-            {educationLevelData?.levelName}
-          </Typography>
-        )}
+        <Typography variant="label" color="primary" tracking="wide">
+          {educationLevelData?.levelName}
+        </Typography>
       </div>
 
       <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
           <Typography variant="h1" transform="uppercase">
-            {isEducationLevelLoading ? "..." : `Lớp học - ${educationLevelData?.levelName}`}
+            {`Lớp học - ${educationLevelData?.levelName}`}
           </Typography>
         </div>
       </div>
@@ -255,9 +268,14 @@ export default function Main({ universityId, organizationId, educationLevelId }:
       <div className="bg-white overflow-hidden relative">
         <div className="px-4">
           <Table
-            fetchData={(params) => classService.getClasses({ ...params, educationLevelId })}
+            data={classesData}
             columns={columns}
-            queryKey={[QUERY_KEYS.CLASSES, educationLevelId]}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            columnFilters={columnFilters}
+            onColumnFiltersChange={setColumnFilters}
+            sorting={sorting}
+            onSortingChange={setSorting}
             filterFields={filterOptions}
             emptyText="Không tìm thấy lớp học nào"
             onAdd={() => handleOpenCreateClassModal()}

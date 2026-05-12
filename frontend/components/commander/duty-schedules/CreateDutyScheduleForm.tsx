@@ -1,0 +1,140 @@
+"use client";
+
+import React from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Button from "@/library/Button";
+import Input from "@/library/Input";
+import DatePicker from "@/library/DatePicker";
+import Select from "@/library/Select";
+import { RANKS } from "@/constants/constants";
+import { dutyScheduleService } from "@/services/duty-schedules";
+import { useToastStore } from "@/store/useToastStore";
+import { useLoadingStore } from "@/store/useLoadingStore";
+import { dutyScheduleSchema, DutyScheduleFormValues } from "@/utils/validations";
+import { QUERY_KEYS } from "@/constants/query-keys";
+
+interface CreateDutyScheduleFormProps {
+  onSuccess: () => void;
+  onCancel: () => void;
+}
+
+export default function CreateDutyScheduleForm({
+  onSuccess,
+  onCancel,
+}: CreateDutyScheduleFormProps) {
+  const queryClient = useQueryClient();
+  const { addToast } = useToastStore();
+  const { showLoading, hideLoading } = useLoadingStore();
+
+  const mutation = useMutation({
+    mutationFn: (data: DutyScheduleFormValues) => {
+      showLoading();
+      return dutyScheduleService.createDutySchedule(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DUTY_SCHEDULES] });
+      addToast({
+        message: "Phân công thành công!",
+        variant: "success",
+      });
+      onSuccess();
+    },
+    onError: (err) => {
+      addToast({
+        message: err.message || "Phân công thất bại!",
+        variant: "error",
+      });
+    },
+    onSettled: () => hideLoading(),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<DutyScheduleFormValues>({
+    resolver: zodResolver(dutyScheduleSchema),
+    defaultValues: {
+      fullName: "",
+      rank: "",
+      phoneNumber: "",
+      position: "",
+      workDay: "",
+    },
+  });
+
+  const onSubmit: SubmitHandler<DutyScheduleFormValues> = (data) => {
+    mutation.mutate(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-1">
+      <Input
+        label="Họ và tên"
+        placeholder="Nhập họ và tên người trực"
+        {...register("fullName")}
+        error={errors.fullName?.message}
+        required
+      />
+
+      <Controller
+        name="rank"
+        control={control}
+        render={({ field }) => (
+          <Select
+            label="Cấp bậc"
+            placeholder="Chọn cấp bậc"
+            value={field.value}
+            onChange={field.onChange}
+            options={Object.values(RANKS).map((rank) => ({ value: rank, label: rank }))}
+            error={errors.rank?.message}
+            required
+          />
+        )}
+      />
+
+      <Input
+        label="Số điện thoại"
+        placeholder="Nhập số điện thoại"
+        {...register("phoneNumber")}
+        error={errors.phoneNumber?.message}
+        required
+      />
+
+      <Input
+        label="Nhiệm vụ / Ca trực"
+        placeholder="Ví dụ: Trực ban d, Trực ban c..."
+        {...register("position")}
+        error={errors.position?.message}
+        required
+      />
+
+      <Controller
+        name="workDay"
+        control={control}
+        render={({ field }) => (
+          <DatePicker
+            label="Ngày trực"
+            placeholder="Chọn ngày trực"
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.workDay?.message}
+            required
+          />
+        )}
+      />
+
+      <div className="flex justify-end gap-3 mt-6">
+        <Button variant="ghost" type="button" onClick={onCancel}>
+          Hủy
+        </Button>
+        <Button variant="primary" type="submit" isLoading={mutation.isPending}>
+          Phân công
+        </Button>
+      </div>
+    </form>
+  );
+}

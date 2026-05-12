@@ -15,6 +15,7 @@ import { useLoadingStore } from "@/store/useLoadingStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { updateUserSchema, UpdateUserFormValues } from "@/utils/validations";
 import Divide from "@/library/Divide";
+import { RANKS, GENDER } from "@/constants/constants";
 import DatePicker from "@/library/DatePicker";
 
 interface UpdateUserFormProps {
@@ -59,39 +60,55 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
   } = useForm<UpdateUserFormValues>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      username: user.username || "",
-      fullName: user.profile?.fullName || "",
-      email: user.profile?.email || "",
-      phoneNumber: user.profile?.phoneNumber || "",
-      code: user.profile?.code || "",
-      birthday: user.profile?.birthday || "",
-      cccd: user.profile?.cccd || "",
+      username: user.username,
+      fullName: user.profile?.fullName,
+      email: user.profile?.email,
+      phoneNumber: user.profile?.phoneNumber,
+      code: user.profile?.code,
+      birthday: user.profile?.birthday,
+      cccd: user.profile?.cccd,
       gender: user.profile?.gender,
-      hometown: user.profile?.hometown || "",
-      placeOfBirth: user.profile?.placeOfBirth || "",
-      ethnicity: user.profile?.ethnicity || "",
-      religion: user.profile?.religion || "",
-      rank: user.profile?.rank || "",
-      unit: user.profile?.unit || "",
-      positionGovernment: user.profile?.positionGovernment || "",
-      positionParty: user.profile?.positionParty || "",
-      currentAddress: user.profile?.currentAddress || "",
-      dateOfEnlistment: user.profile?.dateOfEnlistment || "",
-      enrollment: user.profile?.enrollment || 0,
-      currentCpa4: user.profile?.currentCpa4 || 0,
-      currentCpa10: user.profile?.currentCpa10 || 0,
-      graduationDate: user.profile?.graduationDate || "",
-      partyMemberCardNumber: user.profile?.partyMemberCardNumber || "",
-      probationaryPartyMember: user.profile?.probationaryPartyMember || "",
-      fullPartyMember: user.profile?.fullPartyMember || "",
-      familyMember: user.profile?.familyMember || "",
-      foreignRelations: user.profile?.foreignRelations || "",
-      startWork: user.profile?.startWork || 0,
+      hometown: user.profile?.hometown,
+      placeOfBirth: user.profile?.placeOfBirth,
+      ethnicity: user.profile?.ethnicity,
+      religion: user.profile?.religion,
+      rank: user.profile?.rank,
+      unit: user.profile?.unit,
+      positionGovernment: user.profile?.positionGovernment,
+      positionParty: user.profile?.positionParty,
+      currentAddress: user.profile?.currentAddress,
+      dateOfEnlistment: user.profile?.dateOfEnlistment,
+      enrollment: user.profile?.enrollment,
+      currentCpa4: user.profile?.currentCpa4,
+      currentCpa10: user.profile?.currentCpa10,
+      graduationDate: user.profile?.graduationDate,
+      partyMemberCardNumber: user.profile?.partyMemberCardNumber,
+      probationaryPartyMember: user.profile?.probationaryPartyMember,
+      fullPartyMember: user.profile?.fullPartyMember,
+      familyMember: user.profile?.familyMember,
+      foreignRelations: user.profile?.foreignRelations,
+      startWork: user.profile?.startWork,
     },
   });
 
   const onSubmit: SubmitHandler<UpdateUserFormValues> = (data) => {
-    updateMutation.mutate(data);
+    const formattedData = { ...data };
+    
+    const dateFields = [
+      "birthday",
+      "dateOfEnlistment",
+      "graduationDate",
+      "probationaryPartyMember",
+      "fullPartyMember",
+    ] as const;
+
+    dateFields.forEach((field) => {
+      if (formattedData[field] === "") {
+        formattedData[field] = null;
+      }
+    });
+
+    updateMutation.mutate(formattedData);
   };
 
   return (
@@ -166,10 +183,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
                   label="Giới tính"
                   required={true}
                   placeholder="Chọn giới tính"
-                  options={[
-                    { label: "Nam", value: "MALE" },
-                    { label: "Nữ", value: "FEMALE" },
-                  ]}
+                  options={Object.entries(GENDER).map(([key, value]) => ({ value: key, label: value }))}
                   value={field.value}
                   onChange={field.onChange}
                   error={errors.gender?.message}
@@ -225,11 +239,19 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
               {...register("code")}
               error={errors.code?.message}
             />
-            <Input
-              label="Cấp bậc"
-              placeholder="Ví dụ: Hạ sĩ"
-              {...register("rank")}
-              error={errors.rank?.message}
+            <Controller
+              name="rank"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Cấp bậc"
+                  placeholder="Chọn cấp bậc"
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={Object.entries(RANKS).map(([key, value]) => ({ value: key, label: value }))}
+                  error={errors.rank?.message}
+                />
+              )}
             />
             <Input
               label="Đơn vị"

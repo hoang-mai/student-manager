@@ -35,7 +35,6 @@ export default function UpdateClassForm({ cls, educationLevelId, onSuccess, onCa
     defaultValues: {
       className: cls.className,
       studentCount: cls.studentCount,
-      educationLevelId: educationLevelId,
     },
   });
 

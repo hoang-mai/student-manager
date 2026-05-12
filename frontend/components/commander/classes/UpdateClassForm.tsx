@@ -3,25 +3,24 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { organizationService } from "@/services/organizations";
+import { updateClassSchema, UpdateClassFormValues } from "@/utils/validations";
+import { classService } from "@/services/classes";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import { useToastStore } from "@/store/useToastStore";
-import { HiOutlineAcademicCap } from "react-icons/hi";
-import { EducationLevel } from "@/types/organizations";
-import { updateEducationLevelSchema, UpdateEducationLevelFormValues } from "@/utils/validations";
 import Divide from "@/library/Divide";
 import { useLoadingStore } from "@/store/useLoadingStore";
+import { HiOutlineUserGroup } from "react-icons/hi";
+import { Class } from "@/types/classes";
 
 interface Props {
-  level: EducationLevel;
-  organizationId: string;
+  cls: Class;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export default function UpdateEducationLevelForm({ level, organizationId, onSuccess, onCancel }: Props) {
+export default function UpdateClassForm({ cls, onSuccess, onCancel }: Props) {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
   const { showLoading, hideLoading } = useLoadingStore();
@@ -30,22 +29,23 @@ export default function UpdateEducationLevelForm({ level, organizationId, onSucc
     register,
     handleSubmit,
     formState: { errors, isDirty },
-  } = useForm<UpdateEducationLevelFormValues>({
-    resolver: zodResolver(updateEducationLevelSchema),
+  } = useForm<UpdateClassFormValues>({
+    resolver: zodResolver(updateClassSchema),
     defaultValues: {
-      levelName: level.levelName,
+      className: cls.className,
+      studentCount: cls.studentCount,
     },
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: UpdateEducationLevelFormValues) => {
+    mutationFn: async (data: UpdateClassFormValues) => {
       showLoading();
-      return organizationService.updateEducationLevel(level.id, data);
+      return classService.updateClass(cls.id, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EDUCATION_LEVELS, organizationId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CLASSES] });
       addToast({
-        message: "Cập nhật trình độ thành công!",
+        message: "Cập nhật lớp học thành công!",
         variant: "success",
       });
       onSuccess();
@@ -64,11 +64,20 @@ export default function UpdateEducationLevelForm({ level, organizationId, onSucc
   return (
     <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-6 py-2">
       <Input
-        label="Tên trình độ đào tạo"
-        placeholder="VD: Đại học, Cao đẳng, Sau đại học..."
-        prefixIcon={<HiOutlineAcademicCap />}
-        error={errors.levelName?.message}
-        {...register("levelName")}
+        label="Tên lớp học"
+        placeholder="VD: CNTT-K60, AT15..."
+        prefixIcon={<HiOutlineUserGroup />}
+        error={errors.className?.message}
+        {...register("className")}
+        required
+      />
+      <Input
+        label="Số lượng học viên"
+        type="number"
+        placeholder="Nhập số lượng học viên hiện tại..."
+        prefixIcon={<HiOutlineUserGroup />}
+        error={errors.studentCount?.message}
+        {...register("studentCount", { valueAsNumber: true })}
         required
       />
 

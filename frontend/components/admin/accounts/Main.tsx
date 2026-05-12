@@ -4,8 +4,9 @@ import { useMemo, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { userService } from "@/services/user";
-import { UserDetailResponse } from "@/types/user";
+import { UserDetailResponse, UserQueryRequest } from "@/types/user";
 import { ROLES } from "@/constants/constants";
+import useTableQuery from "@/hooks/useTableQuery";
 import { formatDateTime } from "@/utils/fn-common";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Table from "@/library/Table";
@@ -34,6 +35,8 @@ import UpdateUserForm from "./UpdateUserForm";
 import DetailUserForm from "./DetailUserForm";
 import UpdateBatchStudents from "./UpdateBatchStudents";
 import Link from "next/link";
+import AccountSkeleton from "./AccountSkeleton";
+import ErrorState from "@/library/ErrorState";
 
 export default function Main() {
   const queryClient = useQueryClient();
@@ -41,6 +44,23 @@ export default function Main() {
   const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
   const { openModal, closeModal } = useModalStore();
   const { showLoading, hideLoading } = useLoadingStore();
+
+  const {
+    data: usersData,
+    isLoading: isUsersLoading,
+    isError: isUsersError,
+    refetch: refetchUsers,
+    pagination,
+    setPagination,
+    columnFilters,
+    setColumnFilters,
+    sorting,
+    setSorting,
+  } = useTableQuery<UserDetailResponse, UserQueryRequest>({
+    queryKey: [QUERY_KEYS.USERS],
+    fetchData: (params) => userService.getAllUsers(params),
+  });
+
   const toggleActiveMutation = useMutation({
     mutationFn: (id: string | number) => {
       setLoading(true);
@@ -361,6 +381,20 @@ export default function Main() {
     []
   );
 
+  if (isUsersLoading) {
+    return <AccountSkeleton />
+  }
+
+  if (isUsersError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách tài khoản"
+        message="Vui lòng thử tải lại trang. Nếu lỗi vẫn tiếp diễn, vui lòng liên hệ quản trị viên."
+        onRetry={refetchUsers}
+      />
+    )
+  }
+
   return (
     <AnimatedContainer
       variant="slideUp"
@@ -402,9 +436,14 @@ export default function Main() {
       <div className="bg-white overflow-hidden relative">
         <div className="px-4">
           <Table
-            fetchData={userService.getAllUsers}
+            data={usersData}
             columns={columns}
-            queryKey={[QUERY_KEYS.USERS]}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            columnFilters={columnFilters}
+            onColumnFiltersChange={setColumnFilters}
+            sorting={sorting}
+            onSortingChange={setSorting}
             filterFields={filterOptions}
             emptyText="Không tìm thấy tài khoản nào phù hợp"
             onAdd={handleOpenCreateModal}

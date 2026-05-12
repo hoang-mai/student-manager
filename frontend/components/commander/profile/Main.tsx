@@ -25,7 +25,7 @@ import Badge from "@/library/Badge";
 import { DEFAULT_VALUES } from "@/constants/constants";
 import { formatDate, formatDateTime } from "@/utils/fn-common";
 import { useModalStore } from "@/store/useModalStore";
-import ProfileForm from "./ProfileForm";
+import UpdateProfileForm from "./UpdateProfileForm";
 import ProfileSkeleton from "./ProfileSkeleton";
 import ErrorState from "@/library/ErrorState";
 import Button from "@/library/Button";
@@ -64,7 +64,7 @@ export default function Main() {
   const handleUpdateProfile = () => {
     openModal({
       title: "Cập nhật hồ sơ cá nhân",
-      content: <ProfileForm initialData={commander} />,
+      content: <UpdateProfileForm initialData={commander} />,
       size: "lg",
     });
   };

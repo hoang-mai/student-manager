@@ -39,7 +39,7 @@ import { organizationService } from "@/services/organizations";
 import { universityService } from "@/services/universities";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { DEFAULT_PAGE } from "@/constants/constants";
-import { Organization, EducationLevel } from "@/types/organizations";
+import { Organization } from "@/types/organizations";
 
 import CreateOrganizationForm from "./CreateOrganizationForm";
 import UpdateOrganizationForm from "./UpdateOrganizationForm";
@@ -84,19 +84,22 @@ export default function Main({ universityId }: Props) {
     select: (data) => data.pages.flatMap((page) => page.data || []),
   });
 
-  const { data: universityData, isLoading: isUniversityLoading, isError: isUniversityError } = useQuery({
+  const {
+    data: universityData,
+    isLoading: isUniversityLoading,
+    isError: isUniversityError,
+  } = useQuery({
     queryKey: [QUERY_KEYS.UNIVERSITIES, universityId],
     queryFn: () => universityService.getUniversity(universityId),
     select: (res) => res.data,
   });
 
-  useInfiniteScroll({
+  const setSentinelRef = useInfiniteScroll({
     callback: fetchNextPage,
     hasNextPage,
     isFetching: isFetchingNextPage,
   });
 
-  // Mutations
   const deleteOrganizationMutation = useMutation({
     mutationFn: (id: string) => {
       setLoading(true);
@@ -109,6 +112,12 @@ export default function Main({ universityId }: Props) {
       });
       addToast({ message: "Xóa đơn vị thành công", variant: "success" });
       closeConfirm();
+    },
+    onError: (err: Error) => {
+      addToast({
+        message: err.message || "Xóa đơn vị thất bại!",
+        variant: "error",
+      });
     },
     onSettled: () => {
       setLoading(false);
@@ -137,6 +146,12 @@ export default function Main({ universityId }: Props) {
         variant: "success",
       });
       closeConfirm();
+    },
+    onError: (err: Error) => {
+      addToast({
+        message: err.message || "Cập nhật trạng thái thất bại!",
+        variant: "error",
+      });
     },
     onSettled: () => {
       setLoading(false);
@@ -321,10 +336,11 @@ export default function Main({ universityId }: Props) {
                               }),
                           })
                         }
-                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${org.status === "ACTIVE"
+                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${
+                          org.status === "ACTIVE"
                             ? "hover:bg-amber-50 hover:text-amber-600"
                             : "hover:bg-emerald-50 hover:text-emerald-600"
-                          }`}
+                        }`}
                       >
                         {org.status === "ACTIVE" ? (
                           <HiOutlineLockOpen size={18} />
@@ -392,6 +408,9 @@ export default function Main({ universityId }: Props) {
                 </AnimatePresence>
               </div>
             ))}
+
+            {/* Sentinel for infinite scroll */}
+            <div ref={setSentinelRef} className="h-1" />
           </div>
         ) : (
           <div className="text-center py-20 bg-neutral-50 rounded-3xl border border-dashed border-neutral-200">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 /**
@@ -28,18 +28,28 @@ const Tooltip: React.FC<TooltipProps> = ({
   delay = 0.5,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  let timeout: NodeJS.Timeout;
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const showTooltip = () => {
-    timeout = setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
     }, delay * 1000);
   };
 
   const hideTooltip = () => {
-    clearTimeout(timeout);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     setIsVisible(false);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const positionClasses = {
     top: "bottom-full left-1/2 -translate-x-1/2 mb-2",

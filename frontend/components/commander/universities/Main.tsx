@@ -66,7 +66,7 @@ export default function Main() {
     select: (data) => data.pages.flatMap((page) => page.data || []),
   });
 
-  useInfiniteScroll({
+  const setSentinelRef = useInfiniteScroll({
     callback: fetchNextPage,
     hasNextPage,
     isFetching: isFetchingNextPage,
@@ -92,6 +92,12 @@ export default function Main() {
       });
       closeConfirm();
     },
+    onError: (err: Error) => {
+      addToast({
+        message: err.message || "Cập nhật trạng thái thất bại!",
+        variant: "error",
+      });
+    },
     onSettled: () => {
       setLoading(false);
       hideLoading();
@@ -111,6 +117,12 @@ export default function Main() {
         variant: "success",
       });
       closeConfirm();
+    },
+    onError: (err: Error) => {
+      addToast({
+        message: err.message || "Xóa trường đại học thất bại!",
+        variant: "error",
+      });
     },
     onSettled: () => {
       setLoading(false);
@@ -192,114 +204,117 @@ export default function Main() {
       {/* Content */}
       <div className="space-y-6">
         {universities && universities.length > 0 ? (
-          universities.map((uni) => (
-            <div
-              key={uni.id}
-              className="bg-white border border-neutral-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all"
-            >
-              <div className="p-6 bg-linear-to-r from-neutral-50/50 to-white flex items-center justify-between border-b border-neutral-50">
-                <Link
-                  href={`/commander/universities/${uni.id}`}
-                  className="flex items-center gap-4 cursor-pointer group flex-1"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-600 shadow-inner">
-                    <HiOutlineOfficeBuilding size={24} />
-                  </div>
-                  <div>
-                    <Typography
-                      variant="h3"
-                      className="group-hover:text-primary-600 transition-colors"
-                    >
-                      {uni.universityName}
-                    </Typography>
-                    <div className="flex items-center gap-4 mt-0.5">
-                      <Typography variant="caption" color="gray">
-                        Mã trường: {uni.universityCode}
-                      </Typography>
-                      <div className="w-1 h-1 rounded-full bg-neutral-300" />
-                      <Typography variant="caption" color="gray">
-                        {uni.totalStudents} học viên
-                      </Typography>
-                      <Badge
-                        variant={
-                          uni.status === "ACTIVE" ? "success" : "neutral"
-                        }
-                      >
-                        {uni.status === "ACTIVE" ? "Hoạt động" : "Tạm dừng"}
-                      </Badge>
-                    </div>
-                  </div>
-                </Link>
-                <div className="flex gap-2">
-                  <Tooltip
-                    content={
-                      uni.status === "ACTIVE"
-                        ? "Tạm dừng hoạt động"
-                        : "Kích hoạt hoạt động"
-                    }
-                    position="top"
+          <>
+            {universities.map((uni) => (
+              <div
+                key={uni.id}
+                className="bg-white border border-neutral-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="p-6 bg-linear-to-r from-neutral-50/50 to-white flex items-center justify-between border-b border-neutral-50">
+                  <Link
+                    href={`/commander/universities/${uni.id}`}
+                    className="flex items-center gap-4 cursor-pointer group flex-1"
                   >
-                    <button
-                      onClick={() =>
-                        openConfirm({
-                          title:
-                            uni.status === "ACTIVE"
-                              ? "Xác nhận tạm dừng"
-                              : "Xác nhận kích hoạt",
-                          message: `Bạn có chắc chắn muốn ${uni.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} trường "${uni.universityName}" không?`,
-                          confirmText:
-                            uni.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
-                          variant:
-                            uni.status === "ACTIVE" ? "danger" : "primary",
-                          onConfirm: () =>
-                            toggleUniversityStatusMutation.mutate({
-                              id: uni.id,
-                              status: uni.status,
-                            }),
-                        })
-                      }
-                      className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${
+                    <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-600 shadow-inner">
+                      <HiOutlineOfficeBuilding size={24} />
+                    </div>
+                    <div>
+                      <Typography
+                        variant="h3"
+                        className="group-hover:text-primary-600 transition-colors"
+                      >
+                        {uni.universityName}
+                      </Typography>
+                      <div className="flex items-center gap-4 mt-0.5">
+                        <Typography variant="caption" color="gray">
+                          Mã trường: {uni.universityCode}
+                        </Typography>
+                        <div className="w-1 h-1 rounded-full bg-neutral-300" />
+                        <Typography variant="caption" color="gray">
+                          {uni.totalStudents} học viên
+                        </Typography>
+                        <Badge
+                          variant={
+                            uni.status === "ACTIVE" ? "success" : "neutral"
+                          }
+                        >
+                          {uni.status === "ACTIVE" ? "Hoạt động" : "Tạm dừng"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                  <div className="flex gap-2">
+                    <Tooltip
+                      content={
                         uni.status === "ACTIVE"
+                          ? "Tạm dừng hoạt động"
+                          : "Kích hoạt hoạt động"
+                      }
+                      position="top"
+                    >
+                      <button
+                        onClick={() =>
+                          openConfirm({
+                            title:
+                              uni.status === "ACTIVE"
+                                ? "Xác nhận tạm dừng"
+                                : "Xác nhận kích hoạt",
+                            message: `Bạn có chắc chắn muốn ${uni.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} trường "${uni.universityName}" không?`,
+                            confirmText:
+                              uni.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
+                            variant:
+                              uni.status === "ACTIVE" ? "danger" : "primary",
+                            onConfirm: () =>
+                              toggleUniversityStatusMutation.mutate({
+                                id: uni.id,
+                                status: uni.status,
+                              }),
+                          })
+                        }
+                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${uni.status === "ACTIVE"
                           ? "hover:bg-amber-50 hover:text-amber-600"
                           : "hover:bg-emerald-50 hover:text-emerald-600"
-                      }`}
-                    >
-                      {uni.status === "ACTIVE" ? (
-                        <HiOutlineLockOpen size={20} />
-                      ) : (
-                        <HiOutlineLockClosed size={20} />
-                      )}
-                    </button>
-                  </Tooltip>
-                  <Tooltip content="Chỉnh sửa" position="top">
-                    <button
-                      onClick={() => handleOpenUpdateModal(uni)}
-                      className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                    >
-                      <HiOutlinePencil size={20} />
-                    </button>
-                  </Tooltip>
-                  <Tooltip content="Xóa trường" position="top">
-                    <button
-                      onClick={() =>
-                        openConfirm({
-                          title: "Xác nhận xóa",
-                          message: `Bạn có chắc chắn muốn xóa trường "${uni.universityName}"? Toàn bộ dữ liệu cấp dưới sẽ bị xóa.`,
-                          confirmText: "Xóa ngay",
-                          variant: "danger",
-                          onConfirm: () =>
-                            deleteUniversityMutation.mutate(uni.id),
-                        })
-                      }
-                      className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                    >
-                      <HiOutlineTrash size={20} />
-                    </button>
-                  </Tooltip>
+                          }`}
+                      >
+                        {uni.status === "ACTIVE" ? (
+                          <HiOutlineLockOpen size={20} />
+                        ) : (
+                          <HiOutlineLockClosed size={20} />
+                        )}
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Chỉnh sửa" position="top">
+                      <button
+                        onClick={() => handleOpenUpdateModal(uni)}
+                        className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                      >
+                        <HiOutlinePencil size={20} />
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Xóa trường" position="top">
+                      <button
+                        onClick={() =>
+                          openConfirm({
+                            title: "Xác nhận xóa",
+                            message: `Bạn có chắc chắn muốn xóa trường "${uni.universityName}"? Toàn bộ dữ liệu cấp dưới sẽ bị xóa.`,
+                            confirmText: "Xóa ngay",
+                            variant: "danger",
+                            onConfirm: () =>
+                              deleteUniversityMutation.mutate(uni.id),
+                          })
+                        }
+                        className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                      >
+                        <HiOutlineTrash size={20} />
+                      </button>
+                    </Tooltip>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+            {/* Sentinel for infinite scroll */}
+            <div ref={setSentinelRef} className="h-1" />
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 bg-white border border-neutral-100 rounded-3xl text-neutral-300">
             <div className="w-20 h-20 rounded-full bg-neutral-50 flex items-center justify-center mb-4">

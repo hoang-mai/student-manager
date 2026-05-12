@@ -9,4 +9,5 @@ export const QUERY_KEYS = {
   ORGANIZATIONS: "organizations",
   EDUCATION_LEVELS: "education_levels",
   CLASSES: "classes",
+  DUTY_SCHEDULES: "dutySchedules",
 };

@@ -44,7 +44,6 @@ export default function UpdateOrganizationForm({
     defaultValues: {
       organizationName: organization.organizationName,
       travelTime: organization.travelTime,
-      universityId: universityId,
     },
   });
 

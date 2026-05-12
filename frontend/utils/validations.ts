@@ -47,70 +47,6 @@ export const resetPasswordSchema = z
 
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
-/**
- * Schema validation cho form thêm/sửa tài khoản (Admin)
- */
-const baseProfileSchema = z.object({
-  code: z.string().nullable().or(z.literal("")).optional(),
-  fullName: z.string().min(1, "Họ và tên không được để trống"),
-  email: z.email("Email không hợp lệ").nullable().or(z.literal("")).optional(),
-  phoneNumber: z.string().nullable().or(z.literal("")).optional(),
-  birthday: z
-    .string()
-    .nullable()
-    .or(z.literal(""))
-    .transform((v) => (v === "" ? null : v))
-    .optional(),
-  cccd: z.string().nullable().or(z.literal("")).optional(),
-  gender: z.enum(["MALE", "FEMALE"]).nullable().optional(),
-  hometown: z.string().nullable().or(z.literal("")).optional(),
-  placeOfBirth: z.string().nullable().or(z.literal("")).optional(),
-  ethnicity: z.string().nullable().or(z.literal("")).optional(),
-  religion: z.string().nullable().or(z.literal("")).optional(),
-  rank: z.string().nullable().or(z.literal("")).optional(),
-  unit: z.string().nullable().or(z.literal("")).optional(),
-  positionGovernment: z.string().nullable().or(z.literal("")).optional(),
-  positionParty: z.string().nullable().or(z.literal("")).optional(),
-  currentAddress: z.string().nullable().or(z.literal("")).optional(),
-  dateOfEnlistment: z
-    .string()
-    .nullable()
-    .or(z.literal(""))
-    .transform((v) => (v === "" ? null : v))
-    .optional(),
-  partyMemberCardNumber: z.string().nullable().or(z.literal("")).optional(),
-  probationaryPartyMember: z
-    .string()
-    .nullable()
-    .or(z.literal(""))
-    .transform((v) => (v === "" ? null : v))
-    .optional(),
-  fullPartyMember: z
-    .string()
-    .nullable()
-    .or(z.literal(""))
-    .transform((v) => (v === "" ? null : v))
-    .optional(),
-  familyMember: z.string().nullable().or(z.literal("")).optional(),
-  foreignRelations: z.string().nullable().or(z.literal("")).optional(),
-});
-
-const studentFields = z.object({
-  enrollment: z.coerce.number().nullable().optional(),
-  currentCpa4: z.coerce.number().nullable().optional(),
-  currentCpa10: z.coerce.number().nullable().optional(),
-  graduationDate: z
-    .string()
-    .nullable()
-    .or(z.literal(""))
-    .transform((v) => (v === "" ? null : v))
-    .optional(),
-});
-
-const commanderFields = z.object({
-  startWork: z.coerce.number().nullable().optional(),
-});
-
 export const createUserSchema = z.object({
   username: z.string().min(3, "Username phải ít nhất 3 ký tự"),
   email: z.email("Email không hợp lệ").optional().or(z.literal("")),
@@ -289,7 +225,6 @@ export type CreateOrganizationFormValues = z.infer<
 export const updateOrganizationSchema = z.object({
   organizationName: z.string().min(1, "Tên đơn vị là bắt buộc"),
   travelTime: z.number().min(0, "Thời gian di chuyển không được âm"),
-  universityId: z.string().min(1, "University ID là bắt buộc"),
 });
 
 export type UpdateOrganizationFormValues = z.infer<
@@ -313,7 +248,6 @@ export type CreateEducationLevelFormValues = z.infer<
  */
 export const updateEducationLevelSchema = z.object({
   levelName: z.string().min(1, "Tên trình độ là bắt buộc"),
-  organizationId: z.string().min(1, "Organization ID is required"),
 });
 
 export type UpdateEducationLevelFormValues = z.infer<
@@ -337,7 +271,19 @@ export type CreateClassFormValues = z.infer<typeof createClassSchema>;
 export const updateClassSchema = z.object({
   className: z.string().min(1, "Tên lớp là bắt buộc"),
   studentCount: z.number().min(0, "Số lượng học viên không được âm"),
-  educationLevelId: z.string().min(1, "Education Level ID là bắt buộc"),
 });
 
 export type UpdateClassFormValues = z.infer<typeof updateClassSchema>;
+
+/**
+ * Schema validation cho form phân công lịch trực (Duty Schedule)
+ */
+export const dutyScheduleSchema = z.object({
+  fullName: z.string().min(1, "Họ và tên không được để trống"),
+  rank: z.string().min(1, "Cấp bậc không được để trống"),
+  phoneNumber: z.string().min(1, "Số điện thoại không được để trống"),
+  position: z.string().min(1, "Nhiệm vụ không được để trống"),
+  workDay: z.string().min(1, "Ngày trực không được để trống"),
+});
+
+export type DutyScheduleFormValues = z.infer<typeof dutyScheduleSchema>;

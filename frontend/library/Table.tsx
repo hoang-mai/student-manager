@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useMemo, useCallback } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -9,26 +8,38 @@ import {
   VisibilityState,
   ColumnFiltersState,
   SortingState,
+  OnChangeFn,
+  PaginationState,
 } from "@tanstack/react-table";
+import { useState } from "react";
 import { DragDropProvider, DragEndEvent } from "@dnd-kit/react";
 import { isSortable } from "@dnd-kit/react/sortable";
 import Divide from "@/library/Divide";
 import Pagination from "@/library/Pagination";
 import TableHeader from "./table/TableHeader";
 import TableToolbar from "./table/TableToolbar";
-import TableSkeleton from "./table/TableSkeleton";
 import TableBody from "./table/TableBody";
-import TableErrorState from "./table/TableErrorState";
-import { DEFAULT_PAGE } from "@/constants/constants";
 import { FilterField } from "./table/TableFilter";
 
-export interface TableProps<TData, TParams = Record<string, unknown>> {
-  /** Hàm gọi API lấy dữ liệu */
-  fetchData: (params: TParams) => Promise<PaginatedResponse<TData>>;
+export interface TableProps<TData> {
+  /** Dữ liệu đã fetch từ bên ngoài (qua useTableQuery) */
+  data: PaginatedResponse<TData> | undefined;
+
   /** Định nghĩa các cột */
   columns: ColumnDef<TData>[];
-  /** Key để cache dữ liệu trong React Query */
-  queryKey: string[];
+
+  /** State phân trang (controlled) */
+  pagination: PaginationState;
+  onPaginationChange: OnChangeFn<PaginationState>;
+
+  /** State lọc (controlled) */
+  columnFilters: ColumnFiltersState;
+  onColumnFiltersChange: OnChangeFn<ColumnFiltersState>;
+
+  /** State sắp xếp (controlled) */
+  sorting: SortingState;
+  onSortingChange: OnChangeFn<SortingState>;
+
   /** Hiển thị cột số thứ tự (mặc định: true) */
   showIndex?: boolean;
   /** Hiển thị nút tùy chỉnh ẩn hiện cột (mặc định: true) */
@@ -53,10 +64,15 @@ export interface TableProps<TData, TParams = Record<string, unknown>> {
   bulkUpdateLabel?: string;
 }
 
-const Table = <TData, TParams = Record<string, unknown>>({
-  fetchData,
+const Table = <TData,>({
+  data,
   columns: userColumns,
-  queryKey,
+  pagination,
+  onPaginationChange,
+  columnFilters,
+  onColumnFiltersChange,
+  sorting,
+  onSortingChange,
   showIndex = true,
   filterFields,
   showFilter = true,
@@ -67,42 +83,9 @@ const Table = <TData, TParams = Record<string, unknown>>({
   addLabel,
   onBulkUpdate,
   bulkUpdateLabel,
-}: TableProps<TData, TParams>) => {
-  const [pagination, setPagination] = useState({
-    pageIndex: DEFAULT_PAGE.PAGE_INDEX,
-    pageSize: DEFAULT_PAGE.PAGE_SIZE,
-  });
+}: TableProps<TData>) => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
-
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: [...queryKey, pagination, columnFilters, sorting],
-    queryFn: async () => {
-      const filterParams = columnFilters.reduce(
-        (acc, filter) => {
-          acc[filter.id] = filter.value;
-          return acc;
-        },
-        {} as Record<string, unknown>
-      );
-
-      const sortParams: Record<string, string> = {};
-      if (sorting.length > 0) {
-        sortParams.sortBy = sorting[0].id;
-        sortParams.sortOrder = sorting[0].desc ? "desc" : "asc";
-      }
-
-      return fetchData({
-        page: pagination.pageIndex + 1,
-        limit: pagination.pageSize,
-        ...filterParams,
-        ...sortParams,
-      } as TParams);
-    },
-    placeholderData: keepPreviousData,
-  });
 
   const displayData = useMemo(() => data?.data || [], [data]);
   const totalPages = useMemo(() => data?.pagination?.totalPages || 1, [data]);
@@ -142,11 +125,11 @@ const Table = <TData, TParams = Record<string, unknown>>({
       columnFilters,
       sorting,
     },
-    onPaginationChange: setPagination,
+    onPaginationChange,
     onColumnOrderChange: setColumnOrder,
     onColumnVisibilityChange: setColumnVisibility,
-    onColumnFiltersChange: setColumnFilters,
-    onSortingChange: setSorting,
+    onColumnFiltersChange,
+    onSortingChange,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -174,14 +157,14 @@ const Table = <TData, TParams = Record<string, unknown>>({
   );
 
   const handlePageChange = (newPage: number) => {
-    setPagination((prev) => ({
+    onPaginationChange((prev: PaginationState) => ({
       ...prev,
       pageIndex: newPage - 1,
     }));
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    setPagination((prev) => ({
+    onPaginationChange((prev: PaginationState) => ({
       ...prev,
       pageSize: newPageSize,
       pageIndex: 0,
@@ -195,7 +178,6 @@ const Table = <TData, TParams = Record<string, unknown>>({
         table={table}
         filterFields={filterFields}
         showFilter={showFilter}
-        isLoading={isLoading}
         onAdd={onAdd}
         addLabel={addLabel}
         onBulkUpdate={onBulkUpdate}
@@ -222,21 +204,11 @@ const Table = <TData, TParams = Record<string, unknown>>({
                 ))}
               </thead>
               <tbody>
-                {isLoading ? (
-                  <TableSkeleton table={table} />
-                ) : isError ? (
-                  <TableErrorState 
-                    table={table} 
-                    error={error} 
-                    onRetry={() => refetch()} 
-                  />
-                ) : (
-                  <TableBody
-                    table={table}
-                    emptyText={emptyText}
-                    rowClassName={rowClassName}
-                  />
-                )}
+                <TableBody
+                  table={table}
+                  emptyText={emptyText}
+                  rowClassName={rowClassName}
+                />
               </tbody>
             </table>
           </div>

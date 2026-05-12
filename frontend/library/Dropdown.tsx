@@ -36,6 +36,10 @@ export interface DropdownProps {
   targetY?: number;
   /** Bắt buộc dropdown phải có chiều rộng bằng đúng với phần tử trigger */
   fullwidth?: boolean;
+  /** Trạng thái vô hiệu hóa */
+  disabled?: boolean;
+  /** Trạng thái đang tải */
+  isLoading?: boolean;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -47,6 +51,8 @@ const Dropdown: React.FC<DropdownProps> = ({
   offsetY = 10,
   targetY = 10,
   fullwidth = false,
+  disabled = false,
+  isLoading = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -58,7 +64,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   };
 
   // Lấy thẳng x, y, strategy thay vì floatingStyles để tránh xung đột transform với framer-motion
-  const { refs, x, y, strategy, context, placement } = useFloating({
+  const { refs: { setReference, setFloating }, x, y, strategy, context, placement } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
     placement: getInitialPlacement(),
@@ -82,7 +88,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   });
 
   // Tương tác (Interactions)
-  const click = useClick(context);
+  const click = useClick(context, { enabled: !disabled && !isLoading });
   const dismiss = useDismiss(context);
   const role = useRole(context);
 
@@ -98,9 +104,9 @@ const Dropdown: React.FC<DropdownProps> = ({
   return (
     <div className={`relative ${className}`}>
       <div
-        ref={refs.setReference}
+        ref={setReference}
         {...getReferenceProps()}
-        className="cursor-pointer"
+        className={disabled ? "cursor-not-allowed" : "cursor-pointer"}
       >
         {typeof trigger === "function" ? trigger(isOpen, basePlacement) : trigger}
       </div>
@@ -109,7 +115,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         {isOpen && (
           <FloatingPortal>
             <motion.div
-              ref={refs.setFloating}
+              ref={setFloating}
               style={{ 
                 position: strategy,
                 top: y ?? 0,

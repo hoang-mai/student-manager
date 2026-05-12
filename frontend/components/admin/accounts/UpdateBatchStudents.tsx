@@ -63,7 +63,7 @@ const UpdateBatchStudents: React.FC<UpdateBatchStudentsProps> = ({
         const workbook = XLSX.read(data, { type: "array" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json<any>(worksheet);
+        const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
 
         // Mapping Excel headers to API fields
         const mappedData = json
@@ -132,7 +132,7 @@ const UpdateBatchStudents: React.FC<UpdateBatchStudentsProps> = ({
         }
 
         setParsedData(result.data);
-      } catch (err) {
+      } catch {
         addToast({ message: "Lỗi định dạng file Excel!", variant: "error" });
         resetField("file");
         setParsedData([]);

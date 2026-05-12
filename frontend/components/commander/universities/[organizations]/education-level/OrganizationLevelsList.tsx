@@ -43,6 +43,12 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
       addToast({ message: "Xóa trình độ thành công", variant: "success" });
       closeConfirm();
     },
+    onError: (err: Error) => {
+      addToast({
+        message: err.message || "Xóa trình độ thất bại!",
+        variant: "error",
+      });
+    },
     onSettled: () => {
       setLoading(false);
       hideLoading();

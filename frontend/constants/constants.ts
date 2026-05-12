@@ -35,3 +35,29 @@ export const DEFAULT_PAGE = {
   PAGE_INDEX: 0,
   PAGE_SIZE: 10,
 };
+
+export const RANKS = {
+  PRIVATE_SECOND_CLASS: 'Binh nhì',
+  PRIVATE_FIRST_CLASS: 'Binh nhất',
+  CORPORAL: 'Hạ sĩ',
+  SERGEANT: 'Trung sĩ',
+  STAFF_SERGEANT: 'Thượng sĩ',
+  SECOND_LIEUTENANT: 'Thiếu úy',
+  FIRST_LIEUTENANT: 'Trung úy',
+  SENIOR_LIEUTENANT: 'Thượng úy',
+  CAPTAIN: 'Đại úy',
+  MAJOR: 'Thiếu tá',
+  LIEUTENANT_COLONEL: 'Trung tá',
+  SENIOR_COLONEL: 'Thượng tá',
+  COLONEL: 'Đại tá',
+  MAJOR_GENERAL: 'Thiếu tướng',
+  LIEUTENANT_GENERAL: 'Trung tướng',
+  SENIOR_GENERAL: 'Thượng tướng',
+  GENERAL: 'Đại tướng',
+};
+
+export const GENDER = {
+  MALE: 'Nam',
+  FEMALE: 'Nữ',
+  OTHER: 'Khác',
+};

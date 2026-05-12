@@ -16,7 +16,6 @@ interface ErrorStateProps {
 
 /**
  * Component hiển thị trạng thái lỗi tổng quát (không chỉ cho bảng)
- * Đồng bộ hoàn toàn thiết kế với TableErrorState
  */
 const ErrorState: React.FC<ErrorStateProps> = ({
   title = "Đã có lỗi xảy ra",

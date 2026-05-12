@@ -3,7 +3,6 @@
 import React from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "@/services/auth";
 import { QUERY_KEYS } from "@/constants/query-keys";
@@ -19,12 +18,15 @@ import DatePicker from "@/library/DatePicker";
 import Divide from "@/library/Divide";
 
 import { profileSchema, ProfileFormValues } from "@/utils/validations";
+import { RANKS, GENDER } from "@/constants/constants";
 
-interface ProfileFormProps {
+interface UpdateProfileFormProps {
   initialData: Commander;
 }
 
-export default function ProfileForm({ initialData }: ProfileFormProps) {
+export default function UpdateProfileForm({
+  initialData,
+}: UpdateProfileFormProps) {
   const queryClient = useQueryClient();
   const { closeModal } = useModalStore();
   const { addToast } = useToastStore();
@@ -39,25 +41,25 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: initialData.fullName,
-      email: initialData?.email || "",
-      phoneNumber: initialData?.phoneNumber || "",
-      birthday: initialData?.birthday,
-      gender: initialData?.gender || "MALE",
-      cccd: initialData?.cccd || "",
-      currentAddress: initialData?.currentAddress || "",
-      hometown: initialData?.hometown || "",
-      placeOfBirth: initialData?.placeOfBirth || "",
-      ethnicity: initialData?.ethnicity || "",
-      religion: initialData?.religion || "",
-      rank: initialData?.rank || "",
-      unit: initialData?.unit || "",
-      positionGovernment: initialData?.positionGovernment || "",
-      positionParty: initialData?.positionParty || "",
-      startWork: initialData?.startWork || 0,
-      dateOfEnlistment: initialData?.dateOfEnlistment || "",
-      probationaryPartyMember: initialData?.probationaryPartyMember || "",
-      fullPartyMember: initialData?.fullPartyMember || "",
-      partyMemberCardNumber: initialData?.partyMemberCardNumber || "",
+      email: initialData.email,
+      phoneNumber: initialData.phoneNumber,
+      birthday: initialData.birthday,
+      gender: initialData.gender,
+      cccd: initialData.cccd,
+      currentAddress: initialData.currentAddress,
+      hometown: initialData.hometown,
+      placeOfBirth: initialData.placeOfBirth,
+      ethnicity: initialData.ethnicity,
+      religion: initialData.religion,
+      rank: initialData.rank,
+      unit: initialData.unit,
+      positionGovernment: initialData.positionGovernment,
+      positionParty: initialData.positionParty,
+      startWork: initialData.startWork,
+      dateOfEnlistment: initialData.dateOfEnlistment,
+      probationaryPartyMember: initialData.probationaryPartyMember,
+      fullPartyMember: initialData.fullPartyMember,
+      partyMemberCardNumber: initialData.partyMemberCardNumber,
     },
   });
 
@@ -81,7 +83,22 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   });
 
   const onSubmit: SubmitHandler<ProfileFormValues> = (data) => {
-    mutation.mutate(data);
+    const formattedData = { ...data };
+
+    const dateFields = [
+      "birthday",
+      "dateOfEnlistment",
+      "probationaryPartyMember",
+      "fullPartyMember",
+    ] as const;
+
+    dateFields.forEach((field) => {
+      if (formattedData[field] === "") {
+        formattedData[field] = null;
+      }
+    });
+
+    mutation.mutate(formattedData);
   };
 
   return (
@@ -109,10 +126,10 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                   label="Giới tính"
                   value={field.value}
                   onChange={field.onChange}
-                  options={[
-                    { label: "Nam", value: "MALE" },
-                    { label: "Nữ", value: "FEMALE" },
-                  ]}
+                  options={Object.entries(GENDER).map(([key, value]) => ({
+                    value: key,
+                    label: value,
+                  }))}
                   error={errors.gender?.message}
                   required
                 />
@@ -195,11 +212,22 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
         <section>
           <SectionHeader title="Công tác & Chính quyền" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-            <Input
-              label="Cấp bậc"
-              placeholder="Nhập cấp bậc"
-              error={errors.rank?.message}
-              {...register("rank")}
+            <Controller
+              name="rank"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Cấp bậc"
+                  placeholder="Chọn cấp bậc"
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={Object.values(RANKS).map((rank) => ({
+                    value: rank,
+                    label: rank,
+                  }))}
+                  error={errors.rank?.message}
+                />
+              )}
             />
             <Input
               label="Đơn vị"
