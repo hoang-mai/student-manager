@@ -6,15 +6,7 @@ import Tabs, { TabItem } from "@/library/Tabs";
 import CreateSingleUser from "./CreateSingleUser";
 import CreateBatchUsers from "./CreateBatchUsers";
 
-interface CreateUserFormProps {
-  onSuccess: () => void;
-  onCancel: () => void;
-}
-
-const CreateUserForm: React.FC<CreateUserFormProps> = ({
-  onSuccess,
-  onCancel,
-}) => {
+const CreateUserForm: React.FC = () => {
   const [activeTab, setActiveTab] = useState("single");
 
   const tabs: TabItem[] = [
@@ -23,7 +15,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({
       label: "Thêm một người",
       icon: <HiOutlineUserAdd size={18} />,
       content: (
-        <CreateSingleUser onSuccess={onSuccess} onCancel={onCancel} />
+        <CreateSingleUser/>
       ),
     },
     {
@@ -31,7 +23,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({
       label: "Thêm hàng loạt (Excel)",
       icon: <HiOutlineCollection size={18} />,
       content: (
-        <CreateBatchUsers onSuccess={onSuccess} onCancel={onCancel} />
+        <CreateBatchUsers/>
       ),
     },
   ];

@@ -2,15 +2,14 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organizations";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
-import { useToastStore } from "@/store/useToastStore";
 import { HiOutlineCollection, HiOutlineClock } from "react-icons/hi";
 import Divide from "@/library/Divide";
-import { useLoadingStore } from "@/store/useLoadingStore";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
 import {
   createOrganizationSchema,
@@ -19,18 +18,12 @@ import {
 
 interface Props {
   universityId: string;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
 export default function CreateOrganizationForm({
   universityId,
-  onSuccess,
-  onCancel,
 }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { closeModal } = useModalStore();
 
   const {
     register,
@@ -45,30 +38,13 @@ export default function CreateOrganizationForm({
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: CreateOrganizationFormValues) => {
-      showLoading();
-      return organizationService.createOrganization(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
-      });
-      addToast({
-        message: "Thêm mới đơn vị thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Đã có lỗi xảy ra!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const mutation = useAppMutation({
+    mutationFn: (data: CreateOrganizationFormValues) =>
+      organizationService.createOrganization(data),
+    invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
+    successMessage: "Thêm mới đơn vị thành công!",
+    errorMessage: "Đã có lỗi xảy ra!",
+    onSuccess: () => closeModal(),
   });
 
   return (
@@ -100,7 +76,7 @@ export default function CreateOrganizationForm({
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ

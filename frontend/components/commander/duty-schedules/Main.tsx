@@ -1,13 +1,10 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { dutyScheduleService } from "@/services/duty-schedules";
 import { DutySchedule } from "@/types/duty-schedules";
-import { useToastStore } from "@/store/useToastStore";
 import { useModalStore } from "@/store/useModalStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import Typography from "@/library/Typography";
@@ -30,13 +27,11 @@ import CreateDutyScheduleForm from "./CreateDutyScheduleForm";
 import UpdateDutyScheduleForm from "./UpdateDutyScheduleForm";
 import DutyScheduleSkeleton from "./DutyScheduleSkeleton";
 import Tooltip from "@/library/Tooltip";
+import useAppMutation from "@/hooks/useAppMutation";
 
 export default function DutySchedulesMain() {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { openModal, closeModal } = useModalStore();
-  const { showLoading, hideLoading } = useLoadingStore();
-  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
+  const { openModal } = useModalStore();
+  const { openConfirm } = useConfirmStore();
 
   const {
     data,
@@ -55,34 +50,20 @@ export default function DutySchedulesMain() {
     fetchData: (params) => dutyScheduleService.getDutySchedules(params),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => {
-      setLoading(true);
-      showLoading();
-      return dutyScheduleService.deleteDutySchedule(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DUTY_SCHEDULES] });
-      addToast({ message: "Xóa ca trực thành công!", variant: "success" });
-      closeConfirm();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Xóa ca trực thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const deleteMutation = useAppMutation({
+    mutationFn: (id: string) => dutyScheduleService.deleteDutySchedule(id),
+    invalidateQueryKey: [QUERY_KEYS.DUTY_SCHEDULES],
+    successMessage: "Xóa ca trực thành công!",
+    errorMessage: "Xóa ca trực thất bại!",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
   const handleAdd = () => {
     openModal({
       title: "Phân công ca trực mới",
       content: (
-        <CreateDutyScheduleForm onSuccess={closeModal} onCancel={closeModal} />
+        <CreateDutyScheduleForm />
       ),
     });
   };
@@ -94,13 +75,11 @@ export default function DutySchedulesMain() {
         content: (
           <UpdateDutyScheduleForm
             schedule={schedule}
-            onSuccess={closeModal}
-            onCancel={closeModal}
           />
         ),
       });
     },
-    [openModal, closeModal]
+    [openModal]
   );
 
   const columns = useMemo<ColumnDef<DutySchedule>[]>(

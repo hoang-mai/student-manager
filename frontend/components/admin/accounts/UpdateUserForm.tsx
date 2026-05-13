@@ -3,53 +3,33 @@
 import React from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
 import Typography from "@/library/Typography";
 import { UserDetailResponse, UpdateProfileRequest } from "@/types/user";
 import { userService } from "@/services/user";
-import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { updateUserSchema, UpdateUserFormValues } from "@/utils/validations";
 import Divide from "@/library/Divide";
 import { RANKS, GENDER } from "@/constants/constants";
 import DatePicker from "@/library/DatePicker";
+import { useModalStore } from "@/store/useModalStore";
+import useAppMutation from "@/hooks/useAppMutation";
 
 interface UpdateUserFormProps {
   user: UserDetailResponse;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
-const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
-  user,
-  onSuccess,
-  onCancel,
-}) => {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
+  const { closeModal } = useModalStore();
 
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateProfileRequest) => {
-      showLoading();
-      return userService.updateUser(user.id, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      addToast({ message: "Cập nhật thành công!", variant: "success" });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Cập nhật thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => hideLoading(),
+  const updateMutation = useAppMutation({
+    mutationFn: (data: UpdateProfileRequest) => userService.updateUser(user.id, data),
+    invalidateQueryKey: [QUERY_KEYS.USERS],
+    successMessage: "Cập nhật thành công!",
+    errorMessage: "Cập nhật thất bại!",
+    onSuccess: () => closeModal(),
   });
 
   const {
@@ -397,7 +377,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={() => closeModal()}
             isLoading={updateMutation.isPending}
           >
             Hủy bỏ

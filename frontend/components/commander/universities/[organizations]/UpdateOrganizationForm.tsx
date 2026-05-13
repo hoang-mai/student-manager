@@ -2,16 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organizations";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
-import { useToastStore } from "@/store/useToastStore";
 import { HiOutlineCollection, HiOutlineClock } from "react-icons/hi";
 import { Organization } from "@/types/organizations";
 import Divide from "@/library/Divide";
-import { useLoadingStore } from "@/store/useLoadingStore";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
 import {
   updateOrganizationSchema,
@@ -21,19 +20,13 @@ import {
 interface Props {
   organization: Organization;
   universityId: string;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
 export default function UpdateOrganizationForm({
   organization,
   universityId,
-  onSuccess,
-  onCancel,
 }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { closeModal } = useModalStore();
 
   const {
     register,
@@ -47,30 +40,13 @@ export default function UpdateOrganizationForm({
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: UpdateOrganizationFormValues) => {
-      showLoading();
-      return organizationService.updateOrganization(organization.id, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
-      });
-      addToast({
-        message: "Cập nhật đơn vị thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Đã có lỗi xảy ra!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const mutation = useAppMutation({
+    mutationFn: (data: UpdateOrganizationFormValues) =>
+      organizationService.updateOrganization(organization.id, data),
+    invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
+    successMessage: "Cập nhật đơn vị thành công!",
+    errorMessage: "Đã có lỗi xảy ra!",
+    onSuccess: () => closeModal(),
   });
 
   return (
@@ -102,7 +78,7 @@ export default function UpdateOrganizationForm({
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ

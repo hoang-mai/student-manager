@@ -4,11 +4,9 @@ import { useMemo, useCallback } from "react";
 import Typography from "@/library/Typography";
 import ClassSkeleton from "./ClassSkeleton";
 import AnimatedContainer from "@/library/AnimatedContainer";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { useToastStore } from "@/store/useToastStore";
+import { useQuery } from "@tanstack/react-query";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { classService } from "@/services/classes";
 import { organizationService } from "@/services/organizations";
 import { universityService } from "@/services/universities";
@@ -25,6 +23,7 @@ import Link from "next/link";
 import { formatDateTime } from "@/utils/fn-common";
 import ErrorState from "@/library/ErrorState";
 import useTableQuery from "@/hooks/useTableQuery";
+import useAppMutation from "@/hooks/useAppMutation";
 
 interface Props {
   universityId: string;
@@ -33,11 +32,8 @@ interface Props {
 }
 
 export default function Main({ universityId, organizationId, educationLevelId }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
-  const { openModal, closeModal } = useModalStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { openConfirm } = useConfirmStore();
+  const { openModal } = useModalStore();
 
   const { data: organizationData, isLoading: isOrganizationLoading, isError: isOrganizationError, refetch: refetchOrganization } = useQuery({
     queryKey: [QUERY_KEYS.ORGANIZATIONS, organizationId],
@@ -77,11 +73,7 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     openModal({
       title: "Thêm lớp học mới",
       content: (
-        <CreateClassForm
-          educationLevelId={educationLevelId}
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <CreateClassForm educationLevelId={educationLevelId} />
       ),
       size: "md",
     });
@@ -91,36 +83,19 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     openModal({
       title: "Chỉnh sửa lớp học",
       content: (
-        <UpdateClassForm
-          cls={cls}
-          educationLevelId={educationLevelId}
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <UpdateClassForm cls={cls} educationLevelId={educationLevelId} />
       ),
       size: "md",
     });
-  }, [educationLevelId, openModal, closeModal]);
+  }, [educationLevelId, openModal]);
 
-  const deleteClassMutation = useMutation({
-    mutationFn: (id: string) => {
-      setLoading(true);
-      showLoading();
-      return classService.deleteClass(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CLASSES, educationLevelId] });
-      addToast({ message: "Xóa lớp thành công", variant: "success" });
-      closeConfirm();
-    },
-    onError: (error) => {
-      addToast({ message: error?.message || "Xóa lớp thất bại", variant: "error" });
-      closeConfirm();
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const deleteClassMutation = useAppMutation({
+    mutationFn: (id: string) => classService.deleteClass(id),
+    invalidateQueryKey: [QUERY_KEYS.CLASSES, educationLevelId],
+    successMessage: "Xóa lớp thành công",
+    errorMessage: "Xóa lớp thất bại",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
 

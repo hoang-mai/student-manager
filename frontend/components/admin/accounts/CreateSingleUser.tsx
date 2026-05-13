@@ -3,49 +3,26 @@
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
 import { authService } from "@/services/auth";
-import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { CreateUserRequest } from "@/types/auth";
 import { createUserSchema, CreateUserFormValues } from "@/utils/validations";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
-interface CreateSingleUserProps {
-  onSuccess: () => void;
-  onCancel: () => void;
-}
-
-const CreateSingleUser: React.FC<CreateSingleUserProps> = ({
-  onSuccess,
-  onCancel,
-}) => {
+const CreateSingleUser: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
-
-  const createMutation = useMutation({
-    mutationFn: (userData: CreateUserRequest) => {
-      showLoading();
-      return authService.register(userData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      addToast({ message: "Thêm người dùng thành công!", variant: "success" });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Thêm thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => hideLoading(),
+  const { closeModal } = useModalStore()
+  const createMutation = useAppMutation({
+    mutationFn: (userData: CreateUserRequest) => authService.register(userData),
+    invalidateQueryKey: [QUERY_KEYS.USERS],
+    successMessage: "Thêm người dùng thành công!",
+    errorMessage: "Thêm thất bại!",
+    onSuccess: () => closeModal(),
   });
 
   const {
@@ -141,7 +118,7 @@ const CreateSingleUser: React.FC<CreateSingleUserProps> = ({
         <Button
           variant="ghost"
           type="button"
-          onClick={onCancel}
+          onClick={() => closeModal()}
           disabled={createMutation.isPending}
         >
           Hủy bỏ

@@ -3,7 +3,6 @@
 import React from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
 import DatePicker from "@/library/DatePicker";
@@ -11,46 +10,27 @@ import Select from "@/library/Select";
 import { RANKS } from "@/constants/constants";
 import { DutySchedule } from "@/types/duty-schedules";
 import { dutyScheduleService } from "@/services/duty-schedules";
-import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { dutyScheduleSchema, DutyScheduleFormValues } from "@/utils/validations";
 import { QUERY_KEYS } from "@/constants/query-keys";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
 interface UpdateDutyScheduleFormProps {
   schedule: DutySchedule;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
 export default function UpdateDutyScheduleForm({
   schedule,
-  onSuccess,
-  onCancel,
 }: UpdateDutyScheduleFormProps) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { closeModal } = useModalStore();
 
-  const mutation = useMutation({
-    mutationFn: (data: DutyScheduleFormValues) => {
-      showLoading();
-      return dutyScheduleService.updateDutySchedule(schedule.id, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DUTY_SCHEDULES] });
-      addToast({
-        message: "Cập nhật thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Cập nhật thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => hideLoading(),
+  const mutation = useAppMutation({
+    mutationFn: (data: DutyScheduleFormValues) =>
+      dutyScheduleService.updateDutySchedule(schedule.id, data),
+    invalidateQueryKey: [QUERY_KEYS.DUTY_SCHEDULES],
+    successMessage: "Cập nhật thành công!",
+    errorMessage: "Cập nhật thất bại!",
+    onSuccess: () => closeModal(),
   });
 
   const {
@@ -131,7 +111,7 @@ export default function UpdateDutyScheduleForm({
       />
 
       <div className="flex justify-end gap-3 mt-6">
-        <Button variant="ghost" type="button" onClick={onCancel}>
+        <Button variant="ghost" type="button" onClick={closeModal}>
           Hủy
         </Button>
         <Button variant="primary" type="submit" isLoading={mutation.isPending}>

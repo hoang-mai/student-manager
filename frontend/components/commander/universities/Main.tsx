@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  useMutation,
   useInfiniteQuery,
-  useQueryClient,
 } from "@tanstack/react-query";
 import {
   HiOutlineHome,
@@ -19,7 +17,6 @@ import Link from "next/link";
 import UniversitySkeleton from "./UniversitySkeleton";
 import { useModalStore } from "@/store/useModalStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
-import { useToastStore } from "@/store/useToastStore";
 import Badge from "@/library/Badge";
 import Tooltip from "@/library/Tooltip";
 import AnimatedContainer from "@/library/AnimatedContainer";
@@ -34,14 +31,11 @@ import CreateUniversityForm from "./CreateUniversityForm";
 import UpdateUniversityForm from "./UpdateUniversityForm";
 import Typography from "@/library/Typography";
 import Button from "@/library/Button";
-import { useLoadingStore } from "@/store/useLoadingStore";
+import useAppMutation from "@/hooks/useAppMutation";
 
 export default function Main() {
-  const queryClient = useQueryClient();
-  const { openModal, closeModal } = useModalStore();
-  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
-  const { showLoading, hideLoading } = useLoadingStore();
-  const { addToast } = useToastStore();
+  const { openModal } = useModalStore();
+  const { openConfirm } = useConfirmStore();
 
   const {
     data: universities,
@@ -72,70 +66,34 @@ export default function Main() {
     isFetching: isFetchingNextPage,
   });
 
-  const toggleUniversityStatusMutation = useMutation({
+  const toggleUniversityStatusMutation = useAppMutation({
     mutationFn: ({
       id,
       status,
     }: {
       id: string;
       status: "ACTIVE" | "INACTIVE";
-    }) => {
-      setLoading(true);
-      showLoading();
-      return universityService.toggleUniversityStatus(id, status);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.UNIVERSITIES] });
-      addToast({
-        message: "Cập nhật trạng thái thành công",
-        variant: "success",
-      });
-      closeConfirm();
-    },
-    onError: (err: Error) => {
-      addToast({
-        message: err.message || "Cập nhật trạng thái thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+    }) => universityService.toggleUniversityStatus(id, status),
+    invalidateQueryKey: [QUERY_KEYS.UNIVERSITIES],
+    successMessage: "Cập nhật trạng thái thành công",
+    errorMessage: "Cập nhật trạng thái thất bại!",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
-  const deleteUniversityMutation = useMutation({
-    mutationFn: (id: string) => {
-      setLoading(true);
-      showLoading();
-      return universityService.deleteUniversity(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.UNIVERSITIES] });
-      addToast({
-        message: "Xóa trường đại học thành công",
-        variant: "success",
-      });
-      closeConfirm();
-    },
-    onError: (err: Error) => {
-      addToast({
-        message: err.message || "Xóa trường đại học thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const deleteUniversityMutation = useAppMutation({
+    mutationFn: (id: string) => universityService.deleteUniversity(id),
+    invalidateQueryKey: [QUERY_KEYS.UNIVERSITIES],
+    successMessage: "Xóa trường đại học thành công",
+    errorMessage: "Xóa trường đại học thất bại!",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
   const handleOpenCreateModal = () => {
     openModal({
       title: "Thêm trường đại học",
-      content: (
-        <CreateUniversityForm onSuccess={closeModal} onCancel={closeModal} />
-      ),
+      content: <CreateUniversityForm />,
       size: "md",
     });
   };
@@ -144,11 +102,7 @@ export default function Main() {
     openModal({
       title: "Chỉnh sửa trường đại học",
       content: (
-        <UpdateUniversityForm
-          university={uni}
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <UpdateUniversityForm university={uni} />
       ),
       size: "md",
     });

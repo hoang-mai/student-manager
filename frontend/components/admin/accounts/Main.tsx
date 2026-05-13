@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { userService } from "@/services/user";
 import { UserDetailResponse, UserQueryRequest } from "@/types/user";
@@ -21,14 +20,13 @@ import {
   HiOutlineRefresh,
   HiOutlineEye,
 } from "react-icons/hi";
-import { useToastStore } from "@/store/useToastStore";
 import Tooltip from "@/library/Tooltip";
 import Typography from "@/library/Typography";
 import { FilterField } from "@/library/table/TableFilter";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { useModalStore } from "@/store/useModalStore";
+import useAppMutation from "@/hooks/useAppMutation";
 import ResetPasswordForm from "./ResetPasswordForm";
 import CreateUserForm from "./CreateUserForm";
 import UpdateUserForm from "./UpdateUserForm";
@@ -39,11 +37,8 @@ import AccountSkeleton from "./AccountSkeleton";
 import ErrorState from "@/library/ErrorState";
 
 export default function Main() {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
-  const { openModal, closeModal } = useModalStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { openConfirm } = useConfirmStore();
+  const { openModal } = useModalStore();
 
   const {
     data: usersData,
@@ -61,62 +56,31 @@ export default function Main() {
     fetchData: (params) => userService.getAllUsers(params),
   });
 
-  const toggleActiveMutation = useMutation({
-    mutationFn: (id: string | number) => {
-      setLoading(true);
-      showLoading();
-      return userService.toggleActive(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      addToast({
-        message: "Cập nhật trạng thái thành công!",
-        variant: "success",
-      });
-      closeConfirm();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Cập nhật trạng thái thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const toggleActiveMutation = useAppMutation({
+    mutationFn: (id: string | number) => userService.toggleActive(id),
+    invalidateQueryKey: [QUERY_KEYS.USERS],
+    successMessage: "Cập nhật trạng thái thành công!",
+    errorMessage: "Cập nhật trạng thái thất bại!",
+    enableConfirmLoading: true,
+    closeConfirmOnSuccess: true,
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string | number) => {
-      setLoading(true);
-      showLoading();
-      return userService.deleteUser(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      addToast({ message: "Xóa tài khoản thành công!", variant: "success" });
-      closeConfirm();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Xóa tài khoản thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const deleteMutation = useAppMutation({
+    mutationFn: (id: string | number) => userService.deleteUser(id),
+    invalidateQueryKey: [QUERY_KEYS.USERS],
+    successMessage: "Xóa tài khoản thành công!",
+    errorMessage: "Xóa tài khoản thất bại!",
+    enableConfirmLoading: true,
+    closeConfirmOnSuccess: true,
   });
 
   const handleOpenCreateModal = useCallback(() => {
     openModal({
       title: "Thêm tài khoản mới",
-      content: <CreateUserForm onSuccess={closeModal} onCancel={closeModal} />,
+      content: <CreateUserForm />,
       size: "md",
     });
-  }, [openModal, closeModal]);
+  }, [openModal]);
 
   const handleOpenUpdateModal = useCallback(
     (user: UserDetailResponse) => {
@@ -125,14 +89,12 @@ export default function Main() {
         content: (
           <UpdateUserForm
             user={user}
-            onSuccess={closeModal}
-            onCancel={closeModal}
           />
         ),
         size: "lg",
       });
     },
-    [openModal, closeModal]
+    [openModal]
   );
 
   const handleOpenDetailModal = useCallback(
@@ -151,13 +113,11 @@ export default function Main() {
       title: "Cập nhật học viên hàng loạt",
       content: (
         <UpdateBatchStudents
-          onSuccess={closeModal}
-          onCancel={closeModal}
         />
       ),
       size: "md",
     });
-  }, [openModal, closeModal]);
+  }, [openModal]);
 
   const columns = useMemo<ColumnDef<UserDetailResponse>[]>(
     () => [
@@ -318,8 +278,6 @@ export default function Main() {
                       content: (
                         <ResetPasswordForm
                           user={user}
-                          onSuccess={closeModal}
-                          onCancel={closeModal}
                         />
                       ),
                       size: "sm",
@@ -341,8 +299,7 @@ export default function Main() {
       openConfirm,
       toggleActiveMutation,
       deleteMutation,
-      openModal,
-      closeModal,
+      openModal
     ]
   );
 

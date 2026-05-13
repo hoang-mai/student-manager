@@ -2,28 +2,23 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateClassSchema, UpdateClassFormValues } from "@/utils/validations";
 import { classService } from "@/services/classes";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
-import { useToastStore } from "@/store/useToastStore";
 import Divide from "@/library/Divide";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { Class } from "@/types/classes";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
 interface Props {
   cls: Class;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
-export default function UpdateClassForm({ cls, onSuccess, onCancel }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+export default function UpdateClassForm({ cls }: Props) {
+  const { closeModal } = useModalStore();
 
   const {
     register,
@@ -37,28 +32,13 @@ export default function UpdateClassForm({ cls, onSuccess, onCancel }: Props) {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: UpdateClassFormValues) => {
-      showLoading();
-      return classService.updateClass(cls.id, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CLASSES] });
-      addToast({
-        message: "Cập nhật lớp học thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Đã có lỗi xảy ra!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const mutation = useAppMutation({
+    mutationFn: (data: UpdateClassFormValues) =>
+      classService.updateClass(cls.id, data),
+    invalidateQueryKey: [QUERY_KEYS.CLASSES],
+    successMessage: "Cập nhật lớp học thành công!",
+    errorMessage: "Đã có lỗi xảy ra!",
+    onSuccess: () => closeModal(),
   });
 
   return (
@@ -87,7 +67,7 @@ export default function UpdateClassForm({ cls, onSuccess, onCancel }: Props) {
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ

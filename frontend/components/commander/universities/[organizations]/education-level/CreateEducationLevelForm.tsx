@@ -2,27 +2,22 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organizations";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
-import { useToastStore } from "@/store/useToastStore";
 import { HiOutlineAcademicCap } from "react-icons/hi";
 import { createEducationLevelSchema, CreateEducationLevelFormValues } from "@/utils/validations";
 import Divide from "@/library/Divide";
-import { useLoadingStore } from "@/store/useLoadingStore";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
 interface Props {
   organizationId: string;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
-export default function CreateEducationLevelForm({ organizationId, onSuccess, onCancel }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+export default function CreateEducationLevelForm({ organizationId }: Props) {
+  const { closeModal } = useModalStore();
 
   const {
     register,
@@ -36,28 +31,13 @@ export default function CreateEducationLevelForm({ organizationId, onSuccess, on
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: CreateEducationLevelFormValues) => {
-      showLoading();
-      return organizationService.createEducationLevel(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EDUCATION_LEVELS, organizationId] });
-      addToast({
-        message: "Thêm mới trình độ thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Đã có lỗi xảy ra!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const mutation = useAppMutation({
+    mutationFn: (data: CreateEducationLevelFormValues) =>
+      organizationService.createEducationLevel(data),
+    invalidateQueryKey: [QUERY_KEYS.EDUCATION_LEVELS, organizationId],
+    successMessage: "Thêm mới trình độ thành công!",
+    errorMessage: "Đã có lỗi xảy ra!",
+    onSuccess: () => closeModal(),
   });
 
   return (
@@ -77,7 +57,7 @@ export default function CreateEducationLevelForm({ organizationId, onSuccess, on
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ

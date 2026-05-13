@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import {
   changePasswordSchema,
   ChangePasswordFormValues,
@@ -11,51 +10,25 @@ import {
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import { authService } from "@/services/auth";
-import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { ChangePasswordRequest } from "@/types/auth";
 import {
   HiOutlineLockClosed,
   HiOutlineEye,
   HiOutlineEyeOff,
 } from "react-icons/hi";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
-interface ChangePasswordFormProps {
-  onSuccess: () => void;
-  onCancel: () => void;
-}
-
-const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
-  onSuccess,
-  onCancel,
-}) => {
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+const ChangePasswordForm: React.FC = () => {
+  const { closeModal } = useModalStore();
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const changePasswordMutation = useMutation({
-    mutationFn: (data: ChangePasswordRequest) => {
-      showLoading();
-      return authService.changePassword(data);
-    },
-    onSuccess: () => {
-      addToast({
-        message: "Đổi mật khẩu thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (error) => {
-      hideLoading();
-      addToast({
-        message: error?.message || "Đổi mật khẩu thất bại. Vui lòng thử lại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const changePasswordMutation = useAppMutation({
+    mutationFn: (data: ChangePasswordRequest) => authService.changePassword(data),
+    successMessage: "Đổi mật khẩu thành công!",
+    errorMessage: "Đổi mật khẩu thất bại. Vui lòng thử lại!",
+    onSuccess: () => closeModal(),
   });
 
   const {
@@ -153,7 +126,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
         <Button
           variant="outline"
           type="button"
-          onClick={onCancel}
+          onClick={closeModal}
           isLoading={changePasswordMutation.isPending}
         >
           Hủy bỏ

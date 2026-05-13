@@ -2,29 +2,24 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organizations";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
-import { useToastStore } from "@/store/useToastStore";
 import { HiOutlineAcademicCap } from "react-icons/hi";
 import { EducationLevel } from "@/types/organizations";
 import { updateEducationLevelSchema, UpdateEducationLevelFormValues } from "@/utils/validations";
 import Divide from "@/library/Divide";
-import { useLoadingStore } from "@/store/useLoadingStore";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
 interface Props {
   level: EducationLevel;
   organizationId: string;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
-export default function UpdateEducationLevelForm({ level, organizationId, onSuccess, onCancel }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+export default function UpdateEducationLevelForm({ level, organizationId }: Props) {
+  const { closeModal } = useModalStore();
 
   const {
     register,
@@ -37,28 +32,13 @@ export default function UpdateEducationLevelForm({ level, organizationId, onSucc
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: UpdateEducationLevelFormValues) => {
-      showLoading();
-      return organizationService.updateEducationLevel(level.id, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EDUCATION_LEVELS, organizationId] });
-      addToast({
-        message: "Cập nhật trình độ thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Đã có lỗi xảy ra!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const mutation = useAppMutation({
+    mutationFn: (data: UpdateEducationLevelFormValues) =>
+      organizationService.updateEducationLevel(level.id, data),
+    invalidateQueryKey: [QUERY_KEYS.EDUCATION_LEVELS, organizationId],
+    successMessage: "Cập nhật trình độ thành công!",
+    errorMessage: "Đã có lỗi xảy ra!",
+    onSuccess: () => closeModal(),
   });
 
   return (
@@ -78,7 +58,7 @@ export default function UpdateEducationLevelForm({ level, organizationId, onSucc
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ

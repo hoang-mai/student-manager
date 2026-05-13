@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HiOutlineDownload } from "react-icons/hi";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +10,6 @@ import Typography from "@/library/Typography";
 import FileUpload from "@/library/FileUpload";
 import { userService } from "@/services/user";
 import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import {
   batchUpdateStudentSchema,
@@ -20,21 +18,14 @@ import {
   BatchUpdateStudentValues,
 } from "@/utils/validations";
 import Divide from "@/library/Divide";
+import { useModalStore } from "@/store/useModalStore";
+import useAppMutation from "@/hooks/useAppMutation";
 
-interface UpdateBatchStudentsProps {
-  onSuccess: () => void;
-  onCancel: () => void;
-}
-
-const UpdateBatchStudents: React.FC<UpdateBatchStudentsProps> = ({
-  onSuccess,
-  onCancel,
-}) => {
+const UpdateBatchStudents: React.FC = () => {
   const [parsedData, setParsedData] = useState<BatchUpdateStudentValues>([]);
   const [isParsing, setIsParsing] = useState(false);
-  const queryClient = useQueryClient();
   const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { closeModal } = useModalStore();
 
   const {
     control,
@@ -144,26 +135,13 @@ const UpdateBatchStudents: React.FC<UpdateBatchStudentsProps> = ({
     reader.readAsArrayBuffer(file);
   };
 
-  const updateMutation = useMutation({
-    mutationFn: (data: BatchUpdateStudentValues) => {
-      showLoading();
-      return userService.updateBatchStudents(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      addToast({
-        message: "Cập nhật hàng loạt thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err: Error) => {
-      addToast({
-        message: err.message || "Cập nhật hàng loạt thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => hideLoading(),
+  const updateMutation = useAppMutation({
+    mutationFn: (data: BatchUpdateStudentValues) =>
+      userService.updateBatchStudents(data),
+    invalidateQueryKey: [QUERY_KEYS.USERS],
+    successMessage: "Cập nhật hàng loạt thành công!",
+    errorMessage: "Cập nhật hàng loạt thất bại!",
+    onSuccess: () => closeModal(),
   });
 
   const downloadTemplate = () => {
@@ -290,7 +268,7 @@ const UpdateBatchStudents: React.FC<UpdateBatchStudentsProps> = ({
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={() => closeModal()}
             disabled={updateMutation.isPending || isParsing}
           >
             Hủy bỏ

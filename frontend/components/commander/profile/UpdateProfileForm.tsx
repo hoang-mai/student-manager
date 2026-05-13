@@ -3,12 +3,9 @@
 import React from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "@/services/auth";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { Commander } from "@/types/user";
-import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import Select from "@/library/Select";
@@ -19,6 +16,7 @@ import Divide from "@/library/Divide";
 
 import { profileSchema, ProfileFormValues } from "@/utils/validations";
 import { RANKS, GENDER } from "@/constants/constants";
+import useAppMutation from "@/hooks/useAppMutation";
 
 interface UpdateProfileFormProps {
   initialData: Commander;
@@ -27,10 +25,7 @@ interface UpdateProfileFormProps {
 export default function UpdateProfileForm({
   initialData,
 }: UpdateProfileFormProps) {
-  const queryClient = useQueryClient();
   const { closeModal } = useModalStore();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
 
   const {
     register,
@@ -63,23 +58,12 @@ export default function UpdateProfileForm({
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (data: ProfileFormValues) => {
-      showLoading();
-      return authService.updateProfile(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PROFILE] });
-      addToast({ message: "Cập nhật hồ sơ thành công", variant: "success" });
-      closeModal();
-    },
-    onError: (error) => {
-      addToast({
-        message: error?.message || "Cập nhật thất bại",
-        variant: "error",
-      });
-    },
-    onSettled: () => hideLoading(),
+  const mutation = useAppMutation({
+    mutationFn: (data: ProfileFormValues) => authService.updateProfile(data),
+    invalidateQueryKey: [QUERY_KEYS.PROFILE],
+    successMessage: "Cập nhật hồ sơ thành công",
+    errorMessage: "Cập nhật thất bại",
+    onSuccess: () => closeModal(),
   });
 
   const onSubmit: SubmitHandler<ProfileFormValues> = (data) => {

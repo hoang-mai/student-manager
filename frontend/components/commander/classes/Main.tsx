@@ -1,11 +1,7 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import {
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { classService } from "@/services/classes";
 import { universityService } from "@/services/universities";
@@ -19,13 +15,11 @@ import {
   HiOutlineHome,
   HiOutlineChevronRight,
 } from "react-icons/hi";
-import { useToastStore } from "@/store/useToastStore";
 import Tooltip from "@/library/Tooltip";
 import Typography from "@/library/Typography";
 import { FilterField } from "@/library/table/TableFilter";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { useModalStore } from "@/store/useModalStore";
 import Link from "next/link";
 import UpdateClassForm from "@/components/commander/classes/UpdateClassForm";
@@ -34,13 +28,11 @@ import useTableQuery from "@/hooks/useTableQuery";
 import ClassSkeleton from "./ClassSkeleton";
 import ErrorState from "@/library/ErrorState";
 import { DEFAULT_PAGE } from "@/constants/constants";
+import useAppMutation from "@/hooks/useAppMutation";
 
 export default function Main() {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
-  const { openModal, closeModal } = useModalStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { openConfirm } = useConfirmStore();
+  const { openModal } = useModalStore();
 
   const {
     data: universities,
@@ -79,35 +71,21 @@ export default function Main() {
     fetchData: (params) => classService.getClasses(params),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => {
-      setLoading(true);
-      showLoading();
-      return classService.deleteClass(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CLASSES] });
-      addToast({ message: "Xóa lớp học thành công!", variant: "success" });
-      closeConfirm();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Xóa lớp học thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const deleteMutation = useAppMutation({
+    mutationFn: (id: string) => classService.deleteClass(id),
+    invalidateQueryKey: [QUERY_KEYS.CLASSES],
+    successMessage: "Xóa lớp học thành công!",
+    errorMessage: "Xóa lớp học thất bại!",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
   const handleAddClass = useCallback(() => {
     openModal({
       title: "Thêm lớp học mới",
-      content: <CreateClassForm onSuccess={closeModal} onCancel={closeModal} />,
+      content: <CreateClassForm />,
     });
-  }, [openModal, closeModal]);
+  }, [openModal]);
 
   const handleOpenUpdateModal = useCallback(
     (cls: Class) => {
@@ -116,14 +94,12 @@ export default function Main() {
         content: (
           <UpdateClassForm
             cls={cls}
-            onSuccess={closeModal}
-            onCancel={closeModal}
           />
         ),
         size: "md",
       });
     },
-    [openModal, closeModal]
+    [openModal]
   );
 
   const columns = useMemo<ColumnDef<Class>[]>(

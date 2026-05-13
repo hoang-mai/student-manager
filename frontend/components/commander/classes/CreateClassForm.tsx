@@ -4,9 +4,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  useMutation,
   useInfiniteQuery,
-  useQueryClient,
 } from "@tanstack/react-query";
 import { createClassSchema, CreateClassFormValues } from "@/utils/validations";
 import { classService } from "@/services/classes";
@@ -16,9 +14,7 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import Select from "@/library/Select";
-import { useToastStore } from "@/store/useToastStore";
 import Divide from "@/library/Divide";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import {
   HiOutlineUserGroup,
   HiOutlineOfficeBuilding,
@@ -26,17 +22,11 @@ import {
   HiOutlineTag,
 } from "react-icons/hi";
 import { DEFAULT_PAGE } from "@/constants/constants";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
-interface Props {
-  onSuccess: () => void;
-  onCancel: () => void;
-}
-
-export default function CreateClassForm({ onSuccess, onCancel }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
-
+export default function CreateClassForm() {
+  const { closeModal } = useModalStore();
   const [selectedUniversityId, setSelectedUniversityId] = useState<string>("");
   const [selectedOrganizationId, setSelectedOrganizationId] =
     useState<string>("");
@@ -123,28 +113,12 @@ export default function CreateClassForm({ onSuccess, onCancel }: Props) {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: CreateClassFormValues) => {
-      showLoading();
-      return classService.createClass(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CLASSES] });
-      addToast({
-        message: "Thêm lớp học thành công!",
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Đã có lỗi xảy ra!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const mutation = useAppMutation({
+    mutationFn: (data: CreateClassFormValues) => classService.createClass(data),
+    invalidateQueryKey: [QUERY_KEYS.CLASSES],
+    successMessage: "Thêm lớp học thành công!",
+    errorMessage: "Đã có lỗi xảy ra!",
+    onSuccess: () => closeModal(),
   });
 
   const universityOptions =
@@ -266,7 +240,7 @@ export default function CreateClassForm({ onSuccess, onCancel }: Props) {
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ

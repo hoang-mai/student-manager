@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import {
   HiOutlineLockClosed,
   HiOutlineEye,
@@ -12,51 +11,30 @@ import {
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import { userService } from "@/services/user";
-import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import {
   resetPasswordSchema,
   ResetPasswordFormValues,
 } from "@/utils/validations";
 import { User } from "@/types/user";
+import { useModalStore } from "@/store/useModalStore";
+import useAppMutation from "@/hooks/useAppMutation";
 
 interface ResetPasswordFormProps {
   user: User;
-  onSuccess: () => void;
-  onCancel: () => void;
 }
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   user,
-  onSuccess,
-  onCancel,
 }) => {
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { closeModal } = useModalStore();
 
-  const resetPasswordMutation = useMutation({
-    mutationFn: (password: string) => {
-      showLoading();
-      return userService.resetPassword(user.id, password);
-    },
-    onSuccess: () => {
-      addToast({
-        message: `Đặt lại mật khẩu cho "${user.username}" thành công!`,
-        variant: "success",
-      });
-      onSuccess();
-    },
-    onError: (error) => {
-      addToast({
-        message: error?.message || "Đặt lại mật khẩu thất bại. Vui lòng thử lại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      hideLoading();
-    },
+  const resetPasswordMutation = useAppMutation({
+    mutationFn: (password: string) => userService.resetPassword(user.id, password),
+    successMessage: `Đặt lại mật khẩu cho "${user.username}" thành công!`,
+    errorMessage: "Đặt lại mật khẩu thất bại. Vui lòng thử lại!",
+    onSuccess: () => closeModal(),
   });
 
   const {
@@ -134,7 +112,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         <Button
           variant="ghost"
           type="button"
-          onClick={onCancel}
+          onClick={() => closeModal()}
           disabled={resetPasswordMutation.isPending}
         >
           Hủy bỏ

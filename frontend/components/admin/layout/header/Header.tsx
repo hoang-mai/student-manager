@@ -28,7 +28,7 @@ export default function Header() {
   const router = useRouter();
   const { logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
-  const { openModal, closeModal } = useModalStore();
+  const { openModal } = useModalStore();
 
   const isDarkMode = theme === THEMES.DARK;
   const handleToggleTheme = () => {
@@ -45,9 +45,7 @@ export default function Header() {
   const handleOpenChangePassword = () => {
     openModal({
       title: "Đổi mật khẩu",
-      content: (
-        <ChangePasswordForm onSuccess={closeModal} onCancel={closeModal} />
-      ),
+      content: <ChangePasswordForm />,
       size: "md",
     });
   };

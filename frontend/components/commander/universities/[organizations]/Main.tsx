@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import {
-  useMutation,
   useInfiniteQuery,
-  useQueryClient,
   useQuery,
 } from "@tanstack/react-query";
 import Link from "next/link";
@@ -30,10 +28,8 @@ import Skeleton from "@/library/Skeleton";
 import Tooltip from "@/library/Tooltip";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import ErrorState from "@/library/ErrorState";
-import { useToastStore } from "@/store/useToastStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { organizationService } from "@/services/organizations";
 import { universityService } from "@/services/universities";
@@ -46,17 +42,15 @@ import UpdateOrganizationForm from "./UpdateOrganizationForm";
 
 import OrganizationLevelsList from "./education-level/OrganizationLevelsList";
 import OrganizationSkeleton from "./OrganizationSkeleton";
+import useAppMutation from "@/hooks/useAppMutation";
 
 interface Props {
   universityId: string;
 }
 
 export default function Main({ universityId }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
-  const { openModal, closeModal } = useModalStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { openConfirm } = useConfirmStore();
+  const { openModal } = useModalStore();
 
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
@@ -100,63 +94,28 @@ export default function Main({ universityId }: Props) {
     isFetching: isFetchingNextPage,
   });
 
-  const deleteOrganizationMutation = useMutation({
-    mutationFn: (id: string) => {
-      setLoading(true);
-      showLoading();
-      return organizationService.deleteOrganization(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
-      });
-      addToast({ message: "Xóa đơn vị thành công", variant: "success" });
-      closeConfirm();
-    },
-    onError: (err: Error) => {
-      addToast({
-        message: err.message || "Xóa đơn vị thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const deleteOrganizationMutation = useAppMutation({
+    mutationFn: (id: string) => organizationService.deleteOrganization(id),
+    invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
+    successMessage: "Xóa đơn vị thành công",
+    errorMessage: "Xóa đơn vị thất bại!",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
-  const toggleOrganizationStatusMutation = useMutation({
+  const toggleOrganizationStatusMutation = useAppMutation({
     mutationFn: ({
       id,
       status,
     }: {
       id: string;
       status: "ACTIVE" | "INACTIVE";
-    }) => {
-      setLoading(true);
-      showLoading();
-      return organizationService.toggleOrganizationStatus(id, status);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
-      });
-      addToast({
-        message: "Cập nhật trạng thái thành công",
-        variant: "success",
-      });
-      closeConfirm();
-    },
-    onError: (err: Error) => {
-      addToast({
-        message: err.message || "Cập nhật trạng thái thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+    }) => organizationService.toggleOrganizationStatus(id, status),
+    invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
+    successMessage: "Cập nhật trạng thái thành công",
+    errorMessage: "Cập nhật trạng thái thất bại!",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
   const toggleExpand = (id: string) => {
@@ -169,11 +128,7 @@ export default function Main({ universityId }: Props) {
     openModal({
       title: "Thêm chuyên ngành mới",
       content: (
-        <CreateOrganizationForm
-          universityId={universityId}
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <CreateOrganizationForm universityId={universityId} />
       ),
       size: "md",
     });
@@ -186,8 +141,6 @@ export default function Main({ universityId }: Props) {
         <UpdateOrganizationForm
           organization={org}
           universityId={universityId}
-          onSuccess={closeModal}
-          onCancel={closeModal}
         />
       ),
       size: "md",

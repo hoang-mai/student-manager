@@ -2,44 +2,26 @@
 
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
 import Divide from "@/library/Divide";
 import { universityService } from "@/services/universities";
-import { useToastStore } from "@/store/useToastStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { universitySchema, UniversityFormValues } from "@/utils/validations";
+import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 
-interface Props {
-  onSuccess: () => void;
-  onCancel: () => void;
-}
+export default function CreateUniversityForm() {
+  const { closeModal } = useModalStore();
 
-export default function CreateUniversityForm({ onSuccess, onCancel }: Props) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { showLoading, hideLoading } = useLoadingStore();
-
-  const mutation = useMutation({
-    mutationFn: (data: UniversityFormValues) => {
-      showLoading();
-      return universityService.createUniversity(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.UNIVERSITIES] });
-      addToast({ message: "Thêm mới thành công!", variant: "success" });
-      onSuccess();
-    },
-    onError: (err) => {
-      addToast({
-        message: err.message || "Thêm mới thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => hideLoading(),
+  const mutation = useAppMutation({
+    mutationFn: (data: UniversityFormValues) =>
+      universityService.createUniversity(data),
+    invalidateQueryKey: [QUERY_KEYS.UNIVERSITIES],
+    successMessage: "Thêm mới thành công!",
+    errorMessage: "Thêm mới thất bại!",
+    onSuccess: () => closeModal(),
   });
 
   const {
@@ -107,7 +89,7 @@ export default function CreateUniversityForm({ onSuccess, onCancel }: Props) {
           <Button
             variant="ghost"
             type="button"
-            onClick={onCancel}
+            onClick={closeModal}
             isLoading={mutation.isPending}
           >
             Hủy bỏ

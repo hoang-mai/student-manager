@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { organizationService } from "@/services/organizations";
 import Skeleton from "@/library/Skeleton";
@@ -6,14 +6,13 @@ import ErrorState from "@/library/ErrorState";
 import { EducationLevel } from "@/types/organizations";
 import CreateEducationLevelForm from "./CreateEducationLevelForm";
 import UpdateEducationLevelForm from "./UpdateEducationLevelForm";
-import { useToastStore } from "@/store/useToastStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import Typography from "@/library/Typography";
 import { HiOutlineAcademicCap, HiOutlinePencil, HiOutlinePlus, HiOutlineTrash } from "react-icons/hi";
 import Tooltip from "@/library/Tooltip";
 import Link from "next/link";
+import useAppMutation from "@/hooks/useAppMutation";
 
 interface OrganizationLevelsListProps {
   orgId: string;
@@ -21,49 +20,28 @@ interface OrganizationLevelsListProps {
 }
 
 export default function OrganizationLevelsList({ orgId, universityId }: OrganizationLevelsListProps) {
-  const queryClient = useQueryClient();
-  const { addToast } = useToastStore();
-  const { openConfirm, closeConfirm, setLoading } = useConfirmStore();
-  const { openModal, closeModal } = useModalStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { openConfirm } = useConfirmStore();
+  const { openModal } = useModalStore();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: [QUERY_KEYS.EDUCATION_LEVELS, orgId],
     queryFn: () => organizationService.getEducationLevels({ organizationId: orgId }),
   });
 
-  const deleteLevelMutation = useMutation({
-    mutationFn: (id: string) => {
-      setLoading(true);
-      showLoading();
-      return organizationService.deleteEducationLevel(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EDUCATION_LEVELS, orgId] });
-      addToast({ message: "Xóa trình độ thành công", variant: "success" });
-      closeConfirm();
-    },
-    onError: (err: Error) => {
-      addToast({
-        message: err.message || "Xóa trình độ thất bại!",
-        variant: "error",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-      hideLoading();
-    },
+  const deleteLevelMutation = useAppMutation({
+    mutationFn: (id: string) => organizationService.deleteEducationLevel(id),
+    invalidateQueryKey: [QUERY_KEYS.EDUCATION_LEVELS, orgId],
+    successMessage: "Xóa trình độ thành công",
+    errorMessage: "Xóa trình độ thất bại!",
+    closeConfirmOnSuccess: true,
+    enableConfirmLoading: true
   });
 
   const handleOpenCreateLevelModal = (orgId: string) => {
     openModal({
       title: "Thêm trình độ mới",
       content: (
-        <CreateEducationLevelForm
-          organizationId={orgId}
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <CreateEducationLevelForm organizationId={orgId} />
       ),
       size: "md",
     });
@@ -73,12 +51,7 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
     openModal({
       title: "Chỉnh sửa trình độ",
       content: (
-        <UpdateEducationLevelForm
-          level={level}
-          organizationId={orgId}
-          onSuccess={closeModal}
-          onCancel={closeModal}
-        />
+        <UpdateEducationLevelForm level={level} organizationId={orgId} />
       ),
       size: "md",
     });
