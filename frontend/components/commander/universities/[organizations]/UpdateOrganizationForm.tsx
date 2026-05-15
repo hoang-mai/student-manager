@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { organizationService } from "@/services/organizations";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import { HiOutlineCollection, HiOutlineClock } from "react-icons/hi";
@@ -41,6 +41,7 @@ export default function UpdateOrganizationForm({
   });
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_ORGANIZATION,
     mutationFn: (data: UpdateOrganizationFormValues) =>
       organizationService.updateOrganization(organization.id, data),
     invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],

@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { organizationService } from "@/services/organizations";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import { HiOutlineAcademicCap } from "react-icons/hi";
@@ -33,6 +33,7 @@ export default function UpdateEducationLevelForm({ level, organizationId }: Prop
   });
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_EDUCATION_LEVEL,
     mutationFn: (data: UpdateEducationLevelFormValues) =>
       organizationService.updateEducationLevel(level.id, data),
     invalidateQueryKey: [QUERY_KEYS.EDUCATION_LEVELS, organizationId],

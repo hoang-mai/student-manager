@@ -18,6 +18,7 @@ import {
 } from "react-icons/hi";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useModalStore } from "@/store/useModalStore";
+import { MUTATION_KEYS } from "@/constants/query-keys";
 
 const ChangePasswordForm: React.FC = () => {
   const { closeModal } = useModalStore();
@@ -25,6 +26,7 @@ const ChangePasswordForm: React.FC = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const changePasswordMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.CHANGE_PASSWORD,
     mutationFn: (data: ChangePasswordRequest) => authService.changePassword(data),
     successMessage: "Đổi mật khẩu thành công!",
     errorMessage: "Đổi mật khẩu thất bại. Vui lòng thử lại!",

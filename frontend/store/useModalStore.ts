@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import React from "react";
+import type { MutationKey } from "@tanstack/react-query";
 
 /**
  * Cấu hình bổ sung cho Modal
@@ -9,6 +10,7 @@ interface ModalConfig {
   closeOnOverlayClick?: boolean;
   className?: string;
   overlayClassName?: string;
+  mutationKey?: MutationKey;
 }
 
 /**

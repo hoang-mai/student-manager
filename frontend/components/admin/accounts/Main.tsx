@@ -24,7 +24,7 @@ import Tooltip from "@/library/Tooltip";
 import Typography from "@/library/Typography";
 import { FilterField } from "@/library/table/TableFilter";
 import { useConfirmStore } from "@/store/useConfirmStore";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { useModalStore } from "@/store/useModalStore";
 import useAppMutation from "@/hooks/useAppMutation";
 import ResetPasswordForm from "./ResetPasswordForm";
@@ -57,20 +57,20 @@ export default function Main() {
   });
 
   const toggleActiveMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.TOGGLE_USER_ACTIVE,
     mutationFn: (id: string | number) => userService.toggleActive(id),
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Cập nhật trạng thái thành công!",
     errorMessage: "Cập nhật trạng thái thất bại!",
-    enableConfirmLoading: true,
     closeConfirmOnSuccess: true,
   });
 
   const deleteMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_USER,
     mutationFn: (id: string | number) => userService.deleteUser(id),
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Xóa tài khoản thành công!",
     errorMessage: "Xóa tài khoản thất bại!",
-    enableConfirmLoading: true,
     closeConfirmOnSuccess: true,
   });
 
@@ -79,6 +79,9 @@ export default function Main() {
       title: "Thêm tài khoản mới",
       content: <CreateUserForm />,
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.CREATE_USER,
+      },
     });
   }, [openModal]);
 
@@ -92,6 +95,9 @@ export default function Main() {
           />
         ),
         size: "lg",
+        config: {
+          mutationKey: MUTATION_KEYS.UPDATE_USER,
+        },
       });
     },
     [openModal]
@@ -116,6 +122,9 @@ export default function Main() {
         />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.UPDATE_BATCH_STUDENTS,
+      },
     });
   }, [openModal]);
 
@@ -240,6 +249,7 @@ export default function Main() {
                           message: `Bạn có chắc chắn muốn ${user.isActive ? "tạm khóa" : "mở khóa"} tài khoản "${user.username}" không?`,
                           confirmText: user.isActive ? "Khóa tài khoản" : "Mở khóa",
                           variant: user.isActive ? "danger" : "primary",
+                          mutationKey: MUTATION_KEYS.TOGGLE_USER_ACTIVE,
                           onConfirm: () => {
                             toggleActiveMutation.mutate(user.id);
                           },
@@ -259,6 +269,7 @@ export default function Main() {
                           message: `Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản "${user.username}" không? Hành động này không thể hoàn tác.`,
                           confirmText: "Xóa ngay",
                           variant: "danger",
+                          mutationKey: MUTATION_KEYS.DELETE_USER,
                           onConfirm: () => deleteMutation.mutate(user.id),
                         })
                       }
@@ -281,6 +292,9 @@ export default function Main() {
                         />
                       ),
                       size: "sm",
+                      config: {
+                        mutationKey: MUTATION_KEYS.RESET_USER_PASSWORD,
+                      },
                     })
                   }
                   className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all"

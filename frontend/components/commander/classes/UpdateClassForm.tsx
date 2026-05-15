@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateClassSchema, UpdateClassFormValues } from "@/utils/validations";
 import { classService } from "@/services/classes";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import Divide from "@/library/Divide";
@@ -33,6 +33,7 @@ export default function UpdateClassForm({ cls }: Props) {
   });
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_CLASS,
     mutationFn: (data: UpdateClassFormValues) =>
       classService.updateClass(cls.id, data),
     invalidateQueryKey: [QUERY_KEYS.CLASSES],

@@ -32,4 +32,4 @@ export const ENDPOINTS = {
   DUTY_SCHEDULES: {
     BASE: "/api/commander-duty-schedules",
   },
-};
+} as const;

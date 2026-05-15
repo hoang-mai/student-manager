@@ -4,7 +4,7 @@ import React from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authService } from "@/services/auth";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { Commander } from "@/types/user";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
@@ -59,6 +59,7 @@ export default function UpdateProfileForm({
   });
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_PROFILE,
     mutationFn: (data: ProfileFormValues) => authService.updateProfile(data),
     invalidateQueryKey: [QUERY_KEYS.PROFILE],
     successMessage: "Cập nhật hồ sơ thành công",

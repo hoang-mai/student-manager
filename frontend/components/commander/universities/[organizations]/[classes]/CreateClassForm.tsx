@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClassSchema, CreateClassFormValues } from "@/utils/validations";
 import { classService } from "@/services/classes";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import { HiOutlineUserGroup } from "react-icons/hi";
@@ -33,6 +33,7 @@ export default function CreateClassForm({ educationLevelId }: Props) {
   });
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.CREATE_CLASS,
     mutationFn: (data: CreateClassFormValues) => classService.createClass(data),
     invalidateQueryKey: [QUERY_KEYS.CLASSES, educationLevelId],
     successMessage: "Thêm mới lớp học thành công!",

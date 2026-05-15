@@ -2,8 +2,8 @@ import {
   ButtonHTMLAttributes,
   ElementType,
   forwardRef,
-  type ReactNode,
 } from "react";
+import { HiOutlineRefresh } from "react-icons/hi";
 
 type ButtonSize = "sm" | "md" | "lg";
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
@@ -21,11 +21,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Trạng thái đang tải (hiển thị spinner nếu có và vô hiệu hóa nút) */
   isLoading?: boolean;
 
-  /** Icon hiển thị ở phía trước văn bản */
-  prefixIcon?: ReactNode;
-
-  /** Icon hiển thị ở phía sau văn bản */
-  suffixIcon?: ReactNode;
+  /** Vị trí hiển thị icon so với văn bản */
+  iconPlacement?: "left" | "right";
 
   /** Icon component (từ react-icons, ví dụ: HiOutlinePlus) */
   icon?: ElementType;
@@ -75,8 +72,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "primary",
       fullWidth = false,
       isLoading = false,
-      prefixIcon,
-      suffixIcon,
+      iconPlacement = "left",
       icon: Icon,
       iconClassName = "",
       children,
@@ -87,11 +83,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const isDisabled = disabled || isLoading;
+    const iconSize = size === "sm" ? 16 : size === "md" ? 18 : 20;
 
     return (
       <button
         ref={ref}
         disabled={isDisabled}
+        aria-busy={isLoading || undefined}
         className={`
           inline-flex items-center justify-center
           rounded-xl font-semibold font-sans
@@ -101,20 +99,32 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           ${sizeStyles[size]}
           ${variantStyles[variant]}
           ${fullWidth ? "w-full" : ""}
-          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${isDisabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
           ${className}
         `}
         {...props}
       >
-        {Icon && (
-          <Icon
-            size={size === "sm" ? 16 : size === "md" ? 18 : 20}
-            className={iconClassName}
+        {isLoading && iconPlacement === "left" && (
+          <HiOutlineRefresh
+            size={iconSize}
+            className="shrink-0 animate-spin"
+            aria-hidden="true"
           />
         )}
-        {prefixIcon && prefixIcon}
+        {!isLoading && Icon && iconPlacement === "left" && (
+          <Icon size={iconSize} className={`shrink-0 ${iconClassName}`} />
+        )}
         {children}
-        {suffixIcon && suffixIcon}
+        {!isLoading && Icon && iconPlacement === "right" && (
+          <Icon size={iconSize} className={`shrink-0 ${iconClassName}`} />
+        )}
+        {isLoading && iconPlacement === "right" && (
+          <HiOutlineRefresh
+            size={iconSize}
+            className="shrink-0 animate-spin"
+            aria-hidden="true"
+          />
+        )}
       </button>
     );
   }

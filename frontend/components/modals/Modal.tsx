@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { useIsMutating } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import { HiOutlineX } from "react-icons/hi";
 import Divide from "@/library/Divide";
+import { MUTATION_KEYS } from "@/constants/query-keys";
 import { useModalStore } from "@/store/useModalStore";
 
 const sizeClasses = {
@@ -16,13 +18,22 @@ const sizeClasses = {
 };
 
 export default function Modal() {
-  const { isOpen, title, content, footer, size, config, closeModal } = useModalStore();
+  const { isOpen, title, content, footer, size, config, closeModal } =
+    useModalStore();
+  const isMutating =
+    useIsMutating({
+      mutationKey: config?.mutationKey ?? MUTATION_KEYS.MODAL_IDLE,
+    }) > 0;
   const modalRef = useRef<HTMLDivElement>(null);
+  const handleClose = () => {
+    if (isMutating) return;
+    closeModal();
+  };
 
   // Xử lý phím ESC và ngăn scroll body
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeModal();
+      if (event.key === "Escape" && !isMutating) closeModal();
     };
 
     if (isOpen) {
@@ -34,7 +45,7 @@ export default function Modal() {
       document.removeEventListener("keydown", handleEsc);
       document.body.style.overflow = "unset";
     };
-  }, [closeModal, isOpen]);
+  }, [closeModal, isMutating, isOpen]);
 
   return (
     <AnimatePresence>
@@ -45,7 +56,11 @@ export default function Modal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={config?.closeOnOverlayClick !== false ? closeModal : undefined}
+            onClick={
+              config?.closeOnOverlayClick !== false && !isMutating
+                ? handleClose
+                : undefined
+            }
             className={`absolute inset-0 bg-neutral-900/40 backdrop-blur-xs ${config?.overlayClassName || ""}`}
           />
 
@@ -77,8 +92,13 @@ export default function Modal() {
                   </h3>
                   {config?.showCloseButton !== false && (
                     <button
-                      onClick={closeModal}
-                      className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-2xl bg-neutral-50 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 transition-all border border-neutral-100 group"
+                      onClick={handleClose}
+                      disabled={isMutating}
+                      className={`w-10 h-10 flex items-center justify-center rounded-2xl bg-neutral-50 text-neutral-400 transition-all border border-neutral-100 group ${
+                        isMutating
+                          ? "cursor-not-allowed opacity-60"
+                          : "cursor-pointer hover:text-primary-600 hover:bg-primary-50"
+                      }`}
                     >
                       <HiOutlineX
                         size={20}
@@ -93,8 +113,13 @@ export default function Modal() {
 
             {!title && config?.showCloseButton !== false && (
               <button
-                onClick={closeModal}
-                className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-2xl bg-neutral-50/50 backdrop-blur-md text-neutral-400 hover:text-primary-600 hover:bg-primary-50 transition-all border border-neutral-100/50 group"
+                onClick={handleClose}
+                disabled={isMutating}
+                className={`absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-2xl bg-neutral-50/50 backdrop-blur-md text-neutral-400 transition-all border border-neutral-100/50 group ${
+                  isMutating
+                    ? "cursor-not-allowed opacity-60"
+                    : "cursor-pointer hover:text-primary-600 hover:bg-primary-50"
+                }`}
               >
                 <HiOutlineX
                   size={20}

@@ -33,7 +33,7 @@ import { useModalStore } from "@/store/useModalStore";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { organizationService } from "@/services/organizations";
 import { universityService } from "@/services/universities";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import { Organization } from "@/types/organizations";
 
@@ -95,15 +95,16 @@ export default function Main({ universityId }: Props) {
   });
 
   const deleteOrganizationMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_ORGANIZATION,
     mutationFn: (id: string) => organizationService.deleteOrganization(id),
     invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
     successMessage: "Xóa đơn vị thành công",
     errorMessage: "Xóa đơn vị thất bại!",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
   const toggleOrganizationStatusMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.TOGGLE_ORGANIZATION_STATUS,
     mutationFn: ({
       id,
       status,
@@ -115,7 +116,6 @@ export default function Main({ universityId }: Props) {
     successMessage: "Cập nhật trạng thái thành công",
     errorMessage: "Cập nhật trạng thái thất bại!",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
   const toggleExpand = (id: string) => {
@@ -131,6 +131,9 @@ export default function Main({ universityId }: Props) {
         <CreateOrganizationForm universityId={universityId} />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.CREATE_ORGANIZATION,
+      },
     });
   };
 
@@ -144,6 +147,9 @@ export default function Main({ universityId }: Props) {
         />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.UPDATE_ORGANIZATION,
+      },
     });
   };
 
@@ -282,6 +288,7 @@ export default function Main({ universityId }: Props) {
                                 : "Kích hoạt",
                             variant:
                               org.status === "ACTIVE" ? "danger" : "primary",
+                            mutationKey: MUTATION_KEYS.TOGGLE_ORGANIZATION_STATUS,
                             onConfirm: () =>
                               toggleOrganizationStatusMutation.mutate({
                                 id: org.id,
@@ -316,9 +323,10 @@ export default function Main({ universityId }: Props) {
                           openConfirm({
                             title: "Xác nhận xóa",
                             message: `Xóa đơn vị "${org.organizationName}"?`,
+                            variant: "danger",
+                            mutationKey: MUTATION_KEYS.DELETE_ORGANIZATION,
                             onConfirm: () =>
                               deleteOrganizationMutation.mutate(org.id),
-                            variant: "danger",
                           })
                         }
                         className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"

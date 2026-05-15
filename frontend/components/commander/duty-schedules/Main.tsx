@@ -6,7 +6,7 @@ import { dutyScheduleService } from "@/services/duty-schedules";
 import { DutySchedule } from "@/types/duty-schedules";
 import { useModalStore } from "@/store/useModalStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import Typography from "@/library/Typography";
 import AnimatedContainer from "@/library/AnimatedContainer";
 import Badge from "@/library/Badge";
@@ -51,12 +51,12 @@ export default function DutySchedulesMain() {
   });
 
   const deleteMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_DUTY_SCHEDULE,
     mutationFn: (id: string) => dutyScheduleService.deleteDutySchedule(id),
     invalidateQueryKey: [QUERY_KEYS.DUTY_SCHEDULES],
     successMessage: "Xóa ca trực thành công!",
     errorMessage: "Xóa ca trực thất bại!",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
   const handleAdd = () => {
@@ -65,6 +65,9 @@ export default function DutySchedulesMain() {
       content: (
         <CreateDutyScheduleForm />
       ),
+      config: {
+        mutationKey: MUTATION_KEYS.CREATE_DUTY_SCHEDULE,
+      },
     });
   };
 
@@ -77,6 +80,9 @@ export default function DutySchedulesMain() {
             schedule={schedule}
           />
         ),
+        config: {
+          mutationKey: MUTATION_KEYS.UPDATE_DUTY_SCHEDULE,
+        },
       });
     },
     [openModal]
@@ -193,6 +199,7 @@ export default function DutySchedulesMain() {
                       message: "Bạn có chắc chắn muốn xóa ca trực này không?",
                       confirmText: "Xóa ngay",
                       variant: "danger",
+                      mutationKey: MUTATION_KEYS.DELETE_DUTY_SCHEDULE,
                       onConfirm: () => deleteMutation.mutate(schedule.id),
                     })
                   }

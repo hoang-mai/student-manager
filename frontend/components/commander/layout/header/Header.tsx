@@ -25,7 +25,7 @@ import { useQuery } from "@tanstack/react-query";
 import { authService } from "@/services/auth";
 import { useModalStore } from "@/store/useModalStore";
 import ChangePasswordForm from "@/components/commander/layout/header/ChangePasswordForm";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 
 export default function Header() {
   const router = useRouter();
@@ -57,6 +57,9 @@ export default function Header() {
       title: "Đổi mật khẩu",
       content: <ChangePasswordForm />,
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.CHANGE_PASSWORD,
+      },
     });
   };
 

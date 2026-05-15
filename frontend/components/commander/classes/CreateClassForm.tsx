@@ -10,7 +10,7 @@ import { createClassSchema, CreateClassFormValues } from "@/utils/validations";
 import { classService } from "@/services/classes";
 import { universityService } from "@/services/universities";
 import { organizationService } from "@/services/organizations";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import Select from "@/library/Select";
@@ -114,6 +114,7 @@ export default function CreateClassForm() {
   });
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.CREATE_CLASS,
     mutationFn: (data: CreateClassFormValues) => classService.createClass(data),
     invalidateQueryKey: [QUERY_KEYS.CLASSES],
     successMessage: "Thêm lớp học thành công!",

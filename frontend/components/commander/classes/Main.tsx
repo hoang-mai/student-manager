@@ -19,7 +19,7 @@ import Tooltip from "@/library/Tooltip";
 import Typography from "@/library/Typography";
 import { FilterField } from "@/library/table/TableFilter";
 import { useConfirmStore } from "@/store/useConfirmStore";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { useModalStore } from "@/store/useModalStore";
 import Link from "next/link";
 import UpdateClassForm from "@/components/commander/classes/UpdateClassForm";
@@ -72,18 +72,21 @@ export default function Main() {
   });
 
   const deleteMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_CLASS,
     mutationFn: (id: string) => classService.deleteClass(id),
     invalidateQueryKey: [QUERY_KEYS.CLASSES],
     successMessage: "Xóa lớp học thành công!",
     errorMessage: "Xóa lớp học thất bại!",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
   const handleAddClass = useCallback(() => {
     openModal({
       title: "Thêm lớp học mới",
       content: <CreateClassForm />,
+      config: {
+        mutationKey: MUTATION_KEYS.CREATE_CLASS,
+      },
     });
   }, [openModal]);
 
@@ -97,6 +100,9 @@ export default function Main() {
           />
         ),
         size: "md",
+        config: {
+          mutationKey: MUTATION_KEYS.UPDATE_CLASS,
+        },
       });
     },
     [openModal]
@@ -208,6 +214,7 @@ export default function Main() {
                       message: `Bạn có chắc chắn muốn xóa lớp "${cls.className}" không?`,
                       confirmText: "Xóa ngay",
                       variant: "danger",
+                      mutationKey: MUTATION_KEYS.DELETE_CLASS,
                       onConfirm: () => deleteMutation.mutate(cls.id),
                     })
                   }

@@ -1,9 +1,11 @@
 "use client";
 
+import { useIsMutating } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import Button from "@/library/Button";
 import { useConfirmStore } from "@/store/useConfirmStore";
+import { MUTATION_KEYS } from "@/constants/query-keys";
 
 /**
  * Component Confirm (Global Renderer)
@@ -17,10 +19,13 @@ const Confirm = () => {
     confirmText,
     cancelText,
     variant,
-    isLoading,
+    mutationKey,
     onConfirm,
     closeConfirm,
   } = useConfirmStore();
+  const isLoading =
+    useIsMutating({ mutationKey: mutationKey ?? MUTATION_KEYS.CONFIRM_IDLE }) > 0;
+
   const handleConfirm = () => {
     onConfirm();
   };
@@ -49,10 +54,10 @@ const Confirm = () => {
               <div className="flex flex-col items-center text-center gap-4">
                 <div
                   className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 ${variant === "danger"
-                      ? "bg-red-50 border-red-100 text-red-500"
-                      : variant === "warning"
-                        ? "bg-amber-50 border-amber-100 text-amber-500"
-                        : "bg-primary-50 border-primary-100 text-primary-600"
+                    ? "bg-red-50 border-red-100 text-red-500"
+                    : variant === "warning"
+                      ? "bg-amber-50 border-amber-100 text-amber-500"
+                      : "bg-primary-50 border-primary-100 text-primary-600"
                     }`}
                 >
                   <HiOutlineExclamationCircle size={32} />
@@ -72,7 +77,7 @@ const Confirm = () => {
                 <Button
                   variant="ghost"
                   onClick={closeConfirm}
-                  isLoading={isLoading}
+                  disabled={isLoading}
                   className="flex-1 h-10 rounded-2xl text-[11px] font-black uppercase tracking-wider"
                 >
                   {cancelText}

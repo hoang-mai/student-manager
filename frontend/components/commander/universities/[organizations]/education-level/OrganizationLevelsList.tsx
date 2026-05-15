@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { organizationService } from "@/services/organizations";
 import Skeleton from "@/library/Skeleton";
 import ErrorState from "@/library/ErrorState";
@@ -29,12 +29,12 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
   });
 
   const deleteLevelMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_EDUCATION_LEVEL,
     mutationFn: (id: string) => organizationService.deleteEducationLevel(id),
     invalidateQueryKey: [QUERY_KEYS.EDUCATION_LEVELS, orgId],
     successMessage: "Xóa trình độ thành công",
     errorMessage: "Xóa trình độ thất bại!",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
   const handleOpenCreateLevelModal = (orgId: string) => {
@@ -44,6 +44,9 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
         <CreateEducationLevelForm organizationId={orgId} />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.CREATE_EDUCATION_LEVEL,
+      },
     });
   }
 
@@ -54,6 +57,9 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
         <UpdateEducationLevelForm level={level} organizationId={orgId} />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.UPDATE_EDUCATION_LEVEL,
+      },
     });
   }
 
@@ -116,6 +122,7 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
                     openConfirm({
                       title: "Xác nhận xóa",
                       message: `Xóa trình độ "${level.levelName}" và các lớp trực thuộc?`,
+                      mutationKey: MUTATION_KEYS.DELETE_EDUCATION_LEVEL,
                       onConfirm: () => deleteLevelMutation.mutate(level.id),
                       variant: "danger",
                     })

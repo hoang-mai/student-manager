@@ -10,7 +10,7 @@ import Typography from "@/library/Typography";
 import FileUpload from "@/library/FileUpload";
 import { userService } from "@/services/user";
 import { useToastStore } from "@/store/useToastStore";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import {
   batchUpdateStudentSchema,
   batchExcelFileSchema,
@@ -136,6 +136,7 @@ const UpdateBatchStudents: React.FC = () => {
   };
 
   const updateMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_BATCH_STUDENTS,
     mutationFn: (data: BatchUpdateStudentValues) =>
       userService.updateBatchStudents(data),
     invalidateQueryKey: [QUERY_KEYS.USERS],

@@ -11,7 +11,7 @@ import { classService } from "@/services/classes";
 import { organizationService } from "@/services/organizations";
 import { universityService } from "@/services/universities";
 import { Class } from "@/types/classes";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import CreateClassForm from "./CreateClassForm";
 import UpdateClassForm from "./UpdateClassForm";
 import { ColumnDef } from "@tanstack/react-table";
@@ -76,6 +76,9 @@ export default function Main({ universityId, organizationId, educationLevelId }:
         <CreateClassForm educationLevelId={educationLevelId} />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.CREATE_CLASS,
+      },
     });
   };
 
@@ -86,16 +89,19 @@ export default function Main({ universityId, organizationId, educationLevelId }:
         <UpdateClassForm cls={cls} educationLevelId={educationLevelId} />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.UPDATE_CLASS,
+      },
     });
   }, [educationLevelId, openModal]);
 
   const deleteClassMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_CLASS,
     mutationFn: (id: string) => classService.deleteClass(id),
     invalidateQueryKey: [QUERY_KEYS.CLASSES, educationLevelId],
     successMessage: "Xóa lớp thành công",
     errorMessage: "Xóa lớp thất bại",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
 
@@ -164,6 +170,7 @@ export default function Main({ universityId, organizationId, educationLevelId }:
                       message: `Bạn có chắc chắn muốn xóa lớp "${cls.className}" không?`,
                       confirmText: "Xóa ngay",
                       variant: "danger",
+                      mutationKey: MUTATION_KEYS.DELETE_CLASS,
                       onConfirm: () => deleteClassMutation.mutate(cls.id),
                     })
                   }

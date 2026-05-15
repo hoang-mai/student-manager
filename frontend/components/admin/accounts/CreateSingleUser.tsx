@@ -8,7 +8,7 @@ import Button from "@/library/Button";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
 import { authService } from "@/services/auth";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { CreateUserRequest } from "@/types/auth";
 import { createUserSchema, CreateUserFormValues } from "@/utils/validations";
 import useAppMutation from "@/hooks/useAppMutation";
@@ -18,6 +18,7 @@ const CreateSingleUser: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { closeModal } = useModalStore()
   const createMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.CREATE_USER,
     mutationFn: (userData: CreateUserRequest) => authService.register(userData),
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Thêm người dùng thành công!",

@@ -1,15 +1,15 @@
 import React from 'react';
-import { 
-  HiOutlineUserGroup, 
-  HiOutlineOfficeBuilding, 
-  HiOutlineIdentification, 
-  HiOutlineCheckCircle, 
-  HiOutlineStop, 
-  HiOutlineCalendar, 
-  HiOutlineCash, 
-  HiOutlineAcademicCap, 
-  HiOutlineChartBar, 
-  HiOutlineClipboardList, 
+import {
+  HiOutlineUserGroup,
+  HiOutlineOfficeBuilding,
+  HiOutlineIdentification,
+  HiOutlineCheckCircle,
+  HiOutlineStop,
+  HiOutlineCalendar,
+  HiOutlineCash,
+  HiOutlineAcademicCap,
+  HiOutlineChartBar,
+  HiOutlineClipboardList,
   HiOutlineViewGrid,
   HiOutlineHome
 } from 'react-icons/hi';
@@ -20,7 +20,7 @@ export type MenuItem = {
   icon: React.ElementType;
 };
 
-export const COMMANDER_MENU: MenuItem[] = [
+export const COMMANDER_MENU = [
   {
     title: 'Tổng quan',
     path: '/commander',
@@ -86,4 +86,4 @@ export const COMMANDER_MENU: MenuItem[] = [
     path: '/commander/utilities',
     icon: HiOutlineViewGrid,
   },
-];
+] as const satisfies readonly MenuItem[];

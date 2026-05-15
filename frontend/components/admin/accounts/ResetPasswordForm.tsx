@@ -18,6 +18,7 @@ import {
 import { User } from "@/types/user";
 import { useModalStore } from "@/store/useModalStore";
 import useAppMutation from "@/hooks/useAppMutation";
+import { MUTATION_KEYS } from "@/constants/query-keys";
 
 interface ResetPasswordFormProps {
   user: User;
@@ -31,6 +32,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   const { closeModal } = useModalStore();
 
   const resetPasswordMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.RESET_USER_PASSWORD,
     mutationFn: (password: string) => userService.resetPassword(user.id, password),
     successMessage: `Đặt lại mật khẩu cho "${user.username}" thành công!`,
     errorMessage: "Đặt lại mật khẩu thất bại. Vui lòng thử lại!",

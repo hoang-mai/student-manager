@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { authService } from "@/services/auth";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import {
   HiOutlineUser,
   HiOutlineMail,
@@ -66,6 +66,9 @@ export default function Main() {
       title: "Cập nhật hồ sơ cá nhân",
       content: <UpdateProfileForm initialData={commander} />,
       size: "lg",
+      config: {
+        mutationKey: MUTATION_KEYS.UPDATE_PROFILE,
+      },
     });
   };
 

@@ -23,6 +23,7 @@ import { THEMES } from "@/constants/constants";
 import { useModalStore } from "@/store/useModalStore";
 import ChangePasswordForm from "@/components/admin/layout/header/ChangePasswordForm";
 import Typography from "@/library/Typography";
+import { MUTATION_KEYS } from "@/constants/query-keys";
 
 export default function Header() {
   const router = useRouter();
@@ -47,6 +48,9 @@ export default function Header() {
       title: "Đổi mật khẩu",
       content: <ChangePasswordForm />,
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.CHANGE_PASSWORD,
+      },
     });
   };
 

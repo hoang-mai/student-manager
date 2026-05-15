@@ -11,7 +11,7 @@ import { RANKS } from "@/constants/constants";
 import { DutySchedule } from "@/types/duty-schedules";
 import { dutyScheduleService } from "@/services/duty-schedules";
 import { dutyScheduleSchema, DutyScheduleFormValues } from "@/utils/validations";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useModalStore } from "@/store/useModalStore";
 
@@ -25,6 +25,7 @@ export default function UpdateDutyScheduleForm({
   const { closeModal } = useModalStore();
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_DUTY_SCHEDULE,
     mutationFn: (data: DutyScheduleFormValues) =>
       dutyScheduleService.updateDutySchedule(schedule.id, data),
     invalidateQueryKey: [QUERY_KEYS.DUTY_SCHEDULES],

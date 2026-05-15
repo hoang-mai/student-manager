@@ -7,7 +7,7 @@ export type MenuItem = {
   icon: React.ElementType;
 };
 
-export const ADMIN_MENU: MenuItem[] = [
+export const ADMIN_MENU = [
   {
     title: "Tổng quan",
     path: "/admin",
@@ -18,4 +18,4 @@ export const ADMIN_MENU: MenuItem[] = [
     path: "/admin/accounts",
     icon: HiOutlineUserGroup,
   },
-];
+] as const satisfies readonly MenuItem[];

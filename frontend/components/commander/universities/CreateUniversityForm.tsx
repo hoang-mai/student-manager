@@ -7,7 +7,7 @@ import Input from "@/library/Input";
 import Select from "@/library/Select";
 import Divide from "@/library/Divide";
 import { universityService } from "@/services/universities";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { universitySchema, UniversityFormValues } from "@/utils/validations";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useModalStore } from "@/store/useModalStore";
@@ -16,6 +16,7 @@ export default function CreateUniversityForm() {
   const { closeModal } = useModalStore();
 
   const mutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.CREATE_UNIVERSITY,
     mutationFn: (data: UniversityFormValues) =>
       universityService.createUniversity(data),
     invalidateQueryKey: [QUERY_KEYS.UNIVERSITIES],

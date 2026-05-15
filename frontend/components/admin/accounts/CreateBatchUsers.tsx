@@ -10,7 +10,7 @@ import Typography from "@/library/Typography";
 import FileUpload from "@/library/FileUpload";
 import { userService } from "@/services/user";
 import { useToastStore } from "@/store/useToastStore";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { CreateUserRequest } from "@/types/auth";
 import {
   batchUserSchema,
@@ -127,6 +127,7 @@ const CreateBatchUsers: React.FC = () => {
   };
 
   const batchMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.CREATE_USER,
     mutationFn: (data: CreateUserRequest[]) => userService.createBatchUsers(data),
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Thêm người dùng thành công!",

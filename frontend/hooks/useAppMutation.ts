@@ -7,7 +7,6 @@ import {
   type UseMutationOptions,
 } from "@tanstack/react-query";
 import { useConfirmStore } from "@/store/useConfirmStore";
-import { useLoadingStore } from "@/store/useLoadingStore";
 import { useToastStore, type ToastVariant } from "@/store/useToastStore";
 
 type AppMutationOptions<
@@ -32,8 +31,6 @@ type AppMutationOptions<
   errorMessage?: string;
   successVariant?: ToastVariant;
   errorVariant?: ToastVariant;
-  enableGlobalLoading?: boolean;
-  enableConfirmLoading?: boolean;
   closeConfirmOnSuccess?: boolean;
   onSuccess?: UseMutationOptions<
     TData,
@@ -67,8 +64,6 @@ export default function useAppMutation<
   errorMessage = "Thao tác thất bại!",
   successVariant = "success",
   errorVariant = "error",
-  enableGlobalLoading = true,
-  enableConfirmLoading = false,
   closeConfirmOnSuccess = false,
   onSuccess,
   onError,
@@ -77,22 +72,11 @@ export default function useAppMutation<
 }: AppMutationOptions<TData, TVariables, TError, TOnMutateResult>) {
   const queryClient = useQueryClient();
   const { addToast } = useToastStore();
-  const { closeConfirm, setLoading } = useConfirmStore();
-  const { showLoading, hideLoading } = useLoadingStore();
+  const { closeConfirm } = useConfirmStore();
 
   return useMutation<TData, TError, TVariables, TOnMutateResult>({
     ...options,
-    mutationFn: async (variables, context) => {
-      if (enableConfirmLoading) {
-        setLoading(true);
-      }
-
-      if (enableGlobalLoading) {
-        showLoading();
-      }
-
-      return mutationFn(variables, context);
-    },
+    mutationFn,
     onSuccess: async (data, variables, onMutateResult, context) => {
       if (invalidateQueryKey) {
         await queryClient.invalidateQueries({ queryKey: invalidateQueryKey });
@@ -120,14 +104,6 @@ export default function useAppMutation<
       await onError?.(err, variables, onMutateResult, context);
     },
     onSettled: async (data, error, variables, onMutateResult, context) => {
-      if (enableConfirmLoading) {
-        setLoading(false);
-      }
-
-      if (enableGlobalLoading) {
-        hideLoading();
-      }
-
       await onSettled?.(data, error, variables, onMutateResult, context);
     },
   });

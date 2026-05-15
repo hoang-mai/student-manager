@@ -9,7 +9,7 @@ import Select from "@/library/Select";
 import Typography from "@/library/Typography";
 import { UserDetailResponse, UpdateProfileRequest } from "@/types/user";
 import { userService } from "@/services/user";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { updateUserSchema, UpdateUserFormValues } from "@/utils/validations";
 import Divide from "@/library/Divide";
 import { RANKS, GENDER } from "@/constants/constants";
@@ -25,6 +25,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
   const { closeModal } = useModalStore();
 
   const updateMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_USER,
     mutationFn: (data: UpdateProfileRequest) => userService.updateUser(user.id, data),
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Cập nhật thành công!",

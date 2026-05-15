@@ -23,7 +23,7 @@ import AnimatedContainer from "@/library/AnimatedContainer";
 import ErrorState from "@/library/ErrorState";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { universityService } from "@/services/universities";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import { University } from "@/types/universities";
 
@@ -67,6 +67,7 @@ export default function Main() {
   });
 
   const toggleUniversityStatusMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.TOGGLE_UNIVERSITY_STATUS,
     mutationFn: ({
       id,
       status,
@@ -78,16 +79,15 @@ export default function Main() {
     successMessage: "Cập nhật trạng thái thành công",
     errorMessage: "Cập nhật trạng thái thất bại!",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
   const deleteUniversityMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_UNIVERSITY,
     mutationFn: (id: string) => universityService.deleteUniversity(id),
     invalidateQueryKey: [QUERY_KEYS.UNIVERSITIES],
     successMessage: "Xóa trường đại học thành công",
     errorMessage: "Xóa trường đại học thất bại!",
     closeConfirmOnSuccess: true,
-    enableConfirmLoading: true
   });
 
   const handleOpenCreateModal = () => {
@@ -95,6 +95,9 @@ export default function Main() {
       title: "Thêm trường đại học",
       content: <CreateUniversityForm />,
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.CREATE_UNIVERSITY,
+      },
     });
   };
 
@@ -105,6 +108,9 @@ export default function Main() {
         <UpdateUniversityForm university={uni} />
       ),
       size: "md",
+      config: {
+        mutationKey: MUTATION_KEYS.UPDATE_UNIVERSITY,
+      },
     });
   };
 
@@ -218,6 +224,7 @@ export default function Main() {
                               uni.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
                             variant:
                               uni.status === "ACTIVE" ? "danger" : "primary",
+                            mutationKey: MUTATION_KEYS.TOGGLE_UNIVERSITY_STATUS,
                             onConfirm: () =>
                               toggleUniversityStatusMutation.mutate({
                                 id: uni.id,
@@ -253,6 +260,7 @@ export default function Main() {
                             message: `Bạn có chắc chắn muốn xóa trường "${uni.universityName}"? Toàn bộ dữ liệu cấp dưới sẽ bị xóa.`,
                             confirmText: "Xóa ngay",
                             variant: "danger",
+                            mutationKey: MUTATION_KEYS.DELETE_UNIVERSITY,
                             onConfirm: () =>
                               deleteUniversityMutation.mutate(uni.id),
                           })
