@@ -15,8 +15,9 @@ import {
   HiOutlineHome,
   HiOutlineChevronRight,
 } from "react-icons/hi";
-import Tooltip from "@/library/Tooltip";
+import ActionButton from "@/library/ActionButton";
 import Typography from "@/library/Typography";
+import PageContainer from "@/library/PageContainer";
 import { FilterField } from "@/library/table/TableFilter";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
@@ -196,33 +197,29 @@ export default function Main() {
         cell: (info) => {
           const cls = info.row.original;
           return (
-            <div className="flex items-center justify-start gap-2">
-              <Tooltip content="Chỉnh sửa" position="top">
-                <button
-                  onClick={() => handleOpenUpdateModal(cls)}
-                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                >
-                  <HiOutlinePencil size={18} />
-                </button>
-              </Tooltip>
+            <div className="flex items-center justify-start gap-1">
+              <ActionButton
+                tooltipText="Chỉnh sửa"
+                icon={HiOutlinePencil}
+                onClick={() => handleOpenUpdateModal(cls)}
+                color="blue"
+              />
 
-              <Tooltip content="Xóa lớp" position="top">
-                <button
-                  onClick={() =>
-                    openConfirm({
-                      title: "Xác nhận xóa",
-                      message: `Bạn có chắc chắn muốn xóa lớp "${cls.className}" không?`,
-                      confirmText: "Xóa ngay",
-                      variant: "danger",
-                      mutationKey: MUTATION_KEYS.DELETE_CLASS,
-                      onConfirm: () => deleteMutation.mutate(cls.id),
-                    })
-                  }
-                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-error-600 hover:bg-error-50 rounded-xl transition-all"
-                >
-                  <HiOutlineTrash size={18} />
-                </button>
-              </Tooltip>
+              <ActionButton
+                tooltipText="Xóa lớp"
+                icon={HiOutlineTrash}
+                color="red"
+                onClick={() =>
+                  openConfirm({
+                    title: "Xác nhận xóa",
+                    message: `Bạn có chắc chắn muốn xóa lớp "${cls.className}" không?`,
+                    confirmText: "Xóa ngay",
+                    variant: "danger",
+                    mutationKey: MUTATION_KEYS.DELETE_CLASS,
+                    onConfirm: () => deleteMutation.mutate(cls.id),
+                  })
+                }
+              />
             </div>
           );
         },
@@ -270,49 +267,18 @@ export default function Main() {
     ]
   );
 
-  if (isClassesLoading) {
-    return <ClassSkeleton />;
-  }
-
-  if (isClassesError) {
-    return <ErrorState onRetry={refetchClasses} />;
-  }
-
   return (
-    <AnimatedContainer
-      variant="slideUp"
-      className="space-y-8 rounded-2xl bg-white p-6 min-h-screen"
+    <PageContainer
+      breadcrumb={[
+        { label: "Tổng quan", href: "/commander" },
+        { label: "Quản lý lớp học" },
+      ]}
+      title="Quản lý lớp học"
+      isLoading={isClassesLoading}
+      skeleton={<ClassSkeleton />}
+      isError={isClassesError}
+      onRetry={refetchClasses}
     >
-      <div className="flex items-center gap-2 text-neutral-400">
-        <Link
-          href="/commander"
-          className="flex items-center gap-2 hover:text-primary-600 transition-colors cursor-pointer group"
-        >
-          <HiOutlineHome
-            size={14}
-            className="mb-0.5 group-hover:scale-110 transition-transform"
-          />
-          <Typography
-            variant="label"
-            tracking="wide"
-            className="cursor-pointer"
-          >
-            Tổng quan
-          </Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Typography variant="label" color="primary" tracking="wide">
-          Quản lý lớp học
-        </Typography>
-      </div>
-
-      <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-        <div>
-          <Typography variant="h1" transform="uppercase">
-            Quản lý lớp học
-          </Typography>
-        </div>
-      </div>
 
       <div className="bg-white overflow-hidden relative">
         <div className="px-4">
@@ -332,6 +298,6 @@ export default function Main() {
           />
         </div>
       </div>
-    </AnimatedContainer>
+    </PageContainer>
   );
 }

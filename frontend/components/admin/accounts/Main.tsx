@@ -7,21 +7,19 @@ import { UserDetailResponse, UserQueryRequest } from "@/types/user";
 import { ROLES } from "@/constants/constants";
 import useTableQuery from "@/hooks/useTableQuery";
 import { formatDateTime } from "@/utils/fn-common";
-import AnimatedContainer from "@/library/AnimatedContainer";
 import Table from "@/library/Table";
 import Badge, { BadgeVariant } from "@/library/Badge";
 import {
   HiOutlinePencil,
   HiOutlineLockClosed,
-  HiOutlineChevronRight,
-  HiOutlineHome,
   HiOutlineDownload,
   HiOutlineTrash,
   HiOutlineRefresh,
   HiOutlineEye,
 } from "react-icons/hi";
-import Tooltip from "@/library/Tooltip";
+import ActionButton from "@/library/ActionButton";
 import Typography from "@/library/Typography";
+import PageContainer from "@/library/PageContainer";
 import { FilterField } from "@/library/table/TableFilter";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
@@ -32,9 +30,7 @@ import CreateUserForm from "./CreateUserForm";
 import UpdateUserForm from "./UpdateUserForm";
 import DetailUserForm from "./DetailUserForm";
 import UpdateBatchStudents from "./UpdateBatchStudents";
-import Link from "next/link";
 import AccountSkeleton from "./AccountSkeleton";
-import ErrorState from "@/library/ErrorState";
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -217,91 +213,75 @@ export default function Main() {
           const user = info.row.original;
           return (
             <div className="flex items-center justify-start">
-              <Tooltip content="Xem chi tiết" position="top">
-                <button
-                  onClick={() => handleOpenDetailModal(user)}
-                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all"
-                >
-                  <HiOutlineEye size={18} />
-                </button>
-              </Tooltip>
+              <ActionButton
+                tooltipText="Xem chi tiết"
+                icon={HiOutlineEye}
+                onClick={() => handleOpenDetailModal(user)}
+                color="green"
+              />
 
               {user.role !== "ADMIN" && (
                 <>
-                  <Tooltip content="Chỉnh sửa" position="top">
-                    <button
-                      onClick={() => handleOpenUpdateModal(user)}
-                      className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                    >
-                      <HiOutlinePencil size={18} />
-                    </button>
-                  </Tooltip>
-                  <Tooltip
-                    content={user.isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
-                    position="top"
-                  >
-                    <button
-                      onClick={() =>
-                        openConfirm({
-                          title: user.isActive
-                            ? "Xác nhận khóa"
-                            : "Mở khóa tài khoản",
-                          message: `Bạn có chắc chắn muốn ${user.isActive ? "tạm khóa" : "mở khóa"} tài khoản "${user.username}" không?`,
-                          confirmText: user.isActive ? "Khóa tài khoản" : "Mở khóa",
-                          variant: user.isActive ? "danger" : "primary",
-                          mutationKey: MUTATION_KEYS.TOGGLE_USER_ACTIVE,
-                          onConfirm: () => {
-                            toggleActiveMutation.mutate(user.id);
-                          },
-                        })
-                      }
-                      className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-secondary-600 hover:bg-secondary-50 rounded-xl transition-all"
-                    >
-                      <HiOutlineLockClosed size={18} />
-                    </button>
-                  </Tooltip>
+                  <ActionButton
+                    tooltipText="Chỉnh sửa"
+                    icon={HiOutlinePencil}
+                    onClick={() => handleOpenUpdateModal(user)}
+                    color="blue"
+                  />
 
-                  <Tooltip content="Xóa tài khoản" position="top">
-                    <button
-                      onClick={() =>
-                        openConfirm({
-                          title: "Xác nhận xóa",
-                          message: `Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản "${user.username}" không? Hành động này không thể hoàn tác.`,
-                          confirmText: "Xóa ngay",
-                          variant: "danger",
-                          mutationKey: MUTATION_KEYS.DELETE_USER,
-                          onConfirm: () => deleteMutation.mutate(user.id),
-                        })
-                      }
-                      className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-error-600 hover:bg-error-50 rounded-xl transition-all"
-                    >
-                      <HiOutlineTrash size={18} />
-                    </button>
-                  </Tooltip>
+                  <ActionButton
+                    tooltipText={user.isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+                    icon={HiOutlineLockClosed}
+                    color="secondary"
+                    onClick={() =>
+                      openConfirm({
+                        title: user.isActive
+                          ? "Xác nhận khóa"
+                          : "Mở khóa tài khoản",
+                        message: `Bạn có chắc chắn muốn ${user.isActive ? "tạm khóa" : "mở khóa"} tài khoản "${user.username}" không?`,
+                        confirmText: user.isActive ? "Khóa tài khoản" : "Mở khóa",
+                        variant: user.isActive ? "danger" : "primary",
+                        mutationKey: MUTATION_KEYS.TOGGLE_USER_ACTIVE,
+                        onConfirm: () => {
+                          toggleActiveMutation.mutate(user.id);
+                        },
+                      })
+                    }
+                  />
+
+                  <ActionButton
+                    tooltipText="Xóa tài khoản"
+                    icon={HiOutlineTrash}
+                    color="red"
+                    onClick={() =>
+                      openConfirm({
+                        title: "Xác nhận xóa",
+                        message: `Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản "${user.username}" không? Hành động này không thể hoàn tác.`,
+                        confirmText: "Xóa ngay",
+                        variant: "danger",
+                        mutationKey: MUTATION_KEYS.DELETE_USER,
+                        onConfirm: () => deleteMutation.mutate(user.id),
+                      })
+                    }
+                  />
                 </>
               )}
 
-              <Tooltip content="Đặt lại mật khẩu" position="top">
-                <button
-                  onClick={() =>
-                    openModal({
-                      title: "Đặt lại mật khẩu",
-                      content: (
-                        <ResetPasswordForm
-                          user={user}
-                        />
-                      ),
-                      size: "sm",
-                      config: {
-                        mutationKey: MUTATION_KEYS.RESET_USER_PASSWORD,
-                      },
-                    })
-                  }
-                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all"
-                >
-                  <HiOutlineRefresh size={18} />
-                </button>
-              </Tooltip>
+              <ActionButton
+                tooltipText="Đặt lại mật khẩu"
+                icon={HiOutlineRefresh}
+                color="amber"
+                onClick={() =>
+                  openModal({
+                    title: "Đặt lại mật khẩu",
+                    content: <ResetPasswordForm user={user} />,
+                    size: "sm",
+                    config: {
+                      mutationKey: MUTATION_KEYS.RESET_USER_PASSWORD,
+                    },
+                  })
+                }
+              />
             </div>
           );
         },
@@ -352,56 +332,25 @@ export default function Main() {
     []
   );
 
-  if (isUsersLoading) {
-    return <AccountSkeleton />
-  }
-
-  if (isUsersError) {
-    return (
-      <ErrorState
-        title="Không thể tải danh sách tài khoản"
-        message="Vui lòng thử tải lại trang. Nếu lỗi vẫn tiếp diễn, vui lòng liên hệ quản trị viên."
-        onRetry={refetchUsers}
-      />
-    )
-  }
-
   return (
-    <AnimatedContainer
-      variant="slideUp"
-      className="space-y-8 rounded-2xl bg-white p-6 min-h-screen"
+    <PageContainer
+      breadcrumb={[
+        { label: "Tổng quan", href: "/admin" },
+        { label: "Quản lý tài khoản" },
+      ]}
+      title="Quản lý tài khoản"
+      isLoading={isUsersLoading}
+      skeleton={<AccountSkeleton />}
+      isError={isUsersError}
+      onRetry={refetchUsers}
     >
-      <div className="flex items-center gap-2 text-neutral-400">
-        <Link
-          href="/admin"
-          className="flex items-center gap-2 hover:text-primary-600 transition-colors cursor-pointer group"
-        >
-          <HiOutlineHome size={14} className="mb-0.5 group-hover:scale-110 transition-transform" />
-          <Typography variant="label" tracking="wide" className="cursor-pointer">
-            Tổng quan
+      <div className="flex justify-end mb-6">
+        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-all cursor-pointer">
+          <HiOutlineDownload size={16} className="text-neutral-600" />
+          <Typography variant="label" color="neutral">
+            Xuất Excel
           </Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Typography variant="label" color="primary" tracking="wide">
-          Quản lý tài khoản
-        </Typography>
-      </div>
-
-      <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-        <div>
-          <Typography variant="h1" transform="uppercase">
-            Quản lý tài khoản
-          </Typography>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-all">
-            <HiOutlineDownload size={16} className="text-neutral-600" />
-            <Typography variant="label" color="neutral">
-              Xuất Excel
-            </Typography>
-          </button>
-        </div>
+        </button>
       </div>
 
       <div className="bg-white overflow-hidden relative">
@@ -424,6 +373,6 @@ export default function Main() {
           />
         </div>
       </div>
-    </AnimatedContainer>
+    </PageContainer>
   );
 }

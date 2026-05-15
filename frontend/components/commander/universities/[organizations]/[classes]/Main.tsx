@@ -17,13 +17,12 @@ import UpdateClassForm from "./UpdateClassForm";
 import { ColumnDef } from "@tanstack/react-table";
 import Table from "@/library/Table";
 import { FilterField } from "@/library/table/TableFilter";
-import Tooltip from "@/library/Tooltip";
-import { HiOutlinePencil, HiOutlineTrash, HiOutlineHome, HiOutlineChevronRight } from "react-icons/hi";
-import Link from "next/link";
+import ActionButton from "@/library/ActionButton";
+import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import { formatDateTime } from "@/utils/fn-common";
-import ErrorState from "@/library/ErrorState";
 import useTableQuery from "@/hooks/useTableQuery";
 import useAppMutation from "@/hooks/useAppMutation";
+import PageContainer from "@/library/PageContainer";
 
 interface Props {
   universityId: string;
@@ -153,32 +152,28 @@ export default function Main({ universityId, organizationId, educationLevelId }:
         cell: (info) => {
           const cls = info.row.original;
           return (
-            <div className="flex items-center justify-start gap-2">
-              <Tooltip content="Chỉnh sửa" position="top">
-                <button
-                  onClick={() => handleOpenUpdateClassModal(cls)}
-                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                >
-                  <HiOutlinePencil size={18} />
-                </button>
-              </Tooltip>
-              <Tooltip content="Xóa lớp" position="top">
-                <button
-                  onClick={() =>
-                    openConfirm({
-                      title: "Xác nhận xóa",
-                      message: `Bạn có chắc chắn muốn xóa lớp "${cls.className}" không?`,
-                      confirmText: "Xóa ngay",
-                      variant: "danger",
-                      mutationKey: MUTATION_KEYS.DELETE_CLASS,
-                      onConfirm: () => deleteClassMutation.mutate(cls.id),
-                    })
-                  }
-                  className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-error-600 hover:bg-error-50 rounded-xl transition-all"
-                >
-                  <HiOutlineTrash size={18} />
-                </button>
-              </Tooltip>
+            <div className="flex items-center justify-start gap-1">
+              <ActionButton
+                tooltipText="Chỉnh sửa"
+                icon={HiOutlinePencil}
+                color="blue"
+                onClick={() => handleOpenUpdateClassModal(cls)}
+              />
+              <ActionButton
+                tooltipText="Xóa lớp"
+                icon={HiOutlineTrash}
+                color="red"
+                onClick={() =>
+                  openConfirm({
+                    title: "Xác nhận xóa",
+                    message: `Bạn có chắc chắn muốn xóa lớp "${cls.className}" không?`,
+                    confirmText: "Xóa ngay",
+                    variant: "danger",
+                    mutationKey: MUTATION_KEYS.DELETE_CLASS,
+                    onConfirm: () => deleteClassMutation.mutate(cls.id),
+                  })
+                }
+              />
             </div>
           );
         },
@@ -199,53 +194,21 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     []
   );
 
-  if (isOrganizationLoading || isUniversityLoading || isEducationLevelLoading || isClassesLoading) {
-    return <ClassSkeleton />;
-  }
-
-  if (isOrganizationError || isUniversityError || isEducationLevelError || isClassesError) {
-    return <ErrorState onRetry={() => { refetchOrganization(); refetchUniversity(); refetchEducationLevel(); refetchClasses(); }} />;
-  }
-
   return (
-    <AnimatedContainer variant="slideUp" className="space-y-8 relative rounded-2xl bg-white p-6 min-h-screen">
-      <div className="flex items-center gap-2 text-neutral-400">
-        <Link href="/commander" className="flex items-center gap-2 hover:text-primary-600 transition-colors cursor-pointer group">
-          <HiOutlineHome size={14} className="mb-0.5 group-hover:scale-110 transition-transform" />
-          <Typography variant="label" tracking="wide">Tổng quan</Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Link
-          href="/commander/universities"
-          className="hover:text-primary-600 transition-colors"
-        >
-          <Typography variant="label" tracking="wide">
-            Cơ sở đào tạo
-          </Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Link href={`/commander/universities/${universityId}`} className="hover:text-primary-600 transition-colors cursor-pointer">
-          <Typography variant="label" tracking="wide">
-            {universityData?.universityName}
-          </Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Typography variant="label" tracking="wide">
-          {organizationData?.organizationName}
-        </Typography>
-        <HiOutlineChevronRight size={12} />
-        <Typography variant="label" color="primary" tracking="wide">
-          {educationLevelData?.levelName}
-        </Typography>
-      </div>
-
-      <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-        <div>
-          <Typography variant="h1" transform="uppercase">
-            {`Lớp học - ${educationLevelData?.levelName}`}
-          </Typography>
-        </div>
-      </div>
+    <PageContainer
+      breadcrumb={[
+        { label: "Tổng quan", href: "/commander" },
+        { label: "Cơ sở đào tạo", href: "/commander/universities" },
+        { label: universityData?.universityName, href: `/commander/universities/${universityId}` },
+        { label: organizationData?.organizationName || "..." },
+        { label: educationLevelData?.levelName || "..." },
+      ]}
+      title={`Lớp học - ${educationLevelData?.levelName || ""}`}
+      isLoading={isOrganizationLoading || isUniversityLoading || isEducationLevelLoading || isClassesLoading}
+      skeleton={<ClassSkeleton />}
+      isError={isOrganizationError || isUniversityError || isEducationLevelError || isClassesError}
+      onRetry={() => { refetchOrganization(); refetchUniversity(); refetchEducationLevel(); refetchClasses(); }}
+    >
 
       <div className="bg-white overflow-hidden relative">
         <div className="px-4">
@@ -265,6 +228,6 @@ export default function Main({ universityId, organizationId, educationLevelId }:
           />
         </div>
       </div>
-    </AnimatedContainer>
+    </PageContainer>
   );
 }

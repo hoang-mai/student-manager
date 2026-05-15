@@ -10,7 +10,7 @@ import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
 import Typography from "@/library/Typography";
 import { HiOutlineAcademicCap, HiOutlinePencil, HiOutlinePlus, HiOutlineTrash } from "react-icons/hi";
-import Tooltip from "@/library/Tooltip";
+import ActionButton from "@/library/ActionButton";
 import Link from "next/link";
 import useAppMutation from "@/hooks/useAppMutation";
 
@@ -108,30 +108,30 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
               </div>
             </Link>
             <div className="flex gap-2">
-              <Tooltip content="Chỉnh sửa" position="top">
-                <button
-                  onClick={() => handleOpenUpdateLevelModal(orgId, level)}
-                  className="cursor-pointer w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                >
-                  <HiOutlinePencil size={14} />
-                </button>
-              </Tooltip>
-              <Tooltip content="Xóa trình độ" position="top">
-                <button
-                  onClick={() =>
-                    openConfirm({
-                      title: "Xác nhận xóa",
-                      message: `Xóa trình độ "${level.levelName}" và các lớp trực thuộc?`,
-                      mutationKey: MUTATION_KEYS.DELETE_EDUCATION_LEVEL,
-                      onConfirm: () => deleteLevelMutation.mutate(level.id),
-                      variant: "danger",
-                    })
-                  }
-                  className="cursor-pointer w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                >
-                  <HiOutlineTrash size={14} />
-                </button>
-              </Tooltip>
+              <ActionButton
+                tooltipText="Chỉnh sửa"
+                icon={HiOutlinePencil}
+                color="blue"
+                iconSize={14}
+                className="w-8 h-8 rounded-lg"
+                onClick={() => handleOpenUpdateLevelModal(orgId, level)}
+              />
+              <ActionButton
+                tooltipText="Xóa trình độ"
+                icon={HiOutlineTrash}
+                color="red"
+                iconSize={14}
+                className="w-8 h-8 rounded-lg"
+                onClick={() =>
+                  openConfirm({
+                    title: "Xác nhận xóa",
+                    message: `Xóa trình độ "${level.levelName}" và các lớp trực thuộc?`,
+                    mutationKey: MUTATION_KEYS.DELETE_EDUCATION_LEVEL,
+                    onConfirm: () => deleteLevelMutation.mutate(level.id),
+                    variant: "danger",
+                  })
+                }
+              />
             </div>
           </div>
         </div>

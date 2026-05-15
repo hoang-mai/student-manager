@@ -4,8 +4,6 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query";
 import {
-  HiOutlineHome,
-  HiOutlineChevronRight,
   HiOutlineOfficeBuilding,
   HiOutlinePlus,
   HiOutlineTrash,
@@ -18,9 +16,8 @@ import UniversitySkeleton from "./UniversitySkeleton";
 import { useModalStore } from "@/store/useModalStore";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import Badge from "@/library/Badge";
-import Tooltip from "@/library/Tooltip";
-import AnimatedContainer from "@/library/AnimatedContainer";
-import ErrorState from "@/library/ErrorState";
+import ActionButton from "@/library/ActionButton";
+import PageContainer from "@/library/PageContainer";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { universityService } from "@/services/universities";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
@@ -114,44 +111,19 @@ export default function Main() {
     });
   };
 
-  if (isLoading) {
-    return <UniversitySkeleton />;
-  }
-
-  if (isError) {
-    return <ErrorState onRetry={() => refetch()} />;
-  }
-
   return (
-    <AnimatedContainer
-      variant="slideUp"
-      className="space-y-8 rounded-2xl bg-white p-6 min-h-screen"
+    <PageContainer
+      breadcrumb={[
+        { label: "Tổng quan", href: "/commander" },
+        { label: "Cơ sở đào tạo" },
+      ]}
+      title="Quản lý cơ sở đào tạo"
+      isLoading={isLoading}
+      skeleton={<UniversitySkeleton />}
+      isError={isError}
+      onRetry={refetch}
     >
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-neutral-400">
-        <Link
-          href="/commander"
-          className="flex items-center gap-2 hover:text-primary-600 transition-colors group"
-        >
-          <HiOutlineHome
-            size={14}
-            className="mb-0.5 group-hover:scale-110 transition-transform"
-          />
-          <Typography variant="label" tracking="wide">
-            Tổng quan
-          </Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Typography variant="label" color="primary" tracking="wide">
-          Cơ sở đào tạo
-        </Typography>
-      </div>
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <Typography variant="h1" transform="uppercase">
-          Quản lý cơ sở đào tạo
-        </Typography>
+      <div className="flex justify-end mb-6">
         <Button
           onClick={handleOpenCreateModal}
           className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-primary-600 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-primary-700 hover:border-primary-700 transition-all shadow-lg shadow-primary-600/20 cursor-pointer active:scale-95 h-auto"
@@ -204,72 +176,59 @@ export default function Main() {
                     </div>
                   </Link>
                   <div className="flex gap-2">
-                    <Tooltip
-                      content={
+                    <ActionButton
+                      tooltipText={
                         uni.status === "ACTIVE"
                           ? "Tạm dừng hoạt động"
                           : "Kích hoạt hoạt động"
                       }
-                      position="top"
-                    >
-                      <button
-                        onClick={() =>
-                          openConfirm({
-                            title:
-                              uni.status === "ACTIVE"
-                                ? "Xác nhận tạm dừng"
-                                : "Xác nhận kích hoạt",
-                            message: `Bạn có chắc chắn muốn ${uni.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} trường "${uni.universityName}" không?`,
-                            confirmText:
-                              uni.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
-                            variant:
-                              uni.status === "ACTIVE" ? "danger" : "primary",
-                            mutationKey: MUTATION_KEYS.TOGGLE_UNIVERSITY_STATUS,
-                            onConfirm: () =>
-                              toggleUniversityStatusMutation.mutate({
-                                id: uni.id,
-                                status: uni.status,
-                              }),
-                          })
-                        }
-                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${uni.status === "ACTIVE"
-                          ? "hover:bg-amber-50 hover:text-amber-600"
-                          : "hover:bg-emerald-50 hover:text-emerald-600"
-                          }`}
-                      >
-                        {uni.status === "ACTIVE" ? (
-                          <HiOutlineLockOpen size={20} />
-                        ) : (
-                          <HiOutlineLockClosed size={20} />
-                        )}
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Chỉnh sửa" position="top">
-                      <button
-                        onClick={() => handleOpenUpdateModal(uni)}
-                        className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                      >
-                        <HiOutlinePencil size={20} />
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Xóa trường" position="top">
-                      <button
-                        onClick={() =>
-                          openConfirm({
-                            title: "Xác nhận xóa",
-                            message: `Bạn có chắc chắn muốn xóa trường "${uni.universityName}"? Toàn bộ dữ liệu cấp dưới sẽ bị xóa.`,
-                            confirmText: "Xóa ngay",
-                            variant: "danger",
-                            mutationKey: MUTATION_KEYS.DELETE_UNIVERSITY,
-                            onConfirm: () =>
-                              deleteUniversityMutation.mutate(uni.id),
-                          })
-                        }
-                        className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                      >
-                        <HiOutlineTrash size={20} />
-                      </button>
-                    </Tooltip>
+                      icon={uni.status === "ACTIVE" ? HiOutlineLockOpen : HiOutlineLockClosed}
+                      color={uni.status === "ACTIVE" ? "amber" : "green"}
+                      iconSize={20}
+                      onClick={() =>
+                        openConfirm({
+                          title:
+                            uni.status === "ACTIVE"
+                              ? "Xác nhận tạm dừng"
+                              : "Xác nhận kích hoạt",
+                          message: `Bạn có chắc chắn muốn ${uni.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} trường "${uni.universityName}" không?`,
+                          confirmText:
+                            uni.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
+                          variant:
+                            uni.status === "ACTIVE" ? "danger" : "primary",
+                          mutationKey: MUTATION_KEYS.TOGGLE_UNIVERSITY_STATUS,
+                          onConfirm: () =>
+                            toggleUniversityStatusMutation.mutate({
+                              id: uni.id,
+                              status: uni.status,
+                            }),
+                        })
+                      }
+                    />
+                    <ActionButton
+                      tooltipText="Chỉnh sửa"
+                      icon={HiOutlinePencil}
+                      color="blue"
+                      iconSize={20}
+                      onClick={() => handleOpenUpdateModal(uni)}
+                    />
+                    <ActionButton
+                      tooltipText="Xóa trường"
+                      icon={HiOutlineTrash}
+                      color="red"
+                      iconSize={20}
+                      onClick={() =>
+                        openConfirm({
+                          title: "Xác nhận xóa",
+                          message: `Bạn có chắc chắn muốn xóa trường "${uni.universityName}"? Toàn bộ dữ liệu cấp dưới sẽ bị xóa.`,
+                          confirmText: "Xóa ngay",
+                          variant: "danger",
+                          mutationKey: MUTATION_KEYS.DELETE_UNIVERSITY,
+                          onConfirm: () =>
+                            deleteUniversityMutation.mutate(uni.id),
+                        })
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -292,14 +251,12 @@ export default function Main() {
             </div>
           </div>
         )}
-
-        {/* Loading trigger for infinite scroll */}
-        {(hasNextPage || isFetchingNextPage) && (
-          <div className="flex justify-center py-8">
-            <div className="w-8 h-8 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin" />
-          </div>
+      </div>
+      <div ref={setSentinelRef} className="h-10 flex items-center justify-center">
+        {isFetchingNextPage && (
+          <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
         )}
       </div>
-    </AnimatedContainer>
+    </PageContainer>
   );
 }

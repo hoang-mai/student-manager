@@ -25,9 +25,8 @@ import Typography from "@/library/Typography";
 import Button from "@/library/Button";
 import Badge from "@/library/Badge";
 import Skeleton from "@/library/Skeleton";
-import Tooltip from "@/library/Tooltip";
-import AnimatedContainer from "@/library/AnimatedContainer";
-import ErrorState from "@/library/ErrorState";
+import ActionButton from "@/library/ActionButton";
+import PageContainer from "@/library/PageContainer";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
@@ -153,62 +152,21 @@ export default function Main({ universityId }: Props) {
     });
   };
 
-  if (isLoading || isUniversityLoading) {
-    return <OrganizationSkeleton />;
-  }
-
-  if (isError || isUniversityError) {
-    return <ErrorState onRetry={() => refetch()} />;
-  }
-
   return (
-    <AnimatedContainer
-      variant="slideUp"
-      className="space-y-8 rounded-2xl bg-white p-6 min-h-screen"
+    <PageContainer
+      breadcrumb={[
+        { label: "Tổng quan", href: "/commander" },
+        { label: "Cơ sở đào tạo", href: "/commander/universities" },
+        { label: universityData?.universityName || "Đang tải..." },
+      ]}
+      title={`Ngành đào tạo - ${universityData?.universityName || ""}`}
+      subtitle="Quản lý các chuyên ngành và đơn vị trực thuộc trường"
+      isLoading={isLoading || isUniversityLoading}
+      skeleton={<OrganizationSkeleton />}
+      isError={isError || isUniversityError}
+      onRetry={() => refetch()}
     >
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-neutral-400">
-        <Link
-          href="/commander"
-          className="flex items-center gap-2 hover:text-primary-600 transition-colors group"
-        >
-          <HiOutlineHome
-            size={14}
-            className="mb-0.5 group-hover:scale-110 transition-transform"
-          />
-          <Typography variant="label" tracking="wide">
-            Tổng quan
-          </Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Link
-          href="/commander/universities"
-          className="hover:text-primary-600 transition-colors"
-        >
-          <Typography variant="label" tracking="wide">
-            Cơ sở đào tạo
-          </Typography>
-        </Link>
-        <HiOutlineChevronRight size={12} />
-        <Typography variant="label" color="primary" tracking="wide">
-          {universityData?.universityName}
-        </Typography>
-      </div>
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          {isUniversityLoading ? (
-            <Skeleton width={400} height={32} />
-          ) : (
-            <Typography variant="h1" transform="uppercase">
-              {`Ngành đào tạo - ${universityData?.universityName}`}
-            </Typography>
-          )}
-          <Typography variant="body" color="gray" className="mt-1">
-            Quản lý các chuyên ngành và đơn vị trực thuộc trường
-          </Typography>
-        </div>
+      <div className="flex justify-end mb-6">
         <Button
           onClick={() => handleOpenCreateOrgModal()}
           className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-primary-600 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-primary-700 hover:border-primary-700 transition-all shadow-lg shadow-primary-600/20 cursor-pointer active:scale-95 h-auto"
@@ -266,87 +224,67 @@ export default function Main({ universityId }: Props) {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Tooltip
-                      content={
+                    <ActionButton
+                      tooltipText={
                         org.status === "ACTIVE"
                           ? "Tạm dừng hoạt động"
                           : "Kích hoạt hoạt động"
                       }
-                      position="top"
-                    >
-                      <button
-                        onClick={() =>
-                          openConfirm({
-                            title:
-                              org.status === "ACTIVE"
-                                ? "Xác nhận tạm dừng"
-                                : "Xác nhận kích hoạt",
-                            message: `Bạn có chắc chắn muốn ${org.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} đơn vị "${org.organizationName}" không?`,
-                            confirmText:
-                              org.status === "ACTIVE"
-                                ? "Tạm dừng"
-                                : "Kích hoạt",
-                            variant:
-                              org.status === "ACTIVE" ? "danger" : "primary",
-                            mutationKey: MUTATION_KEYS.TOGGLE_ORGANIZATION_STATUS,
-                            onConfirm: () =>
-                              toggleOrganizationStatusMutation.mutate({
-                                id: org.id,
-                                status: org.status,
-                              }),
-                          })
-                        }
-                        className={`cursor-pointer w-9 h-9 flex items-center justify-center transition-all rounded-xl text-neutral-400 ${
-                          org.status === "ACTIVE"
-                            ? "hover:bg-amber-50 hover:text-amber-600"
-                            : "hover:bg-emerald-50 hover:text-emerald-600"
-                        }`}
-                      >
-                        {org.status === "ACTIVE" ? (
-                          <HiOutlineLockOpen size={18} />
-                        ) : (
-                          <HiOutlineLockClosed size={18} />
-                        )}
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Chỉnh sửa" position="top">
-                      <button
-                        onClick={() => handleOpenUpdateOrgModal(org)}
-                        className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                      >
-                        <HiOutlinePencil size={18} />
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Xóa đơn vị" position="top">
-                      <button
-                        onClick={() =>
-                          openConfirm({
-                            title: "Xác nhận xóa",
-                            message: `Xóa đơn vị "${org.organizationName}"?`,
-                            variant: "danger",
-                            mutationKey: MUTATION_KEYS.DELETE_ORGANIZATION,
-                            onConfirm: () =>
-                              deleteOrganizationMutation.mutate(org.id),
-                          })
-                        }
-                        className="cursor-pointer w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                      >
-                        <HiOutlineTrash size={18} />
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Xem trình độ đào tạo" position="top">
-                      <button
-                        onClick={() => {
-                          toggleExpand(org.id);
-                        }}
-                        className={`cursor-pointer w-9 h-9 flex items-center justify-center rounded-xl transition-all ${expandedIds.includes(org.id) ? "bg-primary-50 text-primary-600" : "text-neutral-400 hover:bg-neutral-50"}`}
-                      >
-                        <HiOutlineChevronDown
-                          size={18}
-                          className={`transition-transform ${expandedIds.includes(org.id) ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                    </Tooltip>
+                      icon={org.status === "ACTIVE" ? HiOutlineLockOpen : HiOutlineLockClosed}
+                      color={org.status === "ACTIVE" ? "amber" : "green"}
+                      onClick={() =>
+                        openConfirm({
+                          title:
+                            org.status === "ACTIVE"
+                              ? "Xác nhận tạm dừng"
+                              : "Xác nhận kích hoạt",
+                          message: `Bạn có chắc chắn muốn ${org.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} đơn vị "${org.organizationName}" không?`,
+                          confirmText:
+                            org.status === "ACTIVE"
+                              ? "Tạm dừng"
+                              : "Kích hoạt",
+                          variant:
+                            org.status === "ACTIVE" ? "danger" : "primary",
+                          mutationKey: MUTATION_KEYS.TOGGLE_ORGANIZATION_STATUS,
+                          onConfirm: () =>
+                            toggleOrganizationStatusMutation.mutate({
+                              id: org.id,
+                              status: org.status,
+                            }),
+                        })
+                      }
+                    />
+                    <ActionButton
+                      tooltipText="Chỉnh sửa"
+                      icon={HiOutlinePencil}
+                      color="blue"
+                      onClick={() => handleOpenUpdateOrgModal(org)}
+                    />
+                    <ActionButton
+                      tooltipText="Xóa đơn vị"
+                      icon={HiOutlineTrash}
+                      color="red"
+                      onClick={() =>
+                        openConfirm({
+                          title: "Xác nhận xóa",
+                          message: `Xóa đơn vị "${org.organizationName}"?`,
+                          variant: "danger",
+                          mutationKey: MUTATION_KEYS.DELETE_ORGANIZATION,
+                          onConfirm: () =>
+                            deleteOrganizationMutation.mutate(org.id),
+                        })
+                      }
+                    />
+                    <ActionButton
+                      tooltipText="Xem trình độ đào tạo"
+                      icon={HiOutlineChevronDown}
+                      color="neutral"
+                      className={expandedIds.includes(org.id) ? "bg-primary-50 text-primary-600!" : ""}
+                      iconClassName={`transition-transform ${expandedIds.includes(org.id) ? "rotate-180" : ""}`}
+                      onClick={() => {
+                        toggleExpand(org.id);
+                      }}
+                    />
                   </div>
                 </div>
                 <AnimatePresence>
@@ -371,7 +309,11 @@ export default function Main({ universityId }: Props) {
             ))}
 
             {/* Sentinel for infinite scroll */}
-            <div ref={setSentinelRef} className="h-1" />
+            <div ref={setSentinelRef} className="h-10 flex items-center justify-center">
+              {isFetchingNextPage && (
+                <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+              )}
+            </div>
           </div>
         ) : (
           <div className="text-center py-20 bg-neutral-50 rounded-3xl border border-dashed border-neutral-200">
@@ -381,6 +323,6 @@ export default function Main({ universityId }: Props) {
           </div>
         )}
       </div>
-    </AnimatedContainer>
+    </PageContainer>
   );
 }
