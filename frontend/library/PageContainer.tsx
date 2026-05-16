@@ -51,79 +51,75 @@ export default function PageContainer({
   children,
   className = "",
 }: PageContainerProps) {
-  // Loading state
-  if (isLoading && skeleton) {
-    return <>{skeleton}</>;
-  }
-
-  // Error state
-  if (isError) {
-    return (
-      <ErrorState
-        message={errorMessage || "Đã có lỗi xảy ra"}
-        onRetry={onRetry}
-      />
-    );
-  }
-
   return (
     <AnimatedContainer
       variant="slideUp"
       className={`space-y-6 p-6 bg-white rounded-2xl min-h-screen ${className}`}
     >
-      {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 text-neutral-400">
-        {breadcrumb.map((item, index) => {
-          const isFirst = index === 0;
-          const isLast = index === breadcrumb.length - 1;
+      {isLoading && skeleton ? (
+        skeleton
+      ) : isError ? (
+        <ErrorState
+          message={errorMessage || "Đã có lỗi xảy ra"}
+          onRetry={onRetry}
+        />
+      ) : (
+        <>
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center gap-2 text-neutral-400">
+            {breadcrumb.map((item, index) => {
+              const isFirst = index === 0;
+              const isLast = index === breadcrumb.length - 1;
 
-          return (
-            <div key={index} className="flex items-center gap-2">
-              {index > 0 && <HiOutlineChevronRight size={12} />}
+              return (
+                <div key={index} className="flex items-center gap-2">
+                  {index > 0 && <HiOutlineChevronRight size={12} />}
 
-              {item.href && item.label && !isLast ? (
-                <Link
-                  href={item.href}
-                  className="flex items-center gap-2 hover:text-primary-600 transition-colors group"
-                >
-                  {isFirst && (
-                    <HiOutlineHome
-                      size={14}
-                      className="mb-0.5 group-hover:scale-110 transition-transform"
-                    />
+                  {item.href && item.label && !isLast ? (
+                    <Link
+                      href={item.href}
+                      className="flex items-center gap-2 hover:text-primary-600 transition-colors group"
+                    >
+                      {isFirst && (
+                        <HiOutlineHome
+                          size={14}
+                          className="mb-0.5 group-hover:scale-110 transition-transform"
+                        />
+                      )}
+                      <Typography variant="label" tracking="wide">
+                        {item.label}
+                      </Typography>
+                    </Link>
+                  ) : (
+                    <Typography variant="label" color="primary" tracking="wide">
+                      {item.label}
+                    </Typography>
                   )}
-                  <Typography variant="label" tracking="wide">
-                    {item.label}
-                  </Typography>
-                </Link>
-              ) : (
-                <Typography variant="label" color="primary" tracking="wide">
-                  {item.label}
-                </Typography>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Page Header */}
-      {title && (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <Typography variant="h1" transform="uppercase">
-              {title}
-            </Typography>
-            {subtitle && (
-              <Typography variant="body" className="text-neutral-500 mt-1">
-                {subtitle}
-              </Typography>
-            )}
+                </div>
+              );
+            })}
           </div>
-        </div>
-      )}
 
-      {/* Content */}
-      {children}
+          {/* Page Header */}
+          {title && (
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <Typography variant="h1" transform="uppercase">
+                  {title}
+                </Typography>
+                {subtitle && (
+                  <Typography variant="body" className="text-neutral-500 mt-1">
+                    {subtitle}
+                  </Typography>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Content */}
+          {children}
+        </>
+      )}
     </AnimatedContainer>
   );
 }

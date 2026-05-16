@@ -49,7 +49,7 @@ export default function Main() {
     setSorting,
   } = useTableQuery<UserDetailResponse, UserQueryRequest>({
     queryKey: [QUERY_KEYS.USERS],
-    fetchData: (params) => userService.getAllUsers(params),
+    fetchData: userService.getAllUsers,
   });
 
   const toggleActiveMutation = useAppMutation({
@@ -85,11 +85,7 @@ export default function Main() {
     (user: UserDetailResponse) => {
       openModal({
         title: "Chỉnh sửa tài khoản",
-        content: (
-          <UpdateUserForm
-            user={user}
-          />
-        ),
+        content: <UpdateUserForm user={user} />,
         size: "lg",
         config: {
           mutationKey: MUTATION_KEYS.UPDATE_USER,
@@ -113,10 +109,7 @@ export default function Main() {
   const handleOpenBulkUpdateModal = useCallback(() => {
     openModal({
       title: "Cập nhật học viên hàng loạt",
-      content: (
-        <UpdateBatchStudents
-        />
-      ),
+      content: <UpdateBatchStudents />,
       size: "md",
       config: {
         mutationKey: MUTATION_KEYS.UPDATE_BATCH_STUDENTS,
@@ -191,7 +184,12 @@ export default function Main() {
         header: "Ngày tạo",
         accessorKey: "createdAt",
         cell: (info) => (
-          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
+          <Typography
+            variant="caption"
+            weight="semibold"
+            color="gray"
+            className="whitespace-nowrap"
+          >
             {formatDateTime(info.row.original.createdAt)}
           </Typography>
         ),
@@ -201,7 +199,12 @@ export default function Main() {
         header: "Ngày cập nhật",
         accessorKey: "updatedAt",
         cell: (info) => (
-          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
+          <Typography
+            variant="caption"
+            weight="semibold"
+            color="gray"
+            className="whitespace-nowrap"
+          >
             {formatDateTime(info.row.original.updatedAt)}
           </Typography>
         ),
@@ -230,7 +233,9 @@ export default function Main() {
                   />
 
                   <ActionButton
-                    tooltipText={user.isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+                    tooltipText={
+                      user.isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"
+                    }
                     icon={HiOutlineLockClosed}
                     color="secondary"
                     onClick={() =>
@@ -239,7 +244,9 @@ export default function Main() {
                           ? "Xác nhận khóa"
                           : "Mở khóa tài khoản",
                         message: `Bạn có chắc chắn muốn ${user.isActive ? "tạm khóa" : "mở khóa"} tài khoản "${user.username}" không?`,
-                        confirmText: user.isActive ? "Khóa tài khoản" : "Mở khóa",
+                        confirmText: user.isActive
+                          ? "Khóa tài khoản"
+                          : "Mở khóa",
                         variant: user.isActive ? "danger" : "primary",
                         mutationKey: MUTATION_KEYS.TOGGLE_USER_ACTIVE,
                         onConfirm: () => {
@@ -293,7 +300,7 @@ export default function Main() {
       openConfirm,
       toggleActiveMutation,
       deleteMutation,
-      openModal
+      openModal,
     ]
   );
 

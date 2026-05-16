@@ -1,66 +1,49 @@
 "use client";
 
-import {
-  useInfiniteQuery,
-} from "@tanstack/react-query";
-import {
-  HiOutlineOfficeBuilding,
-  HiOutlinePlus,
-  HiOutlineTrash,
-  HiOutlinePencil,
-  HiOutlineLockOpen,
-  HiOutlineLockClosed,
-} from "react-icons/hi";
+import { useCallback, useMemo } from "react";
 import Link from "next/link";
-import UniversitySkeleton from "./UniversitySkeleton";
-import { useModalStore } from "@/store/useModalStore";
-import { useConfirmStore } from "@/store/useConfirmStore";
-import Badge from "@/library/Badge";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  HiOutlineLockClosed,
+  HiOutlineLockOpen,
+  HiOutlinePencil,
+  HiOutlineTrash,
+} from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
+import Badge from "@/library/Badge";
 import PageContainer from "@/library/PageContainer";
-import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import { universityService } from "@/services/universities";
+import Table from "@/library/Table";
+import Typography from "@/library/Typography";
+import { FilterField } from "@/library/table/TableFilter";
+import useAppMutation from "@/hooks/useAppMutation";
+import useTableQuery from "@/hooks/useTableQuery";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { DEFAULT_PAGE } from "@/constants/constants";
-import { University } from "@/types/universities";
-
+import { universityService } from "@/services/universities";
+import { useConfirmStore } from "@/store/useConfirmStore";
+import { useModalStore } from "@/store/useModalStore";
+import { University, UniversityQueryRequest } from "@/types/universities";
 import CreateUniversityForm from "./CreateUniversityForm";
 import UpdateUniversityForm from "./UpdateUniversityForm";
-import Typography from "@/library/Typography";
-import Button from "@/library/Button";
-import useAppMutation from "@/hooks/useAppMutation";
+import UniversitySkeleton from "./UniversitySkeleton";
 
 export default function Main() {
   const { openModal } = useModalStore();
   const { openConfirm } = useConfirmStore();
 
   const {
-    data: universities,
+    data,
     isLoading,
     isError,
     refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
+    pagination,
+    setPagination,
+    columnFilters,
+    setColumnFilters,
+    sorting,
+    setSorting,
+  } = useTableQuery<University, UniversityQueryRequest>({
     queryKey: [QUERY_KEYS.UNIVERSITIES],
-    queryFn: ({ pageParam }) =>
-      universityService.getUniversities({
-        page: pageParam,
-        limit: DEFAULT_PAGE.PAGE_SIZE,
-      }),
-    initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
-    getNextPageParam: (lastPage) => {
-      const { page, totalPages } = lastPage.pagination;
-      return page < totalPages ? page + 1 : undefined;
-    },
-    select: (data) => data.pages.flatMap((page) => page.data || []),
-  });
-
-  const setSentinelRef = useInfiniteScroll({
-    callback: fetchNextPage,
-    hasNextPage,
-    isFetching: isFetchingNextPage,
+    fetchData: universityService.getUniversities,
   });
 
   const toggleUniversityStatusMutation = useAppMutation({
@@ -87,7 +70,7 @@ export default function Main() {
     closeConfirmOnSuccess: true,
   });
 
-  const handleOpenCreateModal = () => {
+  const handleOpenCreateModal = useCallback(() => {
     openModal({
       title: "Thêm trường đại học",
       content: <CreateUniversityForm />,
@@ -96,20 +79,184 @@ export default function Main() {
         mutationKey: MUTATION_KEYS.CREATE_UNIVERSITY,
       },
     });
-  };
+  }, [openModal]);
 
-  const handleOpenUpdateModal = (uni: University) => {
-    openModal({
-      title: "Chỉnh sửa trường đại học",
-      content: (
-        <UpdateUniversityForm university={uni} />
-      ),
-      size: "md",
-      config: {
-        mutationKey: MUTATION_KEYS.UPDATE_UNIVERSITY,
+  const handleOpenUpdateModal = useCallback(
+    (university: University) => {
+      openModal({
+        title: "Chỉnh sửa trường đại học",
+        content: <UpdateUniversityForm university={university} />,
+        size: "md",
+        config: {
+          mutationKey: MUTATION_KEYS.UPDATE_UNIVERSITY,
+        },
+      });
+    },
+    [openModal]
+  );
+
+  const columns = useMemo<ColumnDef<University>[]>(
+    () => [
+      {
+        id: "universityName",
+        header: "Trường đại học",
+        accessorKey: "universityName",
+        cell: ({ row }) => {
+          const university = row.original;
+          return (
+            <Link
+              href={`/commander/universities/${university.id}`}
+              className="group inline-flex flex-col"
+            >
+              <Typography
+                variant="body"
+                weight="semibold"
+                color="neutral"
+                className="group-hover:text-primary-600 transition-colors"
+              >
+                {university.universityName}
+              </Typography>
+              <Typography variant="caption" color="gray">
+                Xem chuyên ngành / đơn vị
+              </Typography>
+            </Link>
+          );
+        },
       },
-    });
-  };
+      {
+        id: "universityCode",
+        header: "Mã trường",
+        accessorKey: "universityCode",
+        cell: ({ row }) => (
+          <Typography
+            variant="body"
+            weight="semibold"
+            color="neutral"
+            className="whitespace-nowrap"
+          >
+            {row.original.universityCode}
+          </Typography>
+        ),
+      },
+      {
+        id: "totalStudents",
+        header: "Số học viên",
+        accessorKey: "totalStudents",
+        cell: ({ row }) => (
+          <Typography variant="body" color="neutral">
+            {row.original.totalStudents}
+          </Typography>
+        ),
+      },
+      {
+        id: "status",
+        header: "Trạng thái",
+        accessorKey: "status",
+        cell: ({ row }) => (
+          <Badge
+            variant={row.original.status === "ACTIVE" ? "success" : "neutral"}
+          >
+            {row.original.status === "ACTIVE" ? "Hoạt động" : "Tạm dừng"}
+          </Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Hành động",
+        cell: ({ row }) => {
+          const university = row.original;
+          const isActive = university.status === "ACTIVE";
+
+          return (
+            <div className="flex items-center justify-start gap-1">
+              <ActionButton
+                tooltipText={
+                  isActive ? "Tạm dừng hoạt động" : "Kích hoạt hoạt động"
+                }
+                icon={isActive ? HiOutlineLockOpen : HiOutlineLockClosed}
+                color={isActive ? "amber" : "green"}
+                onClick={() =>
+                  openConfirm({
+                    title: isActive
+                      ? "Xác nhận tạm dừng"
+                      : "Xác nhận kích hoạt",
+                    message: `Bạn có chắc chắn muốn ${isActive ? "tạm dừng" : "kích hoạt"} trường "${university.universityName}" không?`,
+                    confirmText: isActive ? "Tạm dừng" : "Kích hoạt",
+                    variant: isActive ? "danger" : "primary",
+                    mutationKey: MUTATION_KEYS.TOGGLE_UNIVERSITY_STATUS,
+                    onConfirm: () =>
+                      toggleUniversityStatusMutation.mutate({
+                        id: university.id,
+                        status: university.status,
+                      }),
+                  })
+                }
+              />
+
+              <ActionButton
+                tooltipText="Chỉnh sửa"
+                icon={HiOutlinePencil}
+                color="blue"
+                onClick={() => handleOpenUpdateModal(university)}
+              />
+
+              <ActionButton
+                tooltipText="Xóa trường"
+                icon={HiOutlineTrash}
+                color="red"
+                onClick={() =>
+                  openConfirm({
+                    title: "Xác nhận xóa",
+                    message: `Bạn có chắc chắn muốn xóa trường "${university.universityName}"? Toàn bộ dữ liệu cấp dưới sẽ bị xóa.`,
+                    confirmText: "Xóa ngay",
+                    variant: "danger",
+                    mutationKey: MUTATION_KEYS.DELETE_UNIVERSITY,
+                    onConfirm: () =>
+                      deleteUniversityMutation.mutate(university.id),
+                  })
+                }
+              />
+            </div>
+          );
+        },
+      },
+    ],
+    [
+      deleteUniversityMutation,
+      handleOpenUpdateModal,
+      openConfirm,
+      toggleUniversityStatusMutation,
+    ]
+  );
+
+  const filterOptions = useMemo<FilterField[]>(
+    () => [
+      {
+        type: "text",
+        id: "universityName",
+        label: "Tên trường",
+        placeholder: "Nhập tên trường...",
+      },
+      {
+        type: "text",
+        id: "universityCode",
+        label: "Mã trường",
+        placeholder: "Nhập mã trường...",
+      },
+      {
+        type: "select",
+        id: "status",
+        label: "Trạng thái",
+        placeholder: "Chọn trạng thái...",
+        options: [
+          { value: "", label: "Tất cả trạng thái" },
+          { value: "ACTIVE", label: "Hoạt động" },
+          { value: "INACTIVE", label: "Tạm dừng" },
+        ],
+      },
+    ],
+    []
+  );
 
   return (
     <PageContainer
@@ -123,139 +270,23 @@ export default function Main() {
       isError={isError}
       onRetry={refetch}
     >
-      <div className="flex justify-end mb-6">
-        <Button
-          onClick={handleOpenCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-primary-600 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-primary-700 hover:border-primary-700 transition-all shadow-lg shadow-primary-600/20 cursor-pointer active:scale-95 h-auto"
-          icon={HiOutlinePlus}
-        >
-          Thêm trường đại học
-        </Button>
-      </div>
-
-      {/* Content */}
-      <div className="space-y-6">
-        {universities && universities.length > 0 ? (
-          <>
-            {universities.map((uni) => (
-              <div
-                key={uni.id}
-                className="bg-white border border-neutral-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all"
-              >
-                <div className="p-6 bg-linear-to-r from-neutral-50/50 to-white flex items-center justify-between border-b border-neutral-50">
-                  <Link
-                    href={`/commander/universities/${uni.id}`}
-                    className="flex items-center gap-4 cursor-pointer group flex-1"
-                  >
-                    <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-600 shadow-inner">
-                      <HiOutlineOfficeBuilding size={24} />
-                    </div>
-                    <div>
-                      <Typography
-                        variant="h3"
-                        className="group-hover:text-primary-600 transition-colors"
-                      >
-                        {uni.universityName}
-                      </Typography>
-                      <div className="flex items-center gap-4 mt-0.5">
-                        <Typography variant="caption" color="gray">
-                          Mã trường: {uni.universityCode}
-                        </Typography>
-                        <div className="w-1 h-1 rounded-full bg-neutral-300" />
-                        <Typography variant="caption" color="gray">
-                          {uni.totalStudents} học viên
-                        </Typography>
-                        <Badge
-                          variant={
-                            uni.status === "ACTIVE" ? "success" : "neutral"
-                          }
-                        >
-                          {uni.status === "ACTIVE" ? "Hoạt động" : "Tạm dừng"}
-                        </Badge>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="flex gap-2">
-                    <ActionButton
-                      tooltipText={
-                        uni.status === "ACTIVE"
-                          ? "Tạm dừng hoạt động"
-                          : "Kích hoạt hoạt động"
-                      }
-                      icon={uni.status === "ACTIVE" ? HiOutlineLockOpen : HiOutlineLockClosed}
-                      color={uni.status === "ACTIVE" ? "amber" : "green"}
-                      iconSize={20}
-                      onClick={() =>
-                        openConfirm({
-                          title:
-                            uni.status === "ACTIVE"
-                              ? "Xác nhận tạm dừng"
-                              : "Xác nhận kích hoạt",
-                          message: `Bạn có chắc chắn muốn ${uni.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} trường "${uni.universityName}" không?`,
-                          confirmText:
-                            uni.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
-                          variant:
-                            uni.status === "ACTIVE" ? "danger" : "primary",
-                          mutationKey: MUTATION_KEYS.TOGGLE_UNIVERSITY_STATUS,
-                          onConfirm: () =>
-                            toggleUniversityStatusMutation.mutate({
-                              id: uni.id,
-                              status: uni.status,
-                            }),
-                        })
-                      }
-                    />
-                    <ActionButton
-                      tooltipText="Chỉnh sửa"
-                      icon={HiOutlinePencil}
-                      color="blue"
-                      iconSize={20}
-                      onClick={() => handleOpenUpdateModal(uni)}
-                    />
-                    <ActionButton
-                      tooltipText="Xóa trường"
-                      icon={HiOutlineTrash}
-                      color="red"
-                      iconSize={20}
-                      onClick={() =>
-                        openConfirm({
-                          title: "Xác nhận xóa",
-                          message: `Bạn có chắc chắn muốn xóa trường "${uni.universityName}"? Toàn bộ dữ liệu cấp dưới sẽ bị xóa.`,
-                          confirmText: "Xóa ngay",
-                          variant: "danger",
-                          mutationKey: MUTATION_KEYS.DELETE_UNIVERSITY,
-                          onConfirm: () =>
-                            deleteUniversityMutation.mutate(uni.id),
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-            {/* Sentinel for infinite scroll */}
-            <div ref={setSentinelRef} className="h-1" />
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-24 bg-white border border-neutral-100 rounded-3xl text-neutral-300">
-            <div className="w-20 h-20 rounded-full bg-neutral-50 flex items-center justify-center mb-4">
-              <HiOutlineOfficeBuilding size={40} className="opacity-20" />
-            </div>
-            <div className="text-center space-y-1">
-              <p className="text-base font-black text-neutral-500 uppercase tracking-widest">
-                Chưa có cơ sở đào tạo nào
-              </p>
-              <p className="text-sm font-medium italic text-neutral-400">
-                Vui lòng bắt đầu bằng cách thêm trường đại học mới
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-      <div ref={setSentinelRef} className="h-10 flex items-center justify-center">
-        {isFetchingNextPage && (
-          <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
-        )}
+      <div className="bg-white overflow-hidden relative">
+        <div className="px-4">
+          <Table
+            data={data}
+            columns={columns}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            columnFilters={columnFilters}
+            onColumnFiltersChange={setColumnFilters}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            filterFields={filterOptions}
+            emptyText="Không tìm thấy cơ sở đào tạo nào phù hợp"
+            onAdd={handleOpenCreateModal}
+            addLabel="Thêm trường đại học"
+          />
+        </div>
       </div>
     </PageContainer>
   );

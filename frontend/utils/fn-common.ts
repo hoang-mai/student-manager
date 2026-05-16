@@ -79,3 +79,11 @@ export const formatDate = (
 
   return `${day}/${month}/${year}`;
 };
+
+/**
+ * Format điểm số với 2 chữ số thập phân; null/undefined hien thi "---".
+ * @param value Điểm số chưa định dạng
+ * @returns Điểm số đã định dạng
+ */
+export const formatScore = (value?: number | null) =>
+  value === null || value === undefined ? "---" : value.toFixed(2);

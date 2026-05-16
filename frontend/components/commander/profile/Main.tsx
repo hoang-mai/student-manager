@@ -19,7 +19,7 @@ import {
   HiOutlineClock,
 } from "react-icons/hi";
 import Typography from "@/library/Typography";
-import AnimatedContainer from "@/library/AnimatedContainer";
+import PageContainer from "@/library/PageContainer";
 import Avatar from "@/library/Avatar";
 import Badge from "@/library/Badge";
 import { DEFAULT_VALUES } from "@/constants/constants";
@@ -27,7 +27,6 @@ import { formatDate, formatDateTime } from "@/utils/fn-common";
 import { useModalStore } from "@/store/useModalStore";
 import UpdateProfileForm from "./UpdateProfileForm";
 import ProfileSkeleton from "./ProfileSkeleton";
-import ErrorState from "@/library/ErrorState";
 import Button from "@/library/Button";
 import { IconType } from "react-icons";
 
@@ -44,24 +43,13 @@ export default function Main() {
     queryFn: () => authService.getProfile(),
   });
 
-  if (isLoading) return <ProfileSkeleton />;
-
-  if (isError) {
-    return <ErrorState onRetry={() => refetch()} message={error.message} />;
-  }
-
   const profile = profileResponse?.data;
-  if (!profile || !profile.profile) {
-    return (
-      <ErrorState
-        message="Không tìm thấy thông tin hồ sơ"
-        onRetry={() => refetch()}
-      />
-    );
-  }
-  const commander = profile.profile;
+  const commander = profile?.profile;
+  const shouldShowMissingProfile = !isLoading && !isError && (!profile || !commander);
 
   const handleUpdateProfile = () => {
+    if (!commander) return;
+
     openModal({
       title: "Cập nhật hồ sơ cá nhân",
       content: <UpdateProfileForm initialData={commander} />,
@@ -73,9 +61,19 @@ export default function Main() {
   };
 
   return (
-    <AnimatedContainer
-      variant="slideUp"
-      className="space-y-8 rounded-2xl bg-white p-6 min-h-screen"
+    <PageContainer
+      breadcrumb={[
+        { label: "Trang chủ", href: "/commander" },
+        { label: "Hồ sơ cá nhân" },
+      ]}
+      isLoading={isLoading}
+      skeleton={<ProfileSkeleton />}
+      isError={isError || shouldShowMissingProfile}
+      errorMessage={
+        isError ? error.message : "Không tìm thấy thông tin hồ sơ"
+      }
+      onRetry={refetch}
+      className="space-y-8"
     >
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/30 backdrop-blur-sm p-6 rounded-4xl border border-white/60 shadow-sm">
@@ -311,7 +309,7 @@ export default function Main() {
           </section>
         </div>
       </div>
-    </AnimatedContainer>
+    </PageContainer>
   );
 }
 const InfoItem = ({

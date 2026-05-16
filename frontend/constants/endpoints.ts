@@ -32,4 +32,9 @@ export const ENDPOINTS = {
   DUTY_SCHEDULES: {
     BASE: "/api/commander-duty-schedules",
   },
+  STUDENTS: {
+    ACADEMIC_RESULTS: "/api/users/academic-results",
+    GRADE_REQUESTS: "/api/students/grade-requests",
+    GRADE_REQUEST_DETAIL: (id: string | number) => `/api/students/grade-requests/${id}`,
+  },
 } as const;

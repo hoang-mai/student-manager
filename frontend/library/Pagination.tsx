@@ -9,6 +9,7 @@ import {
 } from "react-icons/hi";
 
 import Select from "@/library/Select";
+import { DEFAULT_PAGE } from "@/constants/constants";
 
 export interface PaginationProps {
   /** Trang hiện tại (bắt đầu từ 1) */
@@ -35,7 +36,8 @@ const Pagination: React.FC<PaginationProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       // Chỉ bắt sự kiện nếu không đang tập trung vào các ô nhập liệu
       const target = e.target as HTMLElement;
-      const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
+      const isInput =
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA";
       if (isInput) return;
 
       if (e.key === "ArrowLeft") {
@@ -89,7 +91,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {/* Nút về đầu */}
         <button
           onClick={() => onPageChange(1)}
-          disabled={pageIndex === 1}
+          disabled={pageIndex === DEFAULT_PAGE.PAGE_INDEX + 1}
           className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
           title="Trang đầu"
         >
@@ -152,9 +154,10 @@ const PageButton: React.FC<PageButtonProps> = ({ num, active, onClick }) => (
     onClick={() => onClick(num)}
     className={`
       w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors cursor-pointer
-      ${active
-        ? "bg-primary-600 text-white font-semibold"
-        : "text-neutral-600 hover:bg-neutral-50 border border-transparent hover:border-neutral-200"
+      ${
+        active
+          ? "bg-primary-600 text-white font-semibold"
+          : "text-neutral-600 hover:bg-neutral-50 border border-transparent hover:border-neutral-200"
       }
     `}
   >

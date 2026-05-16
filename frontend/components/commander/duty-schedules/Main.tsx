@@ -11,10 +11,7 @@ import Typography from "@/library/Typography";
 import Badge from "@/library/Badge";
 import Table from "@/library/Table";
 import { FilterField } from "@/library/table/TableFilter";
-import {
-  HiOutlinePencil,
-  HiOutlineTrash,
-} from "react-icons/hi";
+import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import { formatDate, formatDateTime } from "@/utils/fn-common";
 import { RANKS } from "@/constants/constants";
 import useTableQuery from "@/hooks/useTableQuery";
@@ -43,7 +40,7 @@ export default function DutySchedulesMain() {
     setSorting,
   } = useTableQuery<DutySchedule>({
     queryKey: [QUERY_KEYS.DUTY_SCHEDULES],
-    fetchData: (params) => dutyScheduleService.getDutySchedules(params),
+    fetchData: dutyScheduleService.getDutySchedules,
   });
 
   const deleteMutation = useAppMutation({
@@ -58,9 +55,7 @@ export default function DutySchedulesMain() {
   const handleAdd = () => {
     openModal({
       title: "Phân công ca trực mới",
-      content: (
-        <CreateDutyScheduleForm />
-      ),
+      content: <CreateDutyScheduleForm />,
       config: {
         mutationKey: MUTATION_KEYS.CREATE_DUTY_SCHEDULE,
       },
@@ -71,11 +66,7 @@ export default function DutySchedulesMain() {
     (schedule: DutySchedule) => {
       openModal({
         title: "Cập nhật ca trực",
-        content: (
-          <UpdateDutyScheduleForm
-            schedule={schedule}
-          />
-        ),
+        content: <UpdateDutyScheduleForm schedule={schedule} />,
         config: {
           mutationKey: MUTATION_KEYS.UPDATE_DUTY_SCHEDULE,
         },

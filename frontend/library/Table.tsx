@@ -1,17 +1,22 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
+import type { ReactNode } from "react";
 import {
   useReactTable,
   getCoreRowModel,
+  getExpandedRowModel,
+} from "@tanstack/react-table";
+import type {
   ColumnDef,
   VisibilityState,
   ColumnFiltersState,
   SortingState,
   OnChangeFn,
   PaginationState,
+  ExpandedState,
+  Row,
 } from "@tanstack/react-table";
-import { useState } from "react";
 import { DragDropProvider, DragEndEvent } from "@dnd-kit/react";
 import { isSortable } from "@dnd-kit/react/sortable";
 import Divide from "@/library/Divide";
@@ -37,8 +42,8 @@ export interface TableProps<TData> {
   onColumnFiltersChange: OnChangeFn<ColumnFiltersState>;
 
   /** State sắp xếp (controlled) */
-  sorting: SortingState;
-  onSortingChange: OnChangeFn<SortingState>;
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
 
   /** Hiển thị cột số thứ tự (mặc định: true) */
   showIndex?: boolean;
@@ -54,6 +59,12 @@ export interface TableProps<TData> {
   className?: string;
   /** Class CSS cho các hàng (tr) */
   rowClassName?: string;
+  /** Lay cac row con de expand tren client */
+  getSubRows?: (row: TData) => TData[] | undefined;
+  /** Render hang group full-width; return null/undefined/false de render row theo columns */
+  renderGroupRow?: (row: Row<TData>) => ReactNode;
+  /** Expanded mặc định mở */
+  defaultExpanded?: ExpandedState;
   /** Callback khi bấm nút thêm (nếu có sẽ hiện nút thêm) */
   onAdd?: () => void;
   /** Nhãn cho nút thêm */
@@ -79,6 +90,9 @@ const Table = <TData,>({
   emptyText = "Không có dữ liệu hiển thị",
   className = "",
   rowClassName = "",
+  getSubRows,
+  renderGroupRow,
+  defaultExpanded = true,
   onAdd,
   addLabel,
   onBulkUpdate,
@@ -86,6 +100,7 @@ const Table = <TData,>({
 }: TableProps<TData>) => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  const [expanded, setExpanded] = useState<ExpandedState>(defaultExpanded);
 
   const displayData = useMemo(() => data?.data || [], [data]);
   const totalPages = useMemo(() => data?.pagination?.totalPages || 1, [data]);
@@ -124,13 +139,17 @@ const Table = <TData,>({
       columnVisibility,
       columnFilters,
       sorting,
+      expanded,
     },
     onPaginationChange,
     onColumnOrderChange: setColumnOrder,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange,
     onSortingChange,
+    onExpandedChange: setExpanded,
+    getSubRows,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   const handleDragEnd = useCallback(
@@ -208,6 +227,7 @@ const Table = <TData,>({
                   table={table}
                   emptyText={emptyText}
                   rowClassName={rowClassName}
+                  renderGroupRow={renderGroupRow}
                 />
               </tbody>
             </table>

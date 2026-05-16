@@ -23,28 +23,33 @@ export interface UseTableQueryOptions<TData, TParams> {
  * - Centralizes pagination / sorting / filtering state and the React Query call
  * - Returns react-query fields plus state setters so parent can pass them down to a Table component
  */
-export default function useTableQuery<TData, TParams extends object = Record<string, unknown>>(
-  options: UseTableQueryOptions<TData, TParams>,
-) {
-  const {
-    queryKey,
-    fetchData,
-    initialPageIndex = DEFAULT_PAGE.PAGE_INDEX,
-    initialPageSize = DEFAULT_PAGE.PAGE_SIZE,
-    enabled = true,
-  } = options;
-
-  const [pagination, setPagination] = useState({ pageIndex: initialPageIndex, pageSize: initialPageSize });
+export default function useTableQuery<
+  TData,
+  TParams extends object = Record<string, unknown>,
+>({
+  queryKey,
+  fetchData,
+  initialPageIndex = DEFAULT_PAGE.PAGE_INDEX,
+  initialPageSize = DEFAULT_PAGE.PAGE_SIZE,
+  enabled = true,
+}: UseTableQueryOptions<TData, TParams>) {
+  const [pagination, setPagination] = useState({
+    pageIndex: initialPageIndex,
+    pageSize: initialPageSize,
+  });
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const query = useQuery({
     queryKey: [...queryKey, pagination, columnFilters, sorting],
     queryFn: async () => {
-      const filterParams = columnFilters.reduce((acc, filter) => {
-        acc[filter.id] = filter.value;
-        return acc;
-      }, {} as Record<string, unknown>);
+      const filterParams = columnFilters.reduce(
+        (acc, filter) => {
+          acc[filter.id] = filter.value;
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
 
       const sortParams: Record<string, string> = {};
       if (sorting.length > 0) {
@@ -52,7 +57,12 @@ export default function useTableQuery<TData, TParams extends object = Record<str
         sortParams.sortOrder = sorting[0].desc ? "desc" : "asc";
       }
 
-      return fetchData({ page: pagination.pageIndex + 1, limit: pagination.pageSize, ...filterParams, ...sortParams } as unknown as TParams);
+      return fetchData({
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize,
+        ...filterParams,
+        ...sortParams,
+      } as unknown as TParams);
     },
     enabled,
     placeholderData: keepPreviousData,

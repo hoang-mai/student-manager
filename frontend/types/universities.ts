@@ -1,4 +1,3 @@
-
 /**
  * Cơ sở đào tạo (Trường đại học)
  */
@@ -7,7 +6,7 @@ export interface University {
   universityCode: string;
   universityName: string;
   totalStudents: number;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: "ACTIVE" | "INACTIVE";
 }
 
 /**
@@ -16,6 +15,11 @@ export interface University {
 export interface UniversityQueryRequest {
   page?: number;
   limit?: number;
+  universityCode?: string;
+  universityName?: string;
+  status?: "ACTIVE" | "INACTIVE";
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 /**
@@ -32,5 +36,5 @@ export interface CreateUniversityRequest {
 export interface UpdateUniversityRequest {
   universityCode?: string;
   universityName?: string;
-  status?: 'ACTIVE' | 'INACTIVE';
+  status?: "ACTIVE" | "INACTIVE";
 }

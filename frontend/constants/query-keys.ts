@@ -10,6 +10,8 @@ export const QUERY_KEYS = {
   EDUCATION_LEVELS: "education_levels",
   CLASSES: "classes",
   DUTY_SCHEDULES: "dutySchedules",
+  STUDENT_RESULTS: "studentResults",
+  STUDENT_GRADE_REQUESTS: "studentGradeRequests",
 } as const;
 
 /**
@@ -44,4 +46,5 @@ export const MUTATION_KEYS = {
   CREATE_DUTY_SCHEDULE: [QUERY_KEYS.DUTY_SCHEDULES, "create"],
   UPDATE_DUTY_SCHEDULE: [QUERY_KEYS.DUTY_SCHEDULES, "update"],
   DELETE_DUTY_SCHEDULE: [QUERY_KEYS.DUTY_SCHEDULES, "delete"],
+  CREATE_STUDENT_GRADE_REQUEST: [QUERY_KEYS.STUDENT_GRADE_REQUESTS, "create"],
 } as const;

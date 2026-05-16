@@ -15,6 +15,7 @@ export interface UserQueryRequest {
   page?: number;
   limit?: number;
   username?: string;
+  fullName?: string;
   role?: string;
   isActive?: boolean;
   sortBy?: string;

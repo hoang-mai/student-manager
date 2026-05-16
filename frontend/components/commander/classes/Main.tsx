@@ -69,7 +69,7 @@ export default function Main() {
     setSorting,
   } = useTableQuery<Class>({
     queryKey: [QUERY_KEYS.CLASSES],
-    fetchData: (params) => classService.getClasses(params),
+    fetchData: classService.getClasses,
   });
 
   const deleteMutation = useAppMutation({
@@ -95,11 +95,7 @@ export default function Main() {
     (cls: Class) => {
       openModal({
         title: "Chỉnh sửa lớp học",
-        content: (
-          <UpdateClassForm
-            cls={cls}
-          />
-        ),
+        content: <UpdateClassForm cls={cls} />,
         size: "md",
         config: {
           mutationKey: MUTATION_KEYS.UPDATE_CLASS,
@@ -279,7 +275,6 @@ export default function Main() {
       isError={isClassesError}
       onRetry={refetchClasses}
     >
-
       <div className="bg-white overflow-hidden relative">
         <div className="px-4">
           <Table
