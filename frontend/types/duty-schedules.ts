@@ -1,6 +1,5 @@
 export interface DutySchedule {
   id: string;
-  userId: string;
   fullName: string;
   rank: string;
   phoneNumber: string;
@@ -11,13 +10,17 @@ export interface DutySchedule {
 }
 
 export interface CreateDutyScheduleRequest {
-  userId: string;
+  fullName: string;
+  rank: string;
+  phoneNumber: string;
   position: string;
   workDay: string;
 }
 
 export interface UpdateDutyScheduleRequest {
-  userId?: string;
+  fullName: string;
+  rank: string;
+  phoneNumber: string;
   position: string;
   workDay: string;
 }
@@ -28,8 +31,6 @@ export interface DutyScheduleQueryRequest {
   fullName?: string;
   position?: string;
   rank?: string;
-  userId?: string;
-  fetchAll?: boolean;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }

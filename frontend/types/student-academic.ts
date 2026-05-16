@@ -8,8 +8,6 @@ export interface SubjectResult {
   gradePoint4?: number | null;
   gradePoint10?: number | null;
   note?: string | null;
-  semesterResult?: SemesterResult;
-  SemesterResult?: SemesterResult;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -61,7 +59,6 @@ export interface YearlyResult {
 export interface AcademicResultQueryRequest {
   page?: number;
   limit?: number;
-  fetchAll?: boolean;
   schoolYear?: string;
   sortBy?: string;
   sortOrder?: string;
@@ -97,7 +94,6 @@ export interface GradeRequest {
 export interface GradeRequestQueryRequest {
   page?: number;
   limit?: number;
-  fetchAll?: boolean;
   status?: GradeRequestStatus;
   sortBy?: string;
   sortOrder?: string;

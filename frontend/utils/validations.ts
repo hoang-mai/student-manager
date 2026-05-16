@@ -279,7 +279,9 @@ export type UpdateClassFormValues = z.infer<typeof updateClassSchema>;
  * Schema validation cho form phân công lịch trực (Duty Schedule)
  */
 export const dutyScheduleSchema = z.object({
-  userId: z.string().min(1, "Chỉ huy không được để trống"),
+  fullName: z.string().min(1, "Họ và tên không được để trống"),
+  rank: z.string().min(1, "Cấp bậc không được để trống"),
+  phoneNumber: z.string().min(1, "Số điện thoại không được để trống"),
   position: z.string().min(1, "Nhiệm vụ không được để trống"),
   workDay: z.string().min(1, "Ngày trực không được để trống"),
 });

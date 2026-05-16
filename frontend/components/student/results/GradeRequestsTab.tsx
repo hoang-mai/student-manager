@@ -31,10 +31,6 @@ const formatScore = (value?: number | null) =>
   value === null || value === undefined ? "---" : value.toFixed(2);
 
 const getRequestSubject = (request: GradeRequest) => request.SubjectResult || request.subjectResult;
-const getRequestSemester = (request: GradeRequest) => {
-  const subject = getRequestSubject(request);
-  return subject?.SemesterResult || subject?.semesterResult;
-};
 const getSemesters = (year: YearlyResult): SemesterResult[] => year.semesterResults || [];
 const getSubjects = (semester: SemesterResult): SubjectResult[] => semester.subjectResults || [];
 
@@ -91,11 +87,6 @@ export default function GradeRequestsTab() {
         id: "subject",
         header: "Môn học",
         cell: ({ row }) => getRequestSubject(row.original)?.subjectName || "---",
-      },
-      {
-        id: "semester",
-        header: "Học kỳ",
-        cell: ({ row }) => getRequestSemester(row.original)?.semester || "---",
       },
       {
         accessorKey: "requestType",
