@@ -46,13 +46,20 @@ const validateOrThrow = async (schema, data) => {
 };
 
 const paginateQuery = async (model, query = {}, options = {}) => {
+  const {
+    filterFields: optionFilterFields,
+    filters: optionFilters,
+    where: optionWhere,
+    ...sequelizeOptions
+  } = options;
+  const fetchAll = query.fetchAll === true || query.fetchAll === 'true';
   const page = Math.max(1, parseInt(query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 10));
   const offset = (page - 1) * limit;
 
   // --- Filter ---
-  const where = { ...(options.where || {}) };
-  const filterFields = (options.filterFields || []).concat(options.filters || []);
+  const where = { ...(optionWhere || {}) };
+  const filterFields = (optionFilterFields || []).concat(optionFilters || []);
   for (const field of filterFields) {
     if (query[field] !== undefined) {
       where[field] = query[field];
@@ -60,20 +67,33 @@ const paginateQuery = async (model, query = {}, options = {}) => {
   }
 
   // --- Sort --- (mặc định: createdAt DESC, hệ thống tự xử lý)
-  let order = options.order || [['createdAt', 'DESC']];
+  let order = sequelizeOptions.order || [['createdAt', 'DESC']];
   if (query.sortBy) {
     const sortOrder = query.sortOrder === 'desc' ? 'DESC' : 'ASC';
     order = [[query.sortBy, sortOrder]];
   }
 
-  const { count, rows } = await model.findAndCountAll({ ...options, where, order, offset, limit });
-  delete options.where;
-  delete options.filterFields;
-  delete options.filters;
+  const queryOptions = { ...sequelizeOptions, where, order, distinct: sequelizeOptions.distinct ?? true };
+  if (!fetchAll) {
+    queryOptions.offset = offset;
+    queryOptions.limit = limit;
+  }
+
+  const { count, rows } = await model.findAndCountAll(queryOptions);
+  const total = Array.isArray(count) ? count.length : count;
+  const pageSize = fetchAll ? total : limit;
 
   return {
     rows,
-    pagination: { pageIndex: page, pageSize: limit, totalPages: Math.ceil(count / limit), total: count },
+    pagination: {
+      pageIndex: fetchAll ? 1 : page,
+      page: fetchAll ? 1 : page,
+      pageSize,
+      limit: pageSize,
+      totalPages: fetchAll ? 1 : Math.ceil(total / limit),
+      total,
+      fetchAll,
+    },
   };
 };
 

@@ -5,6 +5,7 @@ const BASE_URL = 'http://localhost:6868/api';
 let adminToken = null;
 let commanderToken = null;
 let studentToken = null;
+let commanderUserId = null;
 let passed = 0;
 let failed = 0;
 const ts = Date.now();
@@ -75,7 +76,9 @@ async function main() {
   ok('POST /auth/login (admin)     ', r.status, 200); adminToken = r.body.data?.accessToken;
 
   r = await request('POST', '/auth/login', { username: 'chihuy01', password: 'chihuy123' });
-  ok('POST /auth/login (commander) ', r.status, 200); commanderToken = r.body.data?.accessToken;
+  ok('POST /auth/login (commander) ', r.status, 200);
+  commanderToken = r.body.data?.accessToken;
+  commanderUserId = r.body.data?.user?.id;
 
   r = await request('POST', '/auth/login', { username: 'hv001', password: 'hocvien123' });
   ok('POST /auth/login (student)   ', r.status, 200); studentToken = r.body.data?.accessToken;
@@ -323,7 +326,7 @@ async function main() {
     { path: '/education-levels', body: { levelName: `Level Admin ${ts}`, organizationId: firstOrgId }, cmdBody: { levelName: `Level Cmd ${ts}`, organizationId: firstOrgId } },
     { path: '/classes', body: { className: `Class Admin ${ts}`, educationLevelId: firstElId }, cmdBody: { className: `Class Cmd ${ts}`, educationLevelId: firstElId } },
     { path: '/semesters', body: { code: `SEM_ADMIN_${ts}`, schoolYear: '2024-2025' }, cmdBody: { code: `SEM_CMD_${ts}`, schoolYear: '2024-2025' } },
-    { path: '/commander-duty-schedules', body: { fullName: `Admin ${ts}`, rank: 'A', phoneNumber: '0000', position: 'Admin' }, cmdBody: { fullName: `Cmd ${ts}`, rank: 'C', phoneNumber: '1111', position: 'Cmd' } },
+    { path: '/commander-duty-schedules', body: { userId: commanderUserId, position: 'Admin' }, cmdBody: { userId: commanderUserId, position: 'Cmd' } },
   ];
 
   const created = {};

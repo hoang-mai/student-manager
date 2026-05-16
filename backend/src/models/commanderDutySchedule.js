@@ -5,14 +5,9 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    fullName: {
-      type: DataTypes.STRING(100),
-    },
-    rank: {
-      type: DataTypes.STRING(50),
-    },
-    phoneNumber: {
-      type: DataTypes.STRING(20),
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
     },
     position: {
       type: DataTypes.STRING(100),

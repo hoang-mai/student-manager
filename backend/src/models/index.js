@@ -160,6 +160,10 @@ db.scientificTopic.belongsTo(db.yearlyAchievement, { foreignKey: 'yearly_achieve
 db.user.hasMany(db.cutRice, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.cutRice.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
+// User 1:N CommanderDutySchedule
+db.user.hasMany(db.commanderDutySchedule, { as: 'dutySchedules', foreignKey: { name: 'userId', field: 'user_id' }, onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+db.commanderDutySchedule.belongsTo(db.user, { as: 'commander', foreignKey: { name: 'userId', field: 'user_id' }, onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+
 // User 1:N Notification
 db.user.hasMany(db.notification, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.notification.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
