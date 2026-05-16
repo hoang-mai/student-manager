@@ -154,6 +154,7 @@ async function runAllTests() {
   res = await request('POST', '/auth/login', { username: 'chihuy01', password: 'chihuy123' });
   if (test('AUTH', 'Chỉ huy đăng nhập thành công', res.status, 200)) {
     state.commanderToken = res.body?.data?.accessToken;
+    state.commanderId = res.body?.data?.user?.id;
   }
 
   // A3: Student login
@@ -481,9 +482,7 @@ async function runAllTests() {
   test('CH-10', 'Chỉ huy xem danh sách lịch trực', res.status, 200);
 
   res = await request('POST', '/commander-duty-schedules', {
-    fullName: 'Trần Văn Chỉ Huy',
-    rank: 'Đại úy',
-    phoneNumber: '0900000001',
+    userId: state.commanderId,
     position: 'Trực chỉ huy cuối tuần',
     workDay: new Date('2026-06-01').toISOString(),
   }, state.commanderToken);

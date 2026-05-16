@@ -440,15 +440,13 @@ async function fullSeed() {
     // 16. COMMANDER DUTY SCHEDULES
     // ==========================
     const dutyData = [
-      { fullName: 'Trần Văn Chỉ Huy', rank: 'Đại úy', phoneNumber: '0900000001', position: 'Đại đội trưởng', workDay: new Date('2024-10-01') },
-      { fullName: 'Lê Thị Chỉ Huy', rank: 'Thượng úy', phoneNumber: '0900000002', position: 'Đại đội phó', workDay: new Date('2024-10-02') },
-      { fullName: 'Nguyễn Văn A', rank: 'Trung úy', phoneNumber: '0900000003', position: 'Trung đội trưởng', workDay: new Date('2024-10-03') },
-      { fullName: 'Phạm Thị B', rank: 'Thiếu úy', phoneNumber: '0900000004', position: 'Trung đội phó', workDay: new Date('2024-10-04') },
-      { fullName: 'Trần Văn Chỉ Huy', rank: 'Đại úy', phoneNumber: '0900000001', position: 'Trực chỉ huy', workDay: new Date('2024-10-07') },
-      { fullName: 'Lê Thị Chỉ Huy', rank: 'Thượng úy', phoneNumber: '0900000002', position: 'Trực chỉ huy', workDay: new Date('2024-10-08') },
-      { fullName: 'Nguyễn Văn A', rank: 'Trung úy', phoneNumber: '0900000003', position: 'Trực an ninh', workDay: new Date('2024-10-09') },
-      { fullName: 'Trần Văn Chỉ Huy', rank: 'Đại úy', phoneNumber: '0900000001', position: 'Trực chỉ huy', workDay: new Date('2025-02-10') },
-      { fullName: 'Lê Thị Chỉ Huy', rank: 'Thượng úy', phoneNumber: '0900000002', position: 'Trực ban', workDay: new Date('2025-02-11') },
+      { userId: chiHuy1.id, position: 'Đại đội trưởng', workDay: new Date('2024-10-01') },
+      { userId: chiHuy2.id, position: 'Đại đội phó', workDay: new Date('2024-10-02') },
+      { userId: chiHuy1.id, position: 'Trực chỉ huy', workDay: new Date('2024-10-07') },
+      { userId: chiHuy2.id, position: 'Trực chỉ huy', workDay: new Date('2024-10-08') },
+      { userId: chiHuy1.id, position: 'Trực an ninh', workDay: new Date('2024-10-09') },
+      { userId: chiHuy1.id, position: 'Trực chỉ huy', workDay: new Date('2025-02-10') },
+      { userId: chiHuy2.id, position: 'Trực ban', workDay: new Date('2025-02-11') },
     ];
     for (const d of dutyData) await db.commanderDutySchedule.create(d);
     console.log('CommanderDutySchedules seeded.');

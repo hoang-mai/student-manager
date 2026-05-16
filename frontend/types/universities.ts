@@ -15,6 +15,7 @@ export interface University {
 export interface UniversityQueryRequest {
   page?: number;
   limit?: number;
+  fetchAll?: boolean;
   universityCode?: string;
   universityName?: string;
   status?: "ACTIVE" | "INACTIVE";

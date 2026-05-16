@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -8,8 +8,7 @@ import Button from "@/library/Button";
 import Input from "@/library/Input";
 import DatePicker from "@/library/DatePicker";
 import Select from "@/library/Select";
-import { RANKS, DEFAULT_PAGE, ROLES } from "@/constants/constants";
-import { ENDPOINTS } from "@/constants/endpoints";
+import { DEFAULT_PAGE, ROLES } from "@/constants/constants";
 import { dutyScheduleService } from "@/services/duty-schedules";
 import { userService } from "@/services/user";
 import { dutyScheduleSchema, DutyScheduleFormValues } from "@/utils/validations";
@@ -19,7 +18,6 @@ import { useModalStore } from "@/store/useModalStore";
 
 export default function CreateDutyScheduleForm() {
   const { closeModal } = useModalStore();
-  const [selectedCommanderId, setSelectedCommanderId] = useState<string>("");
 
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.CREATE_DUTY_SCHEDULE,
@@ -68,14 +66,11 @@ export default function CreateDutyScheduleForm() {
     register,
     handleSubmit,
     control,
-    setValue,
     formState: { errors },
   } = useForm<DutyScheduleFormValues>({
     resolver: zodResolver(dutyScheduleSchema),
     defaultValues: {
-      fullName: "",
-      rank: "",
-      phoneNumber: "",
+      userId: "",
       position: "",
       workDay: "",
     },
@@ -88,58 +83,27 @@ export default function CreateDutyScheduleForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-1">
       <Controller
-        name="fullName"
+        name="userId"
         control={control}
         render={({ field }) => (
           <Select
             label="Họ và tên"
             placeholder="Chọn chỉ huy trực"
-            value={selectedCommanderId}
+            value={field.value}
             onChange={(value) => {
               const commanderId = String(value);
-              const commander = commandersData?.find(
-                (item) => String(item.id) === commanderId
-              );
-
-              setSelectedCommanderId(commanderId);
-              field.onChange(commander?.profile?.fullName || commander?.username || "");
-              setValue("rank", commander?.profile?.rank || "");
-              setValue("phoneNumber", commander?.profile?.phoneNumber || "");
+              field.onChange(commanderId);
             }}
             options={commanderOptions}
             hasNextPage={hasNextCommanders}
             isFetchingNextPage={isFetchingNextCommanders}
             onLoadMore={fetchNextCommanders}
             isLoading={isLoadingCommanders}
-            error={errors.fullName?.message}
+            error={errors.userId?.message}
             emptyText="Không tìm thấy chỉ huy"
             required
           />
         )}
-      />
-
-      <Controller
-        name="rank"
-        control={control}
-        render={({ field }) => (
-          <Select
-            label="Cấp bậc"
-            placeholder="Chọn cấp bậc"
-            value={field.value}
-            onChange={field.onChange}
-            options={Object.values(RANKS).map((rank) => ({ value: rank, label: rank }))}
-            error={errors.rank?.message}
-            required
-          />
-        )}
-      />
-
-      <Input
-        label="Số điện thoại"
-        placeholder="Nhập số điện thoại"
-        {...register("phoneNumber")}
-        error={errors.phoneNumber?.message}
-        required
       />
 
       <Input

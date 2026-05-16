@@ -24,6 +24,7 @@ export interface EducationLevel {
 export interface OrganizationQueryRequest {
   page?: number;
   limit?: number;
+  fetchAll?: boolean;
   universityId?: string;
 }
 
@@ -33,6 +34,7 @@ export interface OrganizationQueryRequest {
 export interface EducationLevelQueryRequest {
   page?: number;
   limit?: number;
+  fetchAll?: boolean;
   organizationId?: string;
 }
 

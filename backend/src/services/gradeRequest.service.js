@@ -40,7 +40,7 @@ const getMyRequests = async (userId, query = {}) => {
   return GradeRequest.findAll({
     where,
     include: [
-      { model: SubjectResult },
+      { model: SubjectResult, include: [{ model: SemesterResult }] },
       { model: User, as: 'reviewer', attributes: ['id', 'username'] },
     ],
     order: [['createdAt', 'DESC']],
@@ -51,7 +51,7 @@ const getMyRequestDetail = async (userId, id) => {
   const req = await GradeRequest.findOne({
     where: { id, userId },
     include: [
-      { model: SubjectResult },
+      { model: SubjectResult, include: [{ model: SemesterResult }] },
       { model: User, as: 'reviewer', attributes: ['id', 'username'] },
     ],
   });
@@ -113,7 +113,7 @@ const getAll = async (query = {}) => {
 const getDetail = async (id) => {
   const req = await GradeRequest.findByPk(id, {
     include: [
-      { model: SubjectResult },
+      { model: SubjectResult, include: [{ model: SemesterResult }] },
       { model: User },
       { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
     ],

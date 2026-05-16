@@ -14,6 +14,7 @@ export interface User {
 export interface UserQueryRequest {
   page?: number;
   limit?: number;
+  fetchAll?: boolean;
   username?: string;
   fullName?: string;
   role?: string;

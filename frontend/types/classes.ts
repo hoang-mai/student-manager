@@ -26,6 +26,7 @@ export interface UpdateClassRequest {
 export interface ClassQueryRequest {
   page?: number;
   limit?: number;
+  fetchAll?: boolean;
   educationLevelId?: string;
   className?: string;
 }
