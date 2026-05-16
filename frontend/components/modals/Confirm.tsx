@@ -53,7 +53,7 @@ const Confirm = () => {
             <div className="px-4 py-8">
               <div className="flex flex-col items-center text-center gap-4">
                 <div
-                  className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 ${variant === "danger"
+                  className={`size-16 rounded-2xl flex items-center justify-center border-2 ${variant === "danger"
                     ? "bg-red-50 border-red-100 text-red-500"
                     : variant === "warning"
                       ? "bg-amber-50 border-amber-100 text-amber-500"

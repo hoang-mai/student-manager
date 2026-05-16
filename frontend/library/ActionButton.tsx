@@ -57,15 +57,15 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         onClick={onClick}
         disabled={disabled}
         className={`
-          group cursor-pointer w-9 h-9 flex items-center justify-center 
+          group cursor-pointer size-9 flex items-center justify-center 
           text-neutral-400 rounded-xl transition-all
           ${disabled ? "opacity-40 cursor-not-allowed" : colorClasses[color]}
           ${className}
         `}
       >
-        <Icon 
-          size={iconSize} 
-          className={`transition-transform duration-200 group-hover:scale-110 active:scale-95 ${iconClassName}`} 
+        <Icon
+          size={iconSize}
+          className={`transition-transform duration-200 group-hover:scale-110 active:scale-95 ${iconClassName}`}
         />
       </button>
     </Tooltip>

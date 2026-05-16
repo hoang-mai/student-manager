@@ -25,25 +25,25 @@ const variantConfig: Record<
     bg: "bg-green-50",
     border: "border-green-200/50",
     accent: "text-green-600",
-    icon: <IoCheckmarkCircle className="w-5 h-5 shrink-0" />,
+    icon: <IoCheckmarkCircle className="size-5 shrink-0" />,
   },
   error: {
     bg: "bg-rose-50",
     border: "border-rose-200/50",
     accent: "text-rose-600",
-    icon: <IoAlertCircle className="w-5 h-5 shrink-0" />,
+    icon: <IoAlertCircle className="size-5 shrink-0" />,
   },
   info: {
     bg: "bg-blue-50",
     border: "border-blue-200/50",
     accent: "text-blue-600",
-    icon: <IoInformationCircle className="w-5 h-5 shrink-0" />,
+    icon: <IoInformationCircle className="size-5 shrink-0" />,
   },
   warning: {
     bg: "bg-amber-50",
     border: "border-amber-200/50",
     accent: "text-amber-600",
-    icon: <IoWarning className="w-5 h-5 shrink-0" />,
+    icon: <IoWarning className="size-5 shrink-0" />,
   },
 };
 
@@ -74,17 +74,17 @@ const Toast = () => {
               <div className={`${config.accent} mt-0.5`}>{config.icon}</div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700 leading-relaxed tracking-wide">
+                <p className="text-sm font-medium text-zinc-700 leading-relaxed tracking-wide">
                   {toast.message}
                 </p>
               </div>
 
               <button
                 onClick={() => removeToast(toast.id)}
-                className="shrink-0 p-1 -mr-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100/50 transition-all cursor-pointer"
+                className="shrink-0 p-1 -mr-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100/50 transition-all cursor-pointer"
                 aria-label="Close"
               >
-                <IoClose className="w-4 h-4" />
+                <IoClose className="size-4" />
               </button>
 
               {/* Progress bar effect if duration is provided */}

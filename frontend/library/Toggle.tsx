@@ -26,19 +26,19 @@ const sizeStyles: Record<
   sm: {
     width: "w-8",
     height: "h-4",
-    thumb: "w-3 h-3",
+    thumb: "size-3",
     translate: "translate-x-4",
   },
   md: {
     width: "w-11",
     height: "h-6",
-    thumb: "w-5 h-5",
+    thumb: "size-5",
     translate: "translate-x-5",
   },
   lg: {
     width: "w-14",
     height: "h-8",
-    thumb: "w-7 h-7",
+    thumb: "size-7",
     translate: "translate-x-6",
   },
 };

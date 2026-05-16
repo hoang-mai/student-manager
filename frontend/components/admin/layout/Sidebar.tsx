@@ -13,12 +13,12 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="relative flex flex-col w-70 bg-white/70 backdrop-blur-xl border-r border-neutral-100/50 shadow-sm z-50 overflow-hidden">
       {/* Background blobs for flair */}
-      <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary-100/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 -right-32 w-64 h-64 bg-secondary-100/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-24 -left-24 size-64 bg-primary-100/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 -right-32 size-64 bg-secondary-100/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header Sidebar */}
       <div className="relative flex items-center gap-3 p-6 h-20">
-        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
+        <div className="size-10 rounded-xl bg-white flex items-center justify-center shrink-0">
           <Image
             src="/logo.png"
             alt="Logo"

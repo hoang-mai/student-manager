@@ -30,9 +30,9 @@ const ErrorState: React.FC<ErrorStateProps> = ({
       className={`flex flex-col items-center justify-center min-h-[50vh] gap-4 text-red-500 text-center ${className}`}
     >
       {/* Icon Cảnh báo SVG */}
-      <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
+      <div className="size-20 rounded-full bg-red-50 flex items-center justify-center">
         <svg
-          className="w-10 h-10"
+          className="size-10"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

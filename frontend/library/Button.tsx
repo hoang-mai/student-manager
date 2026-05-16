@@ -1,8 +1,4 @@
-import {
-  ButtonHTMLAttributes,
-  ElementType,
-  forwardRef,
-} from "react";
+import type { ButtonHTMLAttributes, ElementType, Ref } from "react";
 import { HiOutlineRefresh } from "react-icons/hi";
 
 type ButtonSize = "sm" | "md" | "lg";
@@ -29,6 +25,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
   /** Class CSS tùy chỉnh cho icon */
   iconClassName?: string;
+  /** React 19: ref được truyền trực tiếp như prop, không cần forwardRef. */
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -65,32 +63,29 @@ const variantStyles: Record<ButtonVariant, string> = {
   `,
 };
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      size = "md",
-      variant = "primary",
-      fullWidth = false,
-      isLoading = false,
-      iconPlacement = "left",
-      icon: Icon,
-      iconClassName = "",
-      children,
-      disabled,
-      className = "",
-      ...props
-    },
-    ref
-  ) => {
-    const isDisabled = disabled || isLoading;
-    const iconSize = size === "sm" ? 16 : size === "md" ? 18 : 20;
+export default function Button({
+  size = "md",
+  variant = "primary",
+  fullWidth = false,
+  isLoading = false,
+  iconPlacement = "left",
+  icon: Icon,
+  iconClassName = "",
+  children,
+  disabled,
+  className = "",
+  ref,
+  ...props
+}: ButtonProps) {
+  const isDisabled = disabled || isLoading;
+  const iconSize = size === "sm" ? 16 : size === "md" ? 18 : 20;
 
-    return (
-      <button
-        ref={ref}
-        disabled={isDisabled}
-        aria-busy={isLoading || undefined}
-        className={`
+  return (
+    <button
+      ref={ref}
+      disabled={isDisabled}
+      aria-busy={isLoading || undefined}
+      className={`
           inline-flex items-center justify-center
           rounded-xl font-semibold font-sans
           transition-all duration-200
@@ -102,34 +97,29 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           ${isDisabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
           ${className}
         `}
-        {...props}
-      >
-        {isLoading && iconPlacement === "left" && (
-          <HiOutlineRefresh
-            size={iconSize}
-            className="shrink-0 animate-spin"
-            aria-hidden="true"
-          />
-        )}
-        {!isLoading && Icon && iconPlacement === "left" && (
-          <Icon size={iconSize} className={`shrink-0 ${iconClassName}`} />
-        )}
-        {children}
-        {!isLoading && Icon && iconPlacement === "right" && (
-          <Icon size={iconSize} className={`shrink-0 ${iconClassName}`} />
-        )}
-        {isLoading && iconPlacement === "right" && (
-          <HiOutlineRefresh
-            size={iconSize}
-            className="shrink-0 animate-spin"
-            aria-hidden="true"
-          />
-        )}
-      </button>
-    );
-  }
-);
-
-Button.displayName = "Button";
-
-export default Button;
+      {...props}
+    >
+      {isLoading && iconPlacement === "left" && (
+        <HiOutlineRefresh
+          size={iconSize}
+          className="shrink-0 animate-spin"
+          aria-hidden="true"
+        />
+      )}
+      {!isLoading && Icon && iconPlacement === "left" && (
+        <Icon size={iconSize} className={`shrink-0 ${iconClassName}`} />
+      )}
+      {children}
+      {!isLoading && Icon && iconPlacement === "right" && (
+        <Icon size={iconSize} className={`shrink-0 ${iconClassName}`} />
+      )}
+      {isLoading && iconPlacement === "right" && (
+        <HiOutlineRefresh
+          size={iconSize}
+          className="shrink-0 animate-spin"
+          aria-hidden="true"
+        />
+      )}
+    </button>
+  );
+}

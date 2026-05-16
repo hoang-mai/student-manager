@@ -89,7 +89,7 @@ export default function UpdateProfileForm({
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col max-h-[85vh] py-2 gap-4"
     >
-      <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-12">
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-12">
         <section>
           <SectionHeader title="Thông tin cá nhân" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">

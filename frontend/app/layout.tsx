@@ -13,12 +13,13 @@ const geistMono = Geist_Mono({
 
 import QueryProvider from "@/components/providers/QueryProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
+import MotionProvider from "@/components/providers/MotionProvider";
 import OfflineDetector from "@/components/providers/OfflineDetector";
 import Loading from "@/components/modals/Loading";
 import Toast from "@/components/modals/Toast";
 import Modal from "@/components/modals/Modal";
 import ConfirmModal from "@/components/modals/Confirm";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { THEMES } from "@/constants/constants";
 
@@ -43,14 +44,16 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
         <QueryProvider>
-          <ThemeProvider initialTheme={theme}>
-            <OfflineDetector />
-            <Toast />
-            <Loading />
-            <Modal />
-            <ConfirmModal />
-            {children}
-          </ThemeProvider>
+          <MotionProvider>
+            <ThemeProvider initialTheme={theme}>
+              <OfflineDetector />
+              <Toast />
+              <Loading />
+              <Modal />
+              <ConfirmModal />
+              {children}
+            </ThemeProvider>
+          </MotionProvider>
         </QueryProvider>
       </body>
     </html>

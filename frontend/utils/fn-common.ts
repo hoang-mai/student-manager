@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
  * @param token - Chuỗi JWT cần giải mã
  * @returns Đối tượng chứa thông tin đã giải mã hoặc null nếu lỗi
  */
-export const decodeToken = <T>(token: string): T | null => {
+const decodeToken = <T>(token: string): T | null => {
   if (!token) return null;
   try {
     return jwtDecode<T>(token);

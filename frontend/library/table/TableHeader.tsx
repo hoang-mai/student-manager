@@ -8,10 +8,7 @@ interface HeaderProps<TData> {
   index: number;
 }
 
-const TableHeader = <TData,>({
-  header,
-  index,
-}: HeaderProps<TData>) => {
+const TableHeader = <TData,>({ header, index }: HeaderProps<TData>) => {
   const { ref, handleRef, isDragSource } = useSortable({
     id: header.column.id,
     index,
@@ -30,7 +27,10 @@ const TableHeader = <TData,>({
       {header.isPlaceholder ? null : (
         <div className="flex items-center gap-2">
           {/* Vùng nắm để kéo thả */}
-          <div ref={handleRef} className="cursor-grab active:cursor-grabbing p-1 -ml-1">
+          <div
+            ref={handleRef}
+            className="cursor-grab active:cursor-grabbing p-1 -ml-1"
+          >
             <div className="w-1 h-4 border-l-2 border-dotted border-neutral-300" />
           </div>
 
@@ -43,7 +43,6 @@ const TableHeader = <TData,>({
             }`}
             onClick={() => {
               if (header.column.getCanSort()) {
-                console.log("Sort toggled for:", header.column.id);
                 header.column.toggleSorting();
               }
             }}
@@ -55,7 +54,7 @@ const TableHeader = <TData,>({
             {header.column.getCanSort() && (
               <div className="flex flex-col shrink-0">
                 <svg
-                  className={`w-2 h-2 -mb-0.5 transition-all ${
+                  className={`size-2 -mb-0.5 transition-all ${
                     isSorted === "asc"
                       ? "text-primary-600 opacity-100"
                       : "text-neutral-300 opacity-50 group-hover/sort:opacity-100"
@@ -72,7 +71,7 @@ const TableHeader = <TData,>({
                   />
                 </svg>
                 <svg
-                  className={`w-2 h-2 -mt-0.5 transition-all ${
+                  className={`size-2 -mt-0.5 transition-all ${
                     isSorted === "desc"
                       ? "text-primary-600 opacity-100"
                       : "text-neutral-300 opacity-50 group-hover/sort:opacity-100"

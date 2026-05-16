@@ -87,7 +87,7 @@ export default function Main() {
             />
             <button
               onClick={handleUpdateProfile}
-              className="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-primary-700 transition-all z-10"
+              className="absolute bottom-1 right-1 size-10 rounded-full bg-primary-600 text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-primary-700 transition-all z-10"
             >
               <HiOutlinePencil size={18} />
             </button>
@@ -322,7 +322,7 @@ const InfoItem = ({
   value?: string | number | null;
 }) => (
   <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/50 border border-neutral-100/50 hover:bg-white hover:shadow-sm transition-all group">
-    <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors shrink-0">
+    <div className="size-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors shrink-0">
       <Icon size={20} />
     </div>
     <div className="flex flex-col">

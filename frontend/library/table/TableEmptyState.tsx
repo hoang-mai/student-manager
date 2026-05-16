@@ -24,9 +24,9 @@ const TableEmptyState = <TData,>({
         className="px-6 py-24 text-center bg-white"
       >
         <div className="flex flex-col items-center gap-4 text-neutral-300">
-          <div className="w-20 h-20 rounded-full bg-neutral-50 flex items-center justify-center">
+          <div className="size-20 rounded-full bg-neutral-50 flex items-center justify-center">
             <svg
-              className="w-10 h-10 opacity-20"
+              className="size-10 opacity-20"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

@@ -1,11 +1,14 @@
-import { InputHTMLAttributes, forwardRef, type ReactNode } from "react";
+import type { InputHTMLAttributes, ReactNode, Ref } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Typography from "./Typography";
 
 type InputSize = "sm" | "md" | "lg";
 type InputVariant = "outlined" | "filled";
 
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface InputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   /** Nhãn hiển thị phía trên ô nhập liệu */
   label?: string;
 
@@ -38,7 +41,9 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 
   /** Hiển thị dấu * bắt buộc */
   required?: boolean;
-};
+  /** React 19: ref được truyền trực tiếp như prop, không cần forwardRef. */
+  ref?: Ref<HTMLInputElement>;
+}
 
 const sizeStyles: Record<InputSize, string> = {
   sm: "h-9 px-3 text-sm",
@@ -46,84 +51,83 @@ const sizeStyles: Record<InputSize, string> = {
   lg: "h-12 px-4 text-base",
 };
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      label,
-      error,
-      size = "md",
-      variant = "outlined",
-      prefixIcon,
-      suffixIcon,
-      fullWidth = true,
-      className = "",
-      id,
-      disabled,
-      isLoading,
-      floatingLabel = true,
-      required,
-      ...props
-    },
-    ref
-  ) => {
-    const baseStyles =
-      "rounded-xl font-sans transition-all duration-200 outline-none appearance-none";
+export default function Input({
+  label,
+  error,
+  size = "md",
+  variant = "outlined",
+  prefixIcon,
+  suffixIcon,
+  fullWidth = true,
+  className = "",
+  id,
+  disabled,
+  isLoading,
+  floatingLabel = true,
+  required,
+  ref,
+  ...props
+}: InputProps) {
+  const baseStyles =
+    "rounded-xl font-sans transition-all duration-200 outline-none appearance-none";
 
-    const variantStyles: Record<InputVariant, string> = {
-      outlined: `
+  const variantStyles: Record<InputVariant, string> = {
+    outlined: `
         border-2 border-primary-200 bg-white
         text-neutral-900 placeholder:text-neutral-400
         hover:border-primary-400
         focus:border-primary-500
       `,
-      filled: `
+    filled: `
         border border-transparent bg-neutral-50
         text-neutral-900 placeholder:text-neutral-400
         hover:bg-neutral-100
         focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
       `,
-    };
+  };
 
-    const errorStyles = error
-      ? "!border-error-200 hover:!border-error-400 focus:!border-error-500"
-      : "";
+  const errorStyles = error
+    ? "!border-error-200 hover:!border-error-400 focus:!border-error-500"
+    : "";
 
-    const disabledStyles = disabled
-      ? "!border-neutral-200 hover:!border-neutral-200 focus:!border-neutral-200"
-      : "";
+  const disabledStyles = disabled
+    ? "!border-neutral-200 hover:!border-neutral-200 focus:!border-neutral-200"
+    : "";
 
-    const widthStyles = fullWidth ? "w-full" : "";
+  const widthStyles = fullWidth ? "w-full" : "";
 
-    return (
-      <div className={`${fullWidth ? "w-full" : "inline-flex flex-col"} relative ${floatingLabel ? "mt-1.5" : ""}`}>
-        {label && (
-          <Typography
-            as="label"
-            variant={floatingLabel ? "caption" : "body"}
-            weight={floatingLabel ? "bold" : "semibold"}
-            color={error ? "error" : floatingLabel ? "gray" : "neutral"}
-            className={
-              floatingLabel
-                ? "absolute -top-2 left-3 z-10 px-1 rounded-md bg-white cursor-text"
-                : "block mb-1.5 ml-1"
-            }
-            htmlFor={id}
-          >
-            {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
-          </Typography>
+  return (
+    <div
+      className={`${fullWidth ? "w-full" : "inline-flex flex-col"} relative ${floatingLabel ? "mt-1.5" : ""}`}
+    >
+      {label && (
+        <Typography
+          as="label"
+          variant={floatingLabel ? "caption" : "body"}
+          weight={floatingLabel ? "bold" : "semibold"}
+          color={error ? "error" : floatingLabel ? "gray" : "neutral"}
+          className={
+            floatingLabel
+              ? "absolute -top-2 left-3 z-10 px-1 rounded-md bg-white cursor-text"
+              : "block mb-1.5 ml-1"
+          }
+          htmlFor={id}
+        >
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </Typography>
+      )}
+      <div className="relative">
+        {prefixIcon && (
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 flex items-center pointer-events-none">
+            {prefixIcon}
+          </span>
         )}
-        <div className="relative">
-          {prefixIcon && (
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 flex items-center pointer-events-none">
-              {prefixIcon}
-            </span>
-          )}
-          <input
-            ref={ref}
-            id={id}
-            disabled={disabled || isLoading}
-            className={`
+        <input
+          ref={ref}
+          id={id}
+          disabled={disabled || isLoading}
+          className={`
               ${baseStyles}
               ${sizeStyles[size]}
               ${variantStyles[variant]}
@@ -135,34 +139,29 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               ${disabled ? "opacity-50 cursor-not-allowed" : ""}
               ${className}
             `}
-            {...props}
-          />
-          {suffixIcon && (
-            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 flex items-center">
-              {suffixIcon}
-            </span>
-          )}
-        </div>
-        <AnimatePresence mode="wait">
-          {error && (
-            <motion.div
-              key={error}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-0.5 ml-1"
-            >
-              <Typography variant="caption" weight="medium" color="error">
-                {error}
-              </Typography>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {...props}
+        />
+        {suffixIcon && (
+          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 flex items-center">
+            {suffixIcon}
+          </span>
+        )}
       </div>
-    );
-  }
-);
-
-Input.displayName = "Input";
-
-export default Input;
+      <AnimatePresence mode="wait">
+        {error && (
+          <motion.div
+            key={error}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mt-0.5 ml-1"
+          >
+            <Typography variant="caption" weight="medium" color="error">
+              {error}
+            </Typography>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

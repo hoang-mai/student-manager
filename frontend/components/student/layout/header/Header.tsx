@@ -28,7 +28,7 @@ import ChangePasswordForm from "@/components/student/layout/header/ChangePasswor
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 
 export default function Header() {
-  const router = useRouter();
+  const { replace } = useRouter();
   const { logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
   const { openModal } = useModalStore();
@@ -49,7 +49,7 @@ export default function Header() {
 
   const handleLogout = () => {
     logout();
-    router.replace("/login");
+    replace("/login");
   };
 
   const handleOpenChangePassword = () => {
@@ -79,12 +79,12 @@ export default function Header() {
         {/* Notifications */}
         <Link
           href="/student/notifications"
-          className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-50 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 transition-all border border-neutral-100 group"
+          className="relative size-10 flex items-center justify-center rounded-xl bg-neutral-50 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 transition-all border border-neutral-100 group"
         >
           <motion.div whileHover={{ rotate: 15, scale: 1.1 }}>
             <HiOutlineBell size={20} />
           </motion.div>
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-error-500 rounded-full border-2 border-white" />
+          <span className="absolute top-2.5 right-2.5 size-2 bg-error-500 rounded-full border-2 border-white" />
         </Link>
 
         {/* User Profile & Dropdown */}
@@ -98,7 +98,8 @@ export default function Header() {
               >
                 <div className="flex flex-col text-right">
                   <span className="text-sm font-bold text-neutral-800 leading-none group-hover:text-primary-700 transition-colors">
-                    {profile?.profile?.fullName || DEFAULT_VALUES.DEFAULT_STUDENT_NAME}
+                    {profile?.profile?.fullName ||
+                      DEFAULT_VALUES.DEFAULT_STUDENT_NAME}
                   </span>
                   <span className="text-[10px] tracking-widest text-neutral-400 font-black uppercase mt-1">
                     {ROLES.STUDENT.name}
@@ -111,7 +112,7 @@ export default function Header() {
                     size={40}
                     className={`border-2 transition-all ${isOpen ? "border-primary-500 shadow-md" : "border-primary-50 shadow-sm"}`}
                   />
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100 text-neutral-500">
+                  <div className="absolute -bottom-1 -right-1 size-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100 text-neutral-500">
                     <HiOutlineChevronDown
                       size={10}
                       className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
@@ -129,10 +130,14 @@ export default function Header() {
                   whileHover="hover"
                   className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
+                  <div className="size-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
                     <motion.div
                       variants={{ hover: { scale: 1.2, rotate: 5 } }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 10,
+                      }}
                     >
                       <HiOutlineUser size={18} />
                     </motion.div>
@@ -147,7 +152,7 @@ export default function Header() {
                 onClick={handleOpenChangePassword}
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
+                <div className="size-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
                   <motion.div
                     variants={{ hover: { y: -2, scale: 1.1 } }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -167,7 +172,7 @@ export default function Header() {
                 }}
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-primary-600 transition-all text-left group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
+                <div className="size-8 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
                   <motion.div
                     variants={{ hover: { rotate: -20, scale: 1.1 } }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -192,7 +197,7 @@ export default function Header() {
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-neutral-600 transition-all text-left group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-xl bg-neutral-50 flex items-center justify-center text-error-400 group-hover:bg-error-50 group-hover:text-error-600 transition-all">
+                <div className="size-8 rounded-xl bg-neutral-50 flex items-center justify-center text-error-400 group-hover:bg-error-50 group-hover:text-error-600 transition-all">
                   <motion.div
                     variants={{ hover: { x: 3, scale: 1.1 } }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}

@@ -9,7 +9,12 @@ import UpdateEducationLevelForm from "./UpdateEducationLevelForm";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
 import Typography from "@/library/Typography";
-import { HiOutlineAcademicCap, HiOutlinePencil, HiOutlinePlus, HiOutlineTrash } from "react-icons/hi";
+import {
+  HiOutlineAcademicCap,
+  HiOutlinePencil,
+  HiOutlinePlus,
+  HiOutlineTrash,
+} from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Link from "next/link";
 import useAppMutation from "@/hooks/useAppMutation";
@@ -19,13 +24,17 @@ interface OrganizationLevelsListProps {
   universityId: string;
 }
 
-export default function OrganizationLevelsList({ orgId, universityId }: OrganizationLevelsListProps) {
+export default function OrganizationLevelsList({
+  orgId,
+  universityId,
+}: OrganizationLevelsListProps) {
   const { openConfirm } = useConfirmStore();
   const { openModal } = useModalStore();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: [QUERY_KEYS.EDUCATION_LEVELS, orgId],
-    queryFn: () => organizationService.getEducationLevels({ organizationId: orgId }),
+    queryFn: () =>
+      organizationService.getEducationLevels({ organizationId: orgId }),
   });
 
   const deleteLevelMutation = useAppMutation({
@@ -40,15 +49,13 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
   const handleOpenCreateLevelModal = (orgId: string) => {
     openModal({
       title: "Thêm trình độ mới",
-      content: (
-        <CreateEducationLevelForm organizationId={orgId} />
-      ),
+      content: <CreateEducationLevelForm organizationId={orgId} />,
       size: "md",
       config: {
         mutationKey: MUTATION_KEYS.CREATE_EDUCATION_LEVEL,
       },
     });
-  }
+  };
 
   const handleOpenUpdateLevelModal = (orgId: string, level: EducationLevel) => {
     openModal({
@@ -61,9 +68,7 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
         mutationKey: MUTATION_KEYS.UPDATE_EDUCATION_LEVEL,
       },
     });
-  }
-
-
+  };
 
   if (isLoading) {
     return (
@@ -96,13 +101,20 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
       {levels.map((level) => (
         <div key={level.id} className="space-y-2">
           <div className="flex items-center justify-between">
-            <Link href={`/commander/universities/${universityId}/${orgId}/${level.id}`}
+            <Link
+              href={`/commander/universities/${universityId}/${orgId}/${level.id}`}
               className="flex items-center gap-4 cursor-pointer group flex-1"
             >
-              <div
-                className="flex items-center gap-2 group">
-                <HiOutlineAcademicCap size={18} className="text-secondary-500" />
-                <Typography variant="body" weight="semibold" className="group-hover:text-primary-600 transition-colors">
+              <div className="flex items-center gap-2 group">
+                <HiOutlineAcademicCap
+                  size={18}
+                  className="text-secondary-500"
+                />
+                <Typography
+                  variant="body"
+                  weight="semibold"
+                  className="group-hover:text-primary-600 transition-colors"
+                >
                   Trình độ: {level.levelName}
                 </Typography>
               </div>
@@ -113,7 +125,7 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
                 icon={HiOutlinePencil}
                 color="blue"
                 iconSize={14}
-                className="w-8 h-8 rounded-lg"
+                className="size-8 rounded-lg"
                 onClick={() => handleOpenUpdateLevelModal(orgId, level)}
               />
               <ActionButton
@@ -121,7 +133,7 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
                 icon={HiOutlineTrash}
                 color="red"
                 iconSize={14}
-                className="w-8 h-8 rounded-lg"
+                className="size-8 rounded-lg"
                 onClick={() =>
                   openConfirm({
                     title: "Xác nhận xóa",
@@ -140,7 +152,7 @@ export default function OrganizationLevelsList({ orgId, universityId }: Organiza
         onClick={() => handleOpenCreateLevelModal(orgId)}
         className="ml-6 mt-2 flex items-center gap-2 text-neutral-500 hover:text-secondary-600 transition-colors cursor-pointer group"
       >
-        <div className="w-6 h-6 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-400 group-hover:bg-secondary-50 group-hover:text-secondary-600 transition-all">
+        <div className="size-6 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-400 group-hover:bg-secondary-50 group-hover:text-secondary-600 transition-all">
           <HiOutlinePlus size={12} />
         </div>
         <Typography variant="caption" weight="semibold">

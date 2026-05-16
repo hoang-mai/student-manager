@@ -94,11 +94,10 @@ export default function Modal() {
                     <button
                       onClick={handleClose}
                       disabled={isMutating}
-                      className={`w-10 h-10 flex items-center justify-center rounded-2xl bg-neutral-50 text-neutral-400 transition-all border border-neutral-100 group ${
-                        isMutating
+                      className={`size-10 flex items-center justify-center rounded-2xl bg-neutral-50 text-neutral-400 transition-all border border-neutral-100 group ${isMutating
                           ? "cursor-not-allowed opacity-60"
                           : "cursor-pointer hover:text-primary-600 hover:bg-primary-50"
-                      }`}
+                        }`}
                     >
                       <HiOutlineX
                         size={20}
@@ -115,11 +114,10 @@ export default function Modal() {
               <button
                 onClick={handleClose}
                 disabled={isMutating}
-                className={`absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-2xl bg-neutral-50/50 backdrop-blur-md text-neutral-400 transition-all border border-neutral-100/50 group ${
-                  isMutating
+                className={`absolute top-6 right-6 z-10 size-10 flex items-center justify-center rounded-2xl bg-neutral-50/50 backdrop-blur-md text-neutral-400 transition-all border border-neutral-100/50 group ${isMutating
                     ? "cursor-not-allowed opacity-60"
                     : "cursor-pointer hover:text-primary-600 hover:bg-primary-50"
-                }`}
+                  }`}
               >
                 <HiOutlineX
                   size={20}

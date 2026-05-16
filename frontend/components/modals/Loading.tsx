@@ -21,7 +21,7 @@ export default function Loading() {
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             className="relative flex flex-col items-center gap-6"
           >
-            <div className="relative w-16 h-16">
+            <div className="relative size-16">
               {/* Outer ring */}
               <motion.div
                 animate={{ rotate: 360 }}
@@ -41,7 +41,7 @@ export default function Loading() {
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 1, repeat: Infinity }}
-                  className="w-1.5 h-1.5 bg-primary-800 rounded-full"
+                  className="size-1.5 bg-primary-800 rounded-full"
                 />
               </div>
             </div>

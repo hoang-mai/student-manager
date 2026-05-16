@@ -15,7 +15,7 @@ const ProfileSkeleton = () => (
             height={120}
             className="border-4 border-white"
           />
-          <div className="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-white p-1">
+          <div className="absolute bottom-1 right-1 size-10 rounded-full bg-white p-1">
             <Skeleton variant="circular" width="100%" height="100%" />
           </div>
         </div>

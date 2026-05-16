@@ -23,7 +23,7 @@ import { LoginRequest } from "@/types/auth";
 
 export default function Main() {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
+  const { replace } = useRouter();
   const { setAuth } = useAuthStore();
   const { showLoading, hideLoading } = useLoadingStore();
   const { addToast } = useToastStore();
@@ -44,11 +44,11 @@ export default function Main() {
 
       const userRole = response.data.user.role;
       if (userRole === ROLES.COMMANDER.role) {
-        router.replace("/commander");
+        replace("/commander");
       } else if (userRole === ROLES.ADMIN.role) {
-        router.replace("/admin");
+        replace("/admin");
       } else {
-        router.replace("/student");
+        replace("/student");
       }
     },
 
@@ -85,7 +85,7 @@ export default function Main() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute -top-40 -left-40 w-96 h-96 bg-primary-500/30 rounded-full blur-3xl"
+          className="absolute -top-40 -left-40 size-96 bg-primary-500/30 rounded-full blur-3xl"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -96,7 +96,7 @@ export default function Main() {
             repeat: Infinity,
             repeatType: "reverse",
           }}
-          className="absolute -bottom-32 -right-32 w-80 h-80 bg-secondary-500/30 rounded-full blur-3xl"
+          className="absolute -bottom-32 -right-32 size-80 bg-secondary-500/30 rounded-full blur-3xl"
         />
       </div>
 

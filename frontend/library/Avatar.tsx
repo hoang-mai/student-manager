@@ -34,14 +34,14 @@ const Avatar: React.FC<AvatarProps> = ({
       className={`rounded-2xl bg-white p-0.5 shrink-0 shadow-sm overflow-hidden ${className}`}
       style={{ width: size, height: size }}
     >
-      <div className="w-full h-full rounded-[14px] flex items-center justify-center text-primary-700 bg-primary-50 overflow-hidden">
+      <div className="size-full rounded-[14px] flex items-center justify-center text-primary-700 bg-primary-50 overflow-hidden">
         {src ? (
           <Image
             src={src}
             alt={alt}
             width={50}
             height={50}
-            className="w-full h-full object-cover rounded-[14px]"
+            className="size-full object-cover rounded-[14px]"
           />
         ) : (
           <HiOutlineUser size={iconSize} />

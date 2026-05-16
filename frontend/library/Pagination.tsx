@@ -92,7 +92,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(1)}
           disabled={pageIndex === DEFAULT_PAGE.PAGE_INDEX + 1}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+          className="size-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
           title="Trang đầu"
         >
           <HiOutlineChevronDoubleLeft size={16} />
@@ -101,7 +101,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(pageIndex - 1)}
           disabled={pageIndex === 1}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+          className="size-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
         >
           <HiOutlineChevronLeft size={16} />
         </button>
@@ -120,7 +120,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(pageIndex + 1)}
           disabled={pageIndex >= totalPages}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+          className="size-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
         >
           <HiOutlineChevronRight size={16} />
         </button>
@@ -129,7 +129,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={pageIndex >= totalPages}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+          className="size-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
           title="Trang cuối"
         >
           <HiOutlineChevronDoubleRight size={16} />
@@ -153,11 +153,10 @@ const PageButton: React.FC<PageButtonProps> = ({ num, active, onClick }) => (
   <button
     onClick={() => onClick(num)}
     className={`
-      w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors cursor-pointer
-      ${
-        active
-          ? "bg-primary-600 text-white font-semibold"
-          : "text-neutral-600 hover:bg-neutral-50 border border-transparent hover:border-neutral-200"
+      size-8 flex items-center justify-center rounded-lg text-sm transition-colors cursor-pointer
+      ${active
+        ? "bg-primary-600 text-white font-semibold"
+        : "text-neutral-600 hover:bg-neutral-50 border border-transparent hover:border-neutral-200"
       }
     `}
   >

@@ -103,10 +103,10 @@ const TableToolbar = <TData,>({
                         type="checkbox"
                         checked={column.getIsVisible()}
                         onChange={column.getToggleVisibilityHandler()}
-                        className="peer appearance-none w-5 h-5 border-2 border-neutral-100 rounded-lg checked:bg-primary-500 checked:border-primary-500 transition-all cursor-pointer"
+                        className="peer appearance-none size-5 border-2 border-neutral-100 rounded-lg checked:bg-primary-500 checked:border-primary-500 transition-all cursor-pointer"
                       />
                       <svg
-                        className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
+                        className="absolute size-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

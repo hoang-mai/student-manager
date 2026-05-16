@@ -193,7 +193,7 @@ export default function Main({ universityId }: Props) {
                       toggleExpand(org.id);
                     }}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-secondary-50 flex items-center justify-center text-secondary-600">
+                    <div className="size-12 rounded-xl bg-secondary-50 flex items-center justify-center text-secondary-600">
                       <HiOutlineCollection size={24} />
                     </div>
                     <div>
@@ -311,7 +311,7 @@ export default function Main({ universityId }: Props) {
             {/* Sentinel for infinite scroll */}
             <div ref={setSentinelRef} className="h-10 flex items-center justify-center">
               {isFetchingNextPage && (
-                <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                <div className="size-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
               )}
             </div>
           </div>
