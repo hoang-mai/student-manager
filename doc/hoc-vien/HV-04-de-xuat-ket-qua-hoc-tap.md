@@ -28,7 +28,7 @@ Học viên tạo yêu cầu thêm mới, cập nhật hoặc xóa kết quả m
 7. Hệ thống tự động gửi thông báo đến Chỉ huy.
 
 ### 2. Xem danh sách đề xuất của mình
-1. Danh sách tất cả đề xuất, sắp xếp mới nhất trước.
+1. Danh sách tất cả đề xuất, sắp xếp mới nhất trước và có phân trang.
 2. Có thể lọc theo trạng thái: `PENDING`, `APPROVED`, `REJECTED`.
 3. Mỗi đề xuất hiển thị: môn học, loại, điểm đề xuất, trạng thái, ngày tạo.
 
@@ -41,7 +41,7 @@ Học viên tạo yêu cầu thêm mới, cập nhật hoặc xóa kết quả m
 | Method | Endpoint | Auth | Mô tả |
 |--------|----------|------|-------|
 | `POST` | `/api/students/grade-requests` | STUDENT | Tạo đề xuất mới |
-| `GET` | `/api/students/grade-requests` | STUDENT | Danh sách đề xuất của tôi (có filter `?status=`) |
+| `GET` | `/api/students/grade-requests?page=1&limit=10` | STUDENT | Danh sách đề xuất của tôi, có phân trang và filter `?status=` |
 | `GET` | `/api/students/grade-requests/:id` | STUDENT | Chi tiết đề xuất |
 
 ### Request Body (POST)

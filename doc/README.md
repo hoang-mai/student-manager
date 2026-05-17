@@ -46,7 +46,7 @@ doc/
 | HV-03 | Xem kết quả học tập | Bảng điểm chi tiết, CPA, tín chỉ tích lũy, tín chỉ nợ |
 | HV-04 | Đề xuất kết quả học tập | Tạo yêu cầu thêm/sửa/xóa điểm + upload minh chứng |
 | HV-05 | Theo dõi trạng thái đề xuất | Xem trạng thái: Chờ duyệt / Đã duyệt / Từ chối |
-| HV-06 | Quản lý lịch học | Xem, thêm, sửa, xóa lịch học; tự động tạo lịch cắt cơm |
+| HV-06 | Xem lịch học | Xem lịch học do Chỉ huy nhập; học viên không tự thêm/sửa/xóa |
 | HV-07 | Xem lịch cắt cơm tự động | Tự động tính toán lịch cắt cơm (06:00, 11:00, 17:30) |
 | HV-08 | Xem thành tích và học phí | Thành tích, đề tài khoa học, sáng kiến; học phí theo đợt |
 | HV-09 | Thông báo | Nhận thông báo tự động: điểm, đề xuất, cắt cơm, sự kiện |
@@ -59,7 +59,7 @@ doc/
 | CH-03 | Quản lý hồ sơ học viên | Thêm/sửa/xóa/tìm kiếm; tự động tạo tài khoản và xóa dữ liệu |
 | CH-04 | Phê duyệt đề xuất | Duyệt/từ chối yêu cầu cập nhật điểm, tự động tính lại CPA |
 | CH-05 | Quản lý thành tích | Thành tích học tập, rèn luyện, đề tài, sáng kiến, giải thưởng |
-| CH-06 | Quản lý lịch học & cắt cơm | Tạo, reset, cập nhật lịch cắt cơm; xuất Excel |
+| CH-06 | Quản lý lịch học & cắt cơm | Nhập/cập nhật lịch học cho học viên, tạo/reset/cập nhật lịch cắt cơm; xuất Excel |
 | CH-07 | Quản lý học phí | Cập nhật học phí, trạng thái thanh toán, tìm kiếm, xuất Word/PDF |
 | CH-08 | Quản lý học kỳ | Thêm/sửa/xóa học kỳ; tìm kiếm theo tên/năm học |
 | CH-09 | Thống kê & Báo cáo | Kết quả học tập, thành tích, xếp loại, học phí, chính trị nội bộ |
@@ -87,7 +87,7 @@ Học viên gửi yêu cầu → Đính kèm minh chứng → Chỉ huy kiểm t
 
 ### Quy trình cắt cơm
 ```
-Cập nhật lịch học → Hệ thống quét điều kiện thờ gian
+Chỉ huy cập nhật lịch học → Hệ thống quét điều kiện thời gian
 → Tự động ghi danh vào danh sách cắt cơm ngày tương ứng
 → Đánh dấu is_auto_generated = true
 → Gửi thông báo cho học viên
