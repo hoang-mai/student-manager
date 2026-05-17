@@ -3,6 +3,7 @@ const service = require('../services/user.service');
 const studentService = require('../services/student.service');
 const commanderService = require('../services/commander.service');
 const { success, paginated, validateOrThrow } = require('../utils/response');
+const { ForbiddenError } = require('../utils/apiError');
 const us = require('../validations/user.validation');
 const ss = require('../validations/student.validation');
 const cs = require('../validations/commander.validation');
@@ -104,21 +105,8 @@ const getMyTimeTable = asyncHandler(async (req, res) => {
   return success(res, result);
 });
 
-const createMyTimeTable = asyncHandler(async (req, res) => {
-  await validateOrThrow(ss.timetable, req.body);
-  const result = await studentService.createMyTimeTable(req.userId, req.body);
-  return success(res, result, 'Thêm môn học thành công', 201);
-});
-
-const updateMyTimeTable = asyncHandler(async (req, res) => {
-  await validateOrThrow(ss.timetable, req.body);
-  const result = await studentService.updateMyTimeTable(req.userId, req.params.id, req.body);
-  return success(res, result, 'Cập nhật thời khóa biểu thành công');
-});
-
-const deleteMyTimeTable = asyncHandler(async (req, res) => {
-  await studentService.deleteMyTimeTable(req.userId, req.params.id);
-  return success(res, null, 'Xóa môn học thành công');
+const denyMyTimeTableMutation = asyncHandler(async () => {
+  throw new ForbiddenError('Chỉ chỉ huy mới được nhập và cập nhật lịch học');
 });
 
 // ===================== Student: Cắt cơm =====================
@@ -232,9 +220,7 @@ module.exports = {
   uploadAvatar,
   getAcademicResults,
   getMyTimeTable,
-  createMyTimeTable,
-  updateMyTimeTable,
-  deleteMyTimeTable,
+  denyMyTimeTableMutation,
   getMyCutRice,
   updateMyCutRice,
   getMyAchievements,

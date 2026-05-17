@@ -328,12 +328,12 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
         get: { tags: ['Profile'], summary: 'HV-03: Xem kết quả học tập', description: 'KQHT theo năm học, kèm semester→subject. Filter: ?schoolYear=', parameters: [{ name: 'schoolYear', in: 'query', schema: { type: 'string', example: '2024-2025' } }], responses: { 200: { description: 'OK' } } },
       },
       '/users/time-table': {
-        get: { tags: ['Profile'], summary: 'HV-06: Xem lịch học', responses: { 200: { description: 'OK' } } },
-        post: { tags: ['Profile'], summary: 'HV-06: Thêm môn học', requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { schedules: { type: 'array', items: { type: 'object', properties: { day: { type: 'string' }, startTime: { type: 'string' }, endTime: { type: 'string' }, room: { type: 'string' } } } } } } } } }, responses: { 201: { description: 'Created' } } },
+        get: { tags: ['Profile'], summary: 'HV-06: Học viên xem lịch học', responses: { 200: { description: 'OK' } } },
+        post: { tags: ['Profile'], summary: 'HV-06: Học viên không được nhập lịch học', responses: { 403: { description: 'Chỉ chỉ huy mới được nhập và cập nhật lịch học' } } },
       },
       '/users/time-table/{id}': {
-        put: { tags: ['Profile'], summary: 'HV-06: Sửa môn học', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
-        delete: { tags: ['Profile'], summary: 'HV-06: Xóa môn học', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
+        put: { tags: ['Profile'], summary: 'HV-06: Học viên không được sửa lịch học', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 403: { description: 'Chỉ chỉ huy mới được nhập và cập nhật lịch học' } } },
+        delete: { tags: ['Profile'], summary: 'HV-06: Học viên không được xóa lịch học', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 403: { description: 'Chỉ chỉ huy mới được nhập và cập nhật lịch học' } } },
       },
       '/users/cut-rice': {
         get: { tags: ['Cut Rice'], summary: 'HV-07: Xem lịch cắt cơm', responses: { 200: { description: 'OK' } } },
@@ -388,7 +388,7 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
 
       // ═══════════ GRADE REQUESTS (HV-04/05 + CH-04) ═══════════
       '/students/grade-requests': {
-        get: { tags: ['Grade Requests'], summary: 'HV-05: Danh sách đề xuất của tôi', parameters: [{ name: 'status', in: 'query', schema: { type: 'string', enum: ['PENDING', 'APPROVED', 'REJECTED'] } }], responses: { 200: { description: 'OK' } } },
+        get: { tags: ['Grade Requests'], summary: 'HV-05: Danh sách đề xuất của tôi (phân trang)', parameters: [{ name: 'status', in: 'query', schema: { type: 'string', enum: ['PENDING', 'APPROVED', 'REJECTED'] } }, { name: 'page', in: 'query', schema: { type: 'integer' } }, { name: 'limit', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
         post: { tags: ['Grade Requests'], summary: 'HV-04: Tạo đề xuất', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['subjectResultId', 'requestType', 'reason'], properties: { subjectResultId: { type: 'string' }, requestType: { type: 'string', enum: ['ADD', 'UPDATE', 'DELETE'] }, reason: { type: 'string' }, proposedLetterGrade: { type: 'string' }, proposedGradePoint4: { type: 'number' }, proposedGradePoint10: { type: 'number' }, attachmentUrl: { type: 'string' } } } } } }, responses: { 201: { description: 'Created' } } },
       },
       '/students/grade-requests/{id}': {
@@ -540,7 +540,7 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
       // ═══════════ SUBJECT RESULTS ═══════════
       '/subject-results': {
         get: { tags: ['Academic Results'], summary: 'Danh sách KQ môn học', parameters: [{ name: 'page', in: 'query', schema: { type: 'integer' } }, { name: 'limit', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
-        post: { tags: ['Academic Results'], summary: 'Thêm KQ môn học', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/SubjectResult' } } } }, responses: { 201: { description: 'Created' } } },
+        post: { tags: ['Academic Results'], summary: 'Chỉ huy thêm KQ môn học', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/SubjectResult' } } } }, responses: { 201: { description: 'Created' } } },
       },
       '/subject-results/{id}': {
         get: { tags: ['Academic Results'], summary: 'Chi tiết KQ môn học', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'OK' } } },
@@ -551,7 +551,7 @@ API cho 3 nhóm: **Học viên**, **Chỉ huy**, **Quản trị viên**
       // ═══════════ TIME TABLES ═══════════
       '/time-tables': {
         get: { tags: ['Time Tables'], summary: 'Danh sách TKB', parameters: [{ name: 'page', in: 'query', schema: { type: 'integer' } }, { name: 'limit', in: 'query', schema: { type: 'integer' } }], responses: { 200: { description: 'OK' } } },
-        post: { tags: ['Time Tables'], summary: 'Thêm TKB', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/TimeTable' } } } }, responses: { 201: { description: 'Created' } } },
+        post: { tags: ['Time Tables'], summary: 'Chỉ huy thêm TKB cho học viên', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/TimeTable' } } } }, responses: { 201: { description: 'Created' } } },
       },
       '/time-tables/report': {
         get: { tags: ['Time Tables'], summary: 'Báo cáo TKB', responses: { 200: { description: 'OK' } } },

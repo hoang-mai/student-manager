@@ -12,8 +12,8 @@ const create = asyncHandler(async (req, res) => {
 });
 
 const getMyRequests = asyncHandler(async (req, res) => {
-  const r = await service.getMyRequests(req.userId, req.query);
-  return success(res, r);
+  const result = await service.getMyRequests(req.userId, req.query);
+  return paginated(res, result.rows, result.pagination);
 });
 
 const getMyRequestDetail = asyncHandler(async (req, res) => {

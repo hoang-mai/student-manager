@@ -37,7 +37,7 @@ const getMyRequests = async (userId, query = {}) => {
   const where = { userId };
   if (query.status) where.status = query.status;
 
-  return GradeRequest.findAll({
+  return paginateQuery(GradeRequest, query, {
     where,
     include: [
       { model: SubjectResult, include: [{ model: SemesterResult }] },
@@ -215,7 +215,7 @@ const approve = async (id, reviewerId, reviewNote) => {
     reviewedAt: new Date(),
   });
 
-  const user = await User.findOne({ where: { userId: req.userId } });
+  const user = await User.findByPk(req.userId);
   if (user) {
     await Notification.create({
       userId: user.id,
@@ -241,7 +241,7 @@ const reject = async (id, reviewerId, reviewNote) => {
     reviewedAt: new Date(),
   });
 
-  const user = await User.findOne({ where: { userId: req.userId } });
+  const user = await User.findByPk(req.userId);
   if (user) {
     await Notification.create({
       userId: user.id,

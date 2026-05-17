@@ -181,10 +181,13 @@ async function fullSeed() {
       return gradeOptions[Math.floor(Math.random() * gradeOptions.length)];
     }
 
+    const subjectsByUserId = new Map();
+
     for (let idx = 0; idx < profiles.length; idx++) {
       const profile = profiles[idx];
       const user = hocVienUsers[idx];
       const enrollmentYear = profile.enrollment;
+      subjectsByUserId.set(user.id, []);
 
       const schoolYears = ['2023-2024', '2024-2025'];
       if (enrollmentYear <= 2022) schoolYears.unshift('2022-2023');
@@ -225,11 +228,12 @@ async function fullSeed() {
 
           for (const sub of subjects) {
             const grade = pickGrade();
-            await db.subjectResult.create({
+            const subjectResult = await db.subjectResult.create({
               semesterResultId: semResult.id,
               subjectCode: sub.subjectCode, subjectName: sub.subjectName, credits: sub.credits,
               letterGrade: grade.letterGrade, gradePoint4: grade.gradePoint4, gradePoint10: grade.gradePoint10,
             });
+            subjectsByUserId.get(user.id).push(subjectResult);
 
             semTotalCredits += sub.credits;
             semTotalPoint4 += grade.gradePoint4 * sub.credits;
@@ -296,12 +300,20 @@ async function fullSeed() {
         const numSlots = 1 + Math.floor(Math.random() * 3);
         const selectedSlots = [...timeSlots].sort(() => 0.5 - Math.random()).slice(0, numSlots);
         for (const slot of selectedSlots) {
-          schedules.push({ day, startTime: slot.startTime, endTime: slot.endTime, room: `P${100 + Math.floor(Math.random() * 400)}` });
+          const subject = subjectTemplates[Math.floor(Math.random() * subjectTemplates.length)];
+          schedules.push({
+            day,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            room: `P${100 + Math.floor(Math.random() * 400)}`,
+            subjectName: subject.subjectName,
+            week: `Tuần ${1 + Math.floor(Math.random() * 16)}`,
+          });
         }
       }
       await db.timeTable.create({ userId: user.id, schedules });
     }
-    console.log('TimeTables seeded.');
+    console.log('TimeTables seeded for students (commander-managed).');
 
     // ==========================
     // 10. CUT RICE
@@ -454,13 +466,24 @@ async function fullSeed() {
     // ==========================
     // 17. GRADE REQUESTS
     // ==========================
-    const firstSubjects = await db.subjectResult.findAll({ limit: 5, order: [['createdAt', 'ASC']] });
-    if (firstSubjects.length >= 5) {
-      await db.gradeRequest.create({ userId: hocVienUsers[0].id, subjectResultId: firstSubjects[0].id, requestType: 'UPDATE', reason: 'Điểm thi cuối kỳ bị nhập sai', proposedLetterGrade: 'A', proposedGradePoint4: 4.0, proposedGradePoint10: 9.0, status: 'PENDING' });
-      await db.gradeRequest.create({ userId: hocVienUsers[1].id, subjectResultId: firstSubjects[1].id, requestType: 'UPDATE', reason: 'Bài thi bị chấm nhầm', proposedLetterGrade: 'B+', proposedGradePoint4: 3.5, proposedGradePoint10: 8.0, status: 'APPROVED', reviewerId: chiHuy1.id, reviewNote: 'Đồng ý', reviewedAt: new Date('2024-12-15') });
-      await db.gradeRequest.create({ userId: hocVienUsers[2].id, subjectResultId: firstSubjects[2].id, requestType: 'DELETE', reason: 'Môn không thuộc chương trình', status: 'REJECTED', reviewerId: chiHuy2.id, reviewNote: 'Không thể xóa', reviewedAt: new Date('2025-01-10') });
-      await db.gradeRequest.create({ userId: hocVienUsers[3].id, subjectResultId: firstSubjects[3].id, requestType: 'UPDATE', reason: 'Điểm quá trình chưa được cộng', proposedLetterGrade: 'C+', proposedGradePoint4: 2.5, proposedGradePoint10: 6.5, status: 'PENDING' });
-      await db.gradeRequest.create({ userId: hocVienUsers[4].id, subjectResultId: firstSubjects[4].id, requestType: 'UPDATE', reason: 'Điểm NCKH chưa được tính', proposedLetterGrade: 'B', proposedGradePoint4: 3.0, proposedGradePoint10: 7.0, status: 'PENDING' });
+    const requestSeeds = [
+      { user: hocVienUsers[0], subjectIndex: 0, requestType: 'UPDATE', reason: 'Điểm thi cuối kỳ bị nhập sai', proposedLetterGrade: 'A', proposedGradePoint4: 4.0, proposedGradePoint10: 9.0, status: 'PENDING' },
+      { user: hocVienUsers[1], subjectIndex: 1, requestType: 'UPDATE', reason: 'Bài thi bị chấm nhầm', proposedLetterGrade: 'B+', proposedGradePoint4: 3.5, proposedGradePoint10: 8.0, status: 'APPROVED', reviewerId: chiHuy1.id, reviewNote: 'Đồng ý', reviewedAt: new Date('2024-12-15') },
+      { user: hocVienUsers[2], subjectIndex: 2, requestType: 'DELETE', reason: 'Môn không thuộc chương trình', status: 'REJECTED', reviewerId: chiHuy2.id, reviewNote: 'Không thể xóa', reviewedAt: new Date('2025-01-10') },
+      { user: hocVienUsers[3], subjectIndex: 3, requestType: 'UPDATE', reason: 'Điểm quá trình chưa được cộng', proposedLetterGrade: 'C+', proposedGradePoint4: 2.5, proposedGradePoint10: 6.5, status: 'PENDING' },
+      { user: hocVienUsers[4], subjectIndex: 4, requestType: 'UPDATE', reason: 'Điểm NCKH chưa được tính', proposedLetterGrade: 'B', proposedGradePoint4: 3.0, proposedGradePoint10: 7.0, status: 'PENDING' },
+    ];
+
+    for (const seed of requestSeeds) {
+      const userSubjects = subjectsByUserId.get(seed.user.id) || [];
+      const subject = userSubjects[seed.subjectIndex] || userSubjects[0];
+      if (!subject) continue;
+      const { user, subjectIndex, ...requestData } = seed;
+      await db.gradeRequest.create({
+        userId: user.id,
+        subjectResultId: subject.id,
+        ...requestData,
+      });
     }
     console.log('GradeRequests seeded.');
 
