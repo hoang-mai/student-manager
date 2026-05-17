@@ -18,9 +18,9 @@ Chỉ huy xem, phê duyệt hoặc từ chối các đề xuất cập nhật đ
 ## Luồng hoạt động
 
 ### 1. Xem danh sách đề xuất
-1. Danh sách đề xuất sắp xếp mới nhất trước.
+1. Danh sách đề xuất sắp xếp mới nhất trước, có phân trang.
 2. Có thể lọc theo trạng thái (`PENDING`, `APPROVED`, `REJECTED`).
-3. Có thể lọc theo học viên (`?studentId=`).
+3. Có thể lọc theo học viên (`?userId=`), loại đề xuất (`?requestType=`), họ tên (`?fullName=`), đơn vị (`?unit=`), học kỳ (`?semester=`), năm học (`?schoolYear=`).
 
 ### 2. Xem chi tiết
 1. Xem thông tin học viên, môn học, điểm hiện tại vs điểm đề xuất.
@@ -65,10 +65,17 @@ Chỉ huy xem, phê duyệt hoặc từ chối các đề xuất cập nhật đ
 
 | Method | Endpoint | Auth | Mô tả |
 |--------|----------|------|-------|
-| `GET` | `/api/commanders/grade-requests` | ADMIN, COMMANDER | Danh sách đề xuất (filter: `?status=PENDING&studentId=`) |
+| `GET` | `/api/commanders/grade-requests?page=1&limit=10` | ADMIN, COMMANDER | Danh sách đề xuất, có phân trang và filter |
 | `GET` | `/api/commanders/grade-requests/:id` | ADMIN, COMMANDER | Chi tiết đề xuất |
 | `POST` | `/api/commanders/grade-requests/:id/approve` | ADMIN, COMMANDER | Phê duyệt đề xuất |
 | `POST` | `/api/commanders/grade-requests/:id/reject` | ADMIN, COMMANDER | Từ chối đề xuất |
+
+### Query danh sách
+Ví dụ:
+```
+GET /api/commanders/grade-requests?status=PENDING&userId=<studentUserId>&page=1&limit=10
+GET /api/commanders/grade-requests?fullName=An&unit=Đại đội 1&page=1&limit=10
+```
 
 ### POST /approve body
 ```json

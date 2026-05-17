@@ -23,7 +23,7 @@ Hệ thống tự động gửi thông báo khi:
 5. Có thông báo chung từ chỉ huy/đơn vị.
 
 ### 2. Xem danh sách thông báo
-1. Danh sách thông báo sắp xếp theo thờ gian, mới nhất lên đầu.
+1. Danh sách thông báo sắp xếp theo thời gian, mới nhất lên đầu.
 2. Phân loại: chưa đọc / đã đọc.
 3. Lọc theo loại: điểm, đề xuất, cắt cơm, khen thưởng, chung.
 
