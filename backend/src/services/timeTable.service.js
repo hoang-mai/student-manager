@@ -1,12 +1,21 @@
 const db = require('../models');
 const User = db.user;
-const { NotFoundError } = require('../utils/apiError');
+const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const TimeTable = db.timeTable;
-const Student = db.profile;
 
-const create = async (data) => TimeTable.create(data);
+const ensureStudentUser = async (userId) => {
+  const user = await User.findByPk(userId);
+  if (!user || user.role !== 'STUDENT') {
+    throw new BadRequestError('Chỉ được nhập lịch học cho học viên');
+  }
+};
+
+const create = async (data) => {
+  await ensureStudentUser(data.userId);
+  return TimeTable.create(data);
+};
 const getAll = async (query) => {
   const opts = {
     filterFields: ['userId'],
@@ -44,6 +53,7 @@ const getDetail = async (id) => {
 
 const update = async (id, data) => {
   const record = await getDetail(id);
+  if (data.userId) await ensureStudentUser(data.userId);
   return record.update(data);
 };
 

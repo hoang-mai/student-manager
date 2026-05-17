@@ -1,11 +1,24 @@
 const db = require('../models');
-const { NotFoundError } = require('../utils/apiError');
+const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const SubjectResult = db.subjectResult;
 const SemesterResult = db.semesterResult;
+const User = db.user;
 
-const create = async (data) => SubjectResult.create(data);
+const ensureSemesterResult = async (semesterResultId) => {
+  const semesterResult = await SemesterResult.findByPk(semesterResultId);
+  if (!semesterResult) throw new BadRequestError('Không tìm thấy kết quả học kỳ');
+  const user = await User.findByPk(semesterResult.userId);
+  if (!user || user.role !== 'STUDENT') {
+    throw new BadRequestError('Chỉ được nhập môn học cho học viên');
+  }
+};
+
+const create = async (data) => {
+  await ensureSemesterResult(data.semesterResultId);
+  return SubjectResult.create(data);
+};
 const getAll = async (query) => paginateQuery(SubjectResult, query, {
   filterFields: ['semesterResultId', 'subjectCode', 'subjectName', 'letterGrade'],
   include: [{ model: SemesterResult }],
@@ -21,6 +34,7 @@ const getDetail = async (id) => {
 
 const update = async (id, data) => {
   const record = await getDetail(id);
+  if (data.semesterResultId) await ensureSemesterResult(data.semesterResultId);
   return record.update(data);
 };
 

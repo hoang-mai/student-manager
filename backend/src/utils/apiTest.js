@@ -5,6 +5,7 @@ const BASE_URL = 'http://localhost:6868/api';
 let adminToken = null;
 let commanderToken = null;
 let studentToken = null;
+let studentUserId = null;
 let commanderUserId = null;
 let passed = 0;
 let failed = 0;
@@ -81,7 +82,9 @@ async function main() {
   commanderUserId = r.body.data?.user?.id;
 
   r = await request('POST', '/auth/login', { username: 'hv001', password: 'hocvien123' });
-  ok('POST /auth/login (student)   ', r.status, 200); studentToken = r.body.data?.accessToken;
+  ok('POST /auth/login (student)   ', r.status, 200);
+  studentToken = r.body.data?.accessToken;
+  studentUserId = r.body.data?.user?.id;
 
   ok('POST /auth/login (wrong pass) ', (await request('POST', '/auth/login', { username: 'admin', password: 'x' })).status, 401);
   if (!adminToken) { console.log('\n❌ Admin login failed!'); process.exit(1); }
@@ -149,9 +152,12 @@ async function main() {
   }
 
   const ttBody = { schedules: [{ day: 'Monday', startTime: '07:00', endTime: '09:00', room: '101' }] };
-  ok('POST /users/time-table | student (201)   ', (await request('POST', '/users/time-table', ttBody, studentToken)).status, 201);
+  ok('POST /users/time-table | student (403)   ', (await request('POST', '/users/time-table', ttBody, studentToken)).status, 403);
   ok('POST /users/time-table | admin (403)     ', (await request('POST', '/users/time-table', ttBody, adminToken)).status, 403);
   ok('POST /users/time-table | commander (403) ', (await request('POST', '/users/time-table', ttBody, commanderToken)).status, 403);
+  if (studentUserId) {
+    ok('POST /time-tables      | commander nhập TKB ', (await request('POST', '/time-tables', { ...ttBody, userId: studentUserId }, commanderToken)).status, 201);
+  }
 
   const cutBody = { weekly: { Monday: { morning: true } } };
   ok('PUT  /users/cut-rice   | student (200)   ', (await request('PUT', '/users/cut-rice', cutBody, studentToken)).status, 200);
@@ -261,13 +267,19 @@ async function main() {
   // 9. GRADE REQUESTS
   // =================================================================
   section('9. GRADE REQUESTS');
-  // Find a subject result ID for creating a grade request
-  const srPage = await request('GET', '/subject-results?limit=1', null, adminToken);
-  const srId = firstId(srPage);
+  // Find a subject result owned by the logged-in student.
+  let srId = null;
+  if (studentUserId) {
+    const studentSemPage = await request('GET', `/semester-results?userId=${studentUserId}&limit=1`, null, adminToken);
+    const studentSemId = firstId(studentSemPage);
+    if (studentSemId) {
+      srId = firstId(await request('GET', `/subject-results?semesterResultId=${studentSemId}&limit=1`, null, adminToken));
+    }
+  }
   if (srId) {
     const grBody = { subjectResultId: srId, requestType: 'UPDATE', reason: 'Test reason' };
     const grRes = await request('POST', '/students/grade-requests', grBody, studentToken);
-    ok('POST /students/grade-requests | student (201)   ', grRes.status, grRes.status === 201 ? 201 : grRes.status);
+    ok('POST /students/grade-requests | student (201)   ', grRes.status, 201);
     ok('POST /students/grade-requests | admin (403)     ', (await request('POST', '/students/grade-requests', grBody, adminToken)).status, 403);
     ok('POST /students/grade-requests | commander (403) ', (await request('POST', '/students/grade-requests', grBody, commanderToken)).status, 403);
   }
@@ -275,6 +287,7 @@ async function main() {
   ok('GET  /students/grade-requests    | admin (403)     ', (await request('GET', '/students/grade-requests', null, adminToken)).status, 403);
   ok('GET  /students/grade-requests    | commander (403) ', (await request('GET', '/students/grade-requests', null, commanderToken)).status, 403);
   ok('GET  /students/grade-requests    | student (200)   ', (await request('GET', '/students/grade-requests', null, studentToken)).status, 200);
+  ok('GET  /students/grade-requests?limit=1 | pagination ', (await request('GET', '/students/grade-requests?limit=1', null, studentToken)).body?.pagination?.limit, 1);
 
   ok('GET  /commanders/grade-requests  | admin (200)     ', (await request('GET', '/commanders/grade-requests', null, adminToken)).status, 200);
   ok('GET  /commanders/grade-requests  | commander (200) ', (await request('GET', '/commanders/grade-requests', null, commanderToken)).status, 200);
@@ -285,7 +298,7 @@ async function main() {
   const grId = firstId(pendPage);
   if (grId) {
     const appRes = await request('POST', `/commanders/grade-requests/${grId}/approve`, { reviewNote: 'OK' }, adminToken);
-    ok('POST /cmd/grade-requests/:id/approve | admin (200)  ', appRes.status, appRes.status === 200 ? 200 : appRes.status);
+    ok('POST /cmd/grade-requests/:id/approve | admin (200)  ', appRes.status, 200);
     ok('POST /cmd/grade-requests/:id/approve | student (403)', (await request('POST', `/commanders/grade-requests/${grId}/approve`, {}, studentToken)).status, 403);
   }
 
