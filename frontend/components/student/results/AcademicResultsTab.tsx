@@ -56,8 +56,6 @@ export default function AcademicResultsTab() {
     isError,
     pagination,
     setPagination,
-    columnFilters,
-    setColumnFilters,
     refetch,
   } = useTableQuery<YearlyResult, AcademicResultQueryRequest>({
     queryKey: [QUERY_KEYS.STUDENT_RESULTS],
@@ -339,8 +337,6 @@ export default function AcademicResultsTab() {
         columns={columns}
         pagination={pagination}
         onPaginationChange={setPagination}
-        columnFilters={columnFilters}
-        onColumnFiltersChange={setColumnFilters}
         getSubRows={(row) =>
           row.rowType === "semester-group" ? row.subRows : undefined
         }

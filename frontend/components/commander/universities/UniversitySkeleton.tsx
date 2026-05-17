@@ -11,7 +11,7 @@ export default function UniversitySkeleton() {
   const columnCount = 6;
 
   return (
-    <div className="space-y-8 relative rounded-2xl bg-white p-6 min-h-screen">
+    <div className="space-y-8 relative rounded-2xl bg-white dark:bg-neutral-950 p-6 min-h-screen text-neutral-900 dark:text-neutral-100 transition-colors">
       <div className="flex items-center gap-2 text-neutral-400">
         <Link href="/commander" className="flex items-center gap-2">
           <HiOutlineHome size={14} />
@@ -38,7 +38,7 @@ export default function UniversitySkeleton() {
         </button>
       </div>
 
-      <div className="bg-white overflow-hidden relative">
+      <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
           <div className="space-y-4">
             <div className="flex flex-row items-center justify-end gap-2 mb-4 px-2">
@@ -46,10 +46,10 @@ export default function UniversitySkeleton() {
               <Skeleton width={120} height={36} />
             </div>
 
-            <div className="w-full rounded-2xl border border-neutral-100 overflow-hidden bg-white shadow-sm">
+            <div className="w-full rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-950 shadow-sm dark:shadow-none">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
-                  <thead className="bg-neutral-50/50">
+                  <thead className="bg-neutral-50/50 dark:bg-neutral-900/70">
                     <tr>
                       {Array.from({ length: columnCount }).map((_, index) => (
                         <th key={index} className="px-4 py-3">
@@ -65,7 +65,7 @@ export default function UniversitySkeleton() {
 
                   <tbody>
                     {Array.from({ length: 8 }).map((_, rowIndex) => (
-                      <tr key={rowIndex} className="border-t border-neutral-50">
+                      <tr key={rowIndex} className="border-t border-neutral-50 dark:border-neutral-800">
                         <td className="px-4 py-3">
                           <Skeleton variant="text" width={24} height={14} />
                         </td>
@@ -102,7 +102,7 @@ export default function UniversitySkeleton() {
                 </table>
               </div>
 
-              <div className="border-t border-neutral-100 px-4 py-3 flex items-center justify-between">
+              <div className="border-t border-neutral-100 dark:border-neutral-800 px-4 py-3 flex items-center justify-between">
                 <Skeleton variant="text" width={120} height={14} />
                 <div className="flex items-center gap-2">
                   {Array.from({ length: 5 }).map((_, index) => (

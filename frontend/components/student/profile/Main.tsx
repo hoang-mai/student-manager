@@ -75,18 +75,18 @@ export default function Main() {
       onRetry={() => refetch()}
       className="space-y-8"
     >
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/30 backdrop-blur-sm p-6 rounded-4xl border border-white/60 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/30 dark:bg-neutral-900/60 backdrop-blur-sm p-6 rounded-4xl border border-white/60 dark:border-neutral-800 shadow-sm dark:shadow-none">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           <div className="relative group shrink-0">
             <Avatar
               src={student?.avatar}
               alt={student?.fullName}
               size={120}
-              className="border-4 border-white shadow-xl shadow-primary-900/10"
+              className="border-4 border-white dark:border-neutral-800 shadow-xl shadow-primary-900/10 dark:shadow-black/30"
             />
             <button
               onClick={handleUpdateProfile}
-              className="absolute bottom-1 right-1 size-10 rounded-full bg-primary-600 text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-primary-700 transition-all z-10"
+              className="absolute bottom-1 right-1 size-10 rounded-full bg-primary-600 text-white flex items-center justify-center border-4 border-white dark:border-neutral-900 shadow-lg dark:shadow-black/30 hover:bg-primary-700 transition-all z-10"
             >
               <HiOutlinePencil size={18} />
             </button>
@@ -114,7 +114,7 @@ export default function Main() {
             >
               <HiOutlineIdentification size={16} className="text-neutral-400" />
               Mã học viên:{" "}
-              <span className="font-bold text-neutral-800">
+              <span className="font-bold text-neutral-800 dark:text-neutral-100">
                 {student?.code || "---"}
               </span>
             </Typography>
@@ -171,7 +171,7 @@ export default function Main() {
         </div>
 
         <div className="flex flex-col gap-8">
-          <section className="bg-white/40 backdrop-blur-md border border-white/60 rounded-4xl p-8 shadow-sm">
+          <section className="bg-white/40 dark:bg-neutral-900/60 backdrop-blur-md border border-white/60 dark:border-neutral-800 rounded-4xl p-8 shadow-sm dark:shadow-none">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-2 h-8 bg-primary-500 rounded-full" />
               <Typography variant="h3" weight="black" transform="uppercase">
@@ -186,7 +186,7 @@ export default function Main() {
             </div>
           </section>
 
-          <section className="bg-white/40 backdrop-blur-md border border-white/60 rounded-4xl p-8 shadow-sm">
+          <section className="bg-white/40 dark:bg-neutral-900/60 backdrop-blur-md border border-white/60 dark:border-neutral-800 rounded-4xl p-8 shadow-sm dark:shadow-none">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-2 h-8 bg-secondary-500 rounded-full" />
               <Typography variant="h3" weight="black" transform="uppercase">
@@ -215,7 +215,7 @@ const ProfileSection = ({
   accent: string;
   children: React.ReactNode;
 }) => (
-  <section className="bg-white/40 backdrop-blur-md border border-white/60 rounded-4xl p-8 shadow-sm">
+  <section className="bg-white/40 dark:bg-neutral-900/60 backdrop-blur-md border border-white/60 dark:border-neutral-800 rounded-4xl p-8 shadow-sm dark:shadow-none">
     <div className="flex items-center gap-3 mb-6">
       <div className={`w-2 h-8 ${accent} rounded-full`} />
       <Typography variant="h3" weight="black" transform="uppercase">
@@ -235,15 +235,15 @@ const InfoItem = ({
   label: string;
   value?: string | number | null;
 }) => (
-  <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/50 border border-neutral-100/50 hover:bg-white hover:shadow-sm transition-all group">
-    <div className="size-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors shrink-0">
+  <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/50 dark:bg-neutral-950/70 border border-neutral-100/50 dark:border-neutral-800 hover:bg-white dark:hover:bg-neutral-900 hover:shadow-sm dark:hover:shadow-none transition-all group">
+    <div className="size-10 rounded-xl bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 dark:text-neutral-500 group-hover:bg-primary-50 dark:group-hover:bg-primary-500/10 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors shrink-0">
       <Icon size={20} />
     </div>
     <div className="flex flex-col min-w-0">
       <Typography variant="label" color="gray" className="mb-0.5">
         {label}
       </Typography>
-      <Typography variant="body" weight="semibold" className="text-neutral-800 break-words">
+      <Typography variant="body" weight="semibold" className="text-neutral-800 dark:text-neutral-100 break-words">
         {value || "---"}
       </Typography>
     </div>

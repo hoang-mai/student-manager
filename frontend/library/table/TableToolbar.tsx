@@ -64,29 +64,29 @@ const TableToolbar = <TData,>({
           <button
             type="button"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shadow-sm border cursor-pointer ${isFilterOpen
-              ? "bg-primary-50 border-primary-200 text-primary-600"
-              : "bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50"
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shadow-sm dark:shadow-none border cursor-pointer ${isFilterOpen
+              ? "bg-primary-50 dark:bg-primary-950/40 border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-300"
+              : "bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900"
               }`}
           >
             <HiOutlineFilter
               size={16}
-              className={isFilterOpen ? "text-primary-500" : "text-neutral-400"}
+              className={isFilterOpen ? "text-primary-500 dark:text-primary-300" : "text-neutral-400 dark:text-neutral-500"}
             />
             Bộ lọc
           </button>
         )}
 
         <div className="relative group/visibility self-start">
-          <button className=" cursor-pointer flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300 transition-all shadow-sm">
-            <HiOutlineAdjustments size={16} className="text-neutral-400" />
+          <button className=" cursor-pointer flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl text-[11px] font-black uppercase tracking-wider text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-sm dark:shadow-none">
+            <HiOutlineAdjustments size={16} className="text-neutral-400 dark:text-neutral-500" />
             Cột hiển thị
           </button>
 
           {/* Dropdown Menu */}
-          <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-neutral-100 rounded-2xl shadow-2xl shadow-neutral-200/50 p-2 opacity-0 invisible group-hover/visibility:opacity-100 group-hover/visibility:visible transition-all z-50 transform origin-top-right group-hover/visibility:translate-y-0 translate-y-2">
-            <div className="px-3 py-2 border-b border-neutral-50 mb-1">
-              <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">
+          <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-neutral-950 border border-neutral-100 dark:border-neutral-800 rounded-2xl shadow-2xl shadow-neutral-200/50 dark:shadow-black/40 p-2 opacity-0 invisible group-hover/visibility:opacity-100 group-hover/visibility:visible transition-all z-50 transform origin-top-right group-hover/visibility:translate-y-0 translate-y-2">
+            <div className="px-3 py-2 border-b border-neutral-50 dark:border-neutral-800 mb-1">
+              <span className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
                 Tùy chỉnh hiển thị
               </span>
             </div>
@@ -96,14 +96,14 @@ const TableToolbar = <TData,>({
                 return (
                   <label
                     key={column.id}
-                    className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-neutral-50 cursor-pointer transition-colors group/item"
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-900 cursor-pointer transition-colors group/item"
                   >
                     <div className="relative flex items-center justify-center">
                       <input
                         type="checkbox"
                         checked={column.getIsVisible()}
                         onChange={column.getToggleVisibilityHandler()}
-                        className="peer appearance-none size-5 border-2 border-neutral-100 rounded-lg checked:bg-primary-500 checked:border-primary-500 transition-all cursor-pointer"
+                        className="peer appearance-none size-5 border-2 border-neutral-100 dark:border-neutral-700 rounded-lg checked:bg-primary-500 checked:border-primary-500 transition-all cursor-pointer"
                       />
                       <svg
                         className="absolute size-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
@@ -119,7 +119,7 @@ const TableToolbar = <TData,>({
                         />
                       </svg>
                     </div>
-                    <span className="text-xs font-bold text-neutral-600 group-hover/item:text-neutral-900 transition-colors capitalize">
+                    <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300 group-hover/item:text-neutral-900 dark:group-hover/item:text-neutral-100 transition-colors capitalize">
                       {typeof column.columnDef.header === "string"
                         ? column.columnDef.header
                         : column.id}

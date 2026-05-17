@@ -21,10 +21,10 @@ const TableEmptyState = <TData,>({
     >
       <td
         colSpan={table.getAllColumns().length}
-        className="px-6 py-24 text-center bg-white"
+        className="px-6 py-24 text-center bg-white dark:bg-neutral-950 transition-colors"
       >
-        <div className="flex flex-col items-center gap-4 text-neutral-300">
-          <div className="size-20 rounded-full bg-neutral-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-neutral-300 dark:text-neutral-700">
+          <div className="size-20 rounded-full bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center">
             <svg
               className="size-10 opacity-20"
               fill="none"
@@ -40,10 +40,10 @@ const TableEmptyState = <TData,>({
             </svg>
           </div>
           <div className="space-y-1">
-            <p className="text-base font-black text-neutral-500 uppercase tracking-widest">
+            <p className="text-base font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">
               {emptyText}
             </p>
-            <p className="text-sm font-medium italic text-neutral-400">
+            <p className="text-sm font-medium italic text-neutral-400 dark:text-neutral-500">
               Vui lòng kiểm tra lại bộ lọc hoặc dữ liệu đầu vào
             </p>
           </div>

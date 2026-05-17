@@ -31,7 +31,7 @@ const Avatar: React.FC<AvatarProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-2xl bg-white p-0.5 shrink-0 shadow-sm overflow-hidden ${className}`}
+      className={`rounded-2xl bg-white dark:bg-neutral-900 p-0.5 shrink-0 shadow-sm overflow-hidden ${className}`}
       style={{ width: size, height: size }}
     >
       <div className="size-full rounded-[14px] flex items-center justify-center text-primary-700 bg-primary-50 overflow-hidden">

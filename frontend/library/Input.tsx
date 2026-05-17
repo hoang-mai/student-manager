@@ -73,25 +73,25 @@ export default function Input({
 
   const variantStyles: Record<InputVariant, string> = {
     outlined: `
-        border-2 border-primary-200 bg-white
-        text-neutral-900 placeholder:text-neutral-400
-        hover:border-primary-400
-        focus:border-primary-500
+        border-2 border-primary-200 dark:border-neutral-700 bg-white dark:bg-neutral-950
+        text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500
+        hover:border-primary-400 dark:hover:border-neutral-600
+        focus:border-primary-500 dark:focus:border-primary-500
       `,
     filled: `
-        border border-transparent bg-neutral-50
-        text-neutral-900 placeholder:text-neutral-400
-        hover:bg-neutral-100
-        focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+        border border-transparent bg-neutral-50 dark:bg-neutral-900
+        text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500
+        hover:bg-neutral-100 dark:hover:bg-neutral-800
+        focus:bg-white dark:focus:bg-neutral-950 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
       `,
   };
 
   const errorStyles = error
-    ? "!border-error-200 hover:!border-error-400 focus:!border-error-500"
+    ? "!border-error-200 dark:!border-error-500/60 hover:!border-error-400 focus:!border-error-500"
     : "";
 
   const disabledStyles = disabled
-    ? "!border-neutral-200 hover:!border-neutral-200 focus:!border-neutral-200"
+    ? "!border-neutral-200 dark:!border-neutral-800 hover:!border-neutral-200 dark:hover:!border-neutral-800 focus:!border-neutral-200 dark:focus:!border-neutral-800"
     : "";
 
   const widthStyles = fullWidth ? "w-full" : "";
@@ -108,7 +108,7 @@ export default function Input({
           color={error ? "error" : floatingLabel ? "gray" : "neutral"}
           className={
             floatingLabel
-              ? "absolute -top-2 left-3 z-10 px-1 rounded-md bg-white cursor-text"
+              ? "absolute -top-2 left-3 z-10 px-1 rounded-md bg-white dark:bg-neutral-950 cursor-text"
               : "block mb-1.5 ml-1"
           }
           htmlFor={id}
@@ -119,7 +119,7 @@ export default function Input({
       )}
       <div className="relative">
         {prefixIcon && (
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 flex items-center pointer-events-none">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 flex items-center pointer-events-none">
             {prefixIcon}
           </span>
         )}
@@ -142,7 +142,7 @@ export default function Input({
           {...props}
         />
         {suffixIcon && (
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 flex items-center">
+          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 flex items-center">
             {suffixIcon}
           </span>
         )}

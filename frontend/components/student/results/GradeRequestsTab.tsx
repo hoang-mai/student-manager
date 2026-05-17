@@ -20,15 +20,13 @@ import {
 } from "@/types/student-academic";
 import CreateGradeRequestForm from "./CreateGradeRequestForm";
 import GradeRequestsSkeleton from "./GradeRequestsSkeleton";
+import { formatScore } from "@/utils/fn-common";
 
 const statusMap: Record<GradeRequestStatus, { label: string; variant: "warning" | "success" | "error" }> = {
   PENDING: { label: "Chờ duyệt", variant: "warning" },
   APPROVED: { label: "Đã duyệt", variant: "success" },
   REJECTED: { label: "Từ chối", variant: "error" },
 };
-
-const formatScore = (value?: number | null) =>
-  value === null || value === undefined ? "---" : value.toFixed(2);
 
 const getRequestSubject = (request: GradeRequest) => request.SubjectResult || request.subjectResult;
 const getSemesters = (year: YearlyResult): SemesterResult[] => year.semesterResults || [];

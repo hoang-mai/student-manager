@@ -11,10 +11,10 @@ export default function GradeRequestsSkeleton() {
         <Skeleton width={130} height={36} />
       </div>
 
-      <div className="w-full overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-sm">
+      <div className="w-full overflow-hidden rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm dark:shadow-none">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-neutral-50/50">
+            <thead className="bg-neutral-50/50 dark:bg-neutral-900/70">
               <tr>
                 {columns.map((width, index) => (
                   <th key={index} className="px-4 py-3">
@@ -26,7 +26,7 @@ export default function GradeRequestsSkeleton() {
 
             <tbody>
               {Array.from({ length: 8 }).map((_, rowIndex) => (
-                <tr key={rowIndex} className="border-t border-neutral-50">
+                <tr key={rowIndex} className="border-t border-neutral-50 dark:border-neutral-900">
                   {columns.map((width, cellIndex) => (
                     <td key={cellIndex} className="px-4 py-3">
                       <Skeleton
@@ -46,7 +46,7 @@ export default function GradeRequestsSkeleton() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between border-t border-neutral-100 px-4 py-3">
+        <div className="flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 px-4 py-3">
           <Skeleton variant="text" width={120} height={14} />
           <div className="flex gap-2">
             {Array.from({ length: 4 }).map((_, index) => (

@@ -38,8 +38,8 @@ export interface TableProps<TData> {
   onPaginationChange: OnChangeFn<PaginationState>;
 
   /** State lọc (controlled) */
-  columnFilters: ColumnFiltersState;
-  onColumnFiltersChange: OnChangeFn<ColumnFiltersState>;
+  columnFilters?: ColumnFiltersState;
+  onColumnFiltersChange?: OnChangeFn<ColumnFiltersState>;
 
   /** State sắp xếp (controlled) */
   sorting?: SortingState;
@@ -115,7 +115,7 @@ const Table = <TData,>({
       enableSorting: false,
       cell: (info) => {
         return (
-          <span className="text-xs font-bold text-neutral-400">
+          <span className="text-xs font-bold text-neutral-400 dark:text-neutral-500">
             {pagination.pageIndex * pagination.pageSize + info.row.index + 1}
           </span>
         );
@@ -205,11 +205,11 @@ const Table = <TData,>({
 
       <DragDropProvider onDragEnd={handleDragEnd}>
         <div
-          className={`w-full rounded-2xl border border-neutral-100 overflow-hidden bg-white shadow-sm ${className}`}
+          className={`w-full rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-950 shadow-sm dark:shadow-none transition-colors ${className}`}
         >
           <div className="overflow-x-auto custom-scrollbar relative">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-neutral-50/50">
+              <thead className="bg-neutral-50/50 dark:bg-neutral-900/70">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header, index) => (

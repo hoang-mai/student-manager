@@ -10,7 +10,7 @@ export default function AcademicResultsSkeleton() {
         {Array.from({ length: 5 }).map((_, index) => (
           <div
             key={index}
-            className="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm"
+            className="rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4 shadow-sm dark:shadow-none"
           >
             <Skeleton variant="text" width={90} height={12} />
             <Skeleton variant="text" width={70} height={32} />
@@ -23,10 +23,10 @@ export default function AcademicResultsSkeleton() {
         <Skeleton width={120} height={36} />
       </div>
 
-      <div className="w-full overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-sm">
+      <div className="w-full overflow-hidden rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm dark:shadow-none">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-neutral-50/50">
+            <thead className="bg-neutral-50/50 dark:bg-neutral-900/70">
               <tr>
                 {columns.map((width, index) => (
                   <th key={index} className="px-4 py-3">
@@ -39,7 +39,7 @@ export default function AcademicResultsSkeleton() {
             <tbody>
               {Array.from({ length: 3 }).map((_, groupIndex) => (
                 <Fragment key={groupIndex}>
-                  <tr className="border-t border-neutral-100">
+                  <tr className="border-t border-neutral-100 dark:border-neutral-800">
                     <td colSpan={columns.length} className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <Skeleton variant="rounded" width={36} height={36} />
@@ -73,7 +73,7 @@ export default function AcademicResultsSkeleton() {
                   {Array.from({ length: 2 }).map((__, rowIndex) => (
                     <tr
                       key={`subject-${groupIndex}-${rowIndex}`}
-                      className="border-t border-neutral-50"
+                      className="border-t border-neutral-50 dark:border-neutral-900"
                     >
                       {columns.map((width, cellIndex) => (
                         <td key={cellIndex} className="px-4 py-3 first:pl-12">
@@ -92,7 +92,7 @@ export default function AcademicResultsSkeleton() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between border-t border-neutral-100 px-4 py-3">
+        <div className="flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 px-4 py-3">
           <Skeleton variant="text" width={120} height={14} />
           <div className="flex gap-2">
             {Array.from({ length: 4 }).map((_, index) => (

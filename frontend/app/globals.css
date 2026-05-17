@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
 
 @theme inline {
 
@@ -61,6 +63,7 @@
     --color-neutral-700: #545452;
     --color-neutral-800: #414140;
     --color-neutral-900: #323231;
+    --color-neutral-950: #1f1f1e;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -72,6 +75,7 @@
     scrollbar-width: none;
 }
 
+/* Giảm hiệu ứng chuyển động khi người dùng yêu cầu */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

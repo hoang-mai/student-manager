@@ -46,7 +46,7 @@ const TableBody = <TData,>({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="border-b border-neutral-100/70"
+                className="border-b border-neutral-100/70 dark:border-neutral-800/70"
               >
                 <td colSpan={visibleColumnCount} className="p-0">
                   {groupContent}
@@ -62,7 +62,7 @@ const TableBody = <TData,>({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className={`group hover:bg-neutral-50/50 border-b border-neutral-100/50 ${rowClassName}`}
+              className={`group hover:bg-neutral-50/50 dark:hover:bg-neutral-900/60 border-b border-neutral-100/50 dark:border-neutral-800/70 transition-colors ${rowClassName}`}
             >
               {row.getVisibleCells().map((cell) => (
                 <motion.td

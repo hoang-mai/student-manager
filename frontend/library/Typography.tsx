@@ -98,14 +98,14 @@ const Typography: React.FC<TypographyProps> = ({
   };
 
   const colorStyles: Record<TypographyColor, string> = {
-    primary: "text-primary-600",
-    secondary: "text-secondary-600",
-    neutral: "text-neutral-800",
-    error: "text-error-600",
-    warning: "text-amber-600",
-    success: "text-emerald-600",
+    primary: "text-primary-600 dark:text-primary-400",
+    secondary: "text-secondary-600 dark:text-secondary-400",
+    neutral: "text-neutral-800 dark:text-neutral-100",
+    error: "text-error-600 dark:text-error-400",
+    warning: "text-amber-600 dark:text-amber-400",
+    success: "text-emerald-600 dark:text-emerald-400",
     white: "text-white",
-    gray: "text-neutral-400",
+    gray: "text-neutral-400 dark:text-neutral-500",
     inherit: "",
   };
 

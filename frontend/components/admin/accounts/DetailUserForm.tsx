@@ -69,7 +69,7 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({
   return (
     <div className="space-y-6 pb-8">
       {/* Header Info */}
-      <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50/50 border border-neutral-100">
+      <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50/50 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-800">
         <Avatar
           src={user.profile?.avatar}
           alt={user.profile?.fullName || user.username}
@@ -106,7 +106,7 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({
             Thông tin tài khoản
           </Typography>
 
-          <div className="space-y-4 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
+          <div className="space-y-4 bg-neutral-50/30 dark:bg-neutral-900/40 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800">
             <DetailItem
               icon={<HiOutlineIdentification />}
               label="Tên đăng nhập"
@@ -137,7 +137,7 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({
             Thông tin liên hệ
           </Typography>
 
-          <div className="space-y-4 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
+          <div className="space-y-4 bg-neutral-50/30 dark:bg-neutral-900/40 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800">
             <DetailItem
               icon={<HiOutlineMail />}
               label="Email"
@@ -171,7 +171,7 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({
                 Thông tin cá nhân
               </Typography>
 
-              <div className="space-y-4 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
+              <div className="space-y-4 bg-neutral-50/30 dark:bg-neutral-900/40 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                 <div className="grid grid-cols-2 gap-4">
                   <DetailItem
                     icon={<HiOutlineCake />}
@@ -236,7 +236,7 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({
                   : "Công tác & Chức vụ"}
               </Typography>
 
-              <div className="space-y-4 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
+              <div className="space-y-4 bg-neutral-50/30 dark:bg-neutral-900/40 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                 <div className="grid grid-cols-2 gap-4">
                   <DetailItem
                     icon={<HiOutlineBadgeCheck />}
@@ -338,7 +338,7 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({
                 Đảng & Đoàn - Quan hệ
               </Typography>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-neutral-50/30 p-4 rounded-2xl border border-neutral-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-neutral-50/30 dark:bg-neutral-900/40 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                 <div className="space-y-4">
                   <DetailItem
                     icon={<HiOutlineBadgeCheck />}

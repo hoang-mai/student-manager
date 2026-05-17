@@ -132,12 +132,12 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
       <Input label="Minh chứng (URL)" placeholder="Dán liên kết minh chứng nếu có" {...register("attachmentUrl")} />
 
       <div className="space-y-2">
-        <label className="text-sm font-bold text-neutral-700">Lý do đề xuất <span className="text-red-500">*</span></label>
+        <label className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Lý do đề xuất <span className="text-red-500">*</span></label>
         <textarea
           {...register("reason", { required: "Vui lòng nhập lý do đề xuất" })}
           rows={4}
           placeholder="Trình bày rõ lý do và căn cứ đề xuất chỉnh sửa kết quả..."
-          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-primary-400 focus:ring-4 focus:ring-primary-100"
+          className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-4 py-3 text-sm text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none transition focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/15"
         />
         {errors.reason?.message && <p className="text-xs font-medium text-red-500">{errors.reason.message}</p>}
       </div>

@@ -6,7 +6,7 @@ import { HiOutlineHome, HiOutlineChevronRight, HiOutlinePlus } from "react-icons
 
 export default function OrganizationSkeleton() {
   return (
-    <div className="space-y-8 relative rounded-2xl bg-white p-6 min-h-screen">
+    <div className="space-y-8 relative rounded-2xl bg-white dark:bg-neutral-950 p-6 min-h-screen text-neutral-900 dark:text-neutral-100 transition-colors">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-neutral-400">
         <Link href="/commander" className="flex items-center gap-2">
@@ -38,7 +38,7 @@ export default function OrganizationSkeleton() {
       <div className="space-y-6">
         <div className="grid gap-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-white border border-neutral-100 rounded-2xl p-5 flex items-center justify-between">
+            <div key={i} className="bg-white dark:bg-neutral-950 border border-neutral-100 dark:border-neutral-800 rounded-2xl p-5 flex items-center justify-between transition-colors">
               <div className="flex items-center gap-4">
                 <Skeleton variant="rounded" width={48} height={48} />
                 <div className="space-y-2">

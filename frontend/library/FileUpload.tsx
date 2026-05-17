@@ -107,7 +107,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           flex flex-col items-center justify-center gap-3
           ${disabled ? "cursor-not-allowed bg-neutral-100 border-neutral-200" : "cursor-pointer"}
           ${!isInteractionDisabled && isDragging ? "border-primary-500 bg-primary-50/50" : ""}
-          ${!isInteractionDisabled && !isDragging && !isLoading ? "border-neutral-200 hover:border-primary-400 bg-neutral-50/30" : ""}
+          ${!isInteractionDisabled && !isDragging && !isLoading ? "border-neutral-200 dark:border-neutral-800 hover:border-primary-400 dark:hover:border-neutral-700 bg-neutral-50/30 dark:bg-neutral-900/40 dark:bg-neutral-900/40" : ""}
           ${error ? "border-error-500! bg-error-50/10" : ""}
         `}
       >

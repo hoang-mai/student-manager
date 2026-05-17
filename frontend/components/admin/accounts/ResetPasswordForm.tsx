@@ -58,7 +58,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
 
-      <p className="text-sm font-bold text-neutral-800">
+      <p className="text-sm font-bold text-neutral-800 dark:text-neutral-100">
         Tài khoản: <span className="text-primary-500">{user.username}</span>
       </p>
 

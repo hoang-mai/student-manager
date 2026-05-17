@@ -103,7 +103,7 @@ export default function Main() {
       {/* Login card */}
       <AnimatedContainer
         variant="slideUp"
-        className="w-full max-w-md bg-white/80 backdrop-blur-md border border-neutral-200 rounded-2xl shadow-xl shadow-neutral-200/50 p-6 sm:p-8"
+        className="w-full max-w-md bg-white/80 dark:bg-neutral-950/85 backdrop-blur-md border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl shadow-neutral-200/50 dark:shadow-black/40 p-6 sm:p-8 text-neutral-900 dark:text-neutral-100 transition-colors"
       >
         {/* Header */}
         <div className="text-center mb-8">

@@ -18,6 +18,7 @@ export default function ThemeProvider({ children, initialTheme }: ThemeProviderP
     <NextThemesProvider
       attribute="class"
       defaultTheme={initialTheme}
+      enableSystem={false}
     >
       {children}
     </NextThemesProvider>

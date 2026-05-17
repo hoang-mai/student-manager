@@ -77,8 +77,8 @@ export default function Modal() {
               mass: 0.8,
             }}
             className={`
-              relative w-full bg-white rounded-4xl shadow-2xl overflow-hidden flex flex-col
-              max-h-[calc(100vh-2rem)]
+              relative w-full bg-white dark:bg-neutral-950 rounded-4xl shadow-2xl dark:shadow-black/50 overflow-hidden flex flex-col
+              max-h-[calc(100vh-2rem)] border border-transparent dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 transition-colors
               ${sizeClasses[size || "md"]}
               ${config?.className || ""}
             `}
@@ -87,16 +87,16 @@ export default function Modal() {
             {title && (
               <div className="px-10 pt-8 pb-2 flex flex-col gap-1 items-center justify-between relative shrink-0">
                 <div className="flex items-center justify-between w-full">
-                  <h3 className="text-xl font-black text-neutral-800 uppercase tracking-tighter">
+                  <h3 className="text-xl font-black text-neutral-800 dark:text-neutral-100 uppercase tracking-tighter">
                     {title}
                   </h3>
                   {config?.showCloseButton !== false && (
                     <button
                       onClick={handleClose}
                       disabled={isMutating}
-                      className={`size-10 flex items-center justify-center rounded-2xl bg-neutral-50 text-neutral-400 transition-all border border-neutral-100 group ${isMutating
+                      className={`size-10 flex items-center justify-center rounded-2xl bg-neutral-50 dark:bg-neutral-900 text-neutral-400 dark:text-neutral-500 transition-all border border-neutral-100 dark:border-neutral-800 group ${isMutating
                           ? "cursor-not-allowed opacity-60"
-                          : "cursor-pointer hover:text-primary-600 hover:bg-primary-50"
+                          : "cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-neutral-800"
                         }`}
                     >
                       <HiOutlineX
@@ -114,9 +114,9 @@ export default function Modal() {
               <button
                 onClick={handleClose}
                 disabled={isMutating}
-                className={`absolute top-6 right-6 z-10 size-10 flex items-center justify-center rounded-2xl bg-neutral-50/50 backdrop-blur-md text-neutral-400 transition-all border border-neutral-100/50 group ${isMutating
+                className={`absolute top-6 right-6 z-10 size-10 flex items-center justify-center rounded-2xl bg-neutral-50/50 dark:bg-neutral-900/80 backdrop-blur-md text-neutral-400 dark:text-neutral-500 transition-all border border-neutral-100/50 dark:border-neutral-800 group ${isMutating
                     ? "cursor-not-allowed opacity-60"
-                    : "cursor-pointer hover:text-primary-600 hover:bg-primary-50"
+                    : "cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-neutral-800"
                   }`}
               >
                 <HiOutlineX
@@ -128,7 +128,7 @@ export default function Modal() {
 
             {/* Content Body */}
             <div className="flex-1 px-10 custom-scrollbar scroll-smooth">
-              <div className="text-neutral-600 font-medium leading-relaxed">
+              <div className="text-neutral-600 dark:text-neutral-300 font-medium leading-relaxed">
                 {content}
               </div>
             </div>

@@ -48,26 +48,26 @@ const Confirm = () => {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-md bg-white dark:bg-neutral-950 rounded-3xl shadow-2xl dark:shadow-black/50 overflow-hidden border border-transparent dark:border-neutral-800 transition-colors"
           >
             <div className="px-4 py-8">
               <div className="flex flex-col items-center text-center gap-4">
                 <div
                   className={`size-16 rounded-2xl flex items-center justify-center border-2 ${variant === "danger"
-                    ? "bg-red-50 border-red-100 text-red-500"
+                    ? "bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/60 text-red-500 dark:text-red-400"
                     : variant === "warning"
-                      ? "bg-amber-50 border-amber-100 text-amber-500"
-                      : "bg-primary-50 border-primary-100 text-primary-600"
+                      ? "bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/60 text-amber-500 dark:text-amber-400"
+                      : "bg-primary-50 dark:bg-primary-950/30 border-primary-100 dark:border-primary-900/60 text-primary-600 dark:text-primary-400"
                     }`}
                 >
                   <HiOutlineExclamationCircle size={32} />
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-xl font-black text-neutral-800 uppercase tracking-tighter">
+                  <h3 className="text-xl font-black text-neutral-800 dark:text-neutral-100 uppercase tracking-tighter">
                     {title}
                   </h3>
-                  <p className="text-sm font-medium text-neutral-500 leading-relaxed px-4">
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 leading-relaxed px-4">
                     {message}
                   </p>
                 </div>

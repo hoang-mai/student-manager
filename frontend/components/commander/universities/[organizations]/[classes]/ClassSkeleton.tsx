@@ -7,7 +7,7 @@ export default function ClassSkeleton() {
   const columnCount = 6; // STT + Tên lớp + Số học viên + Ngày tạo + Ngày cập nhật + Hành động
 
   return (
-    <div className="space-y-8 relative rounded-2xl bg-white p-6 min-h-screen">
+    <div className="space-y-8 relative rounded-2xl bg-white dark:bg-neutral-950 p-6 min-h-screen text-neutral-900 dark:text-neutral-100 transition-colors">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-neutral-400">
         <Link href="/commander" className="flex items-center gap-2">
@@ -34,7 +34,7 @@ export default function ClassSkeleton() {
       </div>
 
       {/* Table skeleton */}
-      <div className="bg-white overflow-hidden relative">
+      <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
           <div className="space-y-4">
             {/* Toolbar skeleton */}
@@ -45,11 +45,11 @@ export default function ClassSkeleton() {
             </div>
 
             {/* Table */}
-            <div className="w-full rounded-2xl border border-neutral-100 overflow-hidden bg-white shadow-sm">
+            <div className="w-full rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-950 shadow-sm dark:shadow-none">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   {/* Header */}
-                  <thead className="bg-neutral-50/50">
+                  <thead className="bg-neutral-50/50 dark:bg-neutral-900/70">
                     <tr>
                       {Array.from({ length: columnCount }).map((_, i) => (
                         <th key={i} className="px-4 py-3">
@@ -86,7 +86,7 @@ export default function ClassSkeleton() {
               </div>
 
               {/* Pagination skeleton */}
-              <div className="border-t border-neutral-100 px-4 py-3 flex items-center justify-between">
+              <div className="border-t border-neutral-100 dark:border-neutral-800 px-4 py-3 flex items-center justify-between">
                 <Skeleton variant="text" width={120} height={14} />
                 <div className="flex items-center gap-2">
                   {Array.from({ length: 5 }).map((_, i) => (

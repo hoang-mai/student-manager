@@ -270,7 +270,7 @@ export default function Main() {
       isError={isError}
       onRetry={refetch}
     >
-      <div className="bg-white overflow-hidden relative">
+      <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
           <Table
             data={data}

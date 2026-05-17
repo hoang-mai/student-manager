@@ -117,19 +117,19 @@ export default function DatePicker({
 
   const variantStyles: Record<DatePickerVariant, string> = {
     outlined: `
-        border-2 border-primary-200 bg-white
-        text-neutral-900 hover:border-primary-400
+        border-2 border-primary-200 dark:border-neutral-700 bg-white dark:bg-neutral-950
+        text-neutral-900 dark:text-neutral-100 hover:border-primary-400 dark:hover:border-neutral-500
       `,
     filled: `
-        border border-transparent bg-neutral-50
-        text-neutral-900 hover:bg-neutral-100
+        border border-transparent bg-neutral-50 dark:bg-neutral-900
+        text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800
       `,
   };
 
   const errorStyles = error ? "!border-error-200 hover:!border-error-400" : "";
   const disabledStyles =
     disabled || isLoading
-      ? "!border-neutral-200 hover:!border-neutral-200 opacity-50 !cursor-not-allowed pointer-events-none"
+      ? "!border-neutral-200 dark:!border-neutral-800 hover:!border-neutral-200 dark:hover:!border-neutral-800 opacity-50 !cursor-not-allowed pointer-events-none"
       : "";
 
   // Calendar generation logic
@@ -228,7 +228,7 @@ export default function DatePicker({
           color={error ? "error" : floatingLabel ? "gray" : "neutral"}
           className={
             floatingLabel
-              ? "absolute -top-2 left-3 z-25 px-1 rounded-md bg-white cursor-text"
+              ? "absolute -top-2 left-3 z-25 px-1 rounded-md bg-white dark:bg-neutral-950 cursor-text"
               : "block mb-1.5 ml-1"
           }
         >
@@ -242,7 +242,7 @@ export default function DatePicker({
         className={fullWidth ? "w-full" : ""}
         targetY={8}
         dropdownClassName={
-          "w-80 bg-white border-2 border-primary-500 p-3 rounded-2xl shadow-xl z-50"
+          "w-80 bg-white dark:bg-neutral-950 border-2 border-primary-500 dark:border-neutral-700 p-3 rounded-2xl shadow-xl dark:shadow-black/40 z-50"
         }
         trigger={(isOpen) => (
           <div
@@ -263,7 +263,7 @@ export default function DatePicker({
                 className="text-neutral-400 shrink-0"
               />
               <span
-                className={!value ? "text-neutral-400" : "text-neutral-800"}
+                className={!value ? "text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-100"}
               >
                 {formatDisplayDate(value)}
               </span>
@@ -289,7 +289,7 @@ export default function DatePicker({
                     e.stopPropagation();
                     setViewMode("year");
                   }}
-                  className="flex items-center gap-1 hover:bg-neutral-100 px-2 py-1 rounded-lg transition-colors group cursor-pointer"
+                  className="flex items-center gap-1 hover:bg-neutral-100 dark:hover:bg-neutral-900 px-2 py-1 rounded-lg transition-colors group cursor-pointer"
                 >
                   <Typography variant="body" weight="bold" color="neutral">
                     {MONTHS[viewDate.getMonth()]}, {viewDate.getFullYear()}
@@ -306,7 +306,7 @@ export default function DatePicker({
                       e.stopPropagation();
                       navigateMonth(-1);
                     }}
-                    className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-500 transition-colors cursor-pointer"
+                    className="p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-lg text-neutral-500 dark:text-neutral-400 transition-colors cursor-pointer"
                   >
                     <HiOutlineChevronLeft size={18} />
                   </button>
@@ -316,7 +316,7 @@ export default function DatePicker({
                       e.stopPropagation();
                       navigateMonth(1);
                     }}
-                    className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-500 transition-colors cursor-pointer"
+                    className="p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-lg text-neutral-500 dark:text-neutral-400 transition-colors cursor-pointer"
                   >
                     <HiOutlineChevronRight size={18} />
                   </button>
@@ -368,9 +368,9 @@ export default function DatePicker({
                       }}
                       className={`
                           aspect-square flex items-center justify-center rounded-xl text-sm font-bold transition-all cursor-pointer
-                          ${!dateObj.currentMonth ? "text-neutral-300" : "text-neutral-700 hover:bg-primary-50 hover:text-primary-600"}
-                          ${isSelected ? "bg-primary-500! text-white! shadow-md shadow-primary-200 scale-110 z-10" : ""}
-                          ${isToday && !isSelected ? "border border-primary-500 text-primary-600" : ""}
+                          ${!dateObj.currentMonth ? "text-neutral-300 dark:text-neutral-700" : "text-neutral-700 dark:text-neutral-200 hover:bg-primary-50 dark:hover:bg-primary-950/40 hover:text-primary-600 dark:hover:text-primary-300"}
+                          ${isSelected ? "bg-primary-500! text-white! shadow-md shadow-primary-200 dark:shadow-primary-950/40 scale-110 z-10" : ""}
+                          ${isToday && !isSelected ? "border border-primary-500 text-primary-600 dark:text-primary-300" : ""}
                         `}
                     >
                       {dateObj.day}
@@ -413,7 +413,7 @@ export default function DatePicker({
                     }}
                     className={`
                         py-2 rounded-xl text-sm font-bold transition-all cursor-pointer
-                        ${y === viewDate.getFullYear() ? "bg-primary-500 text-white" : "bg-neutral-50 text-neutral-600 hover:bg-neutral-100"}
+                        ${y === viewDate.getFullYear() ? "bg-primary-500 text-white" : "bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"}
                       `}
                   >
                     {y}
@@ -426,7 +426,7 @@ export default function DatePicker({
           {/* Quick Actions */}
           {viewMode === "calendar" && value && (
             <div
-              className="flex items-center justify-end pt-2 border-t border-neutral-100 mt-1"
+              className="flex items-center justify-end pt-2 border-t border-neutral-100 dark:border-neutral-800 mt-1"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -435,7 +435,7 @@ export default function DatePicker({
                   e.stopPropagation();
                   onChange?.("");
                 }}
-                className="text-xs font-bold text-neutral-400 hover:text-error-500 cursor-pointer"
+                className="text-xs font-bold text-neutral-400 dark:text-neutral-500 hover:text-error-500 cursor-pointer"
               >
                 Xóa chọn
               </button>

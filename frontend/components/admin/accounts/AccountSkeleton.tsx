@@ -7,7 +7,7 @@ export default function AccountSkeleton() {
   const columnCount = 8; // STT + Tài khoản + Thông tin + Vai trò + Trạng thái + Ngày tạo + Ngày cập nhật + Hành động
 
   return (
-    <div className="space-y-8 rounded-2xl bg-white p-6 min-h-screen">
+    <div className="space-y-8 rounded-2xl bg-white dark:bg-neutral-950 p-6 min-h-screen text-neutral-900 dark:text-neutral-100 transition-colors">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-neutral-400">
         <Link href="/admin" className="flex items-center gap-2">
@@ -24,7 +24,7 @@ export default function AccountSkeleton() {
           <Typography variant="h1" transform="uppercase">Quản lý tài khoản</Typography>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button disabled className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl opacity-50 cursor-not-allowed">
+          <button disabled className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl opacity-50 cursor-not-allowed">
             <HiOutlineDownload size={16} className="text-neutral-600" />
             <Typography variant="label" color="neutral">Xuất Excel</Typography>
           </button>
@@ -32,7 +32,7 @@ export default function AccountSkeleton() {
       </div>
 
       {/* Table skeleton */}
-      <div className="bg-white overflow-hidden relative">
+      <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
           <div className="space-y-4">
             {/* Toolbar skeleton */}
@@ -44,11 +44,11 @@ export default function AccountSkeleton() {
             </div>
 
             {/* Table */}
-            <div className="w-full rounded-2xl border border-neutral-100 overflow-hidden bg-white shadow-sm">
+            <div className="w-full rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-950 shadow-sm dark:shadow-none">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   {/* Header */}
-                  <thead className="bg-neutral-50/50">
+                  <thead className="bg-neutral-50/50 dark:bg-neutral-900/70">
                     <tr>
                       {Array.from({ length: columnCount }).map((_, i) => (
                         <th key={i} className="px-4 py-3">
@@ -60,7 +60,7 @@ export default function AccountSkeleton() {
                   {/* Rows */}
                   <tbody>
                     {Array.from({ length: 10 }).map((_, rowIdx) => (
-                      <tr key={rowIdx} className="border-t border-neutral-50">
+                      <tr key={rowIdx} className="border-t border-neutral-50 dark:border-neutral-800">
                         {/* STT */}
                         <td className="px-4 py-3"><Skeleton variant="text" width={20} height={14} /></td>
                         {/* Tài khoản */}
@@ -95,7 +95,7 @@ export default function AccountSkeleton() {
               </div>
 
               {/* Pagination skeleton */}
-              <div className="border-t border-neutral-100 px-4 py-3 flex items-center justify-between">
+              <div className="border-t border-neutral-100 dark:border-neutral-800 px-4 py-3 flex items-center justify-between">
                 <Skeleton variant="text" width={120} height={14} />
                 <div className="flex items-center gap-2">
                   {Array.from({ length: 5 }).map((_, i) => (

@@ -72,7 +72,7 @@ export default function OrganizationLevelsList({
 
   if (isLoading) {
     return (
-      <div className="space-y-3 ml-4 border-l border-neutral-100 pl-4 mt-3">
+      <div className="space-y-3 ml-4 border-l border-neutral-100 dark:border-neutral-800 pl-4 mt-3">
         {[1, 2].map((i) => (
           <div key={i} className="flex items-center justify-between py-2">
             <Skeleton width={150} height={16} />
@@ -88,7 +88,7 @@ export default function OrganizationLevelsList({
 
   if (isError) {
     return (
-      <div className="ml-4 border-l border-neutral-100 pl-4 mt-3">
+      <div className="ml-4 border-l border-neutral-100 dark:border-neutral-800 pl-4 mt-3">
         <ErrorState onRetry={() => refetch()} />
       </div>
     );
@@ -97,7 +97,7 @@ export default function OrganizationLevelsList({
   const levels = data?.data || [];
 
   return (
-    <div className="space-y-4 mt-3 ml-4 border-l border-neutral-100 pl-4">
+    <div className="space-y-4 mt-3 ml-4 border-l border-neutral-100 dark:border-neutral-800 pl-4">
       {levels.map((level) => (
         <div key={level.id} className="space-y-2">
           <div className="flex items-center justify-between">
@@ -113,7 +113,7 @@ export default function OrganizationLevelsList({
                 <Typography
                   variant="body"
                   weight="semibold"
-                  className="group-hover:text-primary-600 transition-colors"
+                  className="group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"
                 >
                   Trình độ: {level.levelName}
                 </Typography>
@@ -150,9 +150,9 @@ export default function OrganizationLevelsList({
       ))}
       <button
         onClick={() => handleOpenCreateLevelModal(orgId)}
-        className="ml-6 mt-2 flex items-center gap-2 text-neutral-500 hover:text-secondary-600 transition-colors cursor-pointer group"
+        className="ml-6 mt-2 flex items-center gap-2 text-neutral-500 dark:text-neutral-400 hover:text-secondary-600 dark:hover:text-secondary-400 transition-colors cursor-pointer group"
       >
-        <div className="size-6 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-400 group-hover:bg-secondary-50 group-hover:text-secondary-600 transition-all">
+        <div className="size-6 rounded-lg bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 dark:text-neutral-500 group-hover:bg-secondary-50 dark:group-hover:bg-secondary-950/30 group-hover:text-secondary-600 dark:group-hover:text-secondary-400 transition-all">
           <HiOutlinePlus size={12} />
         </div>
         <Typography variant="caption" weight="semibold">

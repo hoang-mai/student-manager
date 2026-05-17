@@ -43,7 +43,7 @@ const Tabs: React.FC<TabsProps> = ({
       <div
         className={`
           flex p-1 gap-1
-          ${variant === "pills" ? "bg-neutral-100 rounded-2xl" : "border-b border-neutral-200"}
+          ${variant === "pills" ? "bg-neutral-100 dark:bg-neutral-900 rounded-2xl" : "border-b border-neutral-200 dark:border-neutral-800"}
           ${fullWidth ? "w-full" : "w-fit"}
         `}
       >
@@ -57,18 +57,18 @@ const Tabs: React.FC<TabsProps> = ({
                 relative cursor-pointer flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold transition-all duration-300
                 ${fullWidth ? "flex-1" : ""}
                 ${
-                  isActive
+                    isActive
                     ? variant === "pills"
-                      ? "text-primary-700"
-                      : "text-primary-600"
-                    : "text-neutral-500 hover:text-neutral-700"
+                      ? "text-primary-700 dark:text-primary-300"
+                      : "text-primary-600 dark:text-primary-400"
+                    : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
                 }
               `}
             >
               {isActive && variant === "pills" && (
                 <motion.div
                   layoutId="active-tab"
-                  className="absolute inset-0 bg-white rounded-xl shadow-sm border border-neutral-200/50"
+                  className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-sm dark:shadow-none border border-neutral-200/50 dark:border-neutral-700"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}

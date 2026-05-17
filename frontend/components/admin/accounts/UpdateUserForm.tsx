@@ -406,7 +406,7 @@ const SectionHeader = ({ title }: { title: string }) => (
       variant="h4"
       weight="bold"
       transform="uppercase"
-      className="tracking-tight text-neutral-800"
+      className="tracking-tight text-neutral-800 dark:text-neutral-100"
     >
       {title}
     </Typography>

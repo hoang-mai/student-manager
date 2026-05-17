@@ -48,7 +48,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     red: "hover:text-error-600 hover:bg-error-50",
     amber: "hover:text-amber-600 hover:bg-amber-50",
     secondary: "hover:text-secondary-600 hover:bg-secondary-50",
-    neutral: "hover:text-neutral-800 hover:bg-neutral-100",
+    neutral: "hover:text-neutral-800 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800",
   };
 
   return (

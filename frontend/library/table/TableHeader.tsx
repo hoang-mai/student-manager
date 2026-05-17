@@ -20,8 +20,8 @@ const TableHeader = <TData,>({ header, index }: HeaderProps<TData>) => {
     <th
       ref={ref}
       colSpan={header.colSpan}
-      className={`p-4 text-xs font-black text-neutral-400 uppercase tracking-widest first:pl-8 transition-colors
-        ${isDragSource ? "bg-primary-50/80 opacity-60" : "hover:bg-neutral-50/50"}
+      className={`p-4 text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest first:pl-8 transition-colors
+        ${isDragSource ? "bg-primary-50/80 dark:bg-primary-500/10 opacity-60" : "hover:bg-neutral-50/50 dark:hover:bg-neutral-900/60"}
       `}
     >
       {header.isPlaceholder ? null : (
@@ -31,14 +31,14 @@ const TableHeader = <TData,>({ header, index }: HeaderProps<TData>) => {
             ref={handleRef}
             className="cursor-grab active:cursor-grabbing p-1 -ml-1"
           >
-            <div className="w-1 h-4 border-l-2 border-dotted border-neutral-300" />
+            <div className="w-1 h-4 border-l-2 border-dotted border-neutral-300 dark:border-neutral-700" />
           </div>
 
           {/* Vùng bấm để sắp xếp */}
           <div
             className={`flex items-center gap-2 flex-1 ${
               header.column.getCanSort()
-                ? "cursor-pointer select-none group/sort hover:text-neutral-600 transition-colors"
+                ? "cursor-pointer select-none group/sort hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
                 : ""
             }`}
             onClick={() => {
@@ -56,8 +56,8 @@ const TableHeader = <TData,>({ header, index }: HeaderProps<TData>) => {
                 <svg
                   className={`size-2 -mb-0.5 transition-all ${
                     isSorted === "asc"
-                      ? "text-primary-600 opacity-100"
-                      : "text-neutral-300 opacity-50 group-hover/sort:opacity-100"
+                      ? "text-primary-600 dark:text-primary-400 opacity-100"
+                      : "text-neutral-300 dark:text-neutral-600 opacity-50 group-hover/sort:opacity-100"
                   }`}
                   fill="none"
                   viewBox="0 0 24 24"
@@ -73,8 +73,8 @@ const TableHeader = <TData,>({ header, index }: HeaderProps<TData>) => {
                 <svg
                   className={`size-2 -mt-0.5 transition-all ${
                     isSorted === "desc"
-                      ? "text-primary-600 opacity-100"
-                      : "text-neutral-300 opacity-50 group-hover/sort:opacity-100"
+                      ? "text-primary-600 dark:text-primary-400 opacity-100"
+                      : "text-neutral-300 dark:text-neutral-600 opacity-50 group-hover/sort:opacity-100"
                   }`}
                   fill="none"
                   viewBox="0 0 24 24"

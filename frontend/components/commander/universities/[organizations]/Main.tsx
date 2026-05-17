@@ -179,7 +179,7 @@ export default function Main({ universityId }: Props) {
             {organizations.map((org) => (
               <div
                 key={org.id}
-                className="bg-white border border-neutral-100 rounded-2xl p-5 hover:shadow-md transition-all group"
+                className="bg-white dark:bg-neutral-950 border border-neutral-100 dark:border-neutral-800 rounded-2xl p-5 hover:shadow-md dark:hover:bg-neutral-900/70 transition-all group"
               >
                 <div className="flex items-center justify-between">
                   <div
@@ -189,7 +189,7 @@ export default function Main({ universityId }: Props) {
                       toggleExpand(org.id);
                     }}
                   >
-                    <div className="size-12 rounded-xl bg-secondary-50 flex items-center justify-center text-secondary-600">
+                    <div className="size-12 rounded-xl bg-secondary-50 dark:bg-secondary-900/30 flex items-center justify-center text-secondary-600 dark:text-secondary-300">
                       <HiOutlineCollection size={24} />
                     </div>
                     <div>
@@ -292,7 +292,7 @@ export default function Main({ universityId }: Props) {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-4 pt-4 border-t border-neutral-50">
+                      <div className="mt-4 pt-4 border-t border-neutral-50 dark:border-neutral-800">
                         <OrganizationLevelsList
                           orgId={org.id}
                           universityId={universityId}
@@ -312,7 +312,7 @@ export default function Main({ universityId }: Props) {
             </div>
           </div>
         ) : (
-          <div className="text-center py-20 bg-neutral-50 rounded-3xl border border-dashed border-neutral-200">
+          <div className="text-center py-20 bg-neutral-50 dark:bg-neutral-950 rounded-3xl border border-dashed border-neutral-200 dark:border-neutral-800 transition-colors">
             <Typography color="gray">
               Chưa có chuyên ngành / đơn vị nào
             </Typography>

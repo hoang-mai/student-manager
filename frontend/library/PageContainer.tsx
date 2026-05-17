@@ -54,7 +54,7 @@ export default function PageContainer({
   return (
     <AnimatedContainer
       variant="slideUp"
-      className={`space-y-6 p-6 bg-white rounded-2xl min-h-screen ${className}`}
+      className={`space-y-6 p-6 bg-white dark:bg-neutral-950 rounded-2xl min-h-screen text-neutral-900 dark:text-neutral-100 transition-colors duration-300 ${className}`}
     >
       {isLoading && skeleton ? (
         skeleton
@@ -66,7 +66,7 @@ export default function PageContainer({
       ) : (
         <>
           {/* Breadcrumb Navigation */}
-          <div className="flex items-center gap-2 text-neutral-400">
+          <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
             {breadcrumb.map((item, index) => {
               const isFirst = index === 0;
               const isLast = index === breadcrumb.length - 1;
@@ -78,7 +78,7 @@ export default function PageContainer({
                   {item.href && item.label && !isLast ? (
                     <Link
                       href={item.href}
-                      className="flex items-center gap-2 hover:text-primary-600 transition-colors group"
+                      className="flex items-center gap-2 hover:text-primary-600 dark:hover:text-neutral-100 transition-colors group"
                     >
                       {isFirst && (
                         <HiOutlineHome
@@ -108,7 +108,7 @@ export default function PageContainer({
                   {title}
                 </Typography>
                 {subtitle && (
-                  <Typography variant="body" className="text-neutral-500 mt-1">
+                  <Typography variant="body" className="text-neutral-500 dark:text-neutral-400 mt-1">
                     {subtitle}
                   </Typography>
                 )}

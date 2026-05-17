@@ -115,18 +115,18 @@ export default function Select({
 
   const variantStyles: Record<SelectVariant, string> = {
     outlined: `
-        border-2 border-primary-200 bg-white
-        text-neutral-900 hover:border-primary-400
+        border-2 border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-950
+        text-neutral-900 dark:text-neutral-100 hover:border-primary-300 dark:hover:border-neutral-600
       `,
     filled: `
-        border border-transparent bg-neutral-50
-        text-neutral-900 hover:bg-neutral-100
+        border border-transparent bg-neutral-50 dark:bg-neutral-900
+        text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800
       `,
   };
 
-  const errorStyles = error ? "!border-error-200 hover:!border-error-400" : "";
+  const errorStyles = error ? "border-error-300 dark:border-error-500/60 hover:border-error-400 focus:border-error-500" : "";
   const disabledStyles = disabled
-    ? "!border-neutral-200 hover:!border-neutral-200 opacity-50 !cursor-not-allowed pointer-events-none"
+    ? "!border-neutral-200 dark:!border-neutral-800 hover:!border-neutral-200 dark:hover:!border-neutral-800 opacity-50 !cursor-not-allowed pointer-events-none"
     : "";
 
   const selectedOption = options.find(
@@ -154,12 +154,12 @@ export default function Select({
           color={error ? "error" : floatingLabel ? "gray" : "neutral"}
           className={
             floatingLabel
-              ? "absolute -top-2 left-3 z-25 px-1 rounded-md bg-white cursor-text"
+              ? "absolute -top-2 left-3 z-25 px-1 rounded-md bg-white dark:bg-neutral-950 cursor-text"
               : "block mb-1.5 ml-1"
           }
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-error-500 dark:text-error-400 ml-0.5">*</span>}
         </Typography>
       )}
 
@@ -171,7 +171,7 @@ export default function Select({
         disabled={disabled}
         isLoading={isLoading}
         dropdownClassName={(placement) => `
-            bg-white border-2 border-primary-500 p-1.5
+            bg-white dark:bg-neutral-950 border border-neutral-100 dark:border-neutral-800 p-1.5 shadow-xl shadow-neutral-200/60 dark:shadow-black/40
             ${placement === "bottom" ? "rounded-b-2xl rounded-t-none -mt-[2px]" : "rounded-t-2xl rounded-b-none -mb-[2px]"}
           `}
         trigger={(isOpen, placement) => (
@@ -184,7 +184,7 @@ export default function Select({
                 ${errorStyles}
                 ${disabledStyles}
                 ${isOpen
-                ? `border-primary-500! ring-4 ring-primary-500/10 z-20 relative
+                ? `border-primary-400 dark:border-primary-500 ring-4 ring-primary-100/70 dark:ring-primary-500/10 z-20 relative
                    ${placement === "bottom" ? "rounded-b-none" : "rounded-t-none"}`
                 : ""
               }
@@ -193,11 +193,11 @@ export default function Select({
           >
             <div className="flex items-center gap-2 truncate">
               {prefixIcon && (
-                <span className="text-neutral-400">{prefixIcon}</span>
+                <span className="text-neutral-400 dark:text-neutral-500">{prefixIcon}</span>
               )}
               <span
                 className={
-                  !selectedOption ? "text-neutral-400" : "text-neutral-800"
+                  selectedOption ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-400 dark:text-neutral-500"
                 }
               >
                 {displayValue}
@@ -205,7 +205,7 @@ export default function Select({
             </div>
             <HiOutlineChevronDown
               size={18}
-              className={`text-neutral-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+              className={`text-neutral-400 dark:text-neutral-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
             />
           </div>
         )}
@@ -275,6 +275,8 @@ interface SelectOptionsListProps {
   setSentinelRef: (el: HTMLDivElement | null) => void;
   /** Callback khi người dùng chọn một option */
   onChange?: (value: string | number) => void;
+  /** Cho phép fullwidth */
+  fullWidth?: boolean;
 }
 
 function SelectOptionsList({
@@ -285,13 +287,14 @@ function SelectOptionsList({
   isFetchingNextPage,
   setSentinelRef,
   onChange,
+  fullWidth = true,
 }: SelectOptionsListProps) {
   return (
     <div
       style={{ maxHeight: `${maxVisibleItems * 40 + (maxVisibleItems - 1) * 4}px` }}
       className="overflow-auto custom-scrollbar"
     >
-      <div className="flex flex-col gap-1 min-w-max">
+      <div className={`flex flex-col gap-1.5 min-w-0 text-neutral-900 dark:text-neutral-100 ${fullWidth ? "w-full" : ""}`}>
         {visibleOptions.length > 0 ? (
           visibleOptions.map((opt) => {
             const isSelected = String(opt.value) === String(value);
@@ -299,23 +302,24 @@ function SelectOptionsList({
               <div
                 key={opt.value}
                 onClick={() => onChange?.(opt.value)}
-                className={`
-                  flex items-center justify-between px-3 py-2 rounded-xl text-sm font-bold cursor-pointer transition-all
-                  ${isSelected ? "bg-primary-50 text-primary-700" : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}
-                `}
+                className={`relative flex h-10 items-center justify-between gap-2 rounded-xl px-3 text-sm font-semibold transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300"
+                    : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 hover:text-neutral-900 dark:hover:bg-neutral-900 dark:hover:text-neutral-100"
+                }`}
               >
                 <span >{opt.label}</span>
                 {isSelected && (
                   <HiOutlineCheck
                     size={16}
-                    className="text-primary-600 shrink-0 ml-2"
+                    className="text-primary-600 dark:text-primary-400 shrink-0 ml-2"
                   />
                 )}
               </div>
             );
           })
         ) : (
-          <div className="p-3 text-center text-neutral-400 text-sm">
+          <div className="p-3 text-center text-neutral-400 dark:text-neutral-500 text-sm">
             {emptyText || "Không tìm thấy dữ liệu"}
           </div>
         )}
@@ -378,13 +382,13 @@ function SelectFilter({ filter, options, renderOptions }: SelectFilterProps) {
         <div className="relative">
           <HiOutlineSearch
             size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500"
           />
           <input
             value={filterValue}
             onChange={(e) => handleFilterChange(e.target.value)}
             placeholder={filter.placeholder ?? "Tìm kiếm..."}
-            className="h-9 w-full rounded-xl border border-neutral-200 bg-white pl-9 pr-3 text-sm font-semibold text-neutral-700 outline-none transition-colors placeholder:text-neutral-400 focus:border-primary-500"
+            className="h-9 w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 pl-9 pr-3 text-sm font-semibold text-neutral-700 dark:text-neutral-100 outline-none transition-colors placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-primary-500"
           />
         </div>
       </div>

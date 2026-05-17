@@ -233,7 +233,7 @@ const CreateBatchUsers: React.FC = () => {
         />
 
         {isParsing && (
-          <div className="py-8 text-center bg-neutral-50 rounded-xl border border-dashed border-neutral-200">
+          <div className="py-8 text-center bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
             <Typography variant="caption" color="gray">
               Đang phân tích dữ liệu Excel...
@@ -242,7 +242,7 @@ const CreateBatchUsers: React.FC = () => {
         )}
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100">
+      <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100 dark:border-neutral-800">
         <Button
           variant="ghost"
           type="button"

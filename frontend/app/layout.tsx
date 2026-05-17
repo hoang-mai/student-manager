@@ -40,21 +40,21 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased ${theme === THEMES.DARK ? "dark" : ""}`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
-        <QueryProvider>
-          <MotionProvider>
-            <ThemeProvider initialTheme={theme}>
+      <body className="min-h-full flex flex-col bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
+        <ThemeProvider initialTheme={theme}>
+          <QueryProvider>
+            <MotionProvider>
               <OfflineDetector />
               <Toast />
               <Loading />
               <Modal />
               <ConfirmModal />
               {children}
-            </ThemeProvider>
-          </MotionProvider>
-        </QueryProvider>
+            </MotionProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

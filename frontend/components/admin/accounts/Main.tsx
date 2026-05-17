@@ -352,15 +352,15 @@ export default function Main() {
       onRetry={refetchUsers}
     >
       <div className="flex justify-end mb-6">
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-all cursor-pointer">
-          <HiOutlineDownload size={16} className="text-neutral-600" />
+        <button className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all cursor-pointer shadow-sm dark:shadow-none">
+          <HiOutlineDownload size={16} className="text-neutral-600 dark:text-neutral-300" />
           <Typography variant="label" color="neutral">
             Xuất Excel
           </Typography>
         </button>
       </div>
 
-      <div className="bg-white overflow-hidden relative">
+      <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
           <Table
             data={usersData}
