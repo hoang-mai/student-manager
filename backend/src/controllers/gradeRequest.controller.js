@@ -13,7 +13,7 @@ const create = asyncHandler(async (req, res) => {
 
 const getMyRequests = asyncHandler(async (req, res) => {
   const r = await service.getMyRequests(req.userId, req.query);
-  return success(res, r);
+  return paginated(res, r.rows, r.pagination);
 });
 
 const getMyRequestDetail = asyncHandler(async (req, res) => {

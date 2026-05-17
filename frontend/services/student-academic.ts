@@ -31,12 +31,7 @@ export const studentAcademicService = {
   },
 
   getGradeRequests: async (params?: GradeRequestQueryRequest): Promise<PaginatedResponse<GradeRequest>> => {
-    const response = await apiClient.get<ApiResponse<GradeRequest[]>, ApiResponse<GradeRequest[]>>(
-      ENDPOINTS.STUDENTS.GRADE_REQUESTS,
-      { params }
-    );
-
-    return toPaginatedResponse(response.data || []);
+    return apiClient.get(ENDPOINTS.STUDENTS.GRADE_REQUESTS, { params });
   },
 
   createGradeRequest: async (data: CreateGradeRequestRequest) => {

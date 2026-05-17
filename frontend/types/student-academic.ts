@@ -95,6 +95,7 @@ export interface GradeRequestQueryRequest {
   page?: number;
   limit?: number;
   status?: GradeRequestStatus;
+  requestType?: GradeRequestType;
   sortBy?: string;
   sortOrder?: string;
 }

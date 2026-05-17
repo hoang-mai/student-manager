@@ -9,9 +9,6 @@ router.get('/academic-results', requireStudent, controller.getAcademicResults);
 
 // ===================== Student: Thời khóa biểu =====================
 router.get('/time-table', requireStudent, controller.getMyTimeTable);
-router.post('/time-table', requireStudent, controller.createMyTimeTable);
-router.put('/time-table/:id', requireStudent, controller.updateMyTimeTable);
-router.delete('/time-table/:id', requireStudent, controller.deleteMyTimeTable);
 
 // ===================== Student: Cắt cơm =====================
 router.get('/cut-rice', requireStudent, controller.getMyCutRice);

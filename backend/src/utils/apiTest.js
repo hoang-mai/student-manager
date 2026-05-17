@@ -149,8 +149,8 @@ async function main() {
   }
 
   const ttBody = { schedules: [{ day: 'Monday', startTime: '07:00', endTime: '09:00', room: '101' }] };
-  ok('POST /users/time-table | student (201)   ', (await request('POST', '/users/time-table', ttBody, studentToken)).status, 201);
-  ok('POST /users/time-table | admin (403)     ', (await request('POST', '/users/time-table', ttBody, adminToken)).status, 403);
+  ok('POST /users/time-table | student (403)   ', (await request('POST', '/users/time-table', ttBody, studentToken)).status, 403);
+  ok('POST /users/time-table | admin (404)     ', (await request('POST', '/users/time-table', ttBody, adminToken)).status, 404);
   ok('POST /users/time-table | commander (403) ', (await request('POST', '/users/time-table', ttBody, commanderToken)).status, 403);
 
   const cutBody = { weekly: { Monday: { morning: true } } };

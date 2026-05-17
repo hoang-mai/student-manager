@@ -1,7 +1,7 @@
 const db = require('../models');
 const bcrypt = require('bcrypt');
 
-async function fullSeed() {
+async function fullseed() {
   try {
     await db.sequelize.sync({ force: true });
     console.log('Database synced (force).');
@@ -296,7 +296,15 @@ async function fullSeed() {
         const numSlots = 1 + Math.floor(Math.random() * 3);
         const selectedSlots = [...timeSlots].sort(() => 0.5 - Math.random()).slice(0, numSlots);
         for (const slot of selectedSlots) {
-          schedules.push({ day, startTime: slot.startTime, endTime: slot.endTime, room: `P${100 + Math.floor(Math.random() * 400)}` });
+          const subject = subjectTemplates[Math.floor(Math.random() * subjectTemplates.length)];
+          schedules.push({
+            day,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            room: `P${100 + Math.floor(Math.random() * 400)}`,
+            subjectName: subject.subjectName,
+            week: '2024-2025-HK1',
+          });
         }
       }
       await db.timeTable.create({ userId: user.id, schedules });
@@ -454,13 +462,29 @@ async function fullSeed() {
     // ==========================
     // 17. GRADE REQUESTS
     // ==========================
-    const firstSubjects = await db.subjectResult.findAll({ limit: 5, order: [['createdAt', 'ASC']] });
-    if (firstSubjects.length >= 5) {
-      await db.gradeRequest.create({ userId: hocVienUsers[0].id, subjectResultId: firstSubjects[0].id, requestType: 'UPDATE', reason: 'Điểm thi cuối kỳ bị nhập sai', proposedLetterGrade: 'A', proposedGradePoint4: 4.0, proposedGradePoint10: 9.0, status: 'PENDING' });
-      await db.gradeRequest.create({ userId: hocVienUsers[1].id, subjectResultId: firstSubjects[1].id, requestType: 'UPDATE', reason: 'Bài thi bị chấm nhầm', proposedLetterGrade: 'B+', proposedGradePoint4: 3.5, proposedGradePoint10: 8.0, status: 'APPROVED', reviewerId: chiHuy1.id, reviewNote: 'Đồng ý', reviewedAt: new Date('2024-12-15') });
-      await db.gradeRequest.create({ userId: hocVienUsers[2].id, subjectResultId: firstSubjects[2].id, requestType: 'DELETE', reason: 'Môn không thuộc chương trình', status: 'REJECTED', reviewerId: chiHuy2.id, reviewNote: 'Không thể xóa', reviewedAt: new Date('2025-01-10') });
-      await db.gradeRequest.create({ userId: hocVienUsers[3].id, subjectResultId: firstSubjects[3].id, requestType: 'UPDATE', reason: 'Điểm quá trình chưa được cộng', proposedLetterGrade: 'C+', proposedGradePoint4: 2.5, proposedGradePoint10: 6.5, status: 'PENDING' });
-      await db.gradeRequest.create({ userId: hocVienUsers[4].id, subjectResultId: firstSubjects[4].id, requestType: 'UPDATE', reason: 'Điểm NCKH chưa được tính', proposedLetterGrade: 'B', proposedGradePoint4: 3.0, proposedGradePoint10: 7.0, status: 'PENDING' });
+    const gradeRequestSeeds = [
+      { userIndex: 0, requestType: 'UPDATE', reason: 'Điểm thi cuối kỳ bị nhập sai', proposedLetterGrade: 'A', proposedGradePoint4: 4.0, proposedGradePoint10: 9.0, status: 'PENDING' },
+      { userIndex: 1, requestType: 'UPDATE', reason: 'Bài thi bị chấm nhầm', proposedLetterGrade: 'B+', proposedGradePoint4: 3.5, proposedGradePoint10: 8.0, status: 'APPROVED', reviewerId: chiHuy1.id, reviewNote: 'Đồng ý', reviewedAt: new Date('2024-12-15') },
+      { userIndex: 2, requestType: 'DELETE', reason: 'Môn không thuộc chương trình', status: 'REJECTED', reviewerId: chiHuy2.id, reviewNote: 'Không thể xóa', reviewedAt: new Date('2025-01-10') },
+      { userIndex: 3, requestType: 'UPDATE', reason: 'Điểm quá trình chưa được cộng', proposedLetterGrade: 'C+', proposedGradePoint4: 2.5, proposedGradePoint10: 6.5, status: 'PENDING' },
+      { userIndex: 4, requestType: 'UPDATE', reason: 'Điểm NCKH chưa được tính', proposedLetterGrade: 'B', proposedGradePoint4: 3.0, proposedGradePoint10: 7.0, status: 'PENDING' },
+    ];
+
+    for (const request of gradeRequestSeeds) {
+      const user = hocVienUsers[request.userIndex];
+      const subject = await db.subjectResult.findOne({
+        include: [{ model: db.semesterResult, where: { userId: user.id }, required: true }],
+        order: [['createdAt', 'ASC']],
+      });
+      if (!subject) continue;
+
+      const requestData = { ...request };
+      delete requestData.userIndex;
+      await db.gradeRequest.create({
+        userId: user.id,
+        subjectResultId: subject.id,
+        ...requestData,
+      });
     }
     console.log('GradeRequests seeded.');
 
@@ -479,4 +503,4 @@ async function fullSeed() {
   }
 }
 
-fullSeed();
+fullseed();
