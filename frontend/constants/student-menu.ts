@@ -4,8 +4,6 @@ import {
   HiOutlineBell,
   HiOutlineCalendar,
   HiOutlineCash,
-  HiOutlineClipboardCheck,
-  HiOutlineClipboardList,
   HiOutlineHome,
   HiOutlineIdentification,
   HiOutlineSparkles,

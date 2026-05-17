@@ -23,9 +23,7 @@ export interface UpdateClassRequest {
   studentCount?: number;
 }
 
-export interface ClassQueryRequest {
-  page?: number;
-  limit?: number;
+export interface ClassQueryRequest extends QueryRequest {
   educationLevelId?: string;
   className?: string;
 }

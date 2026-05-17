@@ -14,9 +14,9 @@ export const PROTECTED_ROUTES = ["/student", "/commander", "/admin"] as const;
 export const AUTH_ROUTES = ["/login"] as const;
 
 export const ROLES = {
-  ADMIN: { id: 1, name: "Admin", role: "ADMIN", path: "/admin" },
-  COMMANDER: { id: 2, name: "Chỉ huy", role: "COMMANDER", path: "/commander" },
-  STUDENT: { id: 3, name: "Học viên", role: "STUDENT", path: "/student" },
+  ADMIN: { ID: 1, NAME: "Admin", ROLE: "ADMIN", PATH: "/admin" },
+  COMMANDER: { ID: 2, NAME: "Chỉ huy", ROLE: "COMMANDER", PATH: "/commander" },
+  STUDENT: { ID: 3, NAME: "Học viên", ROLE: "STUDENT", PATH: "/student" },
 } as const;
 
 export const THEMES = {
@@ -29,6 +29,7 @@ export const DEFAULT_VALUES = {
   DEFAULT_ADMIN_NAME: "Admin",
   DEFAULT_COMMANDER_NAME: "Chỉ huy đơn vị",
   DEFAULT_STUDENT_NAME: "Học viên",
+  DEFAULT_DEBOUNCE_DELAY: 500,
 } as const;
 
 export const DEFAULT_PAGE = {

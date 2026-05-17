@@ -21,18 +21,14 @@ export interface EducationLevel {
 /**
  * Tham số truy vấn đơn vị
  */
-export interface OrganizationQueryRequest {
-  page?: number;
-  limit?: number;
+export interface OrganizationQueryRequest extends QueryRequest {
   universityId?: string;
 }
 
 /**
  * Tham số truy vấn bậc đào tạo
  */
-export interface EducationLevelQueryRequest {
-  page?: number;
-  limit?: number;
+export interface EducationLevelQueryRequest extends QueryRequest {
   organizationId?: string;
 }
 

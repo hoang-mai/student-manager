@@ -7,13 +7,10 @@ import { classService } from "@/services/classes";
 import { universityService } from "@/services/universities";
 import { Class } from "@/types/classes";
 import { formatDateTime } from "@/utils/fn-common";
-import AnimatedContainer from "@/library/AnimatedContainer";
 import Table from "@/library/Table";
 import {
   HiOutlinePencil,
   HiOutlineTrash,
-  HiOutlineHome,
-  HiOutlineChevronRight,
 } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Typography from "@/library/Typography";
@@ -22,12 +19,10 @@ import { FilterField } from "@/library/table/TableFilter";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { useModalStore } from "@/store/useModalStore";
-import Link from "next/link";
 import UpdateClassForm from "@/components/commander/classes/UpdateClassForm";
 import CreateClassForm from "./CreateClassForm";
 import useTableQuery from "@/hooks/useTableQuery";
 import ClassSkeleton from "./ClassSkeleton";
-import ErrorState from "@/library/ErrorState";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import useAppMutation from "@/hooks/useAppMutation";
 
@@ -252,6 +247,11 @@ export default function Main() {
         isFetchingNextPage: isFetchingNextUniversities,
         onLoadMore: fetchNextUniversities,
         isLoading: isLoadingUniversities,
+        selectFilter: {
+          enabled: true,
+          mode: "client",
+          placeholder: "Tìm kiếm trường...",
+        },
       },
     ],
     [

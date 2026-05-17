@@ -104,7 +104,7 @@ export default function Header() {
                     color="gray"
                     className="mt-1"
                   >
-                    {ROLES.ADMIN.name}
+                    {ROLES.ADMIN.NAME}
                   </Typography>
                 </div>
                 <div className="relative">

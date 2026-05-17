@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  useInfiniteQuery,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createClassSchema, CreateClassFormValues } from "@/utils/validations";
 import { classService } from "@/services/classes";
 import { universityService } from "@/services/universities";
@@ -21,7 +19,6 @@ import {
   HiOutlineAcademicCap,
   HiOutlineTag,
 } from "react-icons/hi";
-import { DEFAULT_PAGE } from "@/constants/constants";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useModalStore } from "@/store/useModalStore";
 
@@ -31,71 +28,32 @@ export default function CreateClassForm() {
   const [selectedOrganizationId, setSelectedOrganizationId] =
     useState<string>("");
 
-  const {
-    data: universitiesData,
-    fetchNextPage: fetchNextUniversities,
-    hasNextPage: hasNextUniversities,
-    isFetchingNextPage: isFetchingNextUniversities,
-    isLoading: isLoadingUniversities,
-  } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.UNIVERSITIES],
-    queryFn: ({ pageParam }) =>
-      universityService.getUniversities({
-        page: pageParam,
-        limit: DEFAULT_PAGE.PAGE_SIZE,
-      }),
-    initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
-    getNextPageParam: (lastPage) => {
-      const { page, totalPages } = lastPage.pagination;
-      return page < totalPages ? page + 1 : undefined;
-    },
-    select: (data) => data.pages.flatMap((page) => page.data || []),
+  const { data: universitiesData, isLoading: isLoadingUniversities } = useQuery({
+    queryKey: [QUERY_KEYS.UNIVERSITIES, { fetchAll: true }],
+    queryFn: () => universityService.getUniversities({ fetchAll: true }),
+    select: (data) => data.data || [],
   });
 
-  const {
-    data: organizationsData,
-    fetchNextPage: fetchNextOrgs,
-    hasNextPage: hasNextOrgs,
-    isFetchingNextPage: isFetchingNextOrgs,
-    isLoading: isLoadingOrgs,
-  } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.ORGANIZATIONS, selectedUniversityId],
-    queryFn: ({ pageParam }) =>
+  const { data: organizationsData, isLoading: isLoadingOrgs } = useQuery({
+    queryKey: [QUERY_KEYS.ORGANIZATIONS, selectedUniversityId, { fetchAll: true }],
+    queryFn: () =>
       organizationService.getOrganizations({
         universityId: selectedUniversityId,
-        page: pageParam,
-        limit: DEFAULT_PAGE.PAGE_SIZE,
+        fetchAll: true,
       }),
-    initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
-    getNextPageParam: (lastPage) => {
-      const { page, totalPages } = lastPage.pagination;
-      return page < totalPages ? page + 1 : undefined;
-    },
     enabled: !!selectedUniversityId,
-    select: (data) => data.pages.flatMap((page) => page.data || []),
+    select: (data) => data.data || [],
   });
 
-  const {
-    data: levelsData,
-    fetchNextPage: fetchNextLevels,
-    hasNextPage: hasNextLevels,
-    isFetchingNextPage: isFetchingNextLevels,
-    isLoading: isLoadingLevels,
-  } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.EDUCATION_LEVELS, selectedOrganizationId],
-    queryFn: ({ pageParam }) =>
+  const { data: levelsData, isLoading: isLoadingLevels } = useQuery({
+    queryKey: [QUERY_KEYS.EDUCATION_LEVELS, selectedOrganizationId, { fetchAll: true }],
+    queryFn: () =>
       organizationService.getEducationLevels({
         organizationId: selectedOrganizationId,
-        page: pageParam,
-        limit: DEFAULT_PAGE.PAGE_SIZE,
+        fetchAll: true,
       }),
-    initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
-    getNextPageParam: (lastPage) => {
-      const { page, totalPages } = lastPage.pagination;
-      return page < totalPages ? page + 1 : undefined;
-    },
     enabled: !!selectedOrganizationId,
-    select: (data) => data.pages.flatMap((page) => page.data || []),
+    select: (data) => data.data || [],
   });
 
   const {
@@ -159,10 +117,12 @@ export default function CreateClassForm() {
             setSelectedOrganizationId("");
             setValue("educationLevelId", "");
           }}
-          hasNextPage={hasNextUniversities}
-          isFetchingNextPage={isFetchingNextUniversities}
-          onLoadMore={fetchNextUniversities}
           isLoading={isLoadingUniversities}
+          filter={{
+            enabled: true,
+            mode: "client",
+            placeholder: "Tìm trường...",
+          }}
         />
       </div>
 
@@ -180,10 +140,12 @@ export default function CreateClassForm() {
             setValue("educationLevelId", "");
           }}
           disabled={!selectedUniversityId}
-          hasNextPage={hasNextOrgs}
-          isFetchingNextPage={isFetchingNextOrgs}
-          onLoadMore={fetchNextOrgs}
           isLoading={isLoadingOrgs}
+          filter={{
+            enabled: true,
+            mode: "client",
+            placeholder: "Tìm khoa/ngành...",
+          }}
         />
       </div>
 
@@ -204,10 +166,12 @@ export default function CreateClassForm() {
                 onChange={(val) => onChange(String(val))}
                 disabled={!selectedOrganizationId}
                 error={errors.educationLevelId?.message}
-                hasNextPage={hasNextLevels}
-                isFetchingNextPage={isFetchingNextLevels}
-                onLoadMore={fetchNextLevels}
                 isLoading={isLoadingLevels}
+                filter={{
+                  enabled: true,
+                  mode: "client",
+                  placeholder: "Tìm bậc đào tạo...",
+                }}
               />
             </div>
           )}

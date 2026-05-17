@@ -102,7 +102,7 @@ export default function Header() {
                       DEFAULT_VALUES.DEFAULT_STUDENT_NAME}
                   </span>
                   <span className="text-[10px] tracking-widest text-neutral-400 font-black uppercase mt-1">
-                    {ROLES.STUDENT.name}
+                    {ROLES.STUDENT.NAME}
                   </span>
                 </div>
                 <div className="relative">

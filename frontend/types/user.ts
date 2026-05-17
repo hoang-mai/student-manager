@@ -11,15 +11,11 @@ export interface User {
   deleteAt: string | null;
 }
 
-export interface UserQueryRequest {
-  page?: number;
-  limit?: number;
+export interface UserQueryRequest extends QueryRequest {
   username?: string;
   fullName?: string;
   role?: string;
   isActive?: boolean;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
 }
 
 export interface UpdateProfileRequest {

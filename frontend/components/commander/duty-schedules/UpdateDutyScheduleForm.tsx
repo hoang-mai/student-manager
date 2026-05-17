@@ -1,19 +1,22 @@
 "use client";
 
-import React from "react";
+import { useMemo, useState } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
 import DatePicker from "@/library/DatePicker";
 import Select from "@/library/Select";
-import { RANKS } from "@/constants/constants";
+import { DEFAULT_PAGE, ROLES } from "@/constants/constants";
 import { DutySchedule } from "@/types/duty-schedules";
 import { dutyScheduleService } from "@/services/duty-schedules";
-import { dutyScheduleSchema, DutyScheduleFormValues } from "@/utils/validations";
+import { updateDutyScheduleSchema, UpdateDutyScheduleFormValues } from "@/utils/validations";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useModalStore } from "@/store/useModalStore";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { userService } from "@/services/user";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface UpdateDutyScheduleFormProps {
   schedule: DutySchedule;
@@ -23,10 +26,44 @@ export default function UpdateDutyScheduleForm({
   schedule,
 }: UpdateDutyScheduleFormProps) {
   const { closeModal } = useModalStore();
+  const [commanderSearch, setCommanderSearch] = useState("");
+  const debouncedSearch = useDebounce(commanderSearch);
+
+  const {
+    data: commandersData,
+    fetchNextPage: fetchNextCommanders,
+    hasNextPage: hasNextCommanders,
+    isFetchingNextPage: isFetchingNextCommanders,
+    isLoading: isLoadingCommanders,
+  } = useInfiniteQuery({
+    queryKey: [QUERY_KEYS.USERS, ROLES.COMMANDER.ROLE, debouncedSearch],
+    queryFn: ({ pageParam }) =>
+      userService.getAllUsers({
+        page: pageParam,
+        limit: DEFAULT_PAGE.PAGE_SIZE,
+        role: ROLES.COMMANDER.ROLE,
+        fullName: debouncedSearch || undefined,
+      }),
+    initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.pagination;
+      return page < totalPages ? page + 1 : undefined;
+    },
+    select: (data) => data.pages.flatMap((page) => page.data || []),
+  });
+
+  const commanderOptions = useMemo(
+    () =>
+      commandersData?.map((commander) => ({
+        value: commander.id,
+        label: commander.profile?.fullName || commander.username,
+      })) || [],
+    [commandersData]
+  );
 
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.UPDATE_DUTY_SCHEDULE,
-    mutationFn: (data: DutyScheduleFormValues) =>
+    mutationFn: (data: UpdateDutyScheduleFormValues) =>
       dutyScheduleService.updateDutySchedule(schedule.id, data),
     invalidateQueryKey: [QUERY_KEYS.DUTY_SCHEDULES],
     successMessage: "Cập nhật thành công!",
@@ -39,53 +76,46 @@ export default function UpdateDutyScheduleForm({
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<DutyScheduleFormValues>({
-    resolver: zodResolver(dutyScheduleSchema),
+  } = useForm<UpdateDutyScheduleFormValues>({
+    resolver: zodResolver(updateDutyScheduleSchema),
     defaultValues: {
-      fullName: schedule.fullName,
-      rank: schedule.rank,
-      phoneNumber: schedule.phoneNumber,
+      userId: schedule.userId,
       position: schedule.position,
       workDay: schedule.workDay,
     },
   });
 
-  const onSubmit: SubmitHandler<DutyScheduleFormValues> = (data) => {
+  const onSubmit: SubmitHandler<UpdateDutyScheduleFormValues> = (data) => {
     mutation.mutate(data);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-1">
-      <Input
-        label="Họ và tên"
-        placeholder="Nhập họ và tên người trực"
-        {...register("fullName")}
-        error={errors.fullName?.message}
-        required
-      />
-
       <Controller
-        name="rank"
+        name="userId"
         control={control}
-        render={({ field }) => (
+        render={({ field: { value, onChange } }) => (
           <Select
-            label="Cấp bậc"
-            placeholder="Chọn cấp bậc"
-            value={field.value}
-            onChange={field.onChange}
-            options={Object.values(RANKS).map((rank) => ({ value: rank, label: rank }))}
-            error={errors.rank?.message}
+            label="Họ và tên"
+            placeholder="Chọn chỉ huy trực"
+            value={value}
+            onChange={(value) => onChange(value)}
+            options={commanderOptions}
+            hasNextPage={hasNextCommanders}
+            isFetchingNextPage={isFetchingNextCommanders}
+            onLoadMore={fetchNextCommanders}
+            isLoading={isLoadingCommanders}
+            error={errors.userId?.message}
+            emptyText="Không tìm thấy chỉ huy"
             required
+            filter={{
+              enabled: true,
+              mode: "server",
+              onChange: setCommanderSearch,
+              placeholder: "Tìm kiếm chỉ huy...",
+            }}
           />
         )}
-      />
-
-      <Input
-        label="Số điện thoại"
-        placeholder="Nhập số điện thoại"
-        {...register("phoneNumber")}
-        error={errors.phoneNumber?.message}
-        required
       />
 
       <Input

@@ -10,7 +10,9 @@
 | `@floating-ui/react` | Định vị các phần tử nổi như tooltip, dropdown, popover. |
 | `@hookform/resolvers` | Kết nối `react-hook-form` với các thư viện validate như `zod`. |
 | `@tanstack/react-query` | Quản lý fetch dữ liệu, cache, đồng bộ và refetch từ API. |
+| `@tanstack/match-sorter-utils` | Hỗ trợ tìm kiếm/fuzzy filter và xếp hạng kết quả phù hợp, dùng cho các bộ lọc client-side như `Select`. |
 | `@tanstack/react-table` | Xây dựng bảng dữ liệu linh hoạt theo kiểu headless. |
+
 | `axios` | Gửi request HTTP tới backend API. |
 | `js-cookie` | Đọc, ghi và xoá cookie trên trình duyệt. |
 | `jwt-decode` | Giải mã nội dung của JWT token để lấy thông tin bên trong. |

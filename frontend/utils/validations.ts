@@ -278,12 +278,21 @@ export type UpdateClassFormValues = z.infer<typeof updateClassSchema>;
 /**
  * Schema validation cho form phân công lịch trực (Duty Schedule)
  */
-export const dutyScheduleSchema = z.object({
-  fullName: z.string().min(1, "Họ và tên không được để trống"),
-  rank: z.string().min(1, "Cấp bậc không được để trống"),
-  phoneNumber: z.string().min(1, "Số điện thoại không được để trống"),
+export const createDutyScheduleSchema = z.object({
+  userId: z.string().min(1, "Vui lòng chọn chỉ huy trực"),
   position: z.string().min(1, "Nhiệm vụ không được để trống"),
   workDay: z.string().min(1, "Ngày trực không được để trống"),
 });
 
-export type DutyScheduleFormValues = z.infer<typeof dutyScheduleSchema>;
+export type CreateDutyScheduleFormValues = z.infer<typeof createDutyScheduleSchema>;
+
+/**
+ * Schema validation cho form cập nhật lịch trực (Duty Schedule)
+ */
+export const updateDutyScheduleSchema = z.object({
+  userId: z.string().min(1, "Vui lòng chọn chỉ huy trực"),
+  position: z.string().min(1, "Nhiệm vụ không được để trống"),
+  workDay: z.string().min(1, "Ngày trực không được để trống"),
+});
+
+export type UpdateDutyScheduleFormValues = z.infer<typeof updateDutyScheduleSchema>;

@@ -3,7 +3,6 @@
 import { useMemo, useCallback } from "react";
 import Typography from "@/library/Typography";
 import ClassSkeleton from "./ClassSkeleton";
-import AnimatedContainer from "@/library/AnimatedContainer";
 import { useQuery } from "@tanstack/react-query";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";

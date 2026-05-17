@@ -43,9 +43,9 @@ export default function Main() {
       addToast({ message: "Đăng nhập thành công!", variant: "success" });
 
       const userRole = response.data.user.role;
-      if (userRole === ROLES.COMMANDER.role) {
+      if (userRole === ROLES.COMMANDER.ROLE) {
         replace("/commander");
-      } else if (userRole === ROLES.ADMIN.role) {
+      } else if (userRole === ROLES.ADMIN.ROLE) {
         replace("/admin");
       } else {
         replace("/student");

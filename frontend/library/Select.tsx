@@ -1,18 +1,36 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import type { ReactNode, Ref } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { HiOutlineChevronDown, HiOutlineCheck } from "react-icons/hi";
+import {
+  HiOutlineChevronDown,
+  HiOutlineCheck,
+  HiOutlineSearch,
+} from "react-icons/hi";
 import Dropdown from "@/library/Dropdown";
 import Typography from "./Typography";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import Skeleton from "@/library/Skeleton";
+import { normalizeSearchText } from "@/utils/fn-common";
+import { rankItem, compareItems } from "@tanstack/match-sorter-utils";
 type SelectSize = "sm" | "md" | "lg";
 type SelectVariant = "outlined" | "filled";
 
 export interface SelectOption {
   value: string | number;
   label: string;
+}
+
+export interface SelectFilterConfig {
+  /** Bật ô lọc trong dropdown */
+  enabled: boolean;
+  /** client: lọc options hiện có, server: parent tự gọi API rồi truyền lại options */
+  mode: "client" | "server";
+  /** Callback khi keyword thay đổi, dùng cho server-side filter */
+  onChange?: (value: string) => void;
+  /** Placeholder của ô lọc */
+  placeholder?: string;
 }
 
 export interface SelectProps {
@@ -56,6 +74,8 @@ export interface SelectProps {
   required?: boolean;
   /** Chữ hiển thị khi không có dữ liệu */
   emptyText?: string;
+  /** Cấu hình lọc option trong dropdown */
+  filter?: SelectFilterConfig;
   /** React 19: ref được truyền trực tiếp như prop, không cần forwardRef. */
   ref?: Ref<HTMLDivElement>;
 }
@@ -87,6 +107,7 @@ export default function Select({
   maxVisibleItems = 5,
   required,
   emptyText,
+  filter,
   ref,
 }: SelectProps) {
   const baseStyles =
@@ -114,7 +135,7 @@ export default function Select({
   const displayValue = selectedOption ? selectedOption.label : placeholder;
 
   const setSentinelRef = useInfiniteScroll({
-    callback: onLoadMore || (() => {}),
+    callback: onLoadMore || (() => { }),
     hasNextPage,
     isFetching: isFetchingNextPage,
     rootMargin: "20px",
@@ -162,12 +183,11 @@ export default function Select({
                 ${fullWidth ? "w-full" : ""}
                 ${errorStyles}
                 ${disabledStyles}
-                ${
-                  isOpen
-                    ? `border-primary-500! ring-4 ring-primary-500/10 z-20 relative
+                ${isOpen
+                ? `border-primary-500! ring-4 ring-primary-500/10 z-20 relative
                    ${placement === "bottom" ? "rounded-b-none" : "rounded-t-none"}`
-                    : ""
-                }
+                : ""
+              }
                 ${className}
               `}
           >
@@ -190,51 +210,34 @@ export default function Select({
           </div>
         )}
       >
-        <div
-          style={{ maxHeight: `${maxVisibleItems * 40}px` }}
-          className="overflow-y-auto custom-scrollbar flex flex-col gap-1"
-        >
-          {options && options.length > 0 ? (
-            options.map((opt) => {
-              const isSelected = String(opt.value) === String(value);
-              return (
-                <div
-                  key={opt.value}
-                  onClick={() => onChange && onChange(opt.value)}
-                  className={`
-                      flex items-center justify-between px-3 py-2 rounded-xl text-sm font-bold cursor-pointer transition-all
-                      ${isSelected ? "bg-primary-50 text-primary-700" : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}
-                    `}
-                >
-                  <span className="truncate">{opt.label}</span>
-                  {isSelected && (
-                    <HiOutlineCheck
-                      size={16}
-                      className="text-primary-600 shrink-0"
-                    />
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <div className="p-3 text-center text-neutral-400 text-sm">
-              {emptyText || "Không có dữ liệu"}
-            </div>
-          )}
-
-          {/* Sentinel for infinite scroll */}
-          <div ref={setSentinelRef} className="h-1" />
-
-          {isFetchingNextPage && (
-            <div className="flex flex-col gap-1 p-1">
-              {[1, 2].map((i) => (
-                <div key={i} className="flex items-center px-3 py-2">
-                  <Skeleton width={120} height={16} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/*Nếu có filter thì sử dụng SelectFilter */}
+        {filter?.enabled ? (
+          <SelectFilter
+            filter={filter}
+            options={options}
+            renderOptions={(visibleOptions) => (
+              <SelectOptionsList
+                visibleOptions={visibleOptions}
+                value={value}
+                maxVisibleItems={maxVisibleItems}
+                emptyText={emptyText}
+                isFetchingNextPage={isFetchingNextPage}
+                setSentinelRef={setSentinelRef}
+                onChange={onChange}
+              />
+            )}
+          />
+        ) : (
+          <SelectOptionsList
+            visibleOptions={options}
+            value={value}
+            maxVisibleItems={maxVisibleItems}
+            emptyText={emptyText}
+            isFetchingNextPage={isFetchingNextPage}
+            setSentinelRef={setSentinelRef}
+            onChange={onChange}
+          />
+        )}
       </Dropdown>
 
       <AnimatePresence>
@@ -252,6 +255,140 @@ export default function Select({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/** Props cho component danh sách lựa chọn */
+interface SelectOptionsListProps {
+  /** Danh sách các option hiển thị (sau khi đã lọc/phân trang) */
+  visibleOptions: SelectOption[];
+  /** Giá trị đang được chọn */
+  value?: string | number | null;
+  /** Số option tối đa hiển thị trước khi cuộn */
+  maxVisibleItems: number;
+  /** Văn bản hiển thị khi danh sách rỗng */
+  emptyText?: string;
+  /** Đang tải thêm trang tiếp theo (infinite scroll) */
+  isFetchingNextPage?: boolean;
+  /** Callback gán ref cho sentinel element dùng để trigger load thêm */
+  setSentinelRef: (el: HTMLDivElement | null) => void;
+  /** Callback khi người dùng chọn một option */
+  onChange?: (value: string | number) => void;
+}
+
+function SelectOptionsList({
+  visibleOptions,
+  value,
+  maxVisibleItems,
+  emptyText,
+  isFetchingNextPage,
+  setSentinelRef,
+  onChange,
+}: SelectOptionsListProps) {
+  return (
+    <div
+      style={{ maxHeight: `${maxVisibleItems * 40 + (maxVisibleItems - 1) * 4}px` }}
+      className="overflow-auto custom-scrollbar"
+    >
+      <div className="flex flex-col gap-1 min-w-max">
+        {visibleOptions.length > 0 ? (
+          visibleOptions.map((opt) => {
+            const isSelected = String(opt.value) === String(value);
+            return (
+              <div
+                key={opt.value}
+                onClick={() => onChange?.(opt.value)}
+                className={`
+                  flex items-center justify-between px-3 py-2 rounded-xl text-sm font-bold cursor-pointer transition-all
+                  ${isSelected ? "bg-primary-50 text-primary-700" : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}
+                `}
+              >
+                <span >{opt.label}</span>
+                {isSelected && (
+                  <HiOutlineCheck
+                    size={16}
+                    className="text-primary-600 shrink-0 ml-2"
+                  />
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <div className="p-3 text-center text-neutral-400 text-sm">
+            {emptyText || "Không tìm thấy dữ liệu"}
+          </div>
+        )}
+
+        {/* Sentinel for infinite scroll */}
+        <div ref={setSentinelRef} className="h-0" />
+
+        {isFetchingNextPage && (
+          <div className="flex flex-col gap-1 p-1">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex items-center px-3 py-2">
+                <Skeleton width={120} height={16} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Props cho component bộ lọc tìm kiếm trong Select */
+interface SelectFilterProps {
+  /** Cấu hình bộ lọc (placeholder, debounce, fetch...) */
+  filter: SelectFilterConfig;
+  /** Toàn bộ danh sách option trước khi lọc */
+  options: SelectOption[];
+  /** Hàm render danh sách option sau khi đã được lọc */
+  renderOptions: (visibleOptions: SelectOption[]) => ReactNode;
+}
+
+function SelectFilter({ filter, options, renderOptions }: SelectFilterProps) {
+  const [filterValue, setFilterValue] = useState("");
+
+  const visibleOptions = useMemo(() => {
+    const keyword = normalizeSearchText(filterValue.trim());
+    if (filter.mode !== "client" || !keyword) return options;
+
+    return options
+      .map((option) => ({
+        option,
+        rank: rankItem(normalizeSearchText(option.label), keyword),
+      }))
+      .filter(({ rank }) => rank.passed)
+      .sort((a, b) => compareItems(a.rank, b.rank))
+      .map(({ option }) => option);
+  }, [filter.mode, filterValue, options]);
+
+  const handleFilterChange = (value: string) => {
+    setFilterValue(value);
+    if (filter.mode === "server") filter.onChange?.(value.trim());
+  };
+
+  return (
+    <div>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="p-1"
+      >
+        <div className="relative">
+          <HiOutlineSearch
+            size={16}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+          />
+          <input
+            value={filterValue}
+            onChange={(e) => handleFilterChange(e.target.value)}
+            placeholder={filter.placeholder ?? "Tìm kiếm..."}
+            className="h-9 w-full rounded-xl border border-neutral-200 bg-white pl-9 pr-3 text-sm font-semibold text-neutral-700 outline-none transition-colors placeholder:text-neutral-400 focus:border-primary-500"
+          />
+        </div>
+      </div>
+      {renderOptions(visibleOptions)}
     </div>
   );
 }

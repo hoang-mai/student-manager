@@ -161,7 +161,7 @@ export default function Main() {
           };
           return (
             <Badge variant={variantMap[role] || "neutral"}>
-              {ROLES[role].name}
+              {ROLES[role].NAME}
             </Badge>
           );
         },
@@ -318,9 +318,9 @@ export default function Main() {
         label: "Vai trò",
         options: [
           { value: "", label: "Tất cả vai trò" },
-          { value: ROLES.STUDENT.role, label: ROLES.STUDENT.name },
-          { value: ROLES.COMMANDER.role, label: ROLES.COMMANDER.name },
-          { value: ROLES.ADMIN.role, label: ROLES.ADMIN.name },
+          { value: ROLES.STUDENT.ROLE, label: ROLES.STUDENT.NAME },
+          { value: ROLES.COMMANDER.ROLE, label: ROLES.COMMANDER.NAME },
+          { value: ROLES.ADMIN.ROLE, label: ROLES.ADMIN.NAME },
         ],
         placeholder: "Chọn vai trò...",
       },

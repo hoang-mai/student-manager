@@ -222,6 +222,11 @@ export default function DutySchedulesMain() {
           value: rank,
           label: rank,
         })),
+        selectFilter: {
+          enabled: true,
+          mode: "client",
+          placeholder: "Tìm kiếm cấp bậc...",
+        },
       },
     ],
     []

@@ -17,4 +17,12 @@ declare global {
   interface PaginatedResponse<T> extends ApiResponse<T[]> {
     pagination: PaginationInfo;
   }
+
+  interface QueryRequest {
+    page?: number;
+    limit?: number;
+    fetchAll?: boolean
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }
 }

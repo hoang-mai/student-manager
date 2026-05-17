@@ -84,7 +84,7 @@ const DetailUserForm: React.FC<DetailUserFormProps> = ({
             <Badge variant={user.isActive ? "success" : "error"}>
               {user.isActive ? "Đang hoạt động" : "Đã khóa"}
             </Badge>
-            <Badge variant="primary">{roleInfo?.name || user.role}</Badge>
+            <Badge variant="primary">{roleInfo?.NAME || user.role}</Badge>
             {user.profile && (
               <Badge variant="neutral">{user.profile.code}</Badge>
             )}

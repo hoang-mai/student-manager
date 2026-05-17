@@ -12,14 +12,10 @@ export interface University {
 /**
  * Tham số truy vấn cơ sở đào tạo
  */
-export interface UniversityQueryRequest {
-  page?: number;
-  limit?: number;
+export interface UniversityQueryRequest extends QueryRequest {
   universityCode?: string;
   universityName?: string;
   status?: "ACTIVE" | "INACTIVE";
-  sortBy?: string;
-  sortOrder?: string;
 }
 
 /**

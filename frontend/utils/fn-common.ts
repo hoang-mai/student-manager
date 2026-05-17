@@ -87,3 +87,17 @@ export const formatDate = (
  */
 export const formatScore = (value?: number | null) =>
   value === null || value === undefined ? "---" : value.toFixed(2);
+
+/**
+ * Chuẩn hóa chuỗi để tìm kiếm không phân biệt hoa/thường và dấu tiếng Việt.
+ * Ví dụ: "Đại học" -> "dai hoc".
+ * @param value Chuỗi cần chuẩn hóa
+ * @returns Chuỗi đã bỏ dấu và chuyển về chữ thường
+ */
+export const normalizeSearchText = (value: string): string =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();

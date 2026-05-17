@@ -56,12 +56,8 @@ export interface YearlyResult {
   updatedAt?: string;
 }
 
-export interface AcademicResultQueryRequest {
-  page?: number;
-  limit?: number;
+export interface AcademicResultQueryRequest extends QueryRequest {
   schoolYear?: string;
-  sortBy?: string;
-  sortOrder?: string;
 }
 
 export type GradeRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
@@ -91,12 +87,8 @@ export interface GradeRequest {
   } | null;
 }
 
-export interface GradeRequestQueryRequest {
-  page?: number;
-  limit?: number;
+export interface GradeRequestQueryRequest extends QueryRequest {
   status?: GradeRequestStatus;
-  sortBy?: string;
-  sortOrder?: string;
 }
 
 export interface CreateGradeRequestRequest {

@@ -98,7 +98,7 @@ export default function Header() {
                     {profile?.profile?.fullName || DEFAULT_VALUES.DEFAULT_COMMANDER_NAME}
                   </span>
                   <span className="text-[10px] tracking-widest text-neutral-400 font-black uppercase mt-1">
-                    {ROLES.COMMANDER.name}
+                    {ROLES.COMMANDER.NAME}
                   </span>
                 </div>
                 <div className="relative">

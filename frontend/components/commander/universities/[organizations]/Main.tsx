@@ -5,11 +5,8 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  HiOutlineHome,
-  HiOutlineChevronRight,
   HiOutlinePlus,
   HiOutlineCollection,
   HiOutlineClock,
@@ -24,7 +21,6 @@ import {
 import Typography from "@/library/Typography";
 import Button from "@/library/Button";
 import Badge from "@/library/Badge";
-import Skeleton from "@/library/Skeleton";
 import ActionButton from "@/library/ActionButton";
 import PageContainer from "@/library/PageContainer";
 import { useConfirmStore } from "@/store/useConfirmStore";

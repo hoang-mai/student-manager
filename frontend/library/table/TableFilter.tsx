@@ -11,7 +11,10 @@ import {
   HiOutlineHashtag,
 } from "react-icons/hi";
 import Input from "@/library/Input";
-import Select, { SelectOption } from "@/library/Select";
+import Select, {
+  type SelectFilterConfig,
+  type SelectOption,
+} from "@/library/Select";
 import Button from "@/library/Button";
 
 export type FilterFieldType = "text" | "select" | "number" | "date";
@@ -27,6 +30,8 @@ export interface FilterField {
   options?: SelectOption[];
   /** Gợi ý nhập liệu */
   placeholder?: string;
+  /** Cấu hình lọc option của select */
+  selectFilter?: SelectFilterConfig;
   /** Có đang tải dữ liệu lần đầu không */
   isLoading?: boolean;
   /** Có trang tiếp theo không (cho infinite scroll) */
@@ -105,6 +110,7 @@ const TableFilter = <TData,>({
                             isFetchingNextPage={field.isFetchingNextPage}
                             onLoadMore={field.onLoadMore}
                             isLoading={field.isLoading}
+                            filter={field.selectFilter}
                           />
                         )}
                       />
