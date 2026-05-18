@@ -10,6 +10,16 @@ const Student = db.profile;
 const User = db.user;
 const Notification = db.notification;
 
+const withRequesterFullName = (record) => {
+  const plain = typeof record.get === 'function' ? record.get({ plain: true }) : record;
+  const profile = plain.User?.Profile || plain.user?.profile;
+
+  return {
+    ...plain,
+    fullName: profile?.fullName || null,
+  };
+};
+
 // ===================== Student =====================
 
 const create = async (userId, data) => {
@@ -76,7 +86,11 @@ const getAll = async (query = {}) => {
       include: [{ model: SemesterResult, ...(semesterRequired ? { where: semesterWhere, required: true } : {}) }],
       ...(semesterRequired ? { required: true } : {}),
     },
-    { model: User },
+    {
+      model: User,
+      attributes: { exclude: ['password', 'refreshToken'] },
+      include: [{ model: Student }],
+    },
     { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
   ];
 
@@ -84,11 +98,12 @@ const getAll = async (query = {}) => {
   if (query.userId) where.userId = query.userId;
   if (query.requestType) where.requestType = query.requestType;
 
-  if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
+  if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
   if (query.unit) studentWhere.unit = query.unit;
 
   if (Object.keys(studentWhere).length > 0) {
-    include[1].where = studentWhere;
+    include[1].include[0].where = studentWhere;
+    include[1].include[0].required = true;
     include[1].required = true;
   }
 
@@ -107,14 +122,18 @@ const getAll = async (query = {}) => {
     else if (r.status === 'REJECTED') summary.rejected++;
   }
 
-  return { ...result, summary };
+  return { ...result, rows: result.rows.map(withRequesterFullName), summary };
 };
 
 const getDetail = async (id) => {
   const req = await GradeRequest.findByPk(id, {
     include: [
       { model: SubjectResult, include: [{ model: SemesterResult }] },
-      { model: User },
+      {
+        model: User,
+        attributes: { exclude: ['password', 'refreshToken'] },
+        include: [{ model: Student }],
+      },
       { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
     ],
   });
