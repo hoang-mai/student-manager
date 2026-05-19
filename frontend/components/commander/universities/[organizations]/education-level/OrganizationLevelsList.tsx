@@ -43,7 +43,6 @@ export default function OrganizationLevelsList({
     invalidateQueryKey: [QUERY_KEYS.EDUCATION_LEVELS, orgId],
     successMessage: "Xóa trình độ thành công",
     errorMessage: "Xóa trình độ thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const handleOpenCreateLevelModal = (orgId: string) => {

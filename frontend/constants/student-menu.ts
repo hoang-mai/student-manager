@@ -1,12 +1,10 @@
 import React from "react";
 import {
   HiOutlineAcademicCap,
-  HiOutlineBell,
   HiOutlineCalendar,
   HiOutlineCash,
   HiOutlineHome,
   HiOutlineIdentification,
-  HiOutlineSparkles,
 } from "react-icons/hi";
 
 export type MenuItem = {
@@ -45,15 +43,5 @@ export const STUDENT_MENU = [
     title: "Thành tích & học phí",
     path: "/student/achievements-tuition",
     icon: HiOutlineCash,
-  },
-  {
-    title: "Thông báo",
-    path: "/student/notifications",
-    icon: HiOutlineBell,
-  },
-  {
-    title: "Tiện ích hỗ trợ",
-    path: "/student/utilities",
-    icon: HiOutlineSparkles,
   },
 ] as const satisfies readonly MenuItem[];

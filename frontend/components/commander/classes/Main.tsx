@@ -8,10 +8,7 @@ import { universityService } from "@/services/universities";
 import { Class } from "@/types/classes";
 import { formatDateTime } from "@/utils/fn-common";
 import Table from "@/library/Table";
-import {
-  HiOutlinePencil,
-  HiOutlineTrash,
-} from "react-icons/hi";
+import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Typography from "@/library/Typography";
 import PageContainer from "@/library/PageContainer";
@@ -73,7 +70,6 @@ export default function Main() {
     invalidateQueryKey: [QUERY_KEYS.CLASSES],
     successMessage: "Xóa lớp học thành công!",
     errorMessage: "Xóa lớp học thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const handleAddClass = useCallback(() => {

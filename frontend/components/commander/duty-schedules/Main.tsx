@@ -49,7 +49,6 @@ export default function DutySchedulesMain() {
     invalidateQueryKey: [QUERY_KEYS.DUTY_SCHEDULES],
     successMessage: "Xóa ca trực thành công!",
     errorMessage: "Xóa ca trực thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const handleAdd = () => {

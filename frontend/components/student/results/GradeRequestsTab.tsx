@@ -13,35 +13,42 @@ import {
   AcademicResultQueryRequest,
   GradeRequest,
   GradeRequestQueryRequest,
-  GradeRequestStatus,
+  requestTypeMap,
   SemesterResult,
+  statusMap,
   SubjectResult,
   YearlyResult,
 } from "@/types/student-academic";
 import CreateGradeRequestForm from "./CreateGradeRequestForm";
 import GradeRequestsSkeleton from "./GradeRequestsSkeleton";
-import { formatScore } from "@/utils/fn-common";
+import { formatDate, formatScore } from "@/utils/fn-common";
 
-const statusMap: Record<GradeRequestStatus, { label: string; variant: "warning" | "success" | "error" }> = {
-  PENDING: { label: "Chờ duyệt", variant: "warning" },
-  APPROVED: { label: "Đã duyệt", variant: "success" },
-  REJECTED: { label: "Từ chối", variant: "error" },
-};
 
-const getRequestSubject = (request: GradeRequest) => request.SubjectResult || request.subjectResult;
+
 const getSemesters = (year: YearlyResult): SemesterResult[] => year.semesterResults || [];
 const getSubjects = (semester: SemesterResult): SubjectResult[] => semester.subjectResults || [];
 
 export default function GradeRequestsTab() {
   const { openModal } = useModalStore();
 
-  const requestsQuery = useTableQuery<GradeRequest, GradeRequestQueryRequest>({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    pagination,
+    setPagination,
+    columnFilters,
+    setColumnFilters,
+    sorting,
+    setSorting,
+  } = useTableQuery<GradeRequest, GradeRequestQueryRequest>({
     queryKey: [QUERY_KEYS.STUDENT_GRADE_REQUESTS],
     fetchData: studentAcademicService.getGradeRequests,
   });
 
   const resultsQuery = useTableQuery<YearlyResult, AcademicResultQueryRequest>({
-    queryKey: [QUERY_KEYS.STUDENT_RESULTS, "request-subjects"],
+    queryKey: [QUERY_KEYS.STUDENT_RESULTS],
     fetchData: studentAcademicService.getAcademicResults,
   });
 
@@ -77,29 +84,23 @@ export default function GradeRequestsTab() {
         accessorKey: "createdAt",
         header: "Ngày gửi",
         cell: ({ row }) =>
-          row.original.createdAt
-            ? new Date(row.original.createdAt).toLocaleDateString("vi-VN")
-            : "---",
+          formatDate(row.original.createdAt)
       },
       {
         id: "subject",
         header: "Môn học",
-        cell: ({ row }) => getRequestSubject(row.original)?.subjectName || "---",
+        cell: ({ row }) => row.original?.subjectResult?.subjectName || "---",
       },
       {
         accessorKey: "requestType",
         header: "Loại",
         cell: ({ row }) =>
-          row.original.requestType === "UPDATE"
-            ? "Điều chỉnh"
-            : row.original.requestType === "ADD"
-              ? "Bổ sung"
-              : "Xóa",
+           requestTypeMap[row.original.requestType]
       },
       {
-        accessorKey: "proposedLetterGrade",
+        accessorKey: "proposedGradePoint10",
         header: "Điểm đề xuất",
-        cell: ({ row }) => row.original.proposedLetterGrade || formatScore(row.original.proposedGradePoint10),
+        cell: ({ row }) => formatScore(row.original.proposedGradePoint10),
       },
       {
         accessorKey: "status",
@@ -110,7 +111,11 @@ export default function GradeRequestsTab() {
           </Badge>
         ),
       },
-      { accessorKey: "reason", header: "Lý do" },
+      {
+        accessorKey: "reason",
+        header: "Lý do",
+        cell: ({ row }) => row.original.reason || "---",
+      },
       {
         accessorKey: "reviewNote",
         header: "Phản hồi",
@@ -120,15 +125,15 @@ export default function GradeRequestsTab() {
     []
   );
 
-  if (requestsQuery.isLoading || resultsQuery.isLoading) {
+  if (isLoading || resultsQuery.isLoading) {
     return <GradeRequestsSkeleton />;
   }
 
-  if (requestsQuery.isError || resultsQuery.isError) {
+  if (isError || resultsQuery.isError) {
     return (
       <ErrorState
         onRetry={() => {
-          requestsQuery.refetch();
+          refetch();
           resultsQuery.refetch();
         }}
       />
@@ -137,14 +142,14 @@ export default function GradeRequestsTab() {
 
   return (
     <Table
-      data={requestsQuery.data}
+      data={data}
       columns={columns}
-      pagination={requestsQuery.pagination}
-      onPaginationChange={requestsQuery.setPagination}
-      columnFilters={requestsQuery.columnFilters}
-      onColumnFiltersChange={requestsQuery.setColumnFilters}
-      sorting={requestsQuery.sorting}
-      onSortingChange={requestsQuery.setSorting}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      columnFilters={columnFilters}
+      onColumnFiltersChange={setColumnFilters}
+      sorting={sorting}
+      onSortingChange={setSorting}
       filterFields={[
         {
           id: "status",

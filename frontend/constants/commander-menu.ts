@@ -27,11 +27,6 @@ export const COMMANDER_MENU = [
     icon: HiOutlineHome,
   },
   {
-    title: 'Tài khoản học viên',
-    path: '/commander/accounts',
-    icon: HiOutlineUserGroup,
-  },
-  {
     title: 'Cơ sở đào tạo',
     path: '/commander/universities',
     icon: HiOutlineOfficeBuilding,
@@ -72,18 +67,8 @@ export const COMMANDER_MENU = [
     icon: HiOutlineAcademicCap,
   },
   {
-    title: 'Thống kê & Báo cáo',
-    path: '/commander/statistics',
-    icon: HiOutlineChartBar,
-  },
-  {
     title: 'Phân công lịch trực',
     path: '/commander/duty-schedules',
     icon: HiOutlineClipboardList,
-  },
-  {
-    title: 'Tiện ích hỗ trợ',
-    path: '/commander/utilities',
-    icon: HiOutlineViewGrid,
   },
 ] as const satisfies readonly MenuItem[];

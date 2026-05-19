@@ -1,3 +1,5 @@
+import { UpdateProfileRequest } from "./user";
+
 export interface SubjectResult {
   id: string;
   semesterResultId: string;
@@ -8,6 +10,7 @@ export interface SubjectResult {
   gradePoint4?: number | null;
   gradePoint10?: number | null;
   note?: string | null;
+  semesterResult?: SemesterResult;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -63,9 +66,26 @@ export interface AcademicResultQueryRequest extends QueryRequest {
 export type GradeRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type GradeRequestType = "ADD" | "UPDATE" | "DELETE";
 
+export const statusMap: Record<GradeRequestStatus, { label: string; variant: "warning" | "success" | "error" }> = {
+  PENDING: { label: "Chờ duyệt", variant: "warning" },
+  APPROVED: { label: "Đã duyệt", variant: "success" },
+  REJECTED: { label: "Từ chối", variant: "error" },
+};
+
+export const requestTypeMap: Record<GradeRequestType, string> = {
+  ADD: "Bổ sung kết quả",
+  UPDATE: "Điều chỉnh điểm",
+  DELETE: "Xóa kết quả sai",
+};
+
 export interface GradeRequest {
   id: string;
   userId: string;
+  user?: {
+    profile?: {
+      fullName?: string;
+    }
+  };
   subjectResultId: string;
   requestType: GradeRequestType;
   status: GradeRequestStatus;
@@ -79,7 +99,6 @@ export interface GradeRequest {
   reviewedAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
-  SubjectResult?: SubjectResult;
   subjectResult?: SubjectResult;
   reviewer?: {
     id: string;
@@ -89,14 +108,22 @@ export interface GradeRequest {
 
 export interface GradeRequestQueryRequest extends QueryRequest {
   status?: GradeRequestStatus;
+  userId?: string;
+  requestType?: GradeRequestType;
+  fullName?: string;
+  unit?: string;
+  semester?: string;
+  schoolYear?: string;
 }
 
 export interface CreateGradeRequestRequest {
   subjectResultId: string;
   requestType: GradeRequestType;
   reason: string;
-  proposedLetterGrade?: string;
-  proposedGradePoint4?: number;
   proposedGradePoint10?: number;
   attachmentUrl?: string;
+}
+
+export interface ReviewGradeRequestRequest {
+  reviewNote?: string;
 }

@@ -58,7 +58,6 @@ export default function Main() {
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Cập nhật trạng thái thành công!",
     errorMessage: "Cập nhật trạng thái thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const deleteMutation = useAppMutation({
@@ -67,7 +66,6 @@ export default function Main() {
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Xóa tài khoản thành công!",
     errorMessage: "Xóa tài khoản thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const handleOpenCreateModal = useCallback(() => {
@@ -353,7 +351,10 @@ export default function Main() {
     >
       <div className="flex justify-end mb-6">
         <button className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all cursor-pointer shadow-sm dark:shadow-none">
-          <HiOutlineDownload size={16} className="text-neutral-600 dark:text-neutral-300" />
+          <HiOutlineDownload
+            size={16}
+            className="text-neutral-600 dark:text-neutral-300"
+          />
           <Typography variant="label" color="neutral">
             Xuất Excel
           </Typography>

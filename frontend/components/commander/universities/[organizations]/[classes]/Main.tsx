@@ -29,23 +29,42 @@ interface Props {
   educationLevelId: string;
 }
 
-export default function Main({ universityId, organizationId, educationLevelId }: Props) {
+export default function Main({
+  universityId,
+  organizationId,
+  educationLevelId,
+}: Props) {
   const { openConfirm } = useConfirmStore();
   const { openModal } = useModalStore();
 
-  const { data: organizationData, isLoading: isOrganizationLoading, isError: isOrganizationError, refetch: refetchOrganization } = useQuery({
+  const {
+    data: organizationData,
+    isLoading: isOrganizationLoading,
+    isError: isOrganizationError,
+    refetch: refetchOrganization,
+  } = useQuery({
     queryKey: [QUERY_KEYS.ORGANIZATIONS, organizationId],
     queryFn: () => organizationService.getOrganization(organizationId),
     select: (res) => res.data,
   });
 
-  const { data: universityData, isLoading: isUniversityLoading, isError: isUniversityError, refetch: refetchUniversity } = useQuery({
+  const {
+    data: universityData,
+    isLoading: isUniversityLoading,
+    isError: isUniversityError,
+    refetch: refetchUniversity,
+  } = useQuery({
     queryKey: [QUERY_KEYS.UNIVERSITIES, universityId],
     queryFn: () => universityService.getUniversity(universityId),
     select: (res) => res.data,
   });
 
-  const { data: educationLevelData, isLoading: isEducationLevelLoading, isError: isEducationLevelError, refetch: refetchEducationLevel } = useQuery({
+  const {
+    data: educationLevelData,
+    isLoading: isEducationLevelLoading,
+    isError: isEducationLevelError,
+    refetch: refetchEducationLevel,
+  } = useQuery({
     queryKey: [QUERY_KEYS.EDUCATION_LEVELS, educationLevelId],
     queryFn: () => organizationService.getEducationLevel(educationLevelId),
     select: (res) => res.data,
@@ -64,15 +83,14 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     setSorting,
   } = useTableQuery<Class>({
     queryKey: [QUERY_KEYS.CLASSES, educationLevelId],
-    fetchData: (params) => classService.getClasses({ ...params, educationLevelId }),
+    fetchData: (params) =>
+      classService.getClasses({ ...params, educationLevelId }),
   });
 
   const handleOpenCreateClassModal = () => {
     openModal({
       title: "Thêm lớp học mới",
-      content: (
-        <CreateClassForm educationLevelId={educationLevelId} />
-      ),
+      content: <CreateClassForm educationLevelId={educationLevelId} />,
       size: "md",
       config: {
         mutationKey: MUTATION_KEYS.CREATE_CLASS,
@@ -80,18 +98,21 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     });
   };
 
-  const handleOpenUpdateClassModal = useCallback((cls: Class) => {
-    openModal({
-      title: "Chỉnh sửa lớp học",
-      content: (
-        <UpdateClassForm cls={cls} educationLevelId={educationLevelId} />
-      ),
-      size: "md",
-      config: {
-        mutationKey: MUTATION_KEYS.UPDATE_CLASS,
-      },
-    });
-  }, [educationLevelId, openModal]);
+  const handleOpenUpdateClassModal = useCallback(
+    (cls: Class) => {
+      openModal({
+        title: "Chỉnh sửa lớp học",
+        content: (
+          <UpdateClassForm cls={cls} educationLevelId={educationLevelId} />
+        ),
+        size: "md",
+        config: {
+          mutationKey: MUTATION_KEYS.UPDATE_CLASS,
+        },
+      });
+    },
+    [educationLevelId, openModal]
+  );
 
   const deleteClassMutation = useAppMutation({
     mutationKey: MUTATION_KEYS.DELETE_CLASS,
@@ -99,9 +120,7 @@ export default function Main({ universityId, organizationId, educationLevelId }:
     invalidateQueryKey: [QUERY_KEYS.CLASSES, educationLevelId],
     successMessage: "Xóa lớp thành công",
     errorMessage: "Xóa lớp thất bại",
-    closeConfirmOnSuccess: true,
   });
-
 
   const columns = useMemo<ColumnDef<Class>[]>(
     () => [
@@ -130,7 +149,12 @@ export default function Main({ universityId, organizationId, educationLevelId }:
         header: "Ngày tạo",
         accessorKey: "createdAt",
         cell: (info) => (
-          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
+          <Typography
+            variant="caption"
+            weight="semibold"
+            color="gray"
+            className="whitespace-nowrap"
+          >
             {formatDateTime(info.row.original.createdAt)}
           </Typography>
         ),
@@ -140,7 +164,12 @@ export default function Main({ universityId, organizationId, educationLevelId }:
         header: "Ngày cập nhật",
         accessorKey: "updatedAt",
         cell: (info) => (
-          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
+          <Typography
+            variant="caption"
+            weight="semibold"
+            color="gray"
+            className="whitespace-nowrap"
+          >
             {formatDateTime(info.row.original.updatedAt)}
           </Typography>
         ),
@@ -198,17 +227,34 @@ export default function Main({ universityId, organizationId, educationLevelId }:
       breadcrumb={[
         { label: "Tổng quan", href: "/commander" },
         { label: "Cơ sở đào tạo", href: "/commander/universities" },
-        { label: universityData?.universityName, href: `/commander/universities/${universityId}` },
+        {
+          label: universityData?.universityName,
+          href: `/commander/universities/${universityId}`,
+        },
         { label: organizationData?.organizationName || "..." },
         { label: educationLevelData?.levelName || "..." },
       ]}
       title={`Lớp học - ${educationLevelData?.levelName || ""}`}
-      isLoading={isOrganizationLoading || isUniversityLoading || isEducationLevelLoading || isClassesLoading}
+      isLoading={
+        isOrganizationLoading ||
+        isUniversityLoading ||
+        isEducationLevelLoading ||
+        isClassesLoading
+      }
       skeleton={<ClassSkeleton />}
-      isError={isOrganizationError || isUniversityError || isEducationLevelError || isClassesError}
-      onRetry={() => { refetchOrganization(); refetchUniversity(); refetchEducationLevel(); refetchClasses(); }}
+      isError={
+        isOrganizationError ||
+        isUniversityError ||
+        isEducationLevelError ||
+        isClassesError
+      }
+      onRetry={() => {
+        refetchOrganization();
+        refetchUniversity();
+        refetchEducationLevel();
+        refetchClasses();
+      }}
     >
-
       <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
           <Table

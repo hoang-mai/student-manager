@@ -1,3 +1,4 @@
+import { GradeRequestType } from "@/types/student-academic";
 import { z } from "zod";
 
 /**
@@ -296,3 +297,14 @@ export const updateDutyScheduleSchema = z.object({
 });
 
 export type UpdateDutyScheduleFormValues = z.infer<typeof updateDutyScheduleSchema>;
+
+
+export const createGradeRequestSchema = z.object({
+  subjectResultId: z.string().min(1, "Vui lòng chọn môn học"),
+  requestType: z.enum(["ADD", "UPDATE", "DELETE"], "Vui lòng chọn loại đề xuất"),
+  proposedGradePoint10: z.number().min(0, "Điểm đề xuất phải lớn hơn hoặc bằng 0").max(10, "Điểm đề xuất phải nhỏ hơn hoặc bằng 10"),
+  attachmentUrl: z.string().max(500, "Minh chứng tối đa 500 ký tự").optional().or(z.literal("")),
+  reason: z.string().min(1, "Vui lòng nhập lý do đề xuất"),
+});
+
+export type CreateGradeRequestFormValues = z.infer<typeof createGradeRequestSchema>;

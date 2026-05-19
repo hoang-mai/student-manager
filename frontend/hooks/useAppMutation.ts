@@ -13,18 +13,13 @@ type AppMutationOptions<
   TData,
   TVariables,
   TError extends { message?: string },
-  TOnMutateResult
+  TOnMutateResult,
 > = Omit<
   UseMutationOptions<TData, TError, TVariables, TOnMutateResult>,
   "mutationFn" | "onSuccess" | "onError" | "onSettled"
 > & {
   mutationFn: NonNullable<
-    UseMutationOptions<
-      TData,
-      TError,
-      TVariables,
-      TOnMutateResult
-    >["mutationFn"]
+    UseMutationOptions<TData, TError, TVariables, TOnMutateResult>["mutationFn"]
   >;
   invalidateQueryKey?: QueryKey;
   successMessage?: string;
@@ -56,7 +51,7 @@ export default function useAppMutation<
   TData = unknown,
   TVariables = void,
   TError extends { message?: string } = Error,
-  TOnMutateResult = unknown
+  TOnMutateResult = unknown,
 >({
   mutationFn,
   invalidateQueryKey,
@@ -64,7 +59,7 @@ export default function useAppMutation<
   errorMessage = "Thao tác thất bại!",
   successVariant = "success",
   errorVariant = "error",
-  closeConfirmOnSuccess = false,
+  closeConfirmOnSuccess = true,
   onSuccess,
   onError,
   onSettled,

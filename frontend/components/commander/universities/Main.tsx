@@ -58,7 +58,6 @@ export default function Main() {
     invalidateQueryKey: [QUERY_KEYS.UNIVERSITIES],
     successMessage: "Cập nhật trạng thái thành công",
     errorMessage: "Cập nhật trạng thái thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const deleteUniversityMutation = useAppMutation({
@@ -67,7 +66,6 @@ export default function Main() {
     invalidateQueryKey: [QUERY_KEYS.UNIVERSITIES],
     successMessage: "Xóa trường đại học thành công",
     errorMessage: "Xóa trường đại học thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const handleOpenCreateModal = useCallback(() => {

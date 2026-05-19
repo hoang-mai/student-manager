@@ -37,4 +37,10 @@ export const ENDPOINTS = {
     GRADE_REQUESTS: "/api/students/grade-requests",
     GRADE_REQUEST_DETAIL: (id: string | number) => `/api/students/grade-requests/${id}`,
   },
+  COMMANDERS: {
+    GRADE_REQUESTS: "/api/commanders/grade-requests",
+    GRADE_REQUEST_DETAIL: (id: string | number) => `/api/commanders/grade-requests/${id}`,
+    APPROVE_GRADE_REQUEST: (id: string | number) => `/api/commanders/grade-requests/${id}/approve`,
+    REJECT_GRADE_REQUEST: (id: string | number) => `/api/commanders/grade-requests/${id}/reject`,
+  },
 } as const;

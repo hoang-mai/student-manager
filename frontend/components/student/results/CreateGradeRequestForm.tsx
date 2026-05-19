@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
+import Textarea from "@/library/Textarea";
 import Typography from "@/library/Typography";
 import Button from "@/library/Button";
 import useAppMutation from "@/hooks/useAppMutation";
@@ -12,55 +13,47 @@ import { studentAcademicService } from "@/services/student-academic";
 import { useModalStore } from "@/store/useModalStore";
 import {
   CreateGradeRequestRequest,
-  GradeRequestType,
+  requestTypeMap,
   SubjectResult,
 } from "@/types/student-academic";
+import {
+  createGradeRequestSchema,
+  CreateGradeRequestFormValues,
+} from "@/utils/validations";
 
 interface CreateGradeRequestFormProps {
   subjects: SubjectResult[];
 }
 
-type FormValues = {
-  subjectResultId: string;
-  requestType: GradeRequestType;
-  proposedLetterGrade?: string;
-  proposedGradePoint4?: string;
-  proposedGradePoint10?: string;
-  attachmentUrl?: string;
-  reason: string;
-};
 
 export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestFormProps) {
   const { closeModal } = useModalStore();
 
-  const subjectOptions = useMemo(
-    () =>
-      subjects.map((subject) => ({
-        value: subject.id,
-        label: `${subject.subjectCode || "---"} - ${subject.subjectName || "Môn học"}`,
-      })),
-    [subjects]
-  );
+  const subjectOptions = subjects.map((subject) => ({
+    value: subject.id,
+    label: `${subject.subjectCode || "---"} - ${subject.subjectName || "Môn học"}`,
+  }));
 
   const {
     register,
     handleSubmit,
-    setValue,
     control,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<CreateGradeRequestFormValues>({
+    resolver: zodResolver(createGradeRequestSchema),
     defaultValues: {
-      subjectResultId: subjects[0]?.id ? String(subjects[0].id) : "",
-      requestType: "UPDATE",
+      subjectResultId: "",
+      requestType: "ADD",
+      proposedGradePoint10: 0,
       reason: "",
     },
   });
 
   const selectedSubjectId = useWatch({ control, name: "subjectResultId" });
-  const selectedRequestType = useWatch({ control, name: "requestType" });
   const selectedSubject = subjects.find(
     (subject) => String(subject.id) === String(selectedSubjectId)
   );
+
 
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.CREATE_STUDENT_GRADE_REQUEST,
@@ -72,78 +65,87 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
     onSuccess: () => closeModal(),
   });
 
-  const onSubmit = (values: FormValues) => {
-    mutation.mutate({
-      subjectResultId: values.subjectResultId,
-      requestType: values.requestType,
-      proposedLetterGrade: values.proposedLetterGrade || undefined,
-      proposedGradePoint4: values.proposedGradePoint4 ? Number(values.proposedGradePoint4) : undefined,
-      proposedGradePoint10: values.proposedGradePoint10 ? Number(values.proposedGradePoint10) : undefined,
-      attachmentUrl: values.attachmentUrl || undefined,
-      reason: values.reason,
-    });
+  const onSubmit = (values: CreateGradeRequestFormValues) => {
+    mutation.mutate(values);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-1">
-      <div className="rounded-3xl border border-primary-100 bg-primary-50/60 p-4">
-        <Typography variant="label" color="primary" className="mb-1">
-          Môn học hiện tại
-        </Typography>
-        <Typography variant="body" weight="bold">
-          {selectedSubject?.subjectName || "Chọn môn học cần đề xuất"}
-        </Typography>
-        {selectedSubject && (
-          <Typography variant="body" color="gray" className="mt-1">
-            Điểm hiện tại: {selectedSubject.letterGrade || "---"} · {selectedSubject.gradePoint10 ?? "---"}/10 · {selectedSubject.gradePoint4 ?? "---"}/4
+    <form onSubmit={handleSubmit(onSubmit)} className="flex max-h-[85vh] flex-col pb-4">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 custom-scrollbar">
+        <div className="rounded-3xl border border-primary-100 bg-primary-50/60 p-4 dark:border-primary-500/20 dark:bg-primary-500/10">
+          <Typography variant="label" color="primary" className="mb-1">
+            Môn học hiện tại
           </Typography>
-        )}
-      </div>
-
-      <Select
-        label="Môn học"
-        placeholder="Chọn môn học cần chỉnh sửa"
-        value={selectedSubjectId}
-        onChange={(value) => setValue("subjectResultId", String(value), { shouldValidate: true })}
-        options={subjectOptions}
-        error={errors.subjectResultId?.message}
-        emptyText="Không có môn học"
-        required
-      />
-
-      <Select
-        label="Loại đề xuất"
-        value={selectedRequestType}
-        onChange={(value) => setValue("requestType", value as GradeRequestType)}
-        options={[
-          { value: "UPDATE", label: "Điều chỉnh điểm" },
-          { value: "ADD", label: "Bổ sung kết quả" },
-          { value: "DELETE", label: "Xóa kết quả sai" },
-        ]}
-        required
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Input label="Điểm chữ đề xuất" placeholder="VD: A, B+" {...register("proposedLetterGrade")} />
-        <Input label="Điểm hệ 4" type="number" placeholder="VD: 3.6" {...register("proposedGradePoint4")} />
-        <Input label="Điểm hệ 10" type="number" placeholder="VD: 8.7" {...register("proposedGradePoint10")} />
-      </div>
-
-      <Input label="Minh chứng (URL)" placeholder="Dán liên kết minh chứng nếu có" {...register("attachmentUrl")} />
-
-      <div className="space-y-2">
-        <label className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Lý do đề xuất <span className="text-red-500">*</span></label>
-        <textarea
-          {...register("reason", { required: "Vui lòng nhập lý do đề xuất" })}
-          rows={4}
-          placeholder="Trình bày rõ lý do và căn cứ đề xuất chỉnh sửa kết quả..."
-          className="w-full rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-4 py-3 text-sm text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none transition focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-500/15"
+          <Typography variant="body" weight="bold">
+            {selectedSubject?.subjectName || "Chọn môn học cần đề xuất"}
+          </Typography>
+          {selectedSubject && (
+            <Typography variant="body" color="gray" className="mt-1">
+              Điểm hiện tại: {selectedSubject.letterGrade || "---"} · {selectedSubject.gradePoint10 ?? "---"}/10 · {selectedSubject.gradePoint4 ?? "---"}/4
+            </Typography>
+          )}
+        </div>
+        <Controller
+          control={control}
+          name="subjectResultId"
+          render={({ field }) => (
+            <Select
+              label="Môn học"
+              placeholder="Chọn môn học cần đề xuất"
+              value={field.value}
+              onChange={(value) => field.onChange(value)}
+              options={subjectOptions}
+              error={errors.subjectResultId?.message}
+              emptyText="Không có môn học"
+              required
+              filter={{
+                enabled: true,
+                mode: "client",
+                placeholder: "Tìm môn học cần đề xuất chỉnh sửa"
+              }}
+            />
+          )}
         />
-        {errors.reason?.message && <p className="text-xs font-medium text-red-500">{errors.reason.message}</p>}
-      </div>
 
+        <Controller
+          control={control}
+          name="requestType"
+          render={({ field }) => (
+            <Select
+              label="Loại đề xuất"
+              value={field.value}
+              onChange={field.onChange}
+              options={Object.entries(requestTypeMap).map(([value, label]) => ({
+                value,
+                label,
+              }))}
+              error={errors.requestType?.message}
+              required
+            />
+          )}
+        />
+
+        <Input
+          label="Điểm hệ 10"
+          type="number"
+          placeholder="VD: 8.7"
+          error={errors.proposedGradePoint10?.message}
+          {...register("proposedGradePoint10", { valueAsNumber: true })} />
+
+        <Input label="Minh chứng (URL)" placeholder="Dán liên kết minh chứng nếu có" error={errors.attachmentUrl?.message} {...register("attachmentUrl")} />
+
+        <Textarea
+          label="Lý do đề xuất"
+          placeholder="Trình bày rõ lý do và căn cứ đề xuất chỉnh sửa kết quả..."
+          rows={4}
+          maxLength={500}
+          error={errors.reason?.message}
+          required
+          {...register("reason")}
+        />
+      </div>
       <div className="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="secondary" onClick={closeModal}>Hủy</Button>
+        <Button type="button" variant="ghost" onClick={closeModal}>Hủy</Button>
         <Button type="submit" variant="primary" disabled={mutation.isPending || subjects.length === 0}>
           Gửi đề xuất
         </Button>

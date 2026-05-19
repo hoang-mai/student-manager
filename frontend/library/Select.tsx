@@ -124,7 +124,7 @@ export default function Select({
       `,
   };
 
-  const errorStyles = error ? "border-error-300 dark:border-error-500/60 hover:border-error-400 focus:border-error-500" : "";
+  const errorStyles = error ? "!border-error-300 dark:!border-error-500/60 hover:!border-error-400 focus:!border-error-500" : "";
   const disabledStyles = disabled
     ? "!border-neutral-200 dark:!border-neutral-800 hover:!border-neutral-200 dark:hover:!border-neutral-800 opacity-50 !cursor-not-allowed pointer-events-none"
     : "";
@@ -184,7 +184,7 @@ export default function Select({
                 ${errorStyles}
                 ${disabledStyles}
                 ${isOpen
-                ? `border-primary-400 dark:border-primary-500 ring-4 ring-primary-100/70 dark:ring-primary-500/10 z-20 relative
+                ? `border-primary-400 dark:border-primary-500 z-20 relative
                    ${placement === "bottom" ? "rounded-b-none" : "rounded-t-none"}`
                 : ""
               }

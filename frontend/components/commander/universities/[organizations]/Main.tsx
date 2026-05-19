@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  useInfiniteQuery,
-  useQuery,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import {
   HiOutlinePlus,
@@ -95,7 +92,6 @@ export default function Main({ universityId }: Props) {
     invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
     successMessage: "Xóa đơn vị thành công",
     errorMessage: "Xóa đơn vị thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const toggleOrganizationStatusMutation = useAppMutation({
@@ -110,7 +106,6 @@ export default function Main({ universityId }: Props) {
     invalidateQueryKey: [QUERY_KEYS.ORGANIZATIONS, universityId],
     successMessage: "Cập nhật trạng thái thành công",
     errorMessage: "Cập nhật trạng thái thất bại!",
-    closeConfirmOnSuccess: true,
   });
 
   const toggleExpand = (id: string) => {
@@ -122,9 +117,7 @@ export default function Main({ universityId }: Props) {
   const handleOpenCreateOrgModal = () => {
     openModal({
       title: "Thêm chuyên ngành mới",
-      content: (
-        <CreateOrganizationForm universityId={universityId} />
-      ),
+      content: <CreateOrganizationForm universityId={universityId} />,
       size: "md",
       config: {
         mutationKey: MUTATION_KEYS.CREATE_ORGANIZATION,
@@ -226,7 +219,11 @@ export default function Main({ universityId }: Props) {
                           ? "Tạm dừng hoạt động"
                           : "Kích hoạt hoạt động"
                       }
-                      icon={org.status === "ACTIVE" ? HiOutlineLockOpen : HiOutlineLockClosed}
+                      icon={
+                        org.status === "ACTIVE"
+                          ? HiOutlineLockOpen
+                          : HiOutlineLockClosed
+                      }
                       color={org.status === "ACTIVE" ? "amber" : "green"}
                       onClick={() =>
                         openConfirm({
@@ -236,9 +233,7 @@ export default function Main({ universityId }: Props) {
                               : "Xác nhận kích hoạt",
                           message: `Bạn có chắc chắn muốn ${org.status === "ACTIVE" ? "tạm dừng" : "kích hoạt"} đơn vị "${org.organizationName}" không?`,
                           confirmText:
-                            org.status === "ACTIVE"
-                              ? "Tạm dừng"
-                              : "Kích hoạt",
+                            org.status === "ACTIVE" ? "Tạm dừng" : "Kích hoạt",
                           variant:
                             org.status === "ACTIVE" ? "danger" : "primary",
                           mutationKey: MUTATION_KEYS.TOGGLE_ORGANIZATION_STATUS,
@@ -275,7 +270,11 @@ export default function Main({ universityId }: Props) {
                       tooltipText="Xem trình độ đào tạo"
                       icon={HiOutlineChevronDown}
                       color="neutral"
-                      className={expandedIds.includes(org.id) ? "bg-primary-50 text-primary-600!" : ""}
+                      className={
+                        expandedIds.includes(org.id)
+                          ? "bg-primary-50 text-primary-600!"
+                          : ""
+                      }
                       iconClassName={`transition-transform ${expandedIds.includes(org.id) ? "rotate-180" : ""}`}
                       onClick={() => {
                         toggleExpand(org.id);
@@ -305,7 +304,10 @@ export default function Main({ universityId }: Props) {
             ))}
 
             {/* Sentinel for infinite scroll */}
-            <div ref={setSentinelRef} className="h-10 flex items-center justify-center">
+            <div
+              ref={setSentinelRef}
+              className="h-10 flex items-center justify-center"
+            >
               {isFetchingNextPage && (
                 <div className="size-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
               )}
