@@ -329,12 +329,14 @@ Thờ khóa biểu học tập (lưu dạng JSONB).
 |:---|:---|:---:|:---|:---|
 | `id` | UUID | NO | UUIDv4 | Khóa chính |
 | `student_id` | UUID | NO | - | FK → `students.id` |
+| `semester_id` | UUID | YES | - | FK → `semesters.id` |
 | `schedules` | JSONB | YES | - | Dữ liệu TKB |
 | `created_at` | DATETIME | YES | NOW | Thờ gian tạo |
 | `updated_at` | DATETIME | YES | NOW | Thờ gian cập nhật |
 
 **Ràng buộc:**
 - FOREIGN KEY: `student_id` → `students.id`
+- FOREIGN KEY: `semester_id` → `semesters.id`
 
 ---
 
@@ -346,6 +348,7 @@ Thông tin học phí.
 |:---|:---|:---:|:---|:---|
 | `id` | UUID | NO | UUIDv4 | Khóa chính |
 | `student_id` | UUID | NO | - | FK → `students.id` |
+| `semester_id` | UUID | YES | - | FK → `semesters.id` |
 | `total_amount` | DECIMAL | YES | - | Tổng số tiền |
 | `semester` | VARCHAR(50) | YES | - | Học kỳ |
 | `school_year` | VARCHAR(50) | YES | - | Năm học |
@@ -356,6 +359,7 @@ Thông tin học phí.
 
 **Ràng buộc:**
 - FOREIGN KEY: `student_id` → `students.id`
+- FOREIGN KEY: `semester_id` → `semesters.id`
 
 ---
 

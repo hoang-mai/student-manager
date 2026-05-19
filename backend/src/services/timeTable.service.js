@@ -1,5 +1,6 @@
 const db = require('../models');
 const User = db.user;
+const Semester = db.semester;
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
@@ -12,20 +13,54 @@ const ensureStudentUser = async (userId) => {
   }
 };
 
+const ensureSemester = async (semesterId) => {
+  if (!semesterId) return;
+  const semester = await Semester.findByPk(semesterId);
+  if (!semester) throw new BadRequestError('Không tìm thấy học kỳ');
+};
+
 const create = async (data) => {
   await ensureStudentUser(data.userId);
+  await ensureSemester(data.semesterId);
   return TimeTable.create(data);
 };
 const getAll = async (query) => {
+  const userWhere = {};
+  const profileWhere = {};
+  const semesterWhere = {};
   const opts = {
     filterFields: ['userId'],
-    include: [{ model: User, include: [{ model: db.profile }] }],
+    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester }],
   };
 
+  if (query.semesterId) opts.filterFields.push('semesterId');
+
+  if (query.code) {
+    userWhere.role = 'STUDENT';
+    profileWhere.code = query.code;
+  }
+
+  if (query.semester) semesterWhere.code = query.semester;
+  if (query.schoolYear) semesterWhere.schoolYear = query.schoolYear;
+
   if (query.fullName) {
-    opts.include[0].include[0].where = { fullName: { [db.Sequelize.Op.like]: `%${query.fullName}%` } };
+    profileWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
+  }
+
+  if (Object.keys(userWhere).length > 0) {
+    opts.include[0].where = userWhere;
+    opts.include[0].required = true;
+  }
+
+  if (Object.keys(profileWhere).length > 0) {
+    opts.include[0].include[0].where = profileWhere;
     opts.include[0].include[0].required = true;
     opts.include[0].required = true;
+  }
+
+  if (Object.keys(semesterWhere).length > 0) {
+    opts.include[1].where = semesterWhere;
+    opts.include[1].required = true;
   }
 
   const result = await paginateQuery(TimeTable, query, opts);
@@ -45,7 +80,7 @@ const getAll = async (query) => {
 
 const getDetail = async (id) => {
   const record = await TimeTable.findByPk(id, {
-    include: [{ model: User, include: [{ model: db.profile }] }],
+    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy thời khóa biểu');
   return record;
@@ -54,6 +89,7 @@ const getDetail = async (id) => {
 const update = async (id, data) => {
   const record = await getDetail(id);
   if (data.userId) await ensureStudentUser(data.userId);
+  if (data.semesterId !== undefined) await ensureSemester(data.semesterId);
   return record.update(data);
 };
 
@@ -65,7 +101,7 @@ const deleteRecord = async (id) => {
 
 const getReport = async () => {
   const timetables = await TimeTable.findAll({
-    include: [{ model: User, include: [{ model: db.profile }] }],
+    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester }],
   });
 
   const rows = [];
@@ -87,6 +123,8 @@ const getReport = async () => {
       rows.push({
         unit: profile?.unit || '',
         fullName: profile?.fullName || '',
+        semester: tt.Semester?.code || '',
+        schoolYear: tt.Semester?.schoolYear || '',
         scheduleCount: schedules.length,
         subjectName: s.subjectName || '',
         room: s.room || '',

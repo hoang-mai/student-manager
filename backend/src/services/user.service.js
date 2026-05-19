@@ -75,20 +75,33 @@ const create = async (data, requester) => {
   return User.create(data);
 };
 
-const getAll = async (query) => paginateQuery(User, query, {
-  filterFields: ['username', 'role', 'isAdmin', 'isActive'],
-  include: [
-    {
-      model: Profile,
-      include: [
-        { model: db.university },
-        { model: db.class },
-        { model: db.organization },
-        { model: db.educationLevel },
-      ],
-    },
-  ],
-});
+const getAll = async (query) => {
+  const where = {};
+  const profileWhere = {};
+
+  for (const field of ['username', 'role', 'isAdmin', 'isActive']) {
+    if (query[field] !== undefined) where[field] = query[field];
+  }
+
+  if (query.code) profileWhere.code = query.code;
+  if (query.fullName) profileWhere.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
+
+  return paginateQuery(User, query, {
+    where,
+    include: [
+      {
+        model: Profile,
+        ...(Object.keys(profileWhere).length > 0 ? { where: profileWhere, required: true } : {}),
+        include: [
+          { model: db.university },
+          { model: db.class },
+          { model: db.organization },
+          { model: db.educationLevel },
+        ],
+      },
+    ],
+  });
+};
 
 const getDetail = async (id) => {
   const record = await User.findByPk(id, {

@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false,
     },
+    semesterId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
     totalAmount: {
       type: DataTypes.DECIMAL(15, 2),
     },

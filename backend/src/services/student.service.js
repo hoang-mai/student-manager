@@ -265,8 +265,19 @@ const getAcademicResults = async (userId, query = {}) => {
 
 // ===================== HV-06: TimeTable =====================
 
-const getMyTimeTable = async (userId) => {
-  return TimeTable.findAll({ where: { userId } });
+const getMyTimeTable = async (userId, query = {}) => {
+  const where = { userId };
+  const include = [{ model: db.semester }];
+
+  if (query.semesterId) where.semesterId = query.semesterId;
+  if (query.semester || query.schoolYear) {
+    include[0].where = {};
+    include[0].required = true;
+    if (query.semester) include[0].where.code = query.semester;
+    if (query.schoolYear) include[0].where.schoolYear = query.schoolYear;
+  }
+
+  return TimeTable.findAll({ where, include });
 };
 
 const createMyTimeTable = async (userId, data) => {
@@ -323,8 +334,23 @@ const getMyAchievements = async (userId) => {
   return { achievements, profile, yearlyAchievements };
 };
 
-const getMyTuitionFees = async (userId) => {
-  return TuitionFee.findAll({ where: { userId }, order: [['createdAt', 'DESC']] });
+const getMyTuitionFees = async (userId, query = {}) => {
+  const where = { userId };
+  const include = [{ model: db.semester, as: 'semesterInfo' }];
+
+  if (query.semesterId) where.semesterId = query.semesterId;
+  if (query.semester) where.semester = query.semester;
+  if (query.schoolYear) where.schoolYear = query.schoolYear;
+  if (query.status) where.status = query.status;
+
+  if (query.semester || query.schoolYear) {
+    include[0].where = {};
+    include[0].required = true;
+    if (query.semester) include[0].where.code = query.semester;
+    if (query.schoolYear) include[0].where.schoolYear = query.schoolYear;
+  }
+
+  return TuitionFee.findAll({ where, include, order: [['createdAt', 'DESC']] });
 };
 
 // ===================== HV-09: Notifications =====================

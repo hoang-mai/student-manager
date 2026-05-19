@@ -6,6 +6,10 @@ async function fullSeed() {
     await db.sequelize.sync({ force: true });
     console.log('Database synced (force).');
 
+    const assertSeed = (condition, message) => {
+      if (!condition) throw new Error(`Seed validation failed: ${message}`);
+    };
+
     // ==========================
     // 1. USERS + PROFILES
     // ==========================
@@ -138,9 +142,15 @@ async function fullSeed() {
       { code: '2023-2024-HK2', schoolYear: '2023-2024' },
       { code: '2024-2025-HK1', schoolYear: '2024-2025' },
       { code: '2024-2025-HK2', schoolYear: '2024-2025' },
+      { code: '2025-2026-HK1', schoolYear: '2025-2026' },
+      { code: '2025-2026-HK2', schoolYear: '2025-2026' },
     ];
     const semesters = [];
     for (const s of semData) semesters.push(await db.semester.create(s));
+
+    const getSchoolYearsForEnrollment = (enrollment) =>
+      [...new Set(semesters.map(s => s.schoolYear))]
+        .filter(schoolYear => Number(schoolYear.split('-')[0]) >= Number(enrollment || 2024));
 
     // ==========================
     // 8. ACADEMIC RESULTS
@@ -182,15 +192,15 @@ async function fullSeed() {
     }
 
     const subjectsByUserId = new Map();
+    const subjectsByUserIdAndSemester = new Map();
 
     for (let idx = 0; idx < profiles.length; idx++) {
       const profile = profiles[idx];
       const user = hocVienUsers[idx];
-      const enrollmentYear = profile.enrollment;
       subjectsByUserId.set(user.id, []);
+      subjectsByUserIdAndSemester.set(user.id, new Map());
 
-      const schoolYears = ['2023-2024', '2024-2025'];
-      if (enrollmentYear <= 2022) schoolYears.unshift('2022-2023');
+      const schoolYears = getSchoolYearsForEnrollment(profile.enrollment);
 
       for (const sy of schoolYears) {
         const semesterCodes = [`${sy}-HK1`, `${sy}-HK2`];
@@ -234,6 +244,10 @@ async function fullSeed() {
               letterGrade: grade.letterGrade, gradePoint4: grade.gradePoint4, gradePoint10: grade.gradePoint10,
             });
             subjectsByUserId.get(user.id).push(subjectResult);
+            if (!subjectsByUserIdAndSemester.get(user.id).has(sem.code)) {
+              subjectsByUserIdAndSemester.get(user.id).set(sem.code, []);
+            }
+            subjectsByUserIdAndSemester.get(user.id).get(sem.code).push(subjectResult);
 
             semTotalCredits += sub.credits;
             semTotalPoint4 += grade.gradePoint4 * sub.credits;
@@ -292,26 +306,33 @@ async function fullSeed() {
     ];
 
     for (let i = 0; i < profiles.length; i++) {
+      const profile = profiles[i];
       const user = hocVienUsers[i];
-      const numDays = 3 + Math.floor(Math.random() * 3);
-      const selectedDays = [...days].sort(() => 0.5 - Math.random()).slice(0, numDays);
-      const schedules = [];
-      for (const day of selectedDays) {
-        const numSlots = 1 + Math.floor(Math.random() * 3);
-        const selectedSlots = [...timeSlots].sort(() => 0.5 - Math.random()).slice(0, numSlots);
-        for (const slot of selectedSlots) {
-          const subject = subjectTemplates[Math.floor(Math.random() * subjectTemplates.length)];
-          schedules.push({
-            day,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-            room: `P${100 + Math.floor(Math.random() * 400)}`,
-            subjectName: subject.subjectName,
-            week: `Tuần ${1 + Math.floor(Math.random() * 16)}`,
-          });
+      const schoolYears = getSchoolYearsForEnrollment(profile.enrollment);
+      const timetableSemesters = semesters.filter(s => schoolYears.includes(s.schoolYear));
+
+      for (const semester of timetableSemesters) {
+        const numDays = 3 + Math.floor(Math.random() * 3);
+        const selectedDays = [...days].sort(() => 0.5 - Math.random()).slice(0, numDays);
+        const schedules = [];
+        for (const day of selectedDays) {
+          const numSlots = 1 + Math.floor(Math.random() * 3);
+          const selectedSlots = [...timeSlots].sort(() => 0.5 - Math.random()).slice(0, numSlots);
+          for (const slot of selectedSlots) {
+            const semesterSubjects = subjectsByUserIdAndSemester.get(user.id).get(semester.code) || [];
+            const subject = semesterSubjects[Math.floor(Math.random() * semesterSubjects.length)];
+            schedules.push({
+              day,
+              startTime: slot.startTime,
+              endTime: slot.endTime,
+              room: `P${100 + Math.floor(Math.random() * 400)}`,
+              subjectName: subject.subjectName,
+              week: `Tuần ${1 + Math.floor(Math.random() * 16)}`,
+            });
+          }
         }
+        await db.timeTable.create({ userId: user.id, semesterId: semester.id, schedules });
       }
-      await db.timeTable.create({ userId: user.id, schedules });
     }
     console.log('TimeTables seeded for students (commander-managed).');
 
@@ -341,12 +362,13 @@ async function fullSeed() {
     for (let i = 0; i < profiles.length; i++) {
       const profile = profiles[i];
       const user = hocVienUsers[i];
-      const schoolYears = ['2023-2024', '2024-2025'];
-      if (profile.enrollment <= 2022) schoolYears.unshift('2022-2023');
+      const schoolYears = getSchoolYearsForEnrollment(profile.enrollment);
       for (const sy of schoolYears) {
         for (const hk of ['HK1', 'HK2']) {
+          const semester = semesters.find(s => s.code === `${sy}-${hk}`);
           await db.tuitionFee.create({
             userId: user.id, totalAmount: 4500000 + Math.floor(Math.random() * 2000000),
+            semesterId: semester?.id || null,
             semester: `${sy}-${hk}`, schoolYear: sy,
             content: `Học phí ${sy} - ${hk}`,
             status: ['PAID', 'PAID', 'PAID', 'UNPAID', 'UNPAID'][Math.floor(Math.random() * 5)],
@@ -486,6 +508,88 @@ async function fullSeed() {
       });
     }
     console.log('GradeRequests seeded.');
+
+    // ==========================
+    // 18. SEED VALIDATION
+    // ==========================
+    const expectedAcademicRows = profiles.reduce((sum, profile) => sum + getSchoolYearsForEnrollment(profile.enrollment).length, 0);
+    const expectedSemesterRows = profiles.reduce((sum, profile) => {
+      const schoolYears = getSchoolYearsForEnrollment(profile.enrollment);
+      return sum + semesters.filter(s => schoolYears.includes(s.schoolYear)).length;
+    }, 0);
+
+    const [
+      adminCount,
+      commanderCount,
+      studentCount,
+      profileCount,
+      semesterCount,
+      yearlyResultCount,
+      semesterResultCount,
+      timeTableCount,
+      tuitionFeeCount,
+      missingTimeTableSemester,
+      missingTuitionSemester,
+      gradeRequestCount,
+    ] = await Promise.all([
+      db.user.count({ where: { role: 'ADMIN' } }),
+      db.user.count({ where: { role: 'COMMANDER' } }),
+      db.user.count({ where: { role: 'STUDENT' } }),
+      db.profile.count(),
+      db.semester.count(),
+      db.yearlyResult.count(),
+      db.semesterResult.count(),
+      db.timeTable.count(),
+      db.tuitionFee.count(),
+      db.timeTable.count({ where: { semesterId: null } }),
+      db.tuitionFee.count({ where: { semesterId: null } }),
+      db.gradeRequest.count(),
+    ]);
+
+    assertSeed(adminCount === 1, 'phải có đúng 1 admin');
+    assertSeed(commanderCount === 2, 'phải có đúng 2 chỉ huy');
+    assertSeed(studentCount === studentList.length, 'số tài khoản học viên không khớp');
+    assertSeed(profileCount === studentList.length + 2, 'số hồ sơ profile không khớp');
+    assertSeed(semesterCount === semData.length, 'số học kỳ không khớp');
+    assertSeed(yearlyResultCount === expectedAcademicRows, 'số kết quả năm không khớp năm học theo enrollment');
+    assertSeed(semesterResultCount === expectedSemesterRows, 'số kết quả học kỳ không khớp năm học theo enrollment');
+    assertSeed(timeTableCount === expectedSemesterRows, 'số thời khóa biểu không khớp số học kỳ theo enrollment');
+    assertSeed(tuitionFeeCount === expectedSemesterRows, 'số bản ghi học phí không khớp số học kỳ theo enrollment');
+    assertSeed(missingTimeTableSemester === 0, 'time_tables không được thiếu semesterId');
+    assertSeed(missingTuitionSemester === 0, 'tuition_fees không được thiếu semesterId');
+    assertSeed(gradeRequestCount === requestSeeds.length, 'số đề xuất điểm không khớp');
+
+    const timetableRows = await db.timeTable.findAll({
+      include: [{ model: db.user, include: [{ model: db.profile }] }, { model: db.semester }],
+    });
+    for (const row of timetableRows) {
+      const plain = row.get({ plain: true });
+      assertSeed(plain.Semester, `TKB ${plain.id} thiếu học kỳ`);
+      const enrollment = Number(plain.User.Profile.enrollment || 2024);
+      const startYear = Number(plain.Semester.schoolYear.split('-')[0]);
+      assertSeed(startYear >= enrollment, `TKB ${plain.id} nằm trước năm nhập học`);
+      const semesterSubjects = subjectsByUserIdAndSemester.get(plain.userId).get(plain.Semester.code) || [];
+      const subjectNames = new Set(semesterSubjects.map(subject => subject.subjectName));
+      assertSeed(subjectNames.size > 0, `TKB ${plain.id} không có môn học kỳ tương ứng`);
+      for (const schedule of plain.schedules || []) {
+        assertSeed(subjectNames.has(schedule.subjectName), `TKB ${plain.id} có môn không thuộc học kỳ ${plain.Semester.code}`);
+      }
+    }
+
+    const tuitionRows = await db.tuitionFee.findAll({
+      include: [{ model: db.user, include: [{ model: db.profile }] }, { model: db.semester, as: 'semesterInfo' }],
+    });
+    for (const row of tuitionRows) {
+      const plain = row.get({ plain: true });
+      assertSeed(plain.semesterInfo, `học phí ${plain.id} thiếu học kỳ`);
+      const enrollment = Number(plain.User.Profile.enrollment || 2024);
+      const startYear = Number(plain.semesterInfo.schoolYear.split('-')[0]);
+      assertSeed(startYear >= enrollment, `học phí ${plain.id} nằm trước năm nhập học`);
+      assertSeed(plain.semester === plain.semesterInfo.code, `học phí ${plain.id} lệch semester code`);
+      assertSeed(plain.schoolYear === plain.semesterInfo.schoolYear, `học phí ${plain.id} lệch schoolYear`);
+    }
+
+    console.log('Seed validation passed.');
 
     console.log('\n✅ FULL SEED DATA CREATED SUCCESSFULLY');
     console.log('==============================');
