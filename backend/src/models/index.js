@@ -128,9 +128,17 @@ db.subjectResult.belongsTo(db.semesterResult, { foreignKey: 'semester_result_id'
 db.user.hasMany(db.timeTable, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.timeTable.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 
+// Semester 1:N TimeTable
+db.semester.hasMany(db.timeTable, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.timeTable.belongsTo(db.semester, { foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+
 // User 1:N TuitionFee
 db.user.hasMany(db.tuitionFee, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.tuitionFee.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+
+// Semester 1:N TuitionFee
+db.semester.hasMany(db.tuitionFee, { as: 'tuitionFees', foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.tuitionFee.belongsTo(db.semester, { as: 'semesterInfo', foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
 // --- Nhóm Thi đua & Nghiên cứu ---
 

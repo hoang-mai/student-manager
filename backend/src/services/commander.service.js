@@ -222,12 +222,23 @@ const getAchievementReport = async () => {
 
 const getTuitionReport = async (query = {}) => {
   const where = {};
+  const semesterWhere = {};
+  if (query.semesterId) where.semesterId = query.semesterId;
   if (query.schoolYear) where.schoolYear = query.schoolYear;
   if (query.semester) where.semester = query.semester;
+  if (query.schoolYear) semesterWhere.schoolYear = query.schoolYear;
+  if (query.semester) semesterWhere.code = query.semester;
 
   const fees = await TuitionFee.findAll({
     where,
-    include: [{ model: User, include: [{ model: db.profile }] }],
+    include: [
+      { model: User, include: [{ model: db.profile }] },
+      {
+        model: db.semester,
+        as: 'semesterInfo',
+        ...(Object.keys(semesterWhere).length > 0 ? { where: semesterWhere, required: true } : {}),
+      },
+    ],
   });
 
   const summary = {

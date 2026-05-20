@@ -9,6 +9,7 @@ const YearlyResult = db.yearlyResult;
 const Student = db.profile;
 const User = db.user;
 const Notification = db.notification;
+const Op = db.Sequelize.Op;
 
 const withRequesterFullName = (record) => {
   const plain = typeof record.get === 'function' ? record.get({ plain: true }) : record;
@@ -91,14 +92,35 @@ const getAll = async (query = {}) => {
       attributes: { exclude: ['password', 'refreshToken'] },
       include: [{ model: Student }],
     },
-    { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
+    {
+      model: User,
+      as: 'reviewer',
+      attributes: { exclude: ['password', 'refreshToken'] },
+      include: [{ model: Student }],
+    },
   ];
 
   if (query.status) where.status = query.status;
   if (query.userId) where.userId = query.userId;
   if (query.requestType) where.requestType = query.requestType;
 
-  if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
+  if (query.code) {
+    const matchedUsers = await User.findAll({
+      attributes: ['id'],
+      include: [{ model: Student, attributes: [], where: { code: query.code }, required: true }],
+    });
+    const userIds = matchedUsers.map((user) => user.id);
+    if (userIds.length === 0) {
+      where.id = null;
+    } else {
+      where[Op.or] = [
+        { userId: { [Op.in]: userIds } },
+        { reviewerId: { [Op.in]: userIds } },
+      ];
+    }
+  }
+
+  if (query.fullName) studentWhere.fullName = { [Op.iLike]: `%${query.fullName}%` };
   if (query.unit) studentWhere.unit = query.unit;
 
   if (Object.keys(studentWhere).length > 0) {

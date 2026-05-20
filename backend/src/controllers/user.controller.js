@@ -101,7 +101,7 @@ const getAcademicResults = asyncHandler(async (req, res) => {
 // ===================== Student: Thời khóa biểu =====================
 
 const getMyTimeTable = asyncHandler(async (req, res) => {
-  const result = await studentService.getMyTimeTable(req.userId);
+  const result = await studentService.getMyTimeTable(req.userId, req.query);
   return success(res, result);
 });
 
@@ -130,7 +130,7 @@ const getMyAchievements = asyncHandler(async (req, res) => {
 });
 
 const getMyTuitionFees = asyncHandler(async (req, res) => {
-  const result = await studentService.getMyTuitionFees(req.userId);
+  const result = await studentService.getMyTuitionFees(req.userId, req.query);
   return success(res, result);
 });
 
