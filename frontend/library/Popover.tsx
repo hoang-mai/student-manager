@@ -17,44 +17,59 @@ import {
   size,
 } from "@floating-ui/react";
 
-export interface DropdownProps {
-  /** Thành phần kích hoạt menu (nút bấm, avatar, v.v.). Có thể là ReactNode hoặc một function nhận vào trạng thái isOpen và placement */
+export interface PopoverRenderProps {
+  /** Trạng thái mở hiện tại */
+  isOpen: boolean;
+  /** Hướng hiển thị thực tế của Popover */
+  placement: "top" | "bottom";
+  /** Hàm đóng Popover (gọi khi bấm nút Xác nhận / Hủy bỏ) */
+  close: () => void;
+}
+
+export interface PopoverProps {
+  /** Thành phần kích hoạt Popover. Có thể là ReactNode hoặc function nhận trạng thái */
   trigger:
     | React.ReactNode
     | ((isOpen: boolean, placement: "top" | "bottom") => React.ReactNode);
-  /** Nội dung bên trong menu xổ xuống */
-  children: React.ReactNode;
-  /** Hướng căn lề của menu so với trigger */
-  align?: "left" | "right";
+  /** Nội dung bên trong Popover. Nhận hàm close để đóng thủ công (nút Xác nhận / Hủy bỏ) */
+  children: React.ReactNode | ((props: PopoverRenderProps) => React.ReactNode);
+  /** Hướng căn lề của Popover so với trigger */
+  align?: "left" | "right" | "center";
   /** Class CSS cho container bên ngoài */
   className?: string;
-  /** Class CSS cho container của menu xổ xuống */
-  dropdownClassName?: string | ((placement: "top" | "bottom") => string);
+  /** Class CSS cho container của Popover */
+  popoverClassName?: string | ((placement: "top" | "bottom") => string);
   /** Độ lệch y khi bắt đầu hiệu ứng (mặc định: 10) */
   offsetY?: number;
   /** Độ lệch y khi kết thúc hiệu ứng (mặc định: 10) */
   targetY?: number;
-  /** Bắt buộc dropdown phải có chiều rộng bằng đúng với phần tử trigger */
+  /** Bắt buộc Popover phải có chiều rộng bằng đúng với phần tử trigger */
   fullwidth?: boolean;
   /** Trạng thái vô hiệu hóa */
   disabled?: boolean;
   /** Trạng thái đang tải */
   isLoading?: boolean;
+  /** Có cho phép đóng khi click ra ngoài hay không (mặc định: true) */
+  dismissOnOutsideClick?: boolean;
+  /** Có cho phép đóng khi bấm Escape hay không (mặc định: true) */
+  dismissOnEscape?: boolean;
   /** Callback khi trạng thái mở/đóng thay đổi */
   onOpenChange?: (open: boolean) => void;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({
+const Popover: React.FC<PopoverProps> = ({
   trigger,
   children,
-  align = "right",
+  align = "left",
   className = "",
-  dropdownClassName = "",
+  popoverClassName = "",
   offsetY = 10,
   targetY = 10,
   fullwidth = false,
   disabled = false,
   isLoading = false,
+  dismissOnOutsideClick = true,
+  dismissOnEscape = true,
   onOpenChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,14 +79,12 @@ const Dropdown: React.FC<DropdownProps> = ({
     onOpenChange?.(open);
   };
 
-  // Map "left" / "right" tới Floating UI placement
   const getInitialPlacement = (): Placement => {
     if (align === "left") return "bottom-start";
     if (align === "right") return "bottom-end";
     return "bottom";
   };
 
-  // Lấy thẳng x, y, strategy thay vì floatingStyles để tránh xung đột transform với framer-motion
   const {
     refs: { setReference, setFloating },
     x,
@@ -102,10 +115,12 @@ const Dropdown: React.FC<DropdownProps> = ({
     ],
   });
 
-  // Tương tác (Interactions)
   const click = useClick(context, { enabled: !disabled && !isLoading });
-  const dismiss = useDismiss(context);
-  const role = useRole(context);
+  const dismiss = useDismiss(context, {
+    outsidePress: dismissOnOutsideClick,
+    escapeKey: dismissOnEscape,
+  });
+  const role = useRole(context, { role: "dialog" });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
     click,
@@ -113,8 +128,9 @@ const Dropdown: React.FC<DropdownProps> = ({
     role,
   ]);
 
-  // Trích xuất "top" hoặc "bottom" từ "bottom-start" / "top-end"
   const basePlacement = placement.split("-")[0] as "top" | "bottom";
+
+  const close = () => handleOpenChange(false);
 
   return (
     <div className={`relative ${className}`}>
@@ -163,10 +179,12 @@ const Dropdown: React.FC<DropdownProps> = ({
               }}
               transition={{ duration: 0.2, ease: "easeOut" }}
               className={`
-                ${typeof dropdownClassName === "function" ? dropdownClassName(basePlacement) : dropdownClassName}
+                ${typeof popoverClassName === "function" ? popoverClassName(basePlacement) : popoverClassName}
               `}
             >
-              <div onClick={() => handleOpenChange(false)}>{children}</div>
+              {typeof children === "function"
+                ? children({ isOpen, placement: basePlacement, close })
+                : children}
             </motion.div>
           </FloatingPortal>
         )}
@@ -175,4 +193,4 @@ const Dropdown: React.FC<DropdownProps> = ({
   );
 };
 
-export default Dropdown;
+export default Popover;
