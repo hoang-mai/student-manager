@@ -20,7 +20,7 @@ const TableHeader = <TData,>({ header, index }: HeaderProps<TData>) => {
     <th
       ref={ref}
       colSpan={header.colSpan}
-      className={`p-4 text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest first:pl-8 transition-colors
+      className={`p-2 py-4 text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest first:pl-4 transition-colors
         ${isDragSource ? "bg-primary-50/80 dark:bg-primary-500/10 opacity-60" : "hover:bg-neutral-50/50 dark:hover:bg-neutral-900/60"}
       `}
     >

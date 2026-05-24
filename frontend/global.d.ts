@@ -1,4 +1,4 @@
-export { };
+export {};
 
 declare global {
   interface ApiResponse<T = unknown> {
@@ -21,8 +21,15 @@ declare global {
   interface QueryRequest {
     page?: number;
     limit?: number;
-    fetchAll?: boolean
+    fetchAll?: boolean;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
+  }
+}
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta {
+    /** Áp dụng white-space: nowrap cho cell */
+    noWrap?: boolean;
   }
 }

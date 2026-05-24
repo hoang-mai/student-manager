@@ -27,7 +27,7 @@ const TableBody = <TData,>({
   const visibleColumnCount = table.getVisibleLeafColumns().length;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="sync">
       {rows.length === 0 ? (
         <TableEmptyState table={table} emptyText={emptyText} />
       ) : (
@@ -64,20 +64,23 @@ const TableBody = <TData,>({
               exit={{ opacity: 0 }}
               className={`group hover:bg-neutral-50/50 dark:hover:bg-neutral-900/60 border-b border-neutral-100/50 dark:border-neutral-800/70 transition-colors ${rowClassName}`}
             >
-              {row.getVisibleCells().map((cell) => (
-                <motion.td
-                  key={cell.id}
-                  layout
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                  }}
-                  className={`p-4 ${row.depth > 0 ? "first:pl-12" : "first:pl-8"}`}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </motion.td>
-              ))}
+              {row.getVisibleCells().map((cell) => {
+                const noWrap = cell.column.columnDef.meta?.noWrap;
+                return (
+                  <motion.td
+                    key={cell.id}
+                    layout
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                    }}
+                    className={`p-2 ${row.depth > 0 ? "first:pl-6" : "first:pl-4"} ${noWrap ? "whitespace-nowrap" : ""}`}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </motion.td>
+                );
+              })}
             </motion.tr>
           );
         })
