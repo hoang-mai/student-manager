@@ -26,4 +26,8 @@ const query = yup.object({
   levelName: yup.string().max(255).nullable(),
 });
 
-module.exports = { create, update, query };
+const assignStudents = yup.object({
+  userIds: yup.array().of(yup.string().uuid('Mã người dùng không hợp lệ')).min(1, 'Danh sách học viên không được rỗng').required('Danh sách học viên là bắt buộc'),
+});
+
+module.exports = { create, update, query, assignStudents, removeStudents: assignStudents };

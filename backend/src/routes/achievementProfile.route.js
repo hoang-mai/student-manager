@@ -2,6 +2,117 @@ const router = require('express').Router();
 const controller = require('../controllers/achievementProfile.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
 
+/**
+ * @swagger
+ * {
+ *   "/achievement-profiles": {
+ *     "post": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Thêm hồ sơ thành tích",
+ *       "responses": {
+ *         "201": {
+ *           "description": "Created"
+ *         }
+ *       }
+ *     },
+ *     "get": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Danh sách hồ sơ thành tích",
+ *       "parameters": [
+ *         {
+ *           "name": "page",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         },
+ *         {
+ *           "name": "limit",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/achievement-profiles/{id}": {
+ *     "get": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Chi tiết hồ sơ thành tích",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     },
+ *     "put": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Cập nhật hồ sơ thành tích",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     },
+ *     "delete": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Xóa hồ sơ thành tích",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
+ */
+
 router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 

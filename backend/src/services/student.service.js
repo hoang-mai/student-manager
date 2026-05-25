@@ -253,7 +253,7 @@ const getAcademicResults = async (userId, query = {}) => {
   const where = { userId };
   if (query.schoolYear) where.schoolYear = query.schoolYear;
 
-  return YearlyResult.findAll({
+  return paginateQuery(YearlyResult, query, {
     where,
     include: [{
       model: SemesterResult,
@@ -277,7 +277,11 @@ const getMyTimeTable = async (userId, query = {}) => {
     if (query.schoolYear) include[0].where.schoolYear = query.schoolYear;
   }
 
-  return TimeTable.findAll({ where, include });
+  return paginateQuery(TimeTable, query, {
+    where,
+    include,
+    order: [['createdAt', 'DESC']],
+  });
 };
 
 const createMyTimeTable = async (userId, data) => {
@@ -323,15 +327,24 @@ const updateMyCutRice = async (userId, data) => {
 
 // ===================== HV-08: Achievements & Tuition =====================
 
-const getMyAchievements = async (userId) => {
-  const achievements = await Achievement.findAll({ where: { userId }, order: [['year', 'DESC']] });
+const getMyAchievements = async (userId, query = {}) => {
+  const achievementsResult = await paginateQuery(Achievement, query, {
+    where: { userId },
+    order: [['year', 'DESC']],
+  });
   const profile = await AchievementProfile.findOne({ where: { userId } });
-  const yearlyAchievements = await YearlyAchievement.findAll({
+  const yearlyAchievementsResult = await paginateQuery(YearlyAchievement, query, {
     where: { userId },
     include: [{ model: ScientificInitiative }, { model: ScientificTopic }],
     order: [['year', 'DESC']],
   });
-  return { achievements, profile, yearlyAchievements };
+  return {
+    achievements: achievementsResult.rows,
+    achievementsPagination: achievementsResult.pagination,
+    profile,
+    yearlyAchievements: yearlyAchievementsResult.rows,
+    yearlyAchievementsPagination: yearlyAchievementsResult.pagination,
+  };
 };
 
 const getMyTuitionFees = async (userId, query = {}) => {
@@ -350,7 +363,11 @@ const getMyTuitionFees = async (userId, query = {}) => {
     if (query.schoolYear) include[0].where.schoolYear = query.schoolYear;
   }
 
-  return TuitionFee.findAll({ where, include, order: [['createdAt', 'DESC']] });
+  return paginateQuery(TuitionFee, query, {
+    where,
+    include,
+    order: [['createdAt', 'DESC']],
+  });
 };
 
 // ===================== HV-09: Notifications =====================

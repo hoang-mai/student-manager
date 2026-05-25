@@ -7,6 +7,7 @@
     "dev": "npm run install-lib && cross-env NODE_OPTIONS=\"--max-old-space-size=8000 --no-deprecation\" nodemon server.js",
     "start": "cross-env NODE_OPTIONS=--no-deprecation nodemon server.js",
     "seed": "node src/utils/fullSeed.js",
+    "swagger:check": "node src/utils/checkSwaggerCoverage.js",
     "test:api": "node src/utils/apiTest.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -33,6 +33,23 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
+const createSchoolYear = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.createSchoolYear, req.body);
+  const result = await service.createSchoolYear(req.body);
+  return success(res, result, 'Tạo năm học thành công', 201);
+});
+
+const getSchoolYears = asyncHandler(async (req, res) => {
+  const result = await service.getSchoolYears(req.query);
+  return paginated(res, result.rows, result.pagination);
+});
+
+const createTerm = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.createTerm, req.body);
+  const result = await service.createTerm(req.body);
+  return success(res, result, 'Tạo học kỳ thành công', 201);
+});
+
 // ===================== CH-11: Chuyển đổi điểm =====================
 
 const convertGrade = asyncHandler(async (req, res) => {
@@ -64,6 +81,9 @@ module.exports = {
   getDetail,
   update,
   delete: deleteRecord,
+  createSchoolYear,
+  getSchoolYears,
+  createTerm,
   convertGrade,
   convertMultipleGrades,
   calculateGpa,

@@ -2,6 +2,138 @@ const router = require('express').Router();
 const controller = require('../controllers/scientificTopic.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
 
+/**
+ * @swagger
+ * {
+ *   "/scientific-topics": {
+ *     "post": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Thêm đề tài NCKH",
+ *       "responses": {
+ *         "201": {
+ *           "description": "Created"
+ *         }
+ *       }
+ *     },
+ *     "get": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Danh sách đề tài NCKH",
+ *       "parameters": [
+ *         {
+ *           "name": "yearlyAchievementId",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "year",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         },
+ *         {
+ *           "name": "status",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "page",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         },
+ *         {
+ *           "name": "limit",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/scientific-topics/{id}": {
+ *     "get": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Chi tiết đề tài NCKH",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     },
+ *     "put": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Cập nhật đề tài NCKH",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     },
+ *     "delete": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Xóa đề tài NCKH",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
+ */
+
 router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 

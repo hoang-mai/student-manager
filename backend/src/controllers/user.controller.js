@@ -95,14 +95,14 @@ const uploadAvatar = asyncHandler(async (req, res) => {
 
 const getAcademicResults = asyncHandler(async (req, res) => {
   const result = await studentService.getAcademicResults(req.userId, req.query);
-  return success(res, result);
+  return paginated(res, result.rows, result.pagination);
 });
 
 // ===================== Student: Thời khóa biểu =====================
 
 const getMyTimeTable = asyncHandler(async (req, res) => {
   const result = await studentService.getMyTimeTable(req.userId, req.query);
-  return success(res, result);
+  return paginated(res, result.rows, result.pagination);
 });
 
 const denyMyTimeTableMutation = asyncHandler(async () => {
@@ -125,13 +125,13 @@ const updateMyCutRice = asyncHandler(async (req, res) => {
 // ===================== Student: Thành tích & Học phí =====================
 
 const getMyAchievements = asyncHandler(async (req, res) => {
-  const result = await studentService.getMyAchievements(req.userId);
+  const result = await studentService.getMyAchievements(req.userId, req.query);
   return success(res, result);
 });
 
 const getMyTuitionFees = asyncHandler(async (req, res) => {
   const result = await studentService.getMyTuitionFees(req.userId, req.query);
-  return success(res, result);
+  return paginated(res, result.rows, result.pagination);
 });
 
 // ===================== Admin/Commander: Quản lý hồ sơ =====================
