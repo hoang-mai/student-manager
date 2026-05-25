@@ -83,4 +83,21 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, getStudents, update, delete: deleteRecord };
+const assignStudents = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.assignStudents, req.body);
+  const result = await service.assignStudents(req.params.id, req.body.userIds || []);
+  return success(res, result, 'Thêm học viên vào lớp thành công');
+});
+
+const removeStudent = asyncHandler(async (req, res) => {
+  const result = await service.removeStudent(req.params.id, req.params.userId);
+  return success(res, result, 'Đã bỏ học viên khỏi lớp');
+});
+
+const removeStudents = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.removeStudents, req.body);
+  const result = await service.removeStudents(req.params.id, req.body.userIds || []);
+  return success(res, result, 'Đã bỏ học viên khỏi lớp');
+});
+
+module.exports = { create, getAll, getDetail, getStudents, update, delete: deleteRecord, assignStudents, removeStudents, removeStudent };

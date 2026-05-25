@@ -1,5 +1,5 @@
 const db = require('../models');
-const { NotFoundError } = require('../utils/apiError');
+const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const Class = db.class;
@@ -7,6 +7,8 @@ const EducationLevel = db.educationLevel;
 const Organization = db.organization;
 const University = db.university;
 const Profile = db.profile;
+const User = db.user;
+const Op = db.Sequelize.Op;
 
 const NESTED_SORT_MAP = {
   levelName: [{ model: EducationLevel }, 'levelName'],
@@ -118,4 +120,85 @@ const deleteRecord = async (id) => {
   return { deleted: true };
 };
 
-module.exports = { create, getAll, getDetail, getStudents, update, delete: deleteRecord };
+const getClassWithHierarchy = async (id) => {
+  const record = await Class.findByPk(id, {
+    include: [{ model: EducationLevel, include: [{ model: Organization, include: [{ model: University }] }] }],
+  });
+  if (!record) throw new NotFoundError('Không tìm thấy lớp học');
+  return record;
+};
+
+const getStudentProfilesByUserIds = async (userIds = []) => {
+  const uniqueIds = [...new Set(userIds)];
+  const users = await User.findAll({
+    where: {
+      id: { [Op.in]: uniqueIds },
+      role: 'STUDENT',
+    },
+    include: [{ model: Profile }],
+  });
+
+  if (users.length !== uniqueIds.length) {
+    throw new BadRequestError('Có học viên không tồn tại');
+  }
+
+  const profiles = users.map((user) => user.Profile).filter(Boolean);
+  if (profiles.length !== uniqueIds.length) {
+    throw new BadRequestError('Có học viên chưa có hồ sơ');
+  }
+
+  return { uniqueIds, profiles };
+};
+
+const assignStudents = async (classId, userIds = []) => {
+  const record = await getClassWithHierarchy(classId);
+  const { uniqueIds, profiles } = await getStudentProfilesByUserIds(userIds);
+  const profileIds = profiles.map((profile) => profile.id);
+  const orgId = record.EducationLevel?.organizationId || null;
+  const uniId = record.EducationLevel?.Organization?.universityId || null;
+
+  await Profile.update({
+    classId: record.id,
+    educationLevelId: record.educationLevelId,
+    organizationId: orgId,
+    universityId: uniId,
+  }, {
+    where: { id: { [Op.in]: profileIds } },
+  });
+
+  const studentCount = await Profile.count({ where: { classId: record.id } });
+  await record.update({ studentCount });
+
+  return { classId: record.id, updated: uniqueIds.length, studentCount };
+};
+
+const removeStudents = async (classId, userIds = []) => {
+  const record = await getClassWithHierarchy(classId);
+  const { uniqueIds, profiles } = await getStudentProfilesByUserIds(userIds);
+  const profileIds = profiles.map((profile) => profile.id);
+  const invalidProfile = profiles.find((profile) => profile.classId !== record.id);
+  if (invalidProfile) {
+    throw new BadRequestError('Có học viên không thuộc lớp này');
+  }
+
+  await Profile.update({
+    classId: null,
+    educationLevelId: null,
+    organizationId: null,
+    universityId: null,
+  }, {
+    where: { id: { [Op.in]: profileIds } },
+  });
+
+  const studentCount = await Profile.count({ where: { classId: record.id } });
+  await record.update({ studentCount });
+
+  return { classId: record.id, updated: uniqueIds.length, studentCount };
+};
+
+const removeStudent = async (classId, userId) => {
+  const result = await removeStudents(classId, [userId]);
+  return { ...result, userId };
+};
+
+module.exports = { create, getAll, getDetail, getStudents, update, delete: deleteRecord, assignStudents, removeStudents, removeStudent };

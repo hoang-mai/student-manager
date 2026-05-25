@@ -10,6 +10,15 @@ const update = yup.object({
   schoolYear: yup.string().max(50).nullable(),
 });
 
+const createSchoolYear = yup.object({
+  schoolYear: yup.string().max(50).required('Năm học là bắt buộc'),
+});
+
+const createTerm = yup.object({
+  schoolYear: yup.string().max(50).required('Năm học là bắt buộc'),
+  term: yup.number().integer().oneOf([1, 2], 'Kỳ học chỉ gồm 1 hoặc 2').required('Kỳ học là bắt buộc'),
+});
+
 const gradeConvert = yup.object({
   value: yup.string().required('Trường này là bắt buộc'),
   from: yup.string().oneOf(['10', '4', 'letter']).required('Trường này là bắt buộc'),
@@ -25,4 +34,4 @@ const gpaCalculate = yup.object({
   ).required('Trường này là bắt buộc'),
 });
 
-module.exports = { create, update, gradeConvert, gpaCalculate };
+module.exports = { create, update, createSchoolYear, createTerm, gradeConvert, gpaCalculate };

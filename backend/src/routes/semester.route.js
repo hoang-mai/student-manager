@@ -2,64 +2,394 @@ const router = require('express').Router();
 const controller = require('../controllers/semester.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
 
+/**
+ * @swagger
+ * {
+ *   "/semesters/grade-convert": {
+ *     "post": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-11: Chuyển đổi 1 điểm",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "value",
+ *                 "from",
+ *                 "to"
+ *               ],
+ *               "properties": {
+ *                 "value": {
+ *                   "type": "string"
+ *                 },
+ *                 "from": {
+ *                   "type": "string",
+ *                   "enum": [
+ *                     "10",
+ *                     "4",
+ *                     "letter"
+ *                   ]
+ *                 },
+ *                 "to": {
+ *                   "type": "string",
+ *                   "enum": [
+ *                     "10",
+ *                     "4",
+ *                     "letter"
+ *                   ]
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/semesters/grade-convert/batch": {
+ *     "post": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-11: Chuyển đổi hàng loạt",
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "grades": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "string"
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/semesters/grade-convert/gpa": {
+ *     "post": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-11: Tính GPA",
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "grades": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "object",
+ *                     "properties": {
+ *                       "point10": {
+ *                         "type": "number"
+ *                       },
+ *                       "credits": {
+ *                         "type": "integer"
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "200": {
+ *           "description": "{gpa4, gpa10, totalCredits}"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/semesters/grade-convert/table": {
+ *     "get": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-11: Bảng quy đổi điểm",
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/semesters/school-years": {
+ *     "post": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-08: Tạo năm học",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "schoolYear"
+ *               ],
+ *               "properties": {
+ *                 "schoolYear": {
+ *                   "type": "string",
+ *                   "example": "2024-2025"
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Created"
+ *         }
+ *       }
+ *     },
+ *     "get": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-08: Danh sách năm học",
+ *       "parameters": [
+ *         {
+ *           "name": "schoolYear",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string",
+ *             "example": "2024-2025"
+ *           }
+ *         },
+ *         {
+ *           "name": "page",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         },
+ *         {
+ *           "name": "limit",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "SchoolYear[] + pagination"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/semesters/terms": {
+ *     "post": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-08: Tạo học kỳ thuộc năm học",
+ *       "description": "Tạo học kỳ 1 hoặc 2 sau khi đã tạo năm học.",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "schoolYear",
+ *                 "term"
+ *               ],
+ *               "properties": {
+ *                 "schoolYear": {
+ *                   "type": "string",
+ *                   "example": "2024-2025"
+ *                 },
+ *                 "term": {
+ *                   "type": "integer",
+ *                   "enum": [
+ *                     1,
+ *                     2
+ *                   ],
+ *                   "example": 1
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Created"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/semesters": {
+ *     "post": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-08: Thêm học kỳ",
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/Semester"
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Created"
+ *         }
+ *       }
+ *     },
+ *     "get": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "CH-08: Danh sách học kỳ",
+ *       "parameters": [
+ *         {
+ *           "name": "code",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "schoolYear",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "page",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         },
+ *         {
+ *           "name": "limit",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/semesters/{id}": {
+ *     "get": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "Chi tiết",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     },
+ *     "put": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "Cập nhật",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     },
+ *     "delete": {
+ *       "tags": [
+ *         "Semesters"
+ *       ],
+ *       "summary": "Xóa",
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
+ */
+
 router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
-/**
- * @swagger
- * /semesters/grade-convert:
- *   post:
- *     tags: [Semesters]
- *     summary: CH-11 - Chuyển đổi điểm (1 giá trị)
- *     description: Chuyển đổi điểm giữa các hệ 10, 4, chữ (A+ đến F). Gửi value, from, to
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Kết quả chuyển đổi
- */
 router.post('/grade-convert', controller.convertGrade);
 
-/**
- * @swagger
- * /semesters/grade-convert/batch:
- *   post:
- *     tags: [Semesters]
- *     summary: CH-11 - Chuyển đổi điểm hàng loạt
- *     description: Chuyển đổi nhiều điểm cùng lúc. Gửi mảng grades chứa value, from, to
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Danh sách kết quả chuyển đổi
- */
 router.post('/grade-convert/batch', controller.convertMultipleGrades);
 
-/**
- * @swagger
- * /semesters/grade-convert/gpa:
- *   post:
- *     tags: [Semesters]
- *     summary: CH-11 - Tính GPA/CPA nhanh
- *     description: Tính điểm trung bình hệ 4 và hệ 10 từ danh sách điểm. Gửi mảng grades chứa point10, credits
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Kết quả GPA
- */
 router.post('/grade-convert/gpa', controller.calculateGpa);
 
-/**
- * @swagger
- * /semesters/grade-convert/table:
- *   get:
- *     tags: [Semesters]
- *     summary: CH-11 - Xem bảng quy đổi điểm
- *     description: Tra cứu bảng quy đổi giữa điểm chữ, hệ 4, hệ 10 kèm khoảng giá trị
- *     security: [{ BearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Bảng quy đổi điểm
- */
 router.get('/grade-convert/table', controller.getGradeTable);
+
+// Năm học -> Học kỳ
+router.post('/school-years', controller.createSchoolYear);
+router.get('/school-years', controller.getSchoolYears);
+router.post('/terms', controller.createTerm);
 
 // CRUD Học kỳ
 router.post('/', controller.create);
