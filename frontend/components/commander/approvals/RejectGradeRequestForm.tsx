@@ -8,7 +8,7 @@ import Textarea from "@/library/Textarea";
 import Typography from "@/library/Typography";
 import useAppMutation from "@/hooks/useAppMutation";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { commanderGradeRequestService } from "@/services/commander-grade-requests";
+import { gradeRequestService } from "@/services/grade-requests";
 import { useModalStore } from "@/store/useModalStore";
 import { GradeRequest } from "@/types/student-academic";
 import { formatDate, formatScore } from "@/utils/fn-common";
@@ -34,7 +34,7 @@ export default function RejectGradeRequestForm({
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.REJECT_GRADE_REQUEST,
     mutationFn: (reviewNote: string) =>
-      commanderGradeRequestService.rejectGradeRequest(request.id, { reviewNote }),
+      gradeRequestService.rejectGradeRequest(request.id, { reviewNote }),
     invalidateQueryKey: [QUERY_KEYS.COMMANDER_GRADE_REQUESTS],
     successMessage: "Từ chối đề xuất thành công",
     errorMessage: "Từ chối đề xuất thất bại!",
@@ -44,7 +44,7 @@ export default function RejectGradeRequestForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<RejectGradeRequestFormValues>({
     resolver: zodResolver(rejectGradeRequestSchema),
     defaultValues: {
@@ -82,7 +82,12 @@ export default function RejectGradeRequestForm({
         <Button type="button" variant="ghost" onClick={closeModal} disabled={mutation.isPending}>
           Hủy
         </Button>
-        <Button type="submit" variant="danger" isLoading={mutation.isPending}>
+        <Button
+          type="submit"
+          variant="danger"
+          isLoading={mutation.isPending}
+          disabled={!isDirty}
+        >
           Từ chối
         </Button>
       </div>

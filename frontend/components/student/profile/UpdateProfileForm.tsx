@@ -97,6 +97,7 @@ export default function UpdateProfileForm({
               label="Họ và tên"
               placeholder="Nhập họ và tên"
               error={errors.fullName?.message}
+              isLoading={mutation.isPending}
               {...register("fullName")}
               required
             />
@@ -113,6 +114,7 @@ export default function UpdateProfileForm({
                     label: value,
                   }))}
                   error={errors.gender?.message}
+                  isLoading={mutation.isPending}
                   required
                 />
               )}
@@ -121,12 +123,14 @@ export default function UpdateProfileForm({
               label="Email"
               placeholder="Nhập email"
               error={errors.email?.message}
+              isLoading={mutation.isPending}
               {...register("email")}
             />
             <Input
               label="Số điện thoại"
               placeholder="Nhập số điện thoại"
               error={errors.phoneNumber?.message}
+              isLoading={mutation.isPending}
               {...register("phoneNumber")}
             />
             <Controller

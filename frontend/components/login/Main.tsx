@@ -64,7 +64,7 @@ export default function Main() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -181,6 +181,7 @@ export default function Main() {
             variant="primary"
             fullWidth
             isLoading={loginMutation.isPending}
+            disabled={!isDirty}
             id="login-submit"
           >
             Đăng nhập

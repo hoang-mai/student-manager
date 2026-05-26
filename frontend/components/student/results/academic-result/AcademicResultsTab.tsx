@@ -8,7 +8,7 @@ import useTableQuery from "@/hooks/useTableQuery";
 import Badge from "@/library/Badge";
 import ErrorState from "@/library/ErrorState";
 import Table from "@/library/Table";
-import { studentAcademicService } from "@/services/student-academic";
+import { academicResultService } from "@/services/academic-results";
 import {
   AcademicResultQueryRequest,
   YearlyResult,
@@ -59,7 +59,7 @@ export default function AcademicResultsTab() {
     refetch,
   } = useTableQuery<YearlyResult, AcademicResultQueryRequest>({
     queryKey: [QUERY_KEYS.STUDENT_RESULTS],
-    fetchData: studentAcademicService.getAcademicResults,
+    fetchData: academicResultService.getAcademicResults,
   });
 
   const academicGroups = useMemo<AcademicGroupRow[]>(() => {

@@ -84,6 +84,7 @@ export interface GradeRequest {
   user?: {
     profile?: {
       fullName?: string;
+      code?: string;
     }
   };
   subjectResultId: string;

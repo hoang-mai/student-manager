@@ -1,19 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import type { ReactNode, Ref } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  HiOutlineChevronDown,
-  HiOutlineCheck,
-  HiOutlineSearch,
-} from "react-icons/hi";
+import { HiOutlineChevronDown } from "react-icons/hi";
 import Dropdown from "@/library/Dropdown";
 import Typography from "./Typography";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import Skeleton from "@/library/Skeleton";
-import { normalizeSearchText } from "@/utils/fn-common";
-import { rankItem, compareItems } from "@tanstack/match-sorter-utils";
 import SelectFilter from "@/library/select/SelectFilter";
 import SelectOptions from "@/library/select/SelectOption";
 type SelectSize = "sm" | "md" | "lg";

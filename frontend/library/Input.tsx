@@ -41,6 +41,7 @@ export interface InputProps extends Omit<
 
   /** Hiển thị dấu * bắt buộc */
   required?: boolean;
+
   /** React 19: ref được truyền trực tiếp như prop, không cần forwardRef. */
   ref?: Ref<HTMLInputElement>;
 }

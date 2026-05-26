@@ -28,14 +28,20 @@ export default function CreateClassForm() {
   const [selectedOrganizationId, setSelectedOrganizationId] =
     useState<string>("");
 
-  const { data: universitiesData, isLoading: isLoadingUniversities } = useQuery({
-    queryKey: [QUERY_KEYS.UNIVERSITIES, { fetchAll: true }],
-    queryFn: () => universityService.getUniversities({ fetchAll: true }),
-    select: (data) => data.data || [],
-  });
+  const { data: universitiesData, isLoading: isLoadingUniversities } = useQuery(
+    {
+      queryKey: [QUERY_KEYS.UNIVERSITIES, { fetchAll: true }],
+      queryFn: () => universityService.getUniversities({ fetchAll: true }),
+      select: (data) => data.data || [],
+    }
+  );
 
   const { data: organizationsData, isLoading: isLoadingOrgs } = useQuery({
-    queryKey: [QUERY_KEYS.ORGANIZATIONS, selectedUniversityId, { fetchAll: true }],
+    queryKey: [
+      QUERY_KEYS.ORGANIZATIONS,
+      selectedUniversityId,
+      { fetchAll: true },
+    ],
     queryFn: () =>
       organizationService.getOrganizations({
         universityId: selectedUniversityId,
@@ -46,7 +52,11 @@ export default function CreateClassForm() {
   });
 
   const { data: levelsData, isLoading: isLoadingLevels } = useQuery({
-    queryKey: [QUERY_KEYS.EDUCATION_LEVELS, selectedOrganizationId, { fetchAll: true }],
+    queryKey: [
+      QUERY_KEYS.EDUCATION_LEVELS,
+      selectedOrganizationId,
+      { fetchAll: true },
+    ],
     queryFn: () =>
       organizationService.getEducationLevels({
         organizationId: selectedOrganizationId,
@@ -61,7 +71,7 @@ export default function CreateClassForm() {
     handleSubmit,
     control,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<CreateClassFormValues>({
     resolver: zodResolver(createClassSchema),
     defaultValues: {
@@ -184,6 +194,7 @@ export default function CreateClassForm() {
         placeholder="VD: CNTT-K60, AT15..."
         prefixIcon={<HiOutlineUserGroup />}
         error={errors.className?.message}
+        isLoading={mutation.isPending}
         {...register("className")}
         required
       />
@@ -195,6 +206,7 @@ export default function CreateClassForm() {
         placeholder="Nhập số lượng học viên hiện tại..."
         prefixIcon={<HiOutlineUserGroup />}
         error={errors.studentCount?.message}
+        isLoading={mutation.isPending}
         {...register("studentCount", { valueAsNumber: true })}
         required
       />
@@ -214,7 +226,7 @@ export default function CreateClassForm() {
             variant="primary"
             type="submit"
             isLoading={mutation.isPending}
-            disabled={mutation.isPending}
+            disabled={!isDirty}
           >
             Thêm mới
           </Button>

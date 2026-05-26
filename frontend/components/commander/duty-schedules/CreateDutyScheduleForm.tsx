@@ -67,7 +67,7 @@ export default function CreateDutyScheduleForm() {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<CreateDutyScheduleFormValues>({
     resolver: zodResolver(createDutyScheduleSchema),
     defaultValues: {
@@ -115,6 +115,7 @@ export default function CreateDutyScheduleForm() {
         placeholder="Ví dụ: Trực ban d, Trực ban c..."
         {...register("position")}
         error={errors.position?.message}
+        isLoading={mutation.isPending}
         required
       />
 
@@ -137,7 +138,12 @@ export default function CreateDutyScheduleForm() {
         <Button variant="ghost" type="button" onClick={closeModal}>
           Hủy
         </Button>
-        <Button variant="primary" type="submit" isLoading={mutation.isPending}>
+        <Button
+          variant="primary"
+          type="submit"
+          isLoading={mutation.isPending}
+          disabled={!isDirty}
+        >
           Phân công
         </Button>
       </div>

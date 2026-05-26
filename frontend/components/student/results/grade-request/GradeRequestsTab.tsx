@@ -8,7 +8,8 @@ import Badge from "@/library/Badge";
 import ErrorState from "@/library/ErrorState";
 import Table from "@/library/Table";
 import { useModalStore } from "@/store/useModalStore";
-import { studentAcademicService } from "@/services/student-academic";
+import { academicResultService } from "@/services/academic-results";
+import { gradeRequestService } from "@/services/grade-requests";
 import {
   AcademicResultQueryRequest,
   GradeRequest,
@@ -44,12 +45,12 @@ export default function GradeRequestsTab() {
     setSorting,
   } = useTableQuery<GradeRequest, GradeRequestQueryRequest>({
     queryKey: [QUERY_KEYS.STUDENT_GRADE_REQUESTS],
-    fetchData: studentAcademicService.getGradeRequests,
+    fetchData: gradeRequestService.getStudentGradeRequests,
   });
 
   const resultsQuery = useTableQuery<YearlyResult, AcademicResultQueryRequest>({
     queryKey: [QUERY_KEYS.STUDENT_RESULTS],
-    fetchData: studentAcademicService.getAcademicResults,
+    fetchData: academicResultService.getAcademicResults,
   });
 
   const subjectOptions = useMemo(() => {

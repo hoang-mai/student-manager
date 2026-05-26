@@ -107,6 +107,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
               placeholder="Ví dụ: Nguyễn Văn A"
               {...register("fullName")}
               error={errors.fullName?.message}
+              isLoading={updateMutation.isPending}
               required
             />
             <Input
@@ -114,6 +115,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
               placeholder="Ví dụ: nguyenvana"
               {...register("username")}
               error={errors.username?.message}
+              isLoading={updateMutation.isPending}
               required
             />
             <Input
@@ -121,12 +123,14 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
               placeholder="Ví dụ: vana@example.com"
               {...register("email")}
               error={errors.email?.message}
+              isLoading={updateMutation.isPending}
             />
             <Input
               label="Số điện thoại"
               placeholder="Ví dụ: 0987654321"
               {...register("phoneNumber")}
               error={errors.phoneNumber?.message}
+              isLoading={updateMutation.isPending}
             />
             <div className="md:col-span-2">
               <Input
@@ -134,6 +138,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
                 placeholder="Nhập địa chỉ hiện tại"
                 {...register("currentAddress")}
                 error={errors.currentAddress?.message}
+                isLoading={updateMutation.isPending}
               />
             </div>
           </div>
@@ -153,6 +158,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
                   value={field.value}
                   onChange={field.onChange}
                   error={errors.birthday?.message}
+                  isLoading={updateMutation.isPending}
                 />
               )}
             />
@@ -168,6 +174,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
                   value={field.value}
                   onChange={field.onChange}
                   error={errors.gender?.message}
+                  isLoading={updateMutation.isPending}
                 />
               )}
             />
@@ -176,30 +183,35 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
               placeholder="Nhập số CCCD"
               {...register("cccd")}
               error={errors.cccd?.message}
+              isLoading={updateMutation.isPending}
             />
             <Input
               label="Quê quán"
               placeholder="Nhập quê quán"
               {...register("hometown")}
               error={errors.hometown?.message}
+              isLoading={updateMutation.isPending}
             />
             <Input
               label="Nơi sinh"
               placeholder="Nhập nơi sinh"
               {...register("placeOfBirth")}
               error={errors.placeOfBirth?.message}
+              isLoading={updateMutation.isPending}
             />
             <Input
               label="Dân tộc"
               placeholder="Ví dụ: Kinh"
               {...register("ethnicity")}
               error={errors.ethnicity?.message}
+              isLoading={updateMutation.isPending}
             />
             <Input
               label="Tôn giáo"
               placeholder="Ví dụ: Không"
               {...register("religion")}
               error={errors.religion?.message}
+              isLoading={updateMutation.isPending}
             />
           </div>
         </section>

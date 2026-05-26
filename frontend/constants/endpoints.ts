@@ -6,6 +6,12 @@ export const ENDPOINTS = {
     REGISTER: "/api/auth/register",
     REFRESH_TOKEN: "/api/auth/refresh-token",
     CHANGE_PASSWORD: "/api/auth/change-password",
+    NOTIFICATIONS: "/api/auth/notifications",
+    NOTIFICATION_DETAIL: (id: string | number) =>
+      `/api/auth/notifications/${id}`,
+    MARK_NOTIFICATION_READ: (id: string | number) =>
+      `/api/auth/notifications/${id}/read`,
+    MARK_ALL_NOTIFICATIONS_READ: "/api/auth/notifications/read-all",
   },
   USERS: {
     BASE: "/api/users",
@@ -29,18 +35,47 @@ export const ENDPOINTS = {
   CLASSES: {
     BASE: "/api/classes",
   },
+  SEMESTERS: {
+    BASE: "/api/semesters",
+  },
+  TIME_TABLES: {
+    BASE: "/api/time-tables",
+    REPORT: "/api/time-tables/report",
+    TIME_TABLE: "/api/users/time-table",
+  },
+  TUITION_FEES: {
+    BASE: "/api/tuition-fees",
+    MY: "/api/users/tuition-fees",
+  },
+  CUT_RICE: {
+    BASE: "/api/cut-rice",
+    EXPORT: "/api/cut-rice/export",
+    GENERATE: (userId: string | number) =>
+      `/api/users/cut-rice/generate/${userId}`,
+    GENERATE_ALL: "/api/users/cut-rice/generate-all",
+  },
   DUTY_SCHEDULES: {
     BASE: "/api/commander-duty-schedules",
   },
-  STUDENTS: {
-    ACADEMIC_RESULTS: "/api/users/academic-results",
-    GRADE_REQUESTS: "/api/students/grade-requests",
-    GRADE_REQUEST_DETAIL: (id: string | number) => `/api/students/grade-requests/${id}`,
+  ACADEMIC_RESULTS: {
+    BASE: "/api/users/academic-results",
   },
-  COMMANDERS: {
-    GRADE_REQUESTS: "/api/commanders/grade-requests",
-    GRADE_REQUEST_DETAIL: (id: string | number) => `/api/commanders/grade-requests/${id}`,
-    APPROVE_GRADE_REQUEST: (id: string | number) => `/api/commanders/grade-requests/${id}/approve`,
-    REJECT_GRADE_REQUEST: (id: string | number) => `/api/commanders/grade-requests/${id}/reject`,
+  ACHIEVEMENTS: {
+    MY: "/api/users/achievements",
+  },
+  GRADE_REQUESTS: {
+    STUDENT_BASE: "/api/students/grade-requests",
+    STUDENT_DETAIL: (id: string | number) =>
+      `/api/students/grade-requests/${id}`,
+    COMMANDER_BASE: "/api/commanders/grade-requests",
+    COMMANDER_DETAIL: (id: string | number) =>
+      `/api/commanders/grade-requests/${id}`,
+    APPROVE: (id: string | number) =>
+      `/api/commanders/grade-requests/${id}/approve`,
+    REJECT: (id: string | number) =>
+      `/api/commanders/grade-requests/${id}/reject`,
+  },
+  REPORTS: {
+    TUITION: "/api/commanders/reports/tuition",
   },
 } as const;

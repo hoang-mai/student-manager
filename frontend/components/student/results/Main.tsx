@@ -4,8 +4,8 @@ import { useState } from "react";
 import { HiOutlineAcademicCap, HiOutlineDocumentAdd } from "react-icons/hi";
 import PageContainer from "@/library/PageContainer";
 import Tabs from "@/library/Tabs";
-import AcademicResultsTab from "./AcademicResultsTab";
-import GradeRequestsTab from "./GradeRequestsTab";
+import AcademicResultsTab from "./academic-result/AcademicResultsTab";
+import GradeRequestsTab from "./grade-request/GradeRequestsTab";
 
 export default function Main() {
   const [activeTab, setActiveTab] = useState<"results" | "requests">("results");

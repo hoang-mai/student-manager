@@ -8,7 +8,7 @@ import Textarea from "@/library/Textarea";
 import Typography from "@/library/Typography";
 import useAppMutation from "@/hooks/useAppMutation";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { commanderGradeRequestService } from "@/services/commander-grade-requests";
+import { gradeRequestService } from "@/services/grade-requests";
 import { useModalStore } from "@/store/useModalStore";
 import { GradeRequest } from "@/types/student-academic";
 import { formatDate, formatScore } from "@/utils/fn-common";
@@ -20,7 +20,9 @@ const approvalGradeRequestSchema = z.object({
     .optional(),
 });
 
-type ApprovalGradeRequestFormValues = z.infer<typeof approvalGradeRequestSchema>;
+type ApprovalGradeRequestFormValues = z.infer<
+  typeof approvalGradeRequestSchema
+>;
 
 interface ApprovalGradeRequestFormProps {
   request: GradeRequest;
@@ -33,7 +35,7 @@ export default function ApprovalGradeRequestForm({
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.APPROVE_GRADE_REQUEST,
     mutationFn: (reviewNote: string) =>
-      commanderGradeRequestService.approveGradeRequest(request.id, { reviewNote }),
+      gradeRequestService.approveGradeRequest(request.id, { reviewNote }),
     invalidateQueryKey: [QUERY_KEYS.COMMANDER_GRADE_REQUESTS],
     successMessage: "Phê duyệt đề xuất thành công",
     errorMessage: "Phê duyệt đề xuất thất bại!",
@@ -43,7 +45,7 @@ export default function ApprovalGradeRequestForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<ApprovalGradeRequestFormValues>({
     resolver: zodResolver(approvalGradeRequestSchema),
     defaultValues: {
@@ -77,7 +79,12 @@ export default function ApprovalGradeRequestForm({
       />
 
       <div className="flex justify-end gap-3 pt-1">
-        <Button type="button" variant="ghost" onClick={closeModal} disabled={mutation.isPending}>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={closeModal}
+          disabled={mutation.isPending}
+        >
           Hủy
         </Button>
         <Button type="submit" variant="primary" isLoading={mutation.isPending}>
@@ -92,19 +99,27 @@ function RequestSummary({ request }: { request: GradeRequest }) {
   return (
     <div className="grid gap-3 text-sm text-neutral-600 dark:text-neutral-300 sm:grid-cols-2">
       <div>
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Môn học: </span>
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+          Môn học:{" "}
+        </span>
         {request.subjectResult?.subjectName || "---"}
       </div>
       <div>
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Ngày gửi: </span>
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+          Ngày gửi:{" "}
+        </span>
         {formatDate(request.createdAt)}
       </div>
       <div>
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Điểm hiện tại: </span>
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+          Điểm hiện tại:{" "}
+        </span>
         {formatScore(request.subjectResult?.gradePoint10)}
       </div>
       <div>
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Điểm đề xuất: </span>
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+          Điểm đề xuất:{" "}
+        </span>
         {formatScore(request.proposedGradePoint10)}
       </div>
     </div>

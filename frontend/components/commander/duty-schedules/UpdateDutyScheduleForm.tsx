@@ -75,7 +75,7 @@ export default function UpdateDutyScheduleForm({
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<UpdateDutyScheduleFormValues>({
     resolver: zodResolver(updateDutyScheduleSchema),
     defaultValues: {
@@ -123,6 +123,7 @@ export default function UpdateDutyScheduleForm({
         placeholder="Ví dụ: Trực ban d, Trực ban c..."
         {...register("position")}
         error={errors.position?.message}
+        isLoading={mutation.isPending}
         required
       />
 
@@ -145,7 +146,12 @@ export default function UpdateDutyScheduleForm({
         <Button variant="ghost" type="button" onClick={closeModal}>
           Hủy
         </Button>
-        <Button variant="primary" type="submit" isLoading={mutation.isPending}>
+        <Button
+          variant="primary"
+          type="submit"
+          isLoading={mutation.isPending}
+          disabled={!isDirty}
+        >
           Cập nhật
         </Button>
       </div>

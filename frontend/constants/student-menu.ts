@@ -1,6 +1,7 @@
 import React from "react";
 import {
   HiOutlineAcademicCap,
+  HiOutlineBadgeCheck,
   HiOutlineCalendar,
   HiOutlineCash,
   HiOutlineHome,
@@ -40,8 +41,13 @@ export const STUDENT_MENU = [
     icon: HiOutlineCalendar,
   },
   {
-    title: "Thành tích & học phí",
-    path: "/student/achievements-tuition",
+    title: "Thành tích",
+    path: "/student/achievements",
+    icon: HiOutlineBadgeCheck,
+  },
+  {
+    title: "Học phí",
+    path: "/student/tuition",
     icon: HiOutlineCash,
   },
 ] as const satisfies readonly MenuItem[];

@@ -9,7 +9,7 @@ import Typography from "@/library/Typography";
 import Button from "@/library/Button";
 import useAppMutation from "@/hooks/useAppMutation";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { studentAcademicService } from "@/services/student-academic";
+import { gradeRequestService } from "@/services/grade-requests";
 import { useModalStore } from "@/store/useModalStore";
 import {
   CreateGradeRequestRequest,
@@ -25,8 +25,9 @@ interface CreateGradeRequestFormProps {
   subjects: SubjectResult[];
 }
 
-
-export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestFormProps) {
+export default function CreateGradeRequestForm({
+  subjects,
+}: CreateGradeRequestFormProps) {
   const { closeModal } = useModalStore();
 
   const subjectOptions = subjects.map((subject) => ({
@@ -38,7 +39,7 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<CreateGradeRequestFormValues>({
     resolver: zodResolver(createGradeRequestSchema),
     defaultValues: {
@@ -54,11 +55,10 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
     (subject) => String(subject.id) === String(selectedSubjectId)
   );
 
-
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.CREATE_STUDENT_GRADE_REQUEST,
     mutationFn: (data: CreateGradeRequestRequest) =>
-      studentAcademicService.createGradeRequest(data),
+      gradeRequestService.createGradeRequest(data),
     invalidateQueryKey: [QUERY_KEYS.STUDENT_GRADE_REQUESTS],
     successMessage: "Gửi đề xuất thành công!",
     errorMessage: "Gửi đề xuất thất bại!",
@@ -70,7 +70,10 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex max-h-[85vh] flex-col pb-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex max-h-[85vh] flex-col pb-4"
+    >
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 custom-scrollbar">
         <div className="rounded-3xl border border-primary-100 bg-primary-50/60 p-4 dark:border-primary-500/20 dark:bg-primary-500/10">
           <Typography variant="label" color="primary" className="mb-1">
@@ -81,7 +84,9 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
           </Typography>
           {selectedSubject && (
             <Typography variant="body" color="gray" className="mt-1">
-              Điểm hiện tại: {selectedSubject.letterGrade || "---"} · {selectedSubject.gradePoint10 ?? "---"}/10 · {selectedSubject.gradePoint4 ?? "---"}/4
+              Điểm hiện tại: {selectedSubject.letterGrade || "---"} ·{" "}
+              {selectedSubject.gradePoint10 ?? "---"}/10 ·{" "}
+              {selectedSubject.gradePoint4 ?? "---"}/4
             </Typography>
           )}
         </div>
@@ -101,7 +106,7 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
               filter={{
                 enabled: true,
                 mode: "client",
-                placeholder: "Tìm môn học cần đề xuất chỉnh sửa"
+                placeholder: "Tìm môn học cần đề xuất chỉnh sửa",
               }}
             />
           )}
@@ -130,9 +135,16 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
           type="number"
           placeholder="VD: 8.7"
           error={errors.proposedGradePoint10?.message}
-          {...register("proposedGradePoint10", { valueAsNumber: true })} />
+          {...register("proposedGradePoint10", { valueAsNumber: true })}
+        />
 
-        <Input label="Minh chứng (URL)" placeholder="Dán liên kết minh chứng nếu có" error={errors.attachmentUrl?.message} {...register("attachmentUrl")} />
+        <Input
+           label="Minh chứng (URL)"
+           placeholder="Dán liên kết minh chứng nếu có"
+           error={errors.attachmentUrl?.message}
+           isLoading={mutation.isPending}
+           {...register("attachmentUrl")}
+         />
 
         <Textarea
           label="Lý do đề xuất"
@@ -145,8 +157,15 @@ export default function CreateGradeRequestForm({ subjects }: CreateGradeRequestF
         />
       </div>
       <div className="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="ghost" onClick={closeModal}>Hủy</Button>
-        <Button type="submit" variant="primary" disabled={mutation.isPending || subjects.length === 0}>
+        <Button type="button" variant="ghost" onClick={closeModal}>
+          Hủy
+        </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          isLoading={mutation.isPending}
+          disabled={subjects.length === 0 || !isDirty}
+        >
           Gửi đề xuất
         </Button>
       </div>

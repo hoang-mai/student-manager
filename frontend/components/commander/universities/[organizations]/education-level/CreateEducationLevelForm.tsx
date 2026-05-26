@@ -48,6 +48,7 @@ export default function CreateEducationLevelForm({ organizationId }: Props) {
         placeholder="VD: Đại học, Cao đẳng, Sau đại học..."
         prefixIcon={<HiOutlineAcademicCap />}
         error={errors.levelName?.message}
+        isLoading={mutation.isPending}
         {...register("levelName")}
         required
       />

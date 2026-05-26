@@ -53,6 +53,7 @@ export default function CreateUniversityForm() {
               placeholder="Ví dụ: T01, T02..."
               {...register("universityCode")}
               error={errors.universityCode?.message}
+              isLoading={mutation.isPending}
               required
             />
             <Input
@@ -60,6 +61,7 @@ export default function CreateUniversityForm() {
               placeholder="Ví dụ: Học viện Kỹ thuật Quân sự"
               {...register("universityName")}
               error={errors.universityName?.message}
+              isLoading={mutation.isPending}
               required
             />
             <Controller
@@ -77,6 +79,7 @@ export default function CreateUniversityForm() {
                   value={field.value}
                   onChange={field.onChange}
                   error={errors.status?.message}
+                  isLoading={mutation.isPending}
                 />
               )}
             />

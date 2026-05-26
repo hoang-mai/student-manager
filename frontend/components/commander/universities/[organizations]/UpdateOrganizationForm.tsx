@@ -60,6 +60,7 @@ export default function UpdateOrganizationForm({
         placeholder="VD: Khoa Công nghệ thông tin..."
         prefixIcon={<HiOutlineCollection />}
         error={errors.organizationName?.message}
+        isLoading={mutation.isPending}
         {...register("organizationName")}
         required
       />
@@ -69,6 +70,7 @@ export default function UpdateOrganizationForm({
         placeholder="Thời gian đi từ đơn vị về trường (để tính cắt cơm)..."
         prefixIcon={<HiOutlineClock />}
         error={errors.travelTime?.message}
+        isLoading={mutation.isPending}
         {...register("travelTime", { valueAsNumber: true })}
         required
       />

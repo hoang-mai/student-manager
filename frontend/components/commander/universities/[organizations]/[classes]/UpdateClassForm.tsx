@@ -50,6 +50,7 @@ export default function UpdateClassForm({ cls, educationLevelId }: Props) {
         placeholder="VD: CNTT-K60, AT15..."
         prefixIcon={<HiOutlineUserGroup />}
         error={errors.className?.message}
+        isLoading={mutation.isPending}
         {...register("className")}
         required
       />
@@ -59,6 +60,7 @@ export default function UpdateClassForm({ cls, educationLevelId }: Props) {
         placeholder="Nhập số lượng học viên hiện tại..."
         prefixIcon={<HiOutlineUserGroup />}
         error={errors.studentCount?.message}
+        isLoading={mutation.isPending}
         {...register("studentCount", { valueAsNumber: true })}
         required
       />

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type Ref } from "react";
+import { useState, type Ref } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { HiOutlineClock, HiOutlineChevronDown } from "react-icons/hi";
 import Button from "./Button";
 import Popover from "./Popover";
+import TimePanel from "./time-range-picker/TimePanel";
+import { TimeMode } from "./time-range-picker/utils";
 import Typography from "./Typography";
-
-type TimeMode = "HH" | "HH:mm" | "HH:mm:ss";
 type InputSize = "sm" | "md" | "lg";
 
 export interface TimeRangeValue {
@@ -56,139 +56,15 @@ const sizeStyles: Record<InputSize, string> = {
   lg: "h-12 px-4 text-base",
 };
 
-const hours = Array.from({ length: 24 }, (_, i) =>
-  i.toString().padStart(2, "0")
-);
-const minutes = Array.from({ length: 60 }, (_, i) =>
-  i.toString().padStart(2, "0")
-);
-const seconds = Array.from({ length: 60 }, (_, i) =>
-  i.toString().padStart(2, "0")
-);
-
-function parseTime(
-  value: string,
-  mode: TimeMode
-): { h: string; m: string; s: string } {
-  const parts = value.split(":");
-  return {
-    h: parts[0] || "",
-    m: mode !== "HH" ? parts[1] || "" : "",
-    s: mode === "HH:mm:ss" ? parts[2] || "" : "",
-  };
-}
-
-function buildTime(h: string, m: string, s: string, mode: TimeMode): string {
-  if (!h) return "";
-  if (mode === "HH") return h;
-  if (mode === "HH:mm") return `${h}:${m || "00"}`;
-  return `${h}:${m || "00"}:${s || "00"}`;
-}
+const popoverWidthStyles: Record<TimeMode, string> = {
+  HH: "w-72",
+  "HH:mm": "w-80",
+  "HH:mm:ss": "w-[28rem]",
+};
 
 function formatDisplay(value: string | undefined, mode: TimeMode): string {
   if (!value) return placeholders[mode];
   return value;
-}
-
-interface TimeColumnProps {
-  items: string[];
-  selected: string;
-  onSelect: (value: string) => void;
-}
-
-function TimeColumn({ items, selected, onSelect }: TimeColumnProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const selectedRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (selectedRef.current && containerRef.current) {
-      selectedRef.current.scrollIntoView({
-        block: "center",
-        behavior: "instant",
-      });
-    }
-  }, [selected]);
-
-  return (
-    <div
-      ref={containerRef}
-      className="flex-1 h-48 overflow-y-auto custom-scrollbar"
-    >
-      <div className="flex flex-col gap-0.5 p-1">
-        {items.map((item) => (
-          <button
-            key={item}
-            ref={item === selected ? selectedRef : undefined}
-            type="button"
-            onClick={() => onSelect(item)}
-            className={`
-              px-2 py-1.5 rounded-lg text-xs font-bold text-center transition-all cursor-pointer
-              ${
-                item === selected
-                  ? "bg-primary-500 text-white shadow-sm"
-                  : "text-neutral-600 dark:text-neutral-300 hover:bg-primary-50 dark:hover:bg-primary-950/40 hover:text-primary-600 dark:hover:text-primary-300"
-              }
-            `}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-interface TimePanelProps {
-  value: string;
-  onChange: (value: string) => void;
-  mode: TimeMode;
-  label: string;
-}
-
-function TimePanel({ value, onChange, mode, label }: TimePanelProps) {
-  const { h, m, s } = parseTime(value, mode);
-
-  const handleHourSelect = (hour: string) => {
-    onChange(buildTime(hour, m, s, mode));
-  };
-
-  const handleMinuteSelect = (minute: string) => {
-    onChange(buildTime(h || "00", minute, s, mode));
-  };
-
-  const handleSecondSelect = (second: string) => {
-    onChange(buildTime(h || "00", m || "00", second, mode));
-  };
-
-  return (
-    <div className="flex-1">
-      <Typography
-        variant="caption"
-        weight="bold"
-        color="gray"
-        className="mb-2 block text-center"
-      >
-        {label}
-      </Typography>
-      <div className="flex gap-0.5 rounded-xl border border-neutral-100 dark:border-neutral-700/80 overflow-hidden">
-        <TimeColumn items={hours} selected={h} onSelect={handleHourSelect} />
-        {mode !== "HH" && (
-          <TimeColumn
-            items={minutes}
-            selected={m}
-            onSelect={handleMinuteSelect}
-          />
-        )}
-        {mode === "HH:mm:ss" && (
-          <TimeColumn
-            items={seconds}
-            selected={s}
-            onSelect={handleSecondSelect}
-          />
-        )}
-      </div>
-    </div>
-  );
 }
 
 export default function TimeRangePicker({
@@ -256,7 +132,7 @@ export default function TimeRangePicker({
         disabled={disabled}
         isLoading={isLoading}
         onOpenChange={handleOpenChange}
-        popoverClassName="w-80 bg-white dark:bg-neutral-950 border-2 border-primary-500 dark:border-neutral-700 p-4 rounded-2xl shadow-xl dark:shadow-black/40 z-50"
+        popoverClassName={`${popoverWidthStyles[mode]} bg-white dark:bg-neutral-950 border-2 border-primary-500 dark:border-neutral-700 p-4 rounded-2xl shadow-xl dark:shadow-black/40 z-50`}
         trigger={(isOpen) => (
           <div
             className={`
@@ -289,7 +165,7 @@ export default function TimeRangePicker({
           </div>
         )}
       >
-        {({ close }) => (
+        {({ close, isOpen }) => (
           <div className="flex flex-col gap-4">
             <div className="flex gap-4">
               <TimePanel
@@ -297,12 +173,14 @@ export default function TimeRangePicker({
                 onChange={setDraftStart}
                 mode={mode}
                 label="Bắt đầu"
+                scrollToSelectedOnOpen={isOpen}
               />
               <TimePanel
                 value={draftEnd}
                 onChange={setDraftEnd}
                 mode={mode}
                 label="Kết thúc"
+                scrollToSelectedOnOpen={isOpen}
               />
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-neutral-100 dark:border-neutral-800">
@@ -317,12 +195,7 @@ export default function TimeRangePicker({
                 Xóa chọn
               </button>
               <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={close}
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={close}>
                   Hủy bỏ
                 </Button>
                 <Button

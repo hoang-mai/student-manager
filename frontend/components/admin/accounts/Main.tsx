@@ -132,6 +132,7 @@ export default function Main() {
       {
         id: "info",
         header: "Thông tin cá nhân",
+        meta: { noWrap: true },
         cell: (info) => {
           const { fullName, email } = info.row.original.profile || {};
           return (
@@ -309,6 +310,18 @@ export default function Main() {
         id: "username",
         label: "Tên đăng nhập",
         placeholder: "Nhập tên đăng nhập...",
+      },
+      {
+        type: "text",
+        id: "fullName",
+        label: "Họ và tên",
+        placeholder: "Nhập họ và tên...",
+      },
+      {
+        type: "text",
+        id: "code",
+        label: "Mã",
+        placeholder: "Nhập mã...",
       },
       {
         type: "select",

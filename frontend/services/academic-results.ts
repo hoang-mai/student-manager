@@ -2,9 +2,6 @@ import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
   AcademicResultQueryRequest,
-  CreateGradeRequestRequest,
-  GradeRequest,
-  GradeRequestQueryRequest,
   YearlyResult,
 } from "@/types/student-academic";
 
@@ -20,21 +17,13 @@ const toPaginatedResponse = <T>(items: T[]): PaginatedResponse<T> => ({
   },
 });
 
-export const studentAcademicService = {
+export const academicResultService = {
   getAcademicResults: async (params?: AcademicResultQueryRequest): Promise<PaginatedResponse<YearlyResult>> => {
     const response = await apiClient.get<ApiResponse<YearlyResult[]>, ApiResponse<YearlyResult[]>>(
-      ENDPOINTS.STUDENTS.ACADEMIC_RESULTS,
+      ENDPOINTS.ACADEMIC_RESULTS.BASE,
       { params }
     );
 
     return toPaginatedResponse(response.data || []);
-  },
-
-  getGradeRequests: async (params?: GradeRequestQueryRequest): Promise<PaginatedResponse<GradeRequest>> => {
-    return apiClient.get(ENDPOINTS.STUDENTS.GRADE_REQUESTS, { params });
-  },
-
-  createGradeRequest: async (data: CreateGradeRequestRequest) => {
-    return apiClient.post<ApiResponse<GradeRequest>>(ENDPOINTS.STUDENTS.GRADE_REQUESTS, data);
   },
 };

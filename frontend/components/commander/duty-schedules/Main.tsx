@@ -80,6 +80,7 @@ export default function DutySchedulesMain() {
         id: "fullName",
         header: "Người trực",
         accessorKey: "fullName",
+        meta: { noWrap: true },
         cell: (info) => (
           <div className="flex items-center gap-3">
             <div>

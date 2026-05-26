@@ -15,7 +15,7 @@ import Table from "@/library/Table";
 import Typography from "@/library/Typography";
 import useTableQuery from "@/hooks/useTableQuery";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { commanderGradeRequestService } from "@/services/commander-grade-requests";
+import { gradeRequestService } from "@/services/grade-requests";
 import { useModalStore } from "@/store/useModalStore";
 import {
   GradeRequest,
@@ -30,11 +30,13 @@ import RejectGradeRequestForm from "./RejectGradeRequestForm";
 
 type ReviewAction = "approve" | "reject";
 
-
 const getSemesterLabel = (request: GradeRequest) => {
   const semester = request.subjectResult?.semesterResult;
   if (!semester) return "---";
-  return [semester.semester, semester.schoolYear].filter(Boolean).join(" · ") || "---";
+  return (
+    [semester.semester, semester.schoolYear].filter(Boolean).join(" · ") ||
+    "---"
+  );
 };
 
 export default function Main() {
@@ -53,9 +55,8 @@ export default function Main() {
     setSorting,
   } = useTableQuery<GradeRequest, GradeRequestQueryRequest>({
     queryKey: [QUERY_KEYS.COMMANDER_GRADE_REQUESTS],
-    fetchData: commanderGradeRequestService.getGradeRequests,
+    fetchData: gradeRequestService.getCommanderGradeRequests,
   });
-
 
   const openReviewModal = useCallback(
     (request: GradeRequest, action: ReviewAction) => {
@@ -101,10 +102,14 @@ export default function Main() {
       {
         id: "student",
         header: "Học viên",
+        meta: { noWrap: true },
         cell: ({ row }) => (
           <div className="min-w-44">
             <Typography variant="body" weight="semibold" color="neutral">
               {row.original.user?.profile?.fullName || "---"}
+            </Typography>
+            <Typography variant="caption" color="gray">
+              {row.original.user?.profile?.code || "Chưa có mã học viên"}
             </Typography>
           </div>
         ),
@@ -135,7 +140,9 @@ export default function Main() {
         cell: ({ row }) => (
           <div className="whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-300">
             {formatScore(row.original.subjectResult?.gradePoint10)}
-            <span className="mx-2 text-neutral-300 dark:text-neutral-600">→</span>
+            <span className="mx-2 text-neutral-300 dark:text-neutral-600">
+              →
+            </span>
             <span className="font-bold text-primary-600 dark:text-primary-400">
               {formatScore(row.original.proposedGradePoint10)}
             </span>
@@ -169,7 +176,9 @@ export default function Main() {
             <div className="flex items-center gap-1">
               <ActionButton
                 tooltipText="Xem chi tiết"
-                icon={request.attachmentUrl ? HiOutlineExternalLink : HiOutlineEye}
+                icon={
+                  request.attachmentUrl ? HiOutlineExternalLink : HiOutlineEye
+                }
                 color="blue"
                 onClick={() => openDetailModal(request)}
               />
@@ -191,7 +200,6 @@ export default function Main() {
                   />
                 </>
               )}
-
             </div>
           );
         },
@@ -225,6 +233,12 @@ export default function Main() {
         label: "Họ tên",
         type: "text" as const,
         placeholder: "Nhập họ tên học viên...",
+      },
+      {
+        id: "code",
+        label: "Mã học viên",
+        type: "text" as const,
+        placeholder: "Nhập mã học viên...",
       },
       {
         id: "semester",
@@ -264,19 +278,28 @@ export default function Main() {
           },
           {
             label: "Chờ duyệt",
-            value: (data?.data?.filter((item) => item.status === "PENDING").length || 0).toLocaleString("vi-VN"),
+            value: (
+              data?.data?.filter((item) => item.status === "PENDING").length ||
+              0
+            ).toLocaleString("vi-VN"),
             helper: "Đề xuất cần xử lý",
             className: "bg-amber-50 text-amber-700 border-amber-100",
           },
           {
             label: "Đã duyệt",
-            value: (data?.data?.filter((item) => item.status === "APPROVED").length || 0).toLocaleString("vi-VN"),
+            value: (
+              data?.data?.filter((item) => item.status === "APPROVED").length ||
+              0
+            ).toLocaleString("vi-VN"),
             helper: "Đề xuất đã phê duyệt",
             className: "bg-emerald-50 text-emerald-700 border-emerald-100",
           },
           {
             label: "Từ chối",
-            value: (data?.data?.filter((item) => item.status === "REJECTED").length || 0).toLocaleString("vi-VN"),
+            value: (
+              data?.data?.filter((item) => item.status === "REJECTED").length ||
+              0
+            ).toLocaleString("vi-VN"),
             helper: "Đề xuất không hợp lệ",
             className: "bg-red-50 text-red-700 border-red-100",
           },
