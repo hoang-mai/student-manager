@@ -52,6 +52,7 @@ export const ENDPOINTS = {
   },
   CUT_RICE: {
     BASE: "/api/cut-rice",
+    MY: "/api/users/cut-rice",
     EXPORT: "/api/cut-rice/export",
     GENERATE: (userId: string | number) =>
       `/api/users/cut-rice/generate/${userId}`,
