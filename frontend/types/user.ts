@@ -18,6 +18,18 @@ export interface UserQueryRequest extends QueryRequest {
   isActive?: boolean;
 }
 
+export interface StudentProfileQueryRequest extends QueryRequest {
+  code?: string;
+  fullName?: string;
+  gender?: "MALE" | "FEMALE" | "";
+  unit?: string;
+  rank?: string;
+  classId?: string;
+  organizationId?: string;
+  universityId?: string;
+  educationLevelId?: string;
+}
+
 export interface UpdateProfileRequest {
   username?: string;
   code?: string;

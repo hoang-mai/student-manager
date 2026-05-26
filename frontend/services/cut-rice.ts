@@ -18,6 +18,10 @@ export const cutRiceService = {
     return apiClient.get(`${ENDPOINTS.CUT_RICE.BASE}/${id}`);
   },
 
+  getMyCutRice: async (): Promise<ApiResponse<CutRice>> => {
+    return apiClient.get(ENDPOINTS.CUT_RICE.MY);
+  },
+
   createCutRice: async (data: CreateCutRiceRequest) => {
     return apiClient.post(ENDPOINTS.CUT_RICE.BASE, data);
   },

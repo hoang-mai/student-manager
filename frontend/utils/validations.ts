@@ -204,6 +204,37 @@ export const profileSchema = z.object({
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
 
+export const studentProfileSchema = z.object({
+  code: z.string().min(1, "Mã học viên không được để trống"),
+  fullName: z.string().min(1, "Họ tên không được để trống"),
+  email: z.email("Email không hợp lệ").nullable().or(z.literal("")).optional(),
+  phoneNumber: z.string().nullable().or(z.literal("")).optional(),
+  birthday: z.string().nullable().or(z.literal("")).optional(),
+  gender: z.enum(["MALE", "FEMALE"], "Giới tính không hợp lệ"),
+  cccd: z.string().nullable().or(z.literal("")).optional(),
+  currentAddress: z.string().nullable().or(z.literal("")).optional(),
+  hometown: z.string().nullable().or(z.literal("")).optional(),
+  placeOfBirth: z.string().nullable().or(z.literal("")).optional(),
+  ethnicity: z.string().nullable().or(z.literal("")).optional(),
+  religion: z.string().nullable().or(z.literal("")).optional(),
+  rank: z.string().nullable().or(z.literal("")).optional(),
+  unit: z.string().nullable().or(z.literal("")).optional(),
+  positionGovernment: z.string().nullable().or(z.literal("")).optional(),
+  positionParty: z.string().nullable().or(z.literal("")).optional(),
+  dateOfEnlistment: z.string().nullable().or(z.literal("")).optional(),
+  enrollment: z.number().nullable().optional(),
+  currentCpa4: z.number().min(0, "CPA hệ 4 không được âm").max(4, "CPA hệ 4 tối đa là 4").nullable().optional(),
+  currentCpa10: z.number().min(0, "CPA hệ 10 không được âm").max(10, "CPA hệ 10 tối đa là 10").nullable().optional(),
+  graduationDate: z.string().nullable().or(z.literal("")).optional(),
+  partyMemberCardNumber: z.string().nullable().or(z.literal("")).optional(),
+  probationaryPartyMember: z.string().nullable().or(z.literal("")).optional(),
+  fullPartyMember: z.string().nullable().or(z.literal("")).optional(),
+  familyMember: z.string().nullable().or(z.literal("")).optional(),
+  foreignRelations: z.string().nullable().or(z.literal("")).optional(),
+});
+
+export type StudentProfileFormValues = z.infer<typeof studentProfileSchema>;
+
 /**
  * Schema validation cho form thêm đơn vị (Organization)
  */
@@ -310,6 +341,23 @@ export type CreateTuitionFeeFormValues = z.infer<typeof createTuitionFeeSchema>;
 
 export const updateTuitionFeeSchema = tuitionFeeBaseSchema;
 export type UpdateTuitionFeeFormValues = z.infer<typeof updateTuitionFeeSchema>;
+
+export const achievementBaseSchema = z.object({
+  userId: z.string().min(1, "Vui lòng chọn học viên"),
+  title: z.string().min(1, "Tên thành tích là bắt buộc"),
+  award: z.string().nullable().or(z.literal("")).optional(),
+  semester: z.string().nullable().or(z.literal("")).optional(),
+  schoolYear: z.string().nullable().or(z.literal("")).optional(),
+  year: z.number().nullable().optional(),
+  content: z.string().nullable().or(z.literal("")).optional(),
+  description: z.string().nullable().or(z.literal("")).optional(),
+});
+
+export const createAchievementSchema = achievementBaseSchema;
+export type CreateAchievementFormValues = z.infer<typeof createAchievementSchema>;
+
+export const updateAchievementSchema = achievementBaseSchema;
+export type UpdateAchievementFormValues = z.infer<typeof updateAchievementSchema>;
 
 /**
  * Schema validation cho form phân công lịch trực (Duty Schedule)

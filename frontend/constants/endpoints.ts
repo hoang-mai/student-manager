@@ -16,6 +16,9 @@ export const ENDPOINTS = {
   USERS: {
     BASE: "/api/users",
     DETAIL: (id: string | number) => `${ENDPOINTS.USERS.BASE}/${id}`,
+    PROFILES: "/api/users/profiles",
+    PROFILE_DETAIL: (id: string | number) =>
+      `${ENDPOINTS.USERS.BASE}/profiles/${id}`,
     TOGGLE_ACTIVE: (id: string | number) =>
       `${ENDPOINTS.USERS.BASE}/${id}/toggle-active`,
     RESET_PASSWORD: (id: string | number) =>
@@ -49,6 +52,7 @@ export const ENDPOINTS = {
   },
   CUT_RICE: {
     BASE: "/api/cut-rice",
+    MY: "/api/users/cut-rice",
     EXPORT: "/api/cut-rice/export",
     GENERATE: (userId: string | number) =>
       `/api/users/cut-rice/generate/${userId}`,
@@ -61,6 +65,7 @@ export const ENDPOINTS = {
     BASE: "/api/users/academic-results",
   },
   ACHIEVEMENTS: {
+    BASE: "/api/achievements",
     MY: "/api/users/achievements",
   },
   GRADE_REQUESTS: {

@@ -5,6 +5,8 @@ import {
   UserQueryRequest,
   UserDetailResponse,
   UpdateProfileRequest,
+  Student,
+  StudentProfileQueryRequest,
 } from "@/types/user";
 
 export const userService = {
@@ -22,6 +24,25 @@ export const userService = {
 
   updateUser: async (id: string | number, data: UpdateProfileRequest) => {
     return apiClient.put(ENDPOINTS.USERS.DETAIL(id), data);
+  },
+
+  getStudentProfiles: async (
+    params: StudentProfileQueryRequest
+  ): Promise<PaginatedResponse<Student>> => {
+    return apiClient.get(ENDPOINTS.USERS.PROFILES, { params });
+  },
+
+  getStudentProfileById: async (
+    id: string | number
+  ): Promise<ApiResponse<Student>> => {
+    return apiClient.get(ENDPOINTS.USERS.PROFILE_DETAIL(id));
+  },
+
+  updateStudentProfile: async (
+    id: string | number,
+    data: UpdateProfileRequest
+  ): Promise<ApiResponse<Student>> => {
+    return apiClient.put(ENDPOINTS.USERS.PROFILE_DETAIL(id), data);
   },
 
   toggleActive: async (id: string | number) => {

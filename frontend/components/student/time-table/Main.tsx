@@ -1,17 +1,45 @@
 "use client";
 
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import PageContainer from "@/library/PageContainer";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { timeTableService } from "@/services/time-tables";
+import { ScheduleItem, TimeTable } from "@/types/time-tables";
 import TimeTableCalendar from "./TimeTableCalendar";
 import TimeTableSkeleton from "./TimeTableSkeleton";
+
+const getUniqueValues = (schedules: ScheduleItem[], key: keyof ScheduleItem) =>
+  Array.from(
+    new Set(
+      schedules
+        .map((schedule) => schedule[key])
+        .filter((value): value is string => typeof value === "string" && value.length > 0)
+    )
+  );
 
 export default function Main() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: [QUERY_KEYS.STUDENT_TIME_TABLE],
-    queryFn: timeTableService.getMyTimeTable,
+    queryFn: () => timeTableService.getMyTimeTables({ fetchAll: true }),
   });
+
+  const timeTable = useMemo<TimeTable>(() => {
+    const timeTables = data?.data || [];
+    const schedules = timeTables.flatMap((item) => item.schedules || []);
+
+    return {
+      id: "my-time-table",
+      userId: timeTables[0]?.userId || "",
+      schedules,
+      scheduleCount: schedules.length,
+      subjectNames: getUniqueValues(schedules, "subjectName"),
+      weeks: getUniqueValues(schedules, "week"),
+      rooms: getUniqueValues(schedules, "room"),
+      createdAt: timeTables[0]?.createdAt || "",
+      updatedAt: timeTables[0]?.updatedAt || "",
+    };
+  }, [data]);
 
   return (
     <PageContainer
@@ -28,7 +56,7 @@ export default function Main() {
       onRetry={refetch}
       className="space-y-8"
     >
-      {data && <TimeTableCalendar timeTable={data} />}
+      <TimeTableCalendar timeTable={timeTable} />
     </PageContainer>
   );
 }

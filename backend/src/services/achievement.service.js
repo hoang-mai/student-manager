@@ -10,19 +10,25 @@ const create = async (data) => Model.create(data);
 const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
-  const include = [{ model: User }];
+  const include = [
+    {
+      model: User,
+      include: [{ model: Student }],
+    },
+  ];
 
   if (query.userId) where.userId = query.userId;
-  if (query.semester) where.semester = query.semester;
-  if (query.schoolYear) where.schoolYear = query.schoolYear;
+  if (query.semester) where.semester = { [db.Sequelize.Op.iLike]: `%${query.semester}%` };
+  if (query.schoolYear) where.schoolYear = { [db.Sequelize.Op.iLike]: `%${query.schoolYear}%` };
   if (query.year) where.year = query.year;
-  if (query.award) where.award = query.award;
+  if (query.award) where.award = { [db.Sequelize.Op.iLike]: `%${query.award}%` };
 
-  if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
+  if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
   if (query.unit) studentWhere.unit = query.unit;
 
   if (Object.keys(studentWhere).length > 0) {
-    include[0].where = studentWhere;
+    include[0].include[0].where = studentWhere;
+    include[0].include[0].required = true;
     include[0].required = true;
   }
 
@@ -31,7 +37,10 @@ const getAll = async (query) => {
 
 const getDetail = async (id) => {
   const record = await Model.findByPk(id, {
-    include: [{ model: User }],
+    include: [{
+      model: User,
+      include: [{ model: Student }],
+    }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy thành tích');
   return record;

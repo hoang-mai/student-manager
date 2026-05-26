@@ -91,8 +91,25 @@ const resolveField = (obj, path) => {
 
 const create = async (data) => Student.create(data);
 const getAll = async (query) => {
+  const where = {};
+  const exactFilterFields = ['gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId'];
+
+  for (const field of exactFilterFields) {
+    if (query[field] !== undefined && query[field] !== '') {
+      where[field] = query[field];
+    }
+  }
+
+  if (query.code) {
+    where.code = { [db.Sequelize.Op.iLike]: `%${query.code}%` };
+  }
+
+  if (query.fullName) {
+    where.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
+  }
+
   const opts = {
-    filterFields: ['code', 'fullName', 'gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId'],
+    where,
     include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }],
   };
 

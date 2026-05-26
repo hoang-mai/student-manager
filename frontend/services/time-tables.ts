@@ -19,8 +19,10 @@ export const timeTableService = {
     return apiClient.get(`${ENDPOINTS.TIME_TABLES.BASE}/${id}`);
   },
 
-  getMyTimeTable: async (): Promise<TimeTable> => {
-    return apiClient.get(ENDPOINTS.TIME_TABLES.TIME_TABLE);
+  getMyTimeTables: async (
+    params?: TimeTableQueryRequest
+  ): Promise<PaginatedResponse<TimeTable>> => {
+    return apiClient.get(ENDPOINTS.TIME_TABLES.TIME_TABLE, { params });
   },
 
   createTimeTable: async (data: CreateTimeTableRequest) => {
