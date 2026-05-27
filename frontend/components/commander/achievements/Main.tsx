@@ -20,7 +20,7 @@ import { achievementService } from "@/services/achievements";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
 import { Achievement, AchievementQueryRequest } from "@/types/achievements";
-import { formatDateTime } from "@/utils/fn-common";
+import { formatDateTime, textOrDash, formatSemesterYear } from "@/utils/fn-common";
 import AchievementForm from "./AchievementForm";
 import AchievementSkeleton from "./AchievementSkeleton";
 
@@ -84,7 +84,7 @@ export default function Main() {
           return (
             <div className="min-w-[200px]">
               <Typography variant="body" weight="semibold" color="neutral">
-                {profile?.fullName || item.user?.username || "---"}
+                {textOrDash(profile?.fullName || item.user?.username)}
               </Typography>
               <Typography variant="caption" color="gray">
                 Mã học viên: {profile?.code || item.userId}
@@ -130,10 +130,7 @@ export default function Main() {
         accessorKey: "semester",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.semester || "---"}
-            {info.row.original.schoolYear
-              ? ` · ${info.row.original.schoolYear}`
-              : ""}
+            {formatSemesterYear(info.row.original.semester, info.row.original.schoolYear)}
           </Typography>
         ),
       },
@@ -143,7 +140,7 @@ export default function Main() {
         accessorKey: "year",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.year || "---"}
+            {textOrDash(info.row.original.year)}
           </Typography>
         ),
       },
@@ -152,7 +149,7 @@ export default function Main() {
         header: "Đơn vị",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.user?.profile?.unit || "---"}
+            {textOrDash(info.row.original.user?.profile?.unit)}
           </Typography>
         ),
       },

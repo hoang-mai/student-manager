@@ -1,5 +1,10 @@
 import React from "react";
-import { HiOutlineUserGroup, HiOutlineHome } from "react-icons/hi";
+import {
+  HiOutlineUserGroup,
+  HiOutlineHome,
+  HiOutlineOfficeBuilding,
+  HiOutlineViewGrid,
+} from "react-icons/hi";
 
 export type MenuItem = {
   title: string;
@@ -12,6 +17,16 @@ export const ADMIN_MENU = [
     title: "Tổng quan",
     path: "/admin",
     icon: HiOutlineHome,
+  },
+  {
+    title: "Cơ sở đào tạo",
+    path: "/admin/universities",
+    icon: HiOutlineOfficeBuilding,
+  },
+  {
+    title: "Quản lý lớp học",
+    path: "/admin/classes",
+    icon: HiOutlineViewGrid,
   },
   {
     title: "Quản lý tài khoản",

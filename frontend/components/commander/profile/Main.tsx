@@ -23,7 +23,7 @@ import PageContainer from "@/library/PageContainer";
 import Avatar from "@/library/Avatar";
 import Badge from "@/library/Badge";
 import { DEFAULT_VALUES } from "@/constants/constants";
-import { formatDate, formatDateTime } from "@/utils/fn-common";
+import { formatDate, formatDateTime, textOrDash } from "@/utils/fn-common";
 import { useModalStore } from "@/store/useModalStore";
 import UpdateProfileForm from "./UpdateProfileForm";
 import ProfileSkeleton from "./ProfileSkeleton";
@@ -116,7 +116,7 @@ export default function Main() {
               <HiOutlineIdentification size={16} className="text-neutral-400" />
               Mã chỉ huy:{" "}
               <span className="font-bold text-neutral-800 dark:text-neutral-100">
-                {commander?.code || "---"}
+                {textOrDash(commander?.code)}
               </span>
             </Typography>
             <Badge variant={profile?.isActive ? "success" : "error"}>
@@ -330,7 +330,7 @@ const InfoItem = ({
         {label}
       </Typography>
       <Typography variant="body" weight="semibold" className="text-neutral-800 dark:text-neutral-100">
-        {value || "---"}
+        {textOrDash(value)}
       </Typography>
     </div>
   </div>

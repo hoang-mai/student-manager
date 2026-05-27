@@ -15,7 +15,7 @@ import { QUERY_KEYS, MUTATION_KEYS } from "@/constants/query-keys";
 import { useModalStore } from "@/store/useModalStore";
 import { userService } from "@/services/user";
 import { Student, StudentProfileQueryRequest } from "@/types/user";
-import { formatDate } from "@/utils/fn-common";
+import { formatDate, textOrDash } from "@/utils/fn-common";
 import { HiOutlineEye, HiOutlinePencil } from "react-icons/hi";
 import ProfileSkeleton from "./ProfileSkeleton";
 import StudentProfileDetail from "./StudentProfileDetail";
@@ -96,7 +96,7 @@ export default function Main() {
                   {student.fullName || "Chưa cập nhật"}
                 </Typography>
                 <Typography variant="caption" color="gray">
-                  Mã học viên: {student.code || "---"}
+                  Mã học viên: {textOrDash(student.code)}
                 </Typography>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function Main() {
         header: "Lớp",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.class?.className || "---"}
+            {textOrDash(info.row.original.class?.className)}
           </Typography>
         ),
       },
@@ -127,9 +127,10 @@ export default function Main() {
         header: "Đơn vị",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.organization?.organizationName ||
-              info.row.original.unit ||
-              "---"}
+            {textOrDash(
+              info.row.original.organization?.organizationName ||
+                info.row.original.unit
+            )}
           </Typography>
         ),
       },
@@ -138,7 +139,7 @@ export default function Main() {
         header: "Trường đào tạo",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.university?.universityName || "---"}
+            {textOrDash(info.row.original.university?.universityName)}
           </Typography>
         ),
       },
@@ -148,7 +149,7 @@ export default function Main() {
         accessorKey: "rank",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.rank || "---"}
+            {textOrDash(info.row.original.rank)}
           </Typography>
         ),
       },

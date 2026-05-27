@@ -15,7 +15,7 @@ export interface TuitionFee {
   createdAt: string;
   updatedAt: string;
   semesterInfo?: Semester | null;
-  student?: {
+  user?: {
     id: string;
     username: string;
     profile?: {
@@ -33,7 +33,7 @@ export interface TuitionFeeQueryRequest extends QueryRequest {
 }
 
 export interface CreateTuitionFeeRequest {
-  studentId: string;
+  userId: string;
   totalAmount: number;
   semester: string;
   schoolYear: string;

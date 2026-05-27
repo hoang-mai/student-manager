@@ -5,7 +5,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { IconType } from "react-icons";
 import {
   HiOutlineCheckCircle,
-  HiOutlineClipboardList,
   HiOutlineExclamationCircle,
 } from "react-icons/hi";
 import Badge, { BadgeVariant } from "@/library/Badge";
@@ -21,9 +20,8 @@ import {
   TuitionFeeQueryRequest,
   TuitionFeeStatus,
 } from "@/types/tuition-fees";
-import { formatDateTime } from "@/utils/fn-common";
+import { formatDateTime, formatCurrency, textOrDash, formatSemesterYear } from "@/utils/fn-common";
 import TuitionSkeleton from "./TuitionSkeleton";
-
 
 const statusConfig: Record<
   TuitionFeeStatus,
@@ -41,29 +39,10 @@ const statusConfig: Record<
   },
 };
 
-const toAmount = (value: TuitionFee["totalAmount"]) => {
-  const amount = Number(value || 0);
-  return Number.isFinite(amount) ? amount : 0;
-};
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(value);
-
-const textOrDash = (value?: string | number | null) => {
-  if (value === null || value === undefined || value === "") return "---";
-  return value;
-};
-
 const getSemesterLabel = (fee: TuitionFee) => {
   const semester = fee.semesterInfo?.code || fee.semester;
   const schoolYear = fee.semesterInfo?.schoolYear || fee.schoolYear;
-
-  if (semester && schoolYear) return `${semester} - ${schoolYear}`;
-  return semester || schoolYear || "---";
+  return formatSemesterYear(semester, schoolYear);
 };
 
 export default function Main() {
@@ -90,11 +69,20 @@ export default function Main() {
         header: "Học kỳ",
         cell: ({ row }) => (
           <div className="min-w-36">
-            <Typography variant="body" weight="bold" className="text-neutral-900 dark:text-neutral-100">
+            <Typography
+              variant="body"
+              weight="bold"
+              className="text-neutral-900 dark:text-neutral-100"
+            >
               {getSemesterLabel(row.original)}
             </Typography>
-            <Typography variant="caption" className="text-neutral-400 dark:text-neutral-500">
-              {row.original.semesterInfo ? "Theo học kỳ hệ thống" : "Theo bản ghi học phí"}
+            <Typography
+              variant="caption"
+              className="text-neutral-400 dark:text-neutral-500"
+            >
+              {row.original.semesterInfo
+                ? "Theo học kỳ hệ thống"
+                : "Theo bản ghi học phí"}
             </Typography>
           </div>
         ),
@@ -104,7 +92,10 @@ export default function Main() {
         header: "Nội dung",
         accessorKey: "content",
         cell: ({ row }) => (
-          <Typography variant="body" className="max-w-md line-clamp-2 text-neutral-600 dark:text-neutral-300">
+          <Typography
+            variant="body"
+            className="max-w-md line-clamp-2 text-neutral-600 dark:text-neutral-300"
+          >
             {textOrDash(row.original.content)}
           </Typography>
         ),
@@ -114,8 +105,12 @@ export default function Main() {
         header: "Số tiền",
         accessorKey: "totalAmount",
         cell: ({ row }) => (
-          <Typography variant="body" weight="black" className="whitespace-nowrap text-emerald-600 dark:text-emerald-400">
-            {formatCurrency(toAmount(row.original.totalAmount))}
+          <Typography
+            variant="body"
+            weight="black"
+            className="whitespace-nowrap text-emerald-600 dark:text-emerald-400"
+          >
+            {formatCurrency(row.original.totalAmount)}
           </Typography>
         ),
       },
@@ -124,27 +119,20 @@ export default function Main() {
         header: "Trạng thái",
         accessorKey: "status",
         cell: ({ row }) => {
-          const config = statusConfig[row.original.status] || statusConfig.UNPAID;
+          const config =
+            statusConfig[row.original.status] || statusConfig.UNPAID;
           const StatusIcon = config.icon;
 
           return (
-            <Badge variant={config.variant} className="gap-1.5 whitespace-nowrap">
+            <Badge
+              variant={config.variant}
+              className="gap-1.5 whitespace-nowrap"
+            >
               <StatusIcon size={13} />
               {config.label}
             </Badge>
           );
         },
-      },
-      {
-        id: "id",
-        header: "Mã khoản",
-        accessorKey: "id",
-        cell: ({ row }) => (
-          <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-black uppercase text-neutral-500 dark:text-neutral-400">
-            <HiOutlineClipboardList size={16} />
-            {row.original.id.slice(0, 8)}
-          </span>
-        ),
       },
       {
         id: "updatedAt",
@@ -202,8 +190,6 @@ export default function Main() {
       className="space-y-8"
     >
       <div className="space-y-8">
-
-
         <Table
           data={data}
           columns={columns}

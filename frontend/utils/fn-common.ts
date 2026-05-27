@@ -101,3 +101,41 @@ export const normalizeSearchText = (value: string): string =>
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
     .toLowerCase();
+
+/**
+ * Định dạng tiền tệ VND.
+ * @param value Số tiền cần định dạng
+ * @returns Chuỗi tiền tệ đã định dạng
+ */
+export const formatCurrency = (value?: number | null) =>
+  new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+
+/**
+ * Hiển thị giá trị hoặc trả về "---" nếu null, undefined hoặc chuỗi rỗng.
+ * @param value Giá trị cần hiển thị
+ * @returns Giá trị ban đầu hoặc "---"
+ */
+export const textOrDash = (value?: string | number | null) => {
+  if (value === null || value === undefined || value === "") return "---";
+  return value;
+};
+
+/**
+ * Định dạng học kỳ và năm học thành dạng "Học kỳ · Năm học".
+ * @param semester Học kỳ
+ * @param schoolYear Năm học
+ * @returns Chuỗi định dạng hoặc "---" nếu cả hai đều trống
+ */
+export const formatSemesterYear = (
+  semester?: string | number | null,
+  schoolYear?: string | number | null
+): string => {
+  const parts = [semester, schoolYear].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : "---";
+};
+
+

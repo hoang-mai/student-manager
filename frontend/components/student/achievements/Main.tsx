@@ -25,7 +25,7 @@ import {
   ScientificTopic,
   YearlyAchievement,
 } from "@/types/achievements";
-import { formatDate } from "@/utils/fn-common";
+import { formatDate, textOrDash } from "@/utils/fn-common";
 import AchievementsSkeleton from "./AchievementsSkeleton";
 
 type SummaryTone = "primary" | "secondary" | "success" | "warning" | "sky" | "neutral";
@@ -38,11 +38,6 @@ const toneStyles: Record<SummaryTone, string> = {
   warning: "border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-100",
   sky: "border-sky-100 bg-sky-50 text-sky-700 dark:border-sky-700/60 dark:bg-sky-950/40 dark:text-sky-100",
   neutral: "border-neutral-100 bg-neutral-50 text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",
-};
-
-const textOrDash = (value?: string | number | null) => {
-  if (value === null || value === undefined || value === "") return "---";
-  return value;
 };
 
 const formatNumber = (value?: number | null) => (value ?? 0).toLocaleString("vi-VN");

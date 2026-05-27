@@ -23,7 +23,12 @@ import {
   requestTypeMap,
   statusMap,
 } from "@/types/student-academic";
-import { formatDate, formatScore } from "@/utils/fn-common";
+import {
+  formatDate,
+  formatScore,
+  textOrDash,
+  formatSemesterYear,
+} from "@/utils/fn-common";
 import ApprovalGradeRequestForm from "./ApprovalGradeRequestForm";
 import GradeRequestDetail from "./GradeRequestDetail";
 import RejectGradeRequestForm from "./RejectGradeRequestForm";
@@ -32,11 +37,7 @@ type ReviewAction = "approve" | "reject";
 
 const getSemesterLabel = (request: GradeRequest) => {
   const semester = request.subjectResult?.semesterResult;
-  if (!semester) return "---";
-  return (
-    [semester.semester, semester.schoolYear].filter(Boolean).join(" · ") ||
-    "---"
-  );
+  return formatSemesterYear(semester?.semester, semester?.schoolYear);
 };
 
 export default function Main() {
@@ -104,14 +105,14 @@ export default function Main() {
         header: "Học viên",
         meta: { noWrap: true },
         cell: ({ row }) => (
-          <div className="min-w-44">
+          <>
             <Typography variant="body" weight="semibold" color="neutral">
-              {row.original.user?.profile?.fullName || "---"}
+              {textOrDash(row.original.user?.profile?.fullName)}
             </Typography>
             <Typography variant="caption" color="gray">
               {row.original.user?.profile?.code || "Chưa có mã học viên"}
             </Typography>
-          </div>
+          </>
         ),
       },
       {
@@ -120,7 +121,7 @@ export default function Main() {
         cell: ({ row }) => (
           <div className="min-w-48">
             <Typography variant="body" weight="semibold" color="neutral">
-              {row.original.subjectResult?.subjectName || "---"}
+              {textOrDash(row.original.subjectResult?.subjectName)}
             </Typography>
             <Typography variant="caption" color="gray">
               {getSemesterLabel(row.original)}
@@ -132,6 +133,7 @@ export default function Main() {
         id: "requestType",
         header: "Loại",
         accessorKey: "requestType",
+        meta: { noWrap: true },
         cell: ({ row }) => requestTypeMap[row.original.requestType],
       },
       {

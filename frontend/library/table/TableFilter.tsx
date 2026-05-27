@@ -15,32 +15,57 @@ import Select, {
   type SelectFilterConfig,
   type SelectOption,
 } from "@/library/Select";
+import DateRangePicker from "@/library/DateRangePicker";
+import {
+  type DateRangeMode,
+  type DateRangeValue,
+} from "@/library/date-range-picker/utils";
 import Button from "@/library/Button";
 
-export type FilterFieldType = "text" | "select" | "number" | "date";
-
-export interface FilterField {
-  /** Loại input: text, select, number, date */
-  type: FilterFieldType;
-  /** Id định danh cho trường lọc */
+interface BaseFilterField {
   id: string;
-  /** Nhãn hiển thị của trường lọc */
   label: string;
-  /** Các tùy chọn nếu type là 'select' */
-  options?: SelectOption[];
-  /** Gợi ý nhập liệu */
+}
+
+interface TextFilterField extends BaseFilterField {
+  type: "text";
   placeholder?: string;
-  /** Cấu hình lọc option của select */
+}
+
+interface NumberFilterField extends BaseFilterField {
+  type: "number";
+  placeholder?: string;
+}
+
+interface DateFilterField extends BaseFilterField {
+  type: "date";
+  placeholder?: string;
+}
+
+interface SelectFilterField extends BaseFilterField {
+  type: "select";
+  options?: SelectOption[];
+  placeholder?: string;
   selectFilter?: SelectFilterConfig;
-  /** Có đang tải dữ liệu lần đầu không */
   isLoading?: boolean;
-  /** Có trang tiếp theo không (cho infinite scroll) */
   hasNextPage?: boolean;
-  /** Đang tải trang tiếp theo không */
   isFetchingNextPage?: boolean;
-  /** Hàm callback để tải thêm dữ liệu */
   onLoadMore?: () => void;
 }
+
+interface DateRangeFilterField extends BaseFilterField {
+  type: "date-range";
+  mode: DateRangeMode;
+  maxRange?: number;
+  placeholder?: string;
+}
+
+export type FilterField =
+  | TextFilterField
+  | NumberFilterField
+  | DateFilterField
+  | SelectFilterField
+  | DateRangeFilterField;
 
 interface TableFilterProps<TData> {
   /** Thao tác với bảng */
@@ -51,21 +76,32 @@ interface TableFilterProps<TData> {
   isOpen?: boolean;
 }
 
+const isDateRangeValue = (v: unknown): v is DateRangeValue =>
+  v !== null &&
+  typeof v === "object" &&
+  ("startDate" in v || "endDate" in v);
+
 const TableFilter = <TData,>({
   table,
   fields,
   isOpen = false,
 }: TableFilterProps<TData>) => {
   const { control, handleSubmit, reset, register } =
-    useForm<Record<string, string | number>>();
+    useForm<Record<string, string | number | DateRangeValue>>();
 
-  const onSubmit = (data: Record<string, string | number>) => {
-    const newFilters: ColumnFiltersState = Object.entries(data)
-      .filter(
-        ([, value]) => value !== "" && value !== undefined && value !== null
-      )
-      .map(([id, value]) => ({ id, value }));
-
+  const onSubmit = (data: Record<string, string | number | DateRangeValue>) => {
+    const newFilters: ColumnFiltersState = [];
+    for (const [id, value] of Object.entries(data)) {
+      if (value === "" || value === undefined || value === null) continue;
+      if (isDateRangeValue(value)) {
+        const { startDate, endDate } = value;
+        if (startDate && endDate) {
+          newFilters.push({ id, value: `${startDate}-${endDate}` });
+        }
+      } else {
+        newFilters.push({ id, value });
+      }
+    }
     table.setColumnFilters(newFilters);
   };
 
@@ -101,7 +137,7 @@ const TableFilter = <TData,>({
                         render={({ field: { value, onChange } }) => (
                           <Select
                             label={field.label}
-                            value={value}
+                            value={value as string}
                             onChange={onChange}
                             options={field.options}
                             placeholder={field.placeholder}
@@ -111,6 +147,21 @@ const TableFilter = <TData,>({
                             onLoadMore={field.onLoadMore}
                             isLoading={field.isLoading}
                             filter={field.selectFilter}
+                          />
+                        )}
+                      />
+                    ) : field.type === "date-range" ? (
+                      <Controller
+                        name={field.id}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <DateRangePicker
+                            label={field.label}
+                            value={value as DateRangeValue}
+                            onChange={onChange}
+                            mode={field.mode}
+                            maxRange={field.maxRange}
+                            placeholder={field.placeholder}
                           />
                         )}
                       />

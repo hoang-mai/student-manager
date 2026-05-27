@@ -1,20 +1,70 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { HiOutlineCash, HiOutlineClipboardList, HiOutlineAcademicCap, HiOutlineCalendar } from "react-icons/hi";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  HiOutlineCash,
+  HiOutlineClipboardList,
+  HiOutlineAcademicCap,
+  HiOutlineCalendar,
+} from "react-icons/hi";
 import Button from "@/library/Button";
 import Divide from "@/library/Divide";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
+import { DEFAULT_PAGE, ROLES } from "@/constants/constants";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import useAppMutation from "@/hooks/useAppMutation";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useModalStore } from "@/store/useModalStore";
 import { tuitionFeeService } from "@/services/tuition-fees";
-import { createTuitionFeeSchema, CreateTuitionFeeFormValues } from "@/utils/validations";
+import { userService } from "@/services/user";
+import {
+  createTuitionFeeSchema,
+  CreateTuitionFeeFormValues,
+} from "@/utils/validations";
 
 export default function CreateTuitionFeeForm() {
   const { closeModal } = useModalStore();
+  const [studentSearch, setStudentSearch] = useState("");
+  const debouncedSearch = useDebounce(studentSearch);
+
+  const {
+    data: studentsData,
+    fetchNextPage: fetchNextStudents,
+    hasNextPage: hasNextStudents,
+    isFetchingNextPage: isFetchingNextStudents,
+    isLoading: isLoadingStudents,
+  } = useInfiniteQuery({
+    queryKey: [QUERY_KEYS.USERS, ROLES.STUDENT.ROLE, debouncedSearch],
+    queryFn: ({ pageParam }) =>
+      userService.getAllUsers({
+        page: pageParam,
+        limit: DEFAULT_PAGE.PAGE_SIZE,
+        role: ROLES.STUDENT.ROLE,
+        fullName: debouncedSearch || undefined,
+      }),
+    initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.pagination;
+      return page < totalPages ? page + 1 : undefined;
+    },
+    select: (data) => data.pages.flatMap((page) => page.data || []),
+  });
+
+  const studentOptions = useMemo(
+    () =>
+      studentsData?.map((student) => ({
+        value: student.id,
+        label: student.profile?.code
+          ? `${student.profile?.fullName || student.username} - ${student.profile.code}`
+          : student.profile?.fullName || student.username,
+      })) ?? [],
+    [studentsData]
+  );
+
   const {
     register,
     handleSubmit,
@@ -23,7 +73,7 @@ export default function CreateTuitionFeeForm() {
   } = useForm<CreateTuitionFeeFormValues>({
     resolver: zodResolver(createTuitionFeeSchema),
     defaultValues: {
-      studentId: "",
+      userId: "",
       totalAmount: 0,
       semester: "",
       schoolYear: "",
@@ -34,7 +84,8 @@ export default function CreateTuitionFeeForm() {
 
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.CREATE_TUITION_FEE,
-    mutationFn: (data: CreateTuitionFeeFormValues) => tuitionFeeService.createTuitionFee(data),
+    mutationFn: (data: CreateTuitionFeeFormValues) =>
+      tuitionFeeService.createTuitionFee(data),
     invalidateQueryKey: [QUERY_KEYS.TUITION_FEES],
     successMessage: "Ghi nhận học phí thành công!",
     errorMessage: "Ghi nhận học phí thất bại!",
@@ -42,15 +93,36 @@ export default function CreateTuitionFeeForm() {
   });
 
   return (
-    <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-5 py-2">
-      <Input
-        label="ID học viên"
-        placeholder="Nhập ID học viên"
-        prefixIcon={<HiOutlineAcademicCap />}
-        error={errors.studentId?.message}
-        isLoading={mutation.isPending}
-        {...register("studentId")}
-        required
+    <form
+      onSubmit={handleSubmit((data) => mutation.mutate(data))}
+      className="space-y-5 py-2"
+    >
+      <Controller
+        name="userId"
+        control={control}
+        render={({ field: { value, onChange } }) => (
+          <Select
+            label="Học viên"
+            placeholder="Chọn học viên"
+            prefixIcon={<HiOutlineAcademicCap />}
+            value={value}
+            onChange={onChange}
+            options={studentOptions}
+            hasNextPage={hasNextStudents}
+            isFetchingNextPage={isFetchingNextStudents}
+            onLoadMore={fetchNextStudents}
+            isLoading={isLoadingStudents}
+            error={errors.userId?.message}
+            emptyText="Không tìm thấy học viên"
+            required
+            filter={{
+              enabled: true,
+              mode: "server",
+              onChange: setStudentSearch,
+              placeholder: "Tìm theo họ tên hoặc mã học viên...",
+            }}
+          />
+        )}
       />
 
       <Input
@@ -116,7 +188,12 @@ export default function CreateTuitionFeeForm() {
 
       <Divide />
       <div className="flex justify-end gap-3 px-4">
-        <Button variant="ghost" type="button" onClick={closeModal} isLoading={mutation.isPending}>
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={closeModal}
+          isLoading={mutation.isPending}
+        >
           Hủy bỏ
         </Button>
         <Button variant="primary" type="submit" isLoading={mutation.isPending}>

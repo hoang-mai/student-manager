@@ -262,7 +262,7 @@ export default function Main() {
   return (
     <PageContainer
       breadcrumb={[
-        { label: "Tổng quan", href: "/commander" },
+        { label: "Tổng quan", href: "/admin" },
         { label: "Quản lý lớp học" },
       ]}
       title="Quản lý lớp học"

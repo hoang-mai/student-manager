@@ -23,7 +23,7 @@ import {
   NotificationQueryRequest,
   NotificationType,
 } from "@/types/notifications";
-import { formatDateTime } from "@/utils/fn-common";
+import { formatDateTime, textOrDash } from "@/utils/fn-common";
 import NotificationSkeleton from "./NotificationSkeleton";
 
 const notificationTypeMap: Record<
@@ -124,7 +124,7 @@ export default function Main() {
         accessorKey: "content",
         cell: ({ row }) => (
           <Typography variant="body" className="max-w-xl line-clamp-2 text-neutral-600 dark:text-neutral-300">
-            {row.original.content || "---"}
+            {textOrDash(row.original.content)}
           </Typography>
         ),
       },

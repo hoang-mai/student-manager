@@ -2,7 +2,11 @@
 
 import { useCallback, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { HiOutlineCash, HiOutlineDocumentDownload, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import {
+  HiOutlineDocumentDownload,
+  HiOutlinePencil,
+  HiOutlineTrash,
+} from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import PageContainer from "@/library/PageContainer";
 import Table from "@/library/Table";
@@ -16,13 +20,15 @@ import { tuitionFeeService } from "@/services/tuition-fees";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
 import { TuitionFee } from "@/types/tuition-fees";
-import { formatDateTime } from "@/utils/fn-common";
+import {
+  formatDateTime,
+  formatCurrency,
+  textOrDash,
+  formatSemesterYear,
+} from "@/utils/fn-common";
 import CreateTuitionFeeForm from "./CreateTuitionFeeForm";
 import TuitionSkeleton from "./TuitionSkeleton";
 import UpdateTuitionFeeForm from "./UpdateTuitionFeeForm";
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value || 0);
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -86,17 +92,18 @@ export default function Main() {
         id: "studentId",
         header: "Học viên",
         accessorKey: "studentId",
+        meta: { noWrap: true },
         cell: (info) => {
           const item = info.row.original;
-          const fullName = item.student?.profile?.fullName || "Chưa có tên";
-          const code = item.student?.profile?.code || item.studentId;
+          const fullName = textOrDash(item.user?.profile?.fullName);
+          const code = textOrDash(item.user?.profile?.code);
           return (
             <div>
               <Typography variant="body" weight="semibold" color="neutral">
                 {fullName}
               </Typography>
               <Typography variant="caption" color="gray">
-                Mã học viên: {code}
+                {code}
               </Typography>
             </div>
           );
@@ -107,7 +114,11 @@ export default function Main() {
         header: "Số tiền",
         accessorKey: "totalAmount",
         cell: (info) => (
-          <Typography variant="body" weight="bold" className="text-emerald-600 dark:text-emerald-400">
+          <Typography
+            variant="body"
+            weight="bold"
+            className="text-emerald-600 dark:text-emerald-400"
+          >
             {formatCurrency(info.row.original.totalAmount)}
           </Typography>
         ),
@@ -118,7 +129,10 @@ export default function Main() {
         accessorKey: "semester",
         cell: (info) => (
           <Typography variant="body" color="neutral">
-            {info.row.original.semester} · {info.row.original.schoolYear}
+            {formatSemesterYear(
+              info.row.original.semester,
+              info.row.original.schoolYear
+            )}
           </Typography>
         ),
       },
@@ -127,7 +141,11 @@ export default function Main() {
         header: "Nội dung",
         accessorKey: "content",
         cell: (info) => (
-          <Typography variant="caption" color="gray" className="line-clamp-2 max-w-xs">
+          <Typography
+            variant="caption"
+            color="gray"
+            className="line-clamp-2 max-w-xs"
+          >
             {info.row.original.content}
           </Typography>
         ),
@@ -149,8 +167,9 @@ export default function Main() {
         id: "updatedAt",
         header: "Cập nhật",
         accessorKey: "updatedAt",
+        meta: { noWrap: true },
         cell: (info) => (
-          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
+          <Typography variant="caption" weight="semibold" color="gray">
             {formatDateTime(info.row.original.updatedAt)}
           </Typography>
         ),
@@ -162,7 +181,12 @@ export default function Main() {
           const tuitionFee = info.row.original;
           return (
             <div className="flex items-center gap-1">
-              <ActionButton tooltipText="Cập nhật" icon={HiOutlinePencil} color="blue" onClick={() => handleUpdate(tuitionFee)} />
+              <ActionButton
+                tooltipText="Cập nhật"
+                icon={HiOutlinePencil}
+                color="blue"
+                onClick={() => handleUpdate(tuitionFee)}
+              />
               <ActionButton
                 tooltipText="Xóa học phí"
                 icon={HiOutlineTrash}
@@ -170,7 +194,8 @@ export default function Main() {
                 onClick={() =>
                   openConfirm({
                     title: "Xác nhận xóa",
-                    message: "Bạn có chắc chắn muốn xóa bản ghi học phí này không?",
+                    message:
+                      "Bạn có chắc chắn muốn xóa bản ghi học phí này không?",
                     confirmText: "Xóa ngay",
                     variant: "danger",
                     mutationKey: MUTATION_KEYS.DELETE_TUITION_FEE,
@@ -188,9 +213,34 @@ export default function Main() {
 
   const filterFields = useMemo<FilterField[]>(
     () => [
-      { type: "text", id: "studentId", label: "Học viên", placeholder: "Nhập ID học viên..." },
-      { type: "text", id: "schoolYear", label: "Năm học", placeholder: "VD: 2024-2025" },
-      { type: "text", id: "semester", label: "Học kỳ", placeholder: "VD: HK1" },
+      {
+        type: "text",
+        id: "fullName",
+        label: "Tên học viên",
+        placeholder: "Nhập tên học viên...",
+      },
+      {
+        type: "text",
+        id: "code",
+        label: "Mã học viên",
+        placeholder: "Nhập mã học viên...",
+      },
+      {
+        type: "date-range",
+        id: "schoolYear",
+        label: "Năm học",
+        mode: "YYYY",
+        maxRange: 1,
+      },
+      {
+        type: "select",
+        id: "semester",
+        label: "Học kỳ",
+        options: Array.from({ length: 5 }, (_, i) => ({
+          label: `Học kỳ ${i + 1}`,
+          value: `HK${i + 1}`,
+        })),
+      },
       {
         type: "select",
         id: "status",
@@ -206,7 +256,10 @@ export default function Main() {
 
   return (
     <PageContainer
-      breadcrumb={[{ label: "Tổng quan", href: "/commander" }, { label: "Quản lý học phí" }]}
+      breadcrumb={[
+        { label: "Tổng quan", href: "/commander" },
+        { label: "Quản lý học phí" },
+      ]}
       title="Quản lý học phí"
       isLoading={isLoading}
       skeleton={<TuitionSkeleton />}

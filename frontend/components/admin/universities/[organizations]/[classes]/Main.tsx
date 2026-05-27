@@ -1,51 +1,73 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { ColumnDef } from "@tanstack/react-table";
+import Typography from "@/library/Typography";
+import ClassSkeleton from "./ClassSkeleton";
+import { useQuery } from "@tanstack/react-query";
+import { useConfirmStore } from "@/store/useConfirmStore";
+import { useModalStore } from "@/store/useModalStore";
 import { classService } from "@/services/classes";
+import { organizationService } from "@/services/organizations";
 import { universityService } from "@/services/universities";
 import { Class } from "@/types/classes";
-import { formatDateTime, textOrDash } from "@/utils/fn-common";
-import Table from "@/library/Table";
-import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
-import ActionButton from "@/library/ActionButton";
-import Typography from "@/library/Typography";
-import PageContainer from "@/library/PageContainer";
-import { FilterField } from "@/library/table/TableFilter";
-import { useConfirmStore } from "@/store/useConfirmStore";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { useModalStore } from "@/store/useModalStore";
-import UpdateClassForm from "@/components/commander/classes/UpdateClassForm";
 import CreateClassForm from "./CreateClassForm";
+import UpdateClassForm from "./UpdateClassForm";
+import { ColumnDef } from "@tanstack/react-table";
+import Table from "@/library/Table";
+import { FilterField } from "@/library/table/TableFilter";
+import ActionButton from "@/library/ActionButton";
+import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import { formatDateTime } from "@/utils/fn-common";
 import useTableQuery from "@/hooks/useTableQuery";
-import ClassSkeleton from "./ClassSkeleton";
-import { DEFAULT_PAGE } from "@/constants/constants";
 import useAppMutation from "@/hooks/useAppMutation";
+import PageContainer from "@/library/PageContainer";
 
-export default function Main() {
+interface Props {
+  universityId: string;
+  organizationId: string;
+  educationLevelId: string;
+}
+
+export default function Main({
+  universityId,
+  organizationId,
+  educationLevelId,
+}: Props) {
   const { openConfirm } = useConfirmStore();
   const { openModal } = useModalStore();
 
   const {
-    data: universities,
-    fetchNextPage: fetchNextUniversities,
-    hasNextPage: hasNextUniversities,
-    isFetchingNextPage: isFetchingNextUniversities,
-    isLoading: isLoadingUniversities,
-  } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.UNIVERSITIES],
-    queryFn: ({ pageParam }) =>
-      universityService.getUniversities({
-        page: pageParam,
-        limit: DEFAULT_PAGE.PAGE_SIZE,
-      }),
-    initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
-    getNextPageParam: (lastPage) => {
-      const { page, totalPages } = lastPage.pagination;
-      return page < totalPages ? page + 1 : undefined;
-    },
-    select: (data) => data.pages.flatMap((page) => page.data || []),
+    data: organizationData,
+    isLoading: isOrganizationLoading,
+    isError: isOrganizationError,
+    refetch: refetchOrganization,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.ORGANIZATIONS, organizationId],
+    queryFn: () => organizationService.getOrganization(organizationId),
+    select: (res) => res.data,
+  });
+
+  const {
+    data: universityData,
+    isLoading: isUniversityLoading,
+    isError: isUniversityError,
+    refetch: refetchUniversity,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.UNIVERSITIES, universityId],
+    queryFn: () => universityService.getUniversity(universityId),
+    select: (res) => res.data,
+  });
+
+  const {
+    data: educationLevelData,
+    isLoading: isEducationLevelLoading,
+    isError: isEducationLevelError,
+    refetch: refetchEducationLevel,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.EDUCATION_LEVELS, educationLevelId],
+    queryFn: () => organizationService.getEducationLevel(educationLevelId),
+    select: (res) => res.data,
   });
 
   const {
@@ -60,41 +82,45 @@ export default function Main() {
     sorting,
     setSorting,
   } = useTableQuery<Class>({
-    queryKey: [QUERY_KEYS.CLASSES],
-    fetchData: classService.getClasses,
+    queryKey: [QUERY_KEYS.CLASSES, educationLevelId],
+    fetchData: (params) =>
+      classService.getClasses({ ...params, educationLevelId }),
   });
 
-  const deleteMutation = useAppMutation({
-    mutationKey: MUTATION_KEYS.DELETE_CLASS,
-    mutationFn: (id: string) => classService.deleteClass(id),
-    invalidateQueryKey: [QUERY_KEYS.CLASSES],
-    successMessage: "Xóa lớp học thành công!",
-    errorMessage: "Xóa lớp học thất bại!",
-  });
-
-  const handleAddClass = useCallback(() => {
+  const handleOpenCreateClassModal = () => {
     openModal({
       title: "Thêm lớp học mới",
-      content: <CreateClassForm />,
+      content: <CreateClassForm educationLevelId={educationLevelId} />,
+      size: "md",
       config: {
         mutationKey: MUTATION_KEYS.CREATE_CLASS,
       },
     });
-  }, [openModal]);
+  };
 
-  const handleOpenUpdateModal = useCallback(
+  const handleOpenUpdateClassModal = useCallback(
     (cls: Class) => {
       openModal({
         title: "Chỉnh sửa lớp học",
-        content: <UpdateClassForm cls={cls} />,
+        content: (
+          <UpdateClassForm cls={cls} educationLevelId={educationLevelId} />
+        ),
         size: "md",
         config: {
           mutationKey: MUTATION_KEYS.UPDATE_CLASS,
         },
       });
     },
-    [openModal]
+    [educationLevelId, openModal]
   );
+
+  const deleteClassMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.DELETE_CLASS,
+    mutationFn: (id: string) => classService.deleteClass(id),
+    invalidateQueryKey: [QUERY_KEYS.CLASSES, educationLevelId],
+    successMessage: "Xóa lớp thành công",
+    errorMessage: "Xóa lớp thất bại",
+  });
 
   const columns = useMemo<ColumnDef<Class>[]>(
     () => [
@@ -105,36 +131,6 @@ export default function Main() {
         cell: (info) => (
           <Typography variant="body" weight="semibold" color="neutral">
             {info.row.original.className}
-          </Typography>
-        ),
-      },
-      {
-        id: "universityName",
-        header: "Trường đại học",
-        accessorKey: "universityName",
-        cell: (info) => (
-          <Typography variant="body" color="neutral">
-            {textOrDash(info.row.original.universityName)}
-          </Typography>
-        ),
-      },
-      {
-        id: "organizationName",
-        header: "Khoa/Ngành",
-        accessorKey: "organizationName",
-        cell: (info) => (
-          <Typography variant="body" color="neutral">
-            {textOrDash(info.row.original.organizationName)}
-          </Typography>
-        ),
-      },
-      {
-        id: "levelName",
-        header: "Trình độ",
-        accessorKey: "levelName",
-        cell: (info) => (
-          <Typography variant="body" color="neutral">
-            {textOrDash(info.row.original.levelName)}
           </Typography>
         ),
       },
@@ -188,10 +184,9 @@ export default function Main() {
               <ActionButton
                 tooltipText="Chỉnh sửa"
                 icon={HiOutlinePencil}
-                onClick={() => handleOpenUpdateModal(cls)}
                 color="blue"
+                onClick={() => handleOpenUpdateClassModal(cls)}
               />
-
               <ActionButton
                 tooltipText="Xóa lớp"
                 icon={HiOutlineTrash}
@@ -203,7 +198,7 @@ export default function Main() {
                     confirmText: "Xóa ngay",
                     variant: "danger",
                     mutationKey: MUTATION_KEYS.DELETE_CLASS,
-                    onConfirm: () => deleteMutation.mutate(cls.id),
+                    onConfirm: () => deleteClassMutation.mutate(cls.id),
                   })
                 }
               />
@@ -212,18 +207,8 @@ export default function Main() {
         },
       },
     ],
-    [handleOpenUpdateModal, openConfirm, deleteMutation]
+    [handleOpenUpdateClassModal, openConfirm, deleteClassMutation]
   );
-
-  const universityOptions = useMemo(() => {
-    const options = [{ value: "", label: "Tất cả trường" }];
-    if (universities) {
-      universities.forEach((uni) => {
-        options.push({ value: uni.id, label: uni.universityName });
-      });
-    }
-    return options;
-  }, [universities]);
 
   const filterOptions = useMemo<FilterField[]>(
     () => [
@@ -233,43 +218,42 @@ export default function Main() {
         label: "Tên lớp",
         placeholder: "Nhập tên lớp...",
       },
-      {
-        type: "select",
-        id: "universityId",
-        label: "Trường đại học",
-        options: universityOptions,
-        placeholder: "Chọn trường...",
-        hasNextPage: hasNextUniversities,
-        isFetchingNextPage: isFetchingNextUniversities,
-        onLoadMore: fetchNextUniversities,
-        isLoading: isLoadingUniversities,
-        selectFilter: {
-          enabled: true,
-          mode: "client",
-          placeholder: "Tìm kiếm trường...",
-        },
-      },
     ],
-    [
-      universityOptions,
-      hasNextUniversities,
-      isFetchingNextUniversities,
-      fetchNextUniversities,
-      isLoadingUniversities,
-    ]
+    []
   );
 
   return (
     <PageContainer
       breadcrumb={[
-        { label: "Tổng quan", href: "/commander" },
-        { label: "Quản lý lớp học" },
+        { label: "Tổng quan", href: "/admin" },
+        { label: "Cơ sở đào tạo", href: "/admin/universities" },
+        {
+          label: universityData?.universityName,
+          href: `/admin/universities/${universityId}`,
+        },
+        { label: organizationData?.organizationName || "..." },
+        { label: educationLevelData?.levelName || "..." },
       ]}
-      title="Quản lý lớp học"
-      isLoading={isClassesLoading}
+      title={`Lớp học - ${educationLevelData?.levelName || ""}`}
+      isLoading={
+        isOrganizationLoading ||
+        isUniversityLoading ||
+        isEducationLevelLoading ||
+        isClassesLoading
+      }
       skeleton={<ClassSkeleton />}
-      isError={isClassesError}
-      onRetry={refetchClasses}
+      isError={
+        isOrganizationError ||
+        isUniversityError ||
+        isEducationLevelError ||
+        isClassesError
+      }
+      onRetry={() => {
+        refetchOrganization();
+        refetchUniversity();
+        refetchEducationLevel();
+        refetchClasses();
+      }}
     >
       <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
@@ -283,8 +267,8 @@ export default function Main() {
             sorting={sorting}
             onSortingChange={setSorting}
             filterFields={filterOptions}
-            emptyText="Không tìm thấy lớp học nào phù hợp"
-            onAdd={handleAddClass}
+            emptyText="Không tìm thấy lớp học nào"
+            onAdd={() => handleOpenCreateClassModal()}
             addLabel="Thêm lớp học"
           />
         </div>

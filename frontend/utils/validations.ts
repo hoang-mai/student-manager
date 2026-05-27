@@ -223,8 +223,18 @@ export const studentProfileSchema = z.object({
   positionParty: z.string().nullable().or(z.literal("")).optional(),
   dateOfEnlistment: z.string().nullable().or(z.literal("")).optional(),
   enrollment: z.number().nullable().optional(),
-  currentCpa4: z.number().min(0, "CPA hệ 4 không được âm").max(4, "CPA hệ 4 tối đa là 4").nullable().optional(),
-  currentCpa10: z.number().min(0, "CPA hệ 10 không được âm").max(10, "CPA hệ 10 tối đa là 10").nullable().optional(),
+  currentCpa4: z
+    .number()
+    .min(0, "CPA hệ 4 không được âm")
+    .max(4, "CPA hệ 4 tối đa là 4")
+    .nullable()
+    .optional(),
+  currentCpa10: z
+    .number()
+    .min(0, "CPA hệ 10 không được âm")
+    .max(10, "CPA hệ 10 tối đa là 10")
+    .nullable()
+    .optional(),
   graduationDate: z.string().nullable().or(z.literal("")).optional(),
   partyMemberCardNumber: z.string().nullable().or(z.literal("")).optional(),
   probationaryPartyMember: z.string().nullable().or(z.literal("")).optional(),
@@ -328,7 +338,7 @@ export type UpdateSemesterFormValues = z.infer<typeof updateSemesterSchema>;
  * Schema validation cho form học phí (Tuition Fee)
  */
 export const tuitionFeeBaseSchema = z.object({
-  studentId: z.string().min(1, "Vui lòng nhập ID học viên"),
+  userId: z.string().min(1, "Vui lòng chọn học viên"),
   totalAmount: z.number("Số tiền không hợp lệ").min(0, "Số tiền không được âm"),
   semester: z.string().min(1, "Học kỳ là bắt buộc"),
   schoolYear: z.string().min(1, "Năm học là bắt buộc"),
@@ -354,10 +364,14 @@ export const achievementBaseSchema = z.object({
 });
 
 export const createAchievementSchema = achievementBaseSchema;
-export type CreateAchievementFormValues = z.infer<typeof createAchievementSchema>;
+export type CreateAchievementFormValues = z.infer<
+  typeof createAchievementSchema
+>;
 
 export const updateAchievementSchema = achievementBaseSchema;
-export type UpdateAchievementFormValues = z.infer<typeof updateAchievementSchema>;
+export type UpdateAchievementFormValues = z.infer<
+  typeof updateAchievementSchema
+>;
 
 /**
  * Schema validation cho form phân công lịch trực (Duty Schedule)

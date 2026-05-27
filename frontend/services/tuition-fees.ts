@@ -41,7 +41,8 @@ const toPaginatedResponse = (
     if (params?.status && item.status !== params.status) return false;
     if (!matchesText(item.schoolYear, params?.schoolYear)) return false;
     if (!matchesText(item.semester, params?.semester)) return false;
-    if (!matchesText(item.userId || item.studentId, params?.studentId)) return false;
+    if (!matchesText(item.userId || item.studentId, params?.studentId))
+      return false;
     return true;
   });
 
@@ -92,10 +93,6 @@ export const tuitionFeeService = {
     >(ENDPOINTS.TUITION_FEES.MY, { params });
 
     return toPaginatedResponse(response.data || [], params);
-  },
-
-  getTuitionFee: async (id: string): Promise<TuitionFee> => {
-    return apiClient.get(`${ENDPOINTS.TUITION_FEES.BASE}/${id}`);
   },
 
   createTuitionFee: async (data: CreateTuitionFeeRequest) => {
