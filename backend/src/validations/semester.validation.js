@@ -1,26 +1,31 @@
 const yup = require('yup');
+const { schoolYear: schoolYearSchema, semesterCode } = require('./common');
 
 const create = yup.object({
-  code: yup.string().max(50).required('Trường này là bắt buộc'),
+  code: semesterCode().required('Mã học kỳ là bắt buộc'),
   schoolYearId: yup.string().uuid('Mã năm học không hợp lệ').nullable(),
-  schoolYear: yup.string().max(50).nullable(),
+  schoolYear: schoolYearSchema().nullable(),
 }).test('has-school-year', 'Cần truyền schoolYearId hoặc schoolYear', (value) => Boolean(value?.schoolYearId || value?.schoolYear));
 
 const update = yup.object({
-  code: yup.string().max(50).nullable(),
+  code: semesterCode().nullable(),
   schoolYearId: yup.string().uuid('Mã năm học không hợp lệ').nullable(),
-  schoolYear: yup.string().max(50).nullable(),
+  schoolYear: schoolYearSchema().nullable(),
 });
 
 
 const createSchoolYear = yup.object({
-  schoolYear: yup.string().max(50).required('Năm học là bắt buộc'),
+  schoolYear: schoolYearSchema().required('Năm học là bắt buộc'),
 });
 
 const createTerm = yup.object({
   schoolYearId: yup.string().uuid('Mã năm học không hợp lệ').nullable(),
-  schoolYear: yup.string().max(50).nullable(),
-  term: yup.number().integer().oneOf([1, 2], 'Kỳ học chỉ gồm 1 hoặc 2').required('Kỳ học là bắt buộc'),
+  schoolYear: schoolYearSchema().nullable(),
+  term: yup.number()
+    .typeError('Kỳ học phải là số')
+    .integer('Kỳ học phải là số nguyên')
+    .oneOf([1, 2], 'Kỳ học chỉ gồm 1 hoặc 2')
+    .required('Kỳ học là bắt buộc'),
 }).test('has-school-year', 'Cần truyền schoolYearId hoặc schoolYear', (value) => Boolean(value?.schoolYearId || value?.schoolYear));
 
 const gradeConvert = yup.object({
