@@ -42,3 +42,20 @@ export interface CreateTuitionFeeRequest {
 }
 
 export type UpdateTuitionFeeRequest = CreateTuitionFeeRequest;
+
+export interface BatchTuitionFeeItem {
+  studentCode: string;
+  semesterId?: string | null;
+  totalAmount?: number | null;
+  semester?: string | null;
+  schoolYear?: string | null;
+  content?: string | null;
+  status?: TuitionFeeStatus | null;
+}
+
+export interface BatchTuitionFeeRequest {
+  semesterId?: string | null;
+  semester?: string | null;
+  schoolYear?: string | null;
+  items: BatchTuitionFeeItem[];
+}

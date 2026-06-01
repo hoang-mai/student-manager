@@ -50,6 +50,21 @@ export interface CreateAchievementRequest {
 
 export type UpdateAchievementRequest = CreateAchievementRequest;
 
+export interface BatchAchievementItem {
+  studentCode: string;
+  semester?: string | null;
+  schoolYear?: string | null;
+  content?: string | null;
+  year?: number | null;
+  title?: string | null;
+  description?: string | null;
+  award?: string | null;
+}
+
+export interface BatchAchievementRequest {
+  items: BatchAchievementItem[];
+}
+
 export interface AchievementProfile {
   id: string;
   userId: string;
@@ -102,6 +117,33 @@ export interface YearlyAchievement {
   ScientificInitiatives?: ScientificInitiative[];
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ScienceAchievementItemRequest {
+  title: string;
+  description?: string | null;
+  year?: number | null;
+  status?: string | null;
+}
+
+export interface CreateYearlyAchievementFullRequest {
+  userId?: string | null;
+  studentCode?: string | null;
+  year: number;
+  decisionNumber?: string | null;
+  decisionDate?: string | null;
+  title?: string | null;
+  hasMinistryReward?: boolean | null;
+  hasNationalReward?: boolean | null;
+  notes?: string | null;
+  scientificTopics?: ScienceAchievementItemRequest[];
+  scientificInitiatives?: ScienceAchievementItemRequest[];
+}
+
+export interface CreateYearlyAchievementFullResponse {
+  yearlyAchievement: YearlyAchievement;
+  scientificTopics: ScientificTopic[];
+  scientificInitiatives: ScientificInitiative[];
 }
 
 export interface MyAchievementsResponse {

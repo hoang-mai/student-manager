@@ -51,6 +51,13 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           }
  *         },
  *         {
+ *           "name": "semester",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
  *           "name": "schoolYear",
  *           "in": "query",
  *           "schema": {
@@ -75,6 +82,73 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       "responses": {
  *         "200": {
  *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/tuition-fees/batch": {
+ *     "post": {
+ *       "tags": [
+ *         "Tuition Fees"
+ *       ],
+ *       "summary": "COMMANDER: Nhập học phí hàng loạt theo mã học viên",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "items"
+ *               ],
+ *               "properties": {
+ *                 "semesterId": {
+ *                   "type": "string",
+ *                   "format": "uuid"
+ *                 },
+ *                 "semester": {
+ *                   "type": "string"
+ *                 },
+ *                 "schoolYear": {
+ *                   "type": "string"
+ *                 },
+ *                 "items": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "object",
+ *                     "required": [
+ *                       "studentCode"
+ *                     ],
+ *                     "properties": {
+ *                       "studentCode": {
+ *                         "type": "string",
+ *                         "example": "HV001"
+ *                       },
+ *                       "totalAmount": {
+ *                         "type": "number",
+ *                         "example": 2500000
+ *                       },
+ *                       "content": {
+ *                         "type": "string"
+ *                       },
+ *                       "status": {
+ *                         "type": "string",
+ *                         "enum": [
+ *                           "PAID",
+ *                           "UNPAID"
+ *                         ]
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Batch result"
  *         }
  *       }
  *     }
@@ -151,6 +225,7 @@ router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
+router.post('/batch', controller.createBatch);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);

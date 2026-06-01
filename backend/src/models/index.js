@@ -49,6 +49,7 @@ db.user = require('./user.js')(sequelize, DataTypes);
 db.yearlyResult = require('./yearlyResult.js')(sequelize, DataTypes);
 db.semesterResult = require('./semesterResult.js')(sequelize, DataTypes);
 db.subjectResult = require('./subjectResult.js')(sequelize, DataTypes);
+db.schoolYear = require('./schoolYear.js')(sequelize, DataTypes);
 db.semester = require('./semester.js')(sequelize, DataTypes);
 db.timeTable = require('./timeTable.js')(sequelize, DataTypes);
 db.tuitionFee = require('./tuitionFee.js')(sequelize, DataTypes);
@@ -123,6 +124,10 @@ db.semesterResult.belongsTo(db.yearlyResult, { foreignKey: 'yearly_result_id', o
 // SemesterResult 1:N SubjectResult
 db.semesterResult.hasMany(db.subjectResult, { foreignKey: 'semester_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.subjectResult.belongsTo(db.semesterResult, { foreignKey: 'semester_result_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+
+// SchoolYear 1:N Semester
+db.schoolYear.hasMany(db.semester, { as: 'semesters', foreignKey: { name: 'schoolYearId', field: 'school_year_id' }, onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+db.semester.belongsTo(db.schoolYear, { as: 'schoolYearInfo', foreignKey: { name: 'schoolYearId', field: 'school_year_id' }, onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
 
 // User 1:N TimeTable
 db.user.hasMany(db.timeTable, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });

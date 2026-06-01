@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   HiOutlineCash,
   HiOutlineClipboardList,
@@ -19,6 +19,7 @@ import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useModalStore } from "@/store/useModalStore";
+import { semesterService } from "@/services/semesters";
 import { tuitionFeeService } from "@/services/tuition-fees";
 import { userService } from "@/services/user";
 import {
@@ -69,6 +70,8 @@ export default function CreateTuitionFeeForm() {
     register,
     handleSubmit,
     control,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CreateTuitionFeeFormValues>({
     resolver: zodResolver(createTuitionFeeSchema),
@@ -81,6 +84,41 @@ export default function CreateTuitionFeeForm() {
       status: "UNPAID",
     },
   });
+  const selectedSchoolYear = watch("schoolYear");
+
+  const { data: schoolYearsResponse, isLoading: isLoadingSchoolYears } =
+    useQuery({
+      queryKey: [QUERY_KEYS.SEMESTERS, "school-years"],
+      queryFn: () => semesterService.getSchoolYears({ fetchAll: true }),
+    });
+
+  const { data: semestersResponse, isLoading: isLoadingSemesters } = useQuery({
+    queryKey: [QUERY_KEYS.SEMESTERS, "terms", selectedSchoolYear],
+    queryFn: () =>
+      semesterService.getSemesters({
+        fetchAll: true,
+        schoolYear: selectedSchoolYear,
+      }),
+    enabled: Boolean(selectedSchoolYear),
+  });
+
+  const schoolYearOptions = useMemo(
+    () =>
+      (schoolYearsResponse?.data || []).map((item) => ({
+        value: item.schoolYear,
+        label: item.schoolYear,
+      })),
+    [schoolYearsResponse]
+  );
+
+  const semesterOptions = useMemo(
+    () =>
+      (semestersResponse?.data || []).map((item) => ({
+        value: item.code,
+        label: item.code,
+      })),
+    [semestersResponse]
+  );
 
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.CREATE_TUITION_FEE,
@@ -137,23 +175,50 @@ export default function CreateTuitionFeeForm() {
       />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          label="Học kỳ"
-          placeholder="VD: HK1"
-          prefixIcon={<HiOutlineCalendar />}
-          error={errors.semester?.message}
-          isLoading={mutation.isPending}
-          {...register("semester")}
-          required
+        <Controller
+          name="schoolYear"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Select
+              label="Năm học"
+              placeholder="Chọn năm học"
+              prefixIcon={<HiOutlineCalendar />}
+              value={value}
+              onChange={(selectedValue) => {
+                onChange(String(selectedValue));
+                setValue("semester", "", { shouldDirty: true });
+              }}
+              options={schoolYearOptions}
+              error={errors.schoolYear?.message}
+              isLoading={mutation.isPending || isLoadingSchoolYears}
+              emptyText="Chưa có năm học"
+              required
+            />
+          )}
         />
-        <Input
-          label="Năm học"
-          placeholder="VD: 2024-2025"
-          prefixIcon={<HiOutlineCalendar />}
-          error={errors.schoolYear?.message}
-          isLoading={mutation.isPending}
-          {...register("schoolYear")}
-          required
+
+        <Controller
+          name="semester"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Select
+              label="Học kỳ"
+              placeholder="Chọn học kỳ"
+              prefixIcon={<HiOutlineCalendar />}
+              value={value}
+              onChange={(selectedValue) => onChange(String(selectedValue))}
+              options={semesterOptions}
+              disabled={!selectedSchoolYear}
+              error={errors.semester?.message}
+              isLoading={mutation.isPending || isLoadingSemesters}
+              emptyText={
+                selectedSchoolYear
+                  ? "Năm học này chưa có học kỳ"
+                  : "Chọn năm học trước"
+              }
+              required
+            />
+          )}
         />
       </div>
 

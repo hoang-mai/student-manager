@@ -33,6 +33,56 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       "summary": "CH-05: Danh sách thành tích",
  *       "parameters": [
  *         {
+ *           "name": "userId",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string",
+ *             "format": "uuid"
+ *           }
+ *         },
+ *         {
+ *           "name": "semester",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "schoolYear",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "year",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "integer"
+ *           }
+ *         },
+ *         {
+ *           "name": "award",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "fullName",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "unit",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
  *           "name": "page",
  *           "in": "query",
  *           "schema": {
@@ -50,6 +100,63 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       "responses": {
  *         "200": {
  *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/achievements/batch": {
+ *     "post": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "COMMANDER: Nhập thành tích hàng loạt theo mã học viên",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "items"
+ *               ],
+ *               "properties": {
+ *                 "items": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "object",
+ *                     "required": [
+ *                       "studentCode"
+ *                     ],
+ *                     "properties": {
+ *                       "studentCode": {
+ *                         "type": "string"
+ *                       },
+ *                       "semester": {
+ *                         "type": "string"
+ *                       },
+ *                       "schoolYear": {
+ *                         "type": "string"
+ *                       },
+ *                       "title": {
+ *                         "type": "string"
+ *                       },
+ *                       "description": {
+ *                         "type": "string"
+ *                       },
+ *                       "award": {
+ *                         "type": "string"
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Batch result"
  *         }
  *       }
  *     }
@@ -126,6 +233,7 @@ router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
+router.post('/batch', controller.createBatch);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);

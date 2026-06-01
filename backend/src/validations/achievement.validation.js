@@ -22,4 +22,19 @@ const update = yup.object({
   award: yup.string().max(255).nullable(),
 });
 
-module.exports = { create, update };
+const batchItem = yup.object({
+  studentCode: yup.string().max(50).required('Mã học viên là bắt buộc'),
+  semester: yup.string().max(50).nullable(),
+  schoolYear: yup.string().max(50).nullable(),
+  content: yup.string().nullable(),
+  year: yup.number().integer().min(0).nullable(),
+  title: yup.string().max(255).nullable(),
+  description: yup.string().nullable(),
+  award: yup.string().max(255).nullable(),
+});
+
+const batch = yup.object({
+  items: yup.array().of(batchItem).min(1, 'Danh sách thành tích không được rỗng').required('Danh sách thành tích là bắt buộc'),
+});
+
+module.exports = { create, update, batch };

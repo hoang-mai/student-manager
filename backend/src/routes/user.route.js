@@ -391,6 +391,68 @@ const { authMiddleware, requireRole, requireStudent, requireAdmin } = require('.
  *       }
  *     }
  *   },
+ *   "/users/profiles/graduation/batch": {
+ *     "post": {
+ *       "tags": [
+ *         "Profiles"
+ *       ],
+ *       "summary": "COMMANDER: Xác nhận học viên ra trường hàng loạt",
+ *       "description": "Có thể truyền studentCodes kèm graduationDate chung, hoặc students nếu mỗi học viên có ngày ra trường riêng.",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "graduationDate": {
+ *                   "type": "string",
+ *                   "format": "date",
+ *                   "example": "2026-06-01"
+ *                 },
+ *                 "studentCodes": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "string"
+ *                   },
+ *                   "example": [
+ *                     "HV001",
+ *                     "HV002"
+ *                   ]
+ *                 },
+ *                 "students": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "object",
+ *                     "required": [
+ *                       "code",
+ *                       "graduationDate"
+ *                     ],
+ *                     "properties": {
+ *                       "code": {
+ *                         "type": "string",
+ *                         "example": "HV001"
+ *                       },
+ *                       "graduationDate": {
+ *                         "type": "string",
+ *                         "format": "date",
+ *                         "example": "2026-06-01"
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "200": {
+ *           "description": "Batch result"
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/users/profiles": {
  *     "get": {
  *       "tags": [
@@ -1264,6 +1326,7 @@ router.post('/avatar', requireRole('STUDENT', 'COMMANDER'), controller.uploadAva
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.get('/profiles/export', controller.exportProfiles);
+router.post('/profiles/graduation/batch', controller.graduateBatchProfiles);
 router.get('/profiles', controller.getAllProfiles);
 router.get('/profiles/:id', controller.getProfileDetail);
 router.put('/profiles/:id', controller.updateProfile);

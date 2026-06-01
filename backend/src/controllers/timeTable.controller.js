@@ -9,6 +9,12 @@ const create = asyncHandler(async (req, res) => {
   return success(res, result, 'Tạo mới thành công', 201);
 });
 
+const createBatch = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.batch, req.body);
+  const result = await service.createBatch(req.body);
+  return success(res, result, 'Nhập thời khóa biểu hàng loạt thành công', 201);
+});
+
 const getAll = asyncHandler(async (req, res) => {
   const result = await service.getAll(req.query);
   return paginated(res, result.rows, result.pagination);
@@ -35,4 +41,4 @@ const getReport = asyncHandler(async (req, res) => {
   return success(res, result);
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord, getReport };
+module.exports = { create, createBatch, getAll, getDetail, update, delete: deleteRecord, getReport };

@@ -36,7 +36,7 @@ export const emptySchedule: ScheduleItem = {
   day: "Thứ 2",
   room: "",
   subjectName: "",
-  week: "",
+  week: null,
   timeRange: {
     startTime: "",
     endTime: "",
@@ -90,9 +90,12 @@ function ScheduleFields({
       <div className="grid grid-cols-1 gap-3">
         <Input
           label="Tuần học"
-          placeholder="VD: Tuần 1"
+          type="number"
+          placeholder="VD: 1"
           error={schedulesErrors?.[index]?.week?.message}
-          {...register(`schedules.${index}.week`)}
+          {...register(`schedules.${index}.week`, {
+            setValueAs: (value) => (value === "" ? null : Number(value)),
+          })}
         />
         <Controller
           control={control}

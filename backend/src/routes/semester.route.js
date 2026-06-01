@@ -216,13 +216,18 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *             "schema": {
  *               "type": "object",
  *               "required": [
- *                 "schoolYear",
  *                 "term"
  *               ],
  *               "properties": {
+ *                 "schoolYearId": {
+ *                   "type": "string",
+ *                   "format": "uuid",
+ *                   "description": "Ưu tiên dùng id của bảng school_years"
+ *                 },
  *                 "schoolYear": {
  *                   "type": "string",
- *                   "example": "2024-2025"
+ *                   "example": "2024-2025",
+ *                   "description": "Có thể truyền thay schoolYearId để tương thích"
  *                 },
  *                 "term": {
  *                   "type": "integer",
@@ -276,6 +281,14 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           "in": "query",
  *           "schema": {
  *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "schoolYearId",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string",
+ *             "format": "uuid"
  *           }
  *         },
  *         {

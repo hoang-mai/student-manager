@@ -409,7 +409,7 @@ export const scheduleItemSchema = z.object({
   }),
   room: z.string().min(1, "Phòng học là bắt buộc"),
   subjectName: z.string().optional().nullable(),
-  week: z.string().optional().nullable(),
+  week: z.number().int("Tuần học phải là số nguyên").min(1, "Tuần học phải lớn hơn 0").optional().nullable(),
 });
 
 export const createTimeTableSchema = z.object({

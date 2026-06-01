@@ -61,6 +61,17 @@ export interface UpdateProfileRequest {
   startWork?: number | null;
 }
 
+export interface BatchGraduationStudent {
+  code: string;
+  graduationDate: string;
+}
+
+export interface BatchGraduationRequest {
+  graduationDate?: string | null;
+  studentCodes?: string[];
+  students?: BatchGraduationStudent[];
+}
+
 export interface University {
   id: string;
   universityCode: string;

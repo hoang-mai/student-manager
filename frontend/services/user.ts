@@ -2,6 +2,7 @@ import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { CreateUserRequest } from "@/types/auth";
 import {
+  BatchGraduationRequest,
   UserQueryRequest,
   UserDetailResponse,
   UpdateProfileRequest,
@@ -63,5 +64,11 @@ export const userService = {
 
   updateBatchStudents: async (data: UpdateProfileRequest[]) => {
     return apiClient.put(ENDPOINTS.USERS.BATCH_PROFILES, data);
+  },
+
+  graduateBatchStudents: async (
+    data: BatchGraduationRequest
+  ): Promise<ApiResponse<BatchMutationResult>> => {
+    return apiClient.post(ENDPOINTS.USERS.BATCH_GRADUATION, data);
   },
 };

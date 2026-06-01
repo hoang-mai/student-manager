@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const db = require('../models');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
+const { findStudentUserByCode } = require('../utils/studentLookup');
 
 const User = db.user;
 const Profile = db.profile;
@@ -273,6 +274,30 @@ const updateBatchProfiles = async (profiles) => {
   return results;
 };
 
+const graduateBatchProfiles = async (data) => {
+  const graduationDate = data.graduationDate;
+  const students = data.students || data.studentCodes.map((code) => ({ code, graduationDate }));
+  const results = [];
+
+  for (const item of students) {
+    const code = item.code || item.studentCode;
+    try {
+      const { profile } = await findStudentUserByCode(code);
+      await profile.update({ graduationDate: item.graduationDate || graduationDate });
+      results.push({ code, status: 'UPDATED' });
+    } catch (err) {
+      results.push({ code, status: 'ERROR', message: err.message });
+    }
+  }
+
+  return {
+    total: results.length,
+    updated: results.filter((item) => item.status === 'UPDATED').length,
+    errors: results.filter((item) => item.status === 'ERROR').length,
+    results,
+  };
+};
+
 module.exports = {
   create,
   getAll,
@@ -287,4 +312,5 @@ module.exports = {
   uploadAvatar,
   createBatchUsersProfiles,
   updateBatchProfiles,
+  graduateBatchProfiles,
 };

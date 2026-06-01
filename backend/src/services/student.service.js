@@ -284,7 +284,7 @@ const getAcademicResults = async (userId, query = {}) => {
 
 const getMyTimeTable = async (userId, query = {}) => {
   const where = { userId };
-  const include = [{ model: db.semester }];
+  const include = [{ model: db.semester, include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] }];
 
   if (query.semesterId) where.semesterId = query.semesterId;
   if (query.semester || query.schoolYear) {
@@ -366,7 +366,7 @@ const getMyAchievements = async (userId, query = {}) => {
 
 const getMyTuitionFees = async (userId, query = {}) => {
   const where = { userId };
-  const include = [{ model: db.semester, as: 'semesterInfo' }];
+  const include = [{ model: db.semester, as: 'semesterInfo', include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] }];
 
   if (query.semesterId) where.semesterId = query.semesterId;
   if (query.semester) where.semester = query.semester;

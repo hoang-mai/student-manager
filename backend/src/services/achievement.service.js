@@ -2,11 +2,38 @@ const db = require('../models');
 const User = db.user;
 const { NotFoundError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
+const { findStudentUserByCode } = require('../utils/studentLookup');
 
 const Model = db.achievement;
 const Student = db.profile;
 
 const create = async (data) => Model.create(data);
+
+const createBatch = async (data) => {
+  const items = data.items || [];
+  const results = [];
+
+  for (const item of items) {
+    const studentCode = item.studentCode;
+    try {
+      const { user } = await findStudentUserByCode(studentCode);
+      const payload = { ...item, userId: user.id };
+      delete payload.studentCode;
+
+      const record = await Model.create(payload);
+      results.push({ studentCode, id: record.id, status: 'CREATED' });
+    } catch (err) {
+      results.push({ studentCode, status: 'ERROR', message: err.message });
+    }
+  }
+
+  return {
+    total: results.length,
+    created: results.filter((item) => item.status === 'CREATED').length,
+    errors: results.filter((item) => item.status === 'ERROR').length,
+    results,
+  };
+};
 const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
@@ -57,4 +84,4 @@ const deleteRecord = async (id) => {
   return { deleted: true };
 };
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, createBatch, getAll, getDetail, update, delete: deleteRecord };

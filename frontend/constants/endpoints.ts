@@ -25,6 +25,7 @@ export const ENDPOINTS = {
       `${ENDPOINTS.USERS.BASE}/${id}/reset-password`,
     BATCH: "/api/users/batch",
     BATCH_PROFILES: "/api/users/batch-profiles",
+    BATCH_GRADUATION: "/api/users/profiles/graduation/batch",
   },
   UNIVERSITIES: {
     BASE: "/api/universities",
@@ -37,17 +38,23 @@ export const ENDPOINTS = {
   },
   CLASSES: {
     BASE: "/api/classes",
+    ASSIGN_STUDENTS_BATCH: (id: string | number) =>
+      `/api/classes/${id}/students/batch`,
   },
   SEMESTERS: {
     BASE: "/api/semesters",
+    SCHOOL_YEARS: "/api/semesters/school-years",
+    TERMS: "/api/semesters/terms",
   },
   TIME_TABLES: {
     BASE: "/api/time-tables",
+    BATCH: "/api/time-tables/batch",
     REPORT: "/api/time-tables/report",
     TIME_TABLE: "/api/users/time-table",
   },
   TUITION_FEES: {
     BASE: "/api/tuition-fees",
+    BATCH: "/api/tuition-fees/batch",
     MY: "/api/users/tuition-fees",
   },
   CUT_RICE: {
@@ -66,7 +73,18 @@ export const ENDPOINTS = {
   },
   ACHIEVEMENTS: {
     BASE: "/api/achievements",
+    BATCH: "/api/achievements/batch",
     MY: "/api/users/achievements",
+  },
+  YEARLY_ACHIEVEMENTS: {
+    BASE: "/api/yearly-achievements",
+    FULL: "/api/yearly-achievements/full",
+  },
+  SCIENTIFIC_TOPICS: {
+    BASE: "/api/scientific-topics",
+  },
+  SCIENTIFIC_INITIATIVES: {
+    BASE: "/api/scientific-initiatives",
   },
   GRADE_REQUESTS: {
     STUDENT_BASE: "/api/students/grade-requests",

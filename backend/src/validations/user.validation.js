@@ -141,4 +141,19 @@ const resetPassword = yup.object({
   newPassword: yup.string().min(6).required('Trường này là bắt buộc'),
 });
 
-module.exports = { create, update, batch, batchProfileUpdate, resetPassword };
+const batchGraduation = yup.object({
+  graduationDate: yup.date().nullable(),
+  studentCodes: yup.array().of(yup.string().max(50).required('Mã học viên là bắt buộc')).min(1, 'Danh sách học viên không được rỗng').nullable(),
+  students: yup.array().of(
+    yup.object({
+      code: yup.string().max(50).required('Mã học viên là bắt buộc'),
+      graduationDate: yup.date().required('Ngày ra trường là bắt buộc'),
+    }),
+  ).min(1, 'Danh sách học viên không được rỗng').nullable(),
+}).test('has-graduation-input', 'Cần truyền studentCodes + graduationDate hoặc students', (value) => {
+  const hasStudentCodes = Array.isArray(value?.studentCodes) && value.studentCodes.length > 0 && value.graduationDate;
+  const hasStudents = Array.isArray(value?.students) && value.students.length > 0;
+  return Boolean(hasStudentCodes || hasStudents);
+});
+
+module.exports = { create, update, batch, batchProfileUpdate, batchGraduation, resetPassword };

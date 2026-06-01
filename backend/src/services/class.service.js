@@ -1,6 +1,7 @@
 const db = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
+const { findStudentUsersByCodes } = require('../utils/studentLookup');
 
 const Class = db.class;
 const EducationLevel = db.educationLevel;
@@ -172,6 +173,16 @@ const assignStudents = async (classId, userIds = []) => {
   return { classId: record.id, updated: uniqueIds.length, studentCount };
 };
 
+const assignStudentsByCodes = async (classId, studentCodes = []) => {
+  const students = await findStudentUsersByCodes(studentCodes);
+  const userIds = students.map((student) => student.user.id);
+  const result = await assignStudents(classId, userIds);
+  return {
+    ...result,
+    studentCodes: students.map((student) => student.code),
+  };
+};
+
 const removeStudents = async (classId, userIds = []) => {
   const record = await getClassWithHierarchy(classId);
   const { uniqueIds, profiles } = await getStudentProfilesByUserIds(userIds);
@@ -201,4 +212,4 @@ const removeStudent = async (classId, userId) => {
   return { ...result, userId };
 };
 
-module.exports = { create, getAll, getDetail, getStudents, update, delete: deleteRecord, assignStudents, removeStudents, removeStudent };
+module.exports = { create, getAll, getDetail, getStudents, update, delete: deleteRecord, assignStudents, assignStudentsByCodes, removeStudents, removeStudent };

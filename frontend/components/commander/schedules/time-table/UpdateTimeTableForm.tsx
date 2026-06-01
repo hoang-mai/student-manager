@@ -14,6 +14,18 @@ import { TimeTable } from "@/types/time-tables";
 import { updateTimeTableSchema, UpdateTimeTableFormValues } from "@/utils/validations";
 import TimeTableCalendarForm, { emptySchedule } from "./TimeTableCalendarForm";
 
+const toFormSchedules = (schedules: TimeTable["schedules"]) =>
+  schedules?.map((schedule) => ({
+    day: schedule.day,
+    room: schedule.room,
+    subjectName: schedule.subjectName,
+    week: schedule.week,
+    timeRange: {
+      startTime: schedule.startTime,
+      endTime: schedule.endTime,
+    },
+  })) || [];
+
 export default function UpdateTimeTableForm({ timeTable }: { timeTable: TimeTable }) {
   const { closeModal } = useModalStore();
   const {
@@ -25,7 +37,7 @@ export default function UpdateTimeTableForm({ timeTable }: { timeTable: TimeTabl
     resolver: zodResolver(updateTimeTableSchema),
     defaultValues: {
       userId: timeTable.userId,
-      schedules: timeTable.schedules?.length ? timeTable.schedules : [emptySchedule],
+      schedules: timeTable.schedules?.length ? toFormSchedules(timeTable.schedules) : [emptySchedule],
     },
   });
 

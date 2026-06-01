@@ -18,6 +18,20 @@ declare global {
     pagination: PaginationInfo;
   }
 
+  interface BatchMutationResult {
+    total: number;
+    created?: number;
+    updated?: number;
+    errors: number;
+    results: Array<{
+      id?: string;
+      code?: string;
+      studentCode?: string;
+      status: "CREATED" | "UPDATED" | "ERROR";
+      message?: string;
+    }>;
+  }
+
   interface QueryRequest {
     page?: number;
     limit?: number;

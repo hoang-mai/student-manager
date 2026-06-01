@@ -1,6 +1,7 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
+  AssignStudentsBatchRequest,
   Class,
   ClassQueryRequest,
   CreateClassRequest,
@@ -29,5 +30,12 @@ export const classService = {
 
   deleteClass: async (id: string) => {
     return apiClient.delete(`${ENDPOINTS.CLASSES.BASE}/${id}`);
+  },
+
+  assignStudentsBatch: async (
+    id: string,
+    data: AssignStudentsBatchRequest
+  ): Promise<ApiResponse<BatchMutationResult>> => {
+    return apiClient.post(ENDPOINTS.CLASSES.ASSIGN_STUDENTS_BATCH(id), data);
   },
 };

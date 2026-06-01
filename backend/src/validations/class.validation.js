@@ -30,4 +30,24 @@ const assignStudents = yup.object({
   userIds: yup.array().of(yup.string().uuid('Mã người dùng không hợp lệ')).min(1, 'Danh sách học viên không được rỗng').required('Danh sách học viên là bắt buộc'),
 });
 
-module.exports = { create, update, query, assignStudents, removeStudents: assignStudents };
+const assignStudentsByCodes = yup.object({
+  studentCodes: yup.array().of(yup.string().max(50).required('Mã học viên là bắt buộc')).min(1, 'Danh sách học viên không được rỗng').required('Danh sách học viên là bắt buộc'),
+});
+
+const assignStudentsFlexible = yup.object({
+  userIds: yup.array().of(yup.string().uuid('Mã người dùng không hợp lệ')).min(1, 'Danh sách học viên không được rỗng').nullable(),
+  studentCodes: yup.array().of(yup.string().max(50).required('Mã học viên là bắt buộc')).min(1, 'Danh sách học viên không được rỗng').nullable(),
+}).test('has-students', 'Cần truyền userIds hoặc studentCodes', (value) => {
+  const hasUserIds = Array.isArray(value?.userIds) && value.userIds.length > 0;
+  const hasStudentCodes = Array.isArray(value?.studentCodes) && value.studentCodes.length > 0;
+  return hasUserIds || hasStudentCodes;
+});
+
+module.exports = {
+  create,
+  update,
+  query,
+  assignStudents: assignStudentsFlexible,
+  assignStudentsByCodes,
+  removeStudents: assignStudents,
+};

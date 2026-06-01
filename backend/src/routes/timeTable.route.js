@@ -33,6 +33,42 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       "summary": "Danh sách TKB",
  *       "parameters": [
  *         {
+ *           "name": "semesterId",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string",
+ *             "format": "uuid"
+ *           }
+ *         },
+ *         {
+ *           "name": "semester",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "schoolYear",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "code",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "fullName",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
  *           "name": "page",
  *           "in": "query",
  *           "schema": {
@@ -50,6 +86,95 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       "responses": {
  *         "200": {
  *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/time-tables/batch": {
+ *     "post": {
+ *       "tags": [
+ *         "Time Tables"
+ *       ],
+ *       "summary": "COMMANDER: Nhập thời khóa biểu hàng loạt theo mã học viên",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "items"
+ *               ],
+ *               "properties": {
+ *                 "semesterId": {
+ *                   "type": "string",
+ *                   "format": "uuid"
+ *                 },
+ *                 "items": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "object",
+ *                     "required": [
+ *                       "studentCode",
+ *                       "schedules"
+ *                     ],
+ *                     "properties": {
+ *                       "studentCode": {
+ *                         "type": "string",
+ *                         "example": "HV001"
+ *                       },
+ *                       "semesterId": {
+ *                         "type": "string",
+ *                         "format": "uuid"
+ *                       },
+ *                       "schedules": {
+ *                         "type": "array",
+ *                         "items": {
+ *                           "type": "object",
+ *                           "required": [
+ *                             "day",
+ *                             "startTime",
+ *                             "endTime",
+ *                             "room"
+ *                           ],
+ *                           "properties": {
+ *                             "day": {
+ *                               "type": "string",
+ *                               "example": "Thứ 2"
+ *                             },
+ *                             "startTime": {
+ *                               "type": "string",
+ *                               "example": "07:00"
+ *                             },
+ *                             "endTime": {
+ *                               "type": "string",
+ *                               "example": "09:00"
+ *                             },
+ *                             "room": {
+ *                               "type": "string",
+ *                               "example": "P101"
+ *                             },
+ *                             "subjectName": {
+ *                               "type": "string"
+ *                             },
+ *                             "week": {
+ *                               "type": "integer",
+ *                               "example": 1
+ *                             }
+ *                           }
+ *                         }
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Batch result"
  *         }
  *       }
  *     }
@@ -139,6 +264,7 @@ router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
+router.post('/batch', controller.createBatch);
 router.get('/', controller.getAll);
 router.get('/report', controller.getReport);
 router.get('/:id', controller.getDetail);

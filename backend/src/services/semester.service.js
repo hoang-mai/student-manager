@@ -2,107 +2,115 @@ const db = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
+const SchoolYear = db.schoolYear;
 const Semester = db.semester;
-const Op = db.Sequelize.Op;
-const SCHOOL_YEAR_PREFIX = 'YEAR::';
 
 const normalizeSchoolYear = (schoolYear) => (schoolYear || '').trim();
-const buildSchoolYearCode = (schoolYear) => `${SCHOOL_YEAR_PREFIX}${schoolYear}`;
 const buildTermCode = (schoolYear, term) => `${schoolYear}-HK${term}`;
-const isSchoolYearRow = (code) => typeof code === 'string' && code.startsWith(SCHOOL_YEAR_PREFIX);
+
+const resolveSchoolYear = async (data = {}) => {
+  if (data.schoolYearId) {
+    const record = await SchoolYear.findByPk(data.schoolYearId);
+    if (!record) throw new BadRequestError('Không tìm thấy năm học');
+    return record;
+  }
+
+  const schoolYear = normalizeSchoolYear(data.schoolYear);
+  if (!schoolYear) throw new BadRequestError('Năm học là bắt buộc');
+
+  const record = await SchoolYear.findOne({ where: { schoolYear } });
+  if (!record) throw new BadRequestError('Chưa có năm học. Vui lòng tạo năm học trước');
+  return record;
+};
+
+const attachSchoolYear = async (data) => {
+  if (data.schoolYearId === null) return data;
+  if (data.schoolYearId || data.schoolYear) {
+    const schoolYear = await resolveSchoolYear(data);
+    data.schoolYearId = schoolYear.id;
+    data.schoolYear = schoolYear.schoolYear;
+  }
+  return data;
+};
 
 const createSchoolYear = async (data) => {
   const schoolYear = normalizeSchoolYear(data.schoolYear);
-  const existed = await Semester.findOne({ where: { code: buildSchoolYearCode(schoolYear) } });
+  const existed = await SchoolYear.findOne({ where: { schoolYear } });
   if (existed) throw new BadRequestError('Năm học đã tồn tại');
 
-  return Semester.create({
-    schoolYear,
-    code: buildSchoolYearCode(schoolYear),
-  });
+  return SchoolYear.create({ schoolYear });
 };
 
 const getSchoolYears = async (query = {}) => {
-  const where = {
-    code: { [Op.like]: `${SCHOOL_YEAR_PREFIX}%` },
-  };
+  const where = {};
   if (query.schoolYear) where.schoolYear = query.schoolYear;
-
-  const result = await paginateQuery(Semester, query, { where });
-  result.rows = result.rows.map((row) => {
-    const plain = row.get({ plain: true });
-    return {
-      id: plain.id,
-      schoolYear: plain.schoolYear,
-      createdAt: plain.createdAt,
-      updatedAt: plain.updatedAt,
-    };
-  });
-  return result;
+  return paginateQuery(SchoolYear, query, { where });
 };
 
 const createTerm = async (data) => {
-  const schoolYear = normalizeSchoolYear(data.schoolYear);
+  const schoolYear = await resolveSchoolYear(data);
   const term = Number(data.term);
-
-  const year = await Semester.findOne({ where: { code: buildSchoolYearCode(schoolYear) } });
-  if (!year) {
-    throw new BadRequestError('Chưa có năm học. Vui lòng tạo năm học trước');
-  }
-
-  const code = buildTermCode(schoolYear, term);
+  const code = data.code || buildTermCode(schoolYear.schoolYear, term);
   const existed = await Semester.findOne({ where: { code } });
-  if (existed) throw new BadRequestError(`Đã có học kỳ ${term} cho năm học ${schoolYear}`);
+  if (existed) throw new BadRequestError(`Đã có học kỳ ${term} cho năm học ${schoolYear.schoolYear}`);
 
-  return Semester.create({ schoolYear, code });
+  return Semester.create({
+    schoolYearId: schoolYear.id,
+    schoolYear: schoolYear.schoolYear,
+    code,
+  });
 };
 
-const create = async (data) => Semester.create(data);
+const create = async (data) => {
+  await attachSchoolYear(data);
+  return Semester.create(data);
+};
 
 const getAll = async (query) => {
   const where = {};
-  if (query.code) where.code = query.code;
-  if (query.schoolYear) where.schoolYear = query.schoolYear;
+  const schoolYearWhere = {};
 
-  if (query.includeSchoolYears !== 'true') {
-    where.code = {
-      ...(where.code ? { [Op.eq]: where.code } : {}),
-      [Op.notLike]: `${SCHOOL_YEAR_PREFIX}%`,
-    };
+  if (query.code) where.code = query.code;
+  if (query.schoolYearId) where.schoolYearId = query.schoolYearId;
+  if (query.schoolYear) {
+    where.schoolYear = query.schoolYear;
+    schoolYearWhere.schoolYear = query.schoolYear;
   }
 
-  return paginateQuery(Semester, query, { where });
+  const include = [{ model: SchoolYear, as: 'schoolYearInfo' }];
+  if (Object.keys(schoolYearWhere).length > 0) {
+    include[0].where = schoolYearWhere;
+    include[0].required = false;
+  }
+
+  return paginateQuery(Semester, query, { where, include });
 };
 
 const getDetail = async (id) => {
-  const record = await Semester.findByPk(id);
+  const record = await Semester.findByPk(id, { include: [{ model: SchoolYear, as: 'schoolYearInfo' }] });
   if (!record) throw new NotFoundError('Không tìm thấy học kỳ');
   return record;
 };
 
 const update = async (id, data) => {
   const record = await getDetail(id);
-  if (isSchoolYearRow(record.code)) {
-    throw new BadRequestError('Không cập nhật trực tiếp năm học từ endpoint học kỳ');
-  }
+  await attachSchoolYear(data);
   return record.update(data);
 };
 
 const deleteRecord = async (id) => {
   const record = await getDetail(id);
-  if (isSchoolYearRow(record.code)) {
-    const hasTerms = await Semester.count({
-      where: {
-        schoolYear: record.schoolYear,
-        code: { [Op.notLike]: `${SCHOOL_YEAR_PREFIX}%` },
-      },
-    });
-    if (hasTerms > 0) {
-      throw new BadRequestError('Không thể xóa năm học đã có học kỳ');
-    }
-  }
   await record.destroy();
   return { deleted: true };
 };
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord, createSchoolYear, getSchoolYears, createTerm };
+module.exports = {
+  create,
+  getAll,
+  getDetail,
+  update,
+  delete: deleteRecord,
+  createSchoolYear,
+  getSchoolYears,
+  createTerm,
+};

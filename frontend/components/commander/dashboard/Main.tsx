@@ -385,7 +385,7 @@ const TuitionItem = ({ tuition }: { tuition: TuitionFee }) => (
   >
     <div className="min-w-0">
       <Typography variant="body" weight="semibold" className="break-words">
-        {tuition.student?.profile?.fullName || "Chưa có tên học viên"}
+        {tuition.user?.profile?.fullName || "Chưa có tên học viên"}
       </Typography>
       <Typography variant="caption" color="gray" className="mt-1 block">
         {tuition.semester} · {tuition.schoolYear}

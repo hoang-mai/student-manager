@@ -324,6 +324,55 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       }
  *     }
  *   },
+ *   "/classes/{id}/students/batch": {
+ *     "post": {
+ *       "tags": [
+ *         "Classes"
+ *       ],
+ *       "summary": "Thêm học viên vào lớp hàng loạt theo mã học viên",
+ *       "parameters": [
+ *         {
+ *           "in": "path",
+ *           "name": "id",
+ *           "required": true,
+ *           "schema": {
+ *             "type": "string"
+ *           },
+ *           "description": "Mã lớp"
+ *         }
+ *       ],
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "studentCodes"
+ *               ],
+ *               "properties": {
+ *                 "studentCodes": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "string"
+ *                   },
+ *                   "example": [
+ *                     "HV001",
+ *                     "HV002"
+ *                   ]
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "200": {
+ *           "description": "classId, updated, studentCount, studentCodes"
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/classes/{id}/students/{userId}": {
  *     "delete": {
  *       "tags": [
@@ -451,6 +500,7 @@ router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
 router.get('/', controller.getAll);
+router.post('/:id/students/batch', controller.assignStudentsBatch);
 router.post('/:id/students', controller.assignStudents);
 router.delete('/:id/students', controller.removeStudents);
 router.delete('/:id/students/:userId', controller.removeStudent);

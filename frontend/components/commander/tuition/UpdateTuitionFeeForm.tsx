@@ -24,7 +24,7 @@ export default function UpdateTuitionFeeForm({ tuitionFee }: { tuitionFee: Tuiti
   } = useForm<UpdateTuitionFeeFormValues>({
     resolver: zodResolver(updateTuitionFeeSchema),
     defaultValues: {
-      studentId: tuitionFee.studentId,
+      userId: tuitionFee.userId || tuitionFee.studentId,
       totalAmount: tuitionFee.totalAmount,
       semester: tuitionFee.semester,
       schoolYear: tuitionFee.schoolYear,
@@ -45,12 +45,12 @@ export default function UpdateTuitionFeeForm({ tuitionFee }: { tuitionFee: Tuiti
   return (
     <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-5 py-2">
       <Input
-        label="ID học viên"
-        placeholder="Nhập ID học viên"
+        label="ID tài khoản học viên"
+        placeholder="Nhập ID tài khoản học viên"
         prefixIcon={<HiOutlineAcademicCap />}
-        error={errors.studentId?.message}
+        error={errors.userId?.message}
         isLoading={mutation.isPending}
-        {...register("studentId")}
+        {...register("userId")}
         required
       />
 

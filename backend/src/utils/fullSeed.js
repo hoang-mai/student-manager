@@ -145,8 +145,18 @@ async function fullSeed() {
       { code: '2025-2026-HK1', schoolYear: '2025-2026' },
       { code: '2025-2026-HK2', schoolYear: '2025-2026' },
     ];
+    const schoolYears = {};
+    for (const schoolYear of [...new Set(semData.map(s => s.schoolYear))]) {
+      schoolYears[schoolYear] = await db.schoolYear.create({ schoolYear });
+    }
+
     const semesters = [];
-    for (const s of semData) semesters.push(await db.semester.create(s));
+    for (const s of semData) {
+      semesters.push(await db.semester.create({
+        ...s,
+        schoolYearId: schoolYears[s.schoolYear].id,
+      }));
+    }
 
     const getSchoolYearsForEnrollment = (enrollment) =>
       [...new Set(semesters.map(s => s.schoolYear))]

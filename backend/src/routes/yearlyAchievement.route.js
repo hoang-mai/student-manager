@@ -59,6 +59,113 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       }
  *     }
  *   },
+ *   "/yearly-achievements/full": {
+ *     "post": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Tạo thành tích năm kèm sáng kiến và đề tài khoa học",
+ *       "description": "Dùng cho commander nhập full luồng theo mã học viên. API tạo YearlyAchievement, sau đó tạo ScientificTopic và ScientificInitiative thuộc thành tích năm đó.",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "studentCode",
+ *                 "year"
+ *               ],
+ *               "properties": {
+ *                 "studentCode": {
+ *                   "type": "string",
+ *                   "example": "HV001"
+ *                 },
+ *                 "userId": {
+ *                   "type": "string",
+ *                   "format": "uuid"
+ *                 },
+ *                 "year": {
+ *                   "type": "integer",
+ *                   "example": 2026
+ *                 },
+ *                 "decisionNumber": {
+ *                   "type": "string"
+ *                 },
+ *                 "decisionDate": {
+ *                   "type": "string",
+ *                   "format": "date"
+ *                 },
+ *                 "title": {
+ *                   "type": "string"
+ *                 },
+ *                 "hasMinistryReward": {
+ *                   "type": "boolean"
+ *                 },
+ *                 "hasNationalReward": {
+ *                   "type": "boolean"
+ *                 },
+ *                 "notes": {
+ *                   "type": "string"
+ *                 },
+ *                 "scientificTopics": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "object",
+ *                     "required": [
+ *                       "title"
+ *                     ],
+ *                     "properties": {
+ *                       "title": {
+ *                         "type": "string"
+ *                       },
+ *                       "description": {
+ *                         "type": "string"
+ *                       },
+ *                       "year": {
+ *                         "type": "integer"
+ *                       },
+ *                       "status": {
+ *                         "type": "string"
+ *                       }
+ *                     }
+ *                   }
+ *                 },
+ *                 "scientificInitiatives": {
+ *                   "type": "array",
+ *                   "items": {
+ *                     "type": "object",
+ *                     "required": [
+ *                       "title"
+ *                     ],
+ *                     "properties": {
+ *                       "title": {
+ *                         "type": "string"
+ *                       },
+ *                       "description": {
+ *                         "type": "string"
+ *                       },
+ *                       "year": {
+ *                         "type": "integer"
+ *                       },
+ *                       "status": {
+ *                         "type": "string"
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Created"
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/yearly-achievements/{id}": {
  *     "get": {
  *       "tags": [
@@ -131,6 +238,7 @@ router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
+router.post('/full', controller.createFull);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);

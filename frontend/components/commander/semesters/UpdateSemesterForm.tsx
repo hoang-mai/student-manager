@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import {
   updateSemesterSchema,
   UpdateSemesterFormValues,
@@ -10,7 +12,6 @@ import { semesterService } from "@/services/semesters";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import Button from "@/library/Button";
 import Divide from "@/library/Divide";
-import DateRangePicker from "@/library/DateRangePicker";
 import Select from "@/library/Select";
 import { HiOutlineAcademicCap } from "react-icons/hi";
 import { Semester } from "@/types/semesters";
@@ -21,8 +22,27 @@ interface Props {
   semester: Semester;
 }
 
+const getTermFromCode = (code: string) => {
+  const match = code.match(/HK([12])$/);
+  return match?.[1] || "";
+};
+
 export default function UpdateSemesterForm({ semester }: Props) {
   const { closeModal } = useModalStore();
+  const { data: schoolYearsResponse, isLoading: isLoadingSchoolYears } =
+    useQuery({
+      queryKey: [QUERY_KEYS.SEMESTERS, "school-years"],
+      queryFn: () => semesterService.getSchoolYears({ fetchAll: true }),
+    });
+
+  const schoolYearOptions = useMemo(
+    () =>
+      (schoolYearsResponse?.data || []).map((item) => ({
+        value: item.schoolYear,
+        label: item.schoolYear,
+      })),
+    [schoolYearsResponse]
+  );
 
   const {
     control,
@@ -31,7 +51,7 @@ export default function UpdateSemesterForm({ semester }: Props) {
   } = useForm<UpdateSemesterFormValues>({
     resolver: zodResolver(updateSemesterSchema),
     defaultValues: {
-      code: semester.code,
+      code: getTermFromCode(semester.code),
       schoolYear: semester.schoolYear,
     },
   });
@@ -39,7 +59,10 @@ export default function UpdateSemesterForm({ semester }: Props) {
   const mutation = useAppMutation({
     mutationKey: MUTATION_KEYS.UPDATE_SEMESTER,
     mutationFn: (data: UpdateSemesterFormValues) =>
-      semesterService.updateSemester(semester.id, data),
+      semesterService.updateSemester(semester.id, {
+        schoolYear: data.schoolYear,
+        code: `${data.schoolYear}-HK${data.code}`,
+      }),
     invalidateQueryKey: [QUERY_KEYS.SEMESTERS],
     successMessage: "Cập nhật học kỳ thành công!",
     errorMessage: "Đã có lỗi xảy ra!",
@@ -59,12 +82,12 @@ export default function UpdateSemesterForm({ semester }: Props) {
             label="Học kỳ"
             placeholder="Chọn học kỳ"
             prefixIcon={<HiOutlineAcademicCap />}
-            options={[1, 2, 3, 4, 5].map((semester) => ({
-              value: `HK${semester}`,
+            options={[1, 2].map((semester) => ({
+              value: String(semester),
               label: `Học kỳ ${semester}`,
             }))}
             value={field.value}
-            onChange={field.onChange}
+            onChange={(value) => field.onChange(String(value))}
             error={errors.code?.message}
             isLoading={mutation.isPending}
             required
@@ -75,30 +98,20 @@ export default function UpdateSemesterForm({ semester }: Props) {
       <Controller
         control={control}
         name="schoolYear"
-        render={({ field }) => {
-          const [startYear, endYear] = (field.value || "").split("-");
-          return (
-            <DateRangePicker
-              label="Năm học"
-              mode="YYYY"
-              maxRange={1}
-              required
-              isLoading={mutation.isPending}
-              error={errors.schoolYear?.message}
-              value={{
-                startDate: startYear || undefined,
-                endDate: endYear || undefined,
-              }}
-              onChange={(v) => {
-                if (v.startDate && v.endDate) {
-                  field.onChange(`${v.startDate}-${v.endDate}`);
-                } else {
-                  field.onChange("");
-                }
-              }}
-            />
-          );
-        }}
+        render={({ field }) => (
+          <Select
+            label="Năm học"
+            placeholder="Chọn năm học"
+            prefixIcon={<HiOutlineAcademicCap />}
+            options={schoolYearOptions}
+            value={field.value}
+            onChange={(value) => field.onChange(String(value))}
+            error={errors.schoolYear?.message}
+            isLoading={mutation.isPending || isLoadingSchoolYears}
+            emptyText="Chưa có năm học"
+            required
+          />
+        )}
       />
 
       <div className="flex flex-col gap-4">

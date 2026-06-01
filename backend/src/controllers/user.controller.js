@@ -62,6 +62,12 @@ const updateBatchProfiles = asyncHandler(async (req, res) => {
   return success(res, result, 'Cập nhật hồ sơ hàng loạt thành công');
 });
 
+const graduateBatchProfiles = asyncHandler(async (req, res) => {
+  await validateOrThrow(us.batchGraduation, req.body);
+  const result = await service.graduateBatchProfiles(req.body);
+  return success(res, result, 'Xác nhận học viên ra trường hàng loạt thành công');
+});
+
 const resetPassword = asyncHandler(async (req, res) => {
   await validateOrThrow(us.resetPassword, req.body);
   const result = await service.resetPassword(req.params.id, req.body.newPassword, req.user);
@@ -213,6 +219,7 @@ module.exports = {
   createBatchUsers,
   createBatchUsersProfiles,
   updateBatchProfiles,
+  graduateBatchProfiles,
   resetPassword,
   toggleActive,
   getMyProfile,

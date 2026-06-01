@@ -9,6 +9,12 @@ const create = asyncHandler(async (req, res) => {
   return success(res, result, 'Tạo mới thành công', 201);
 });
 
+const createFull = asyncHandler(async (req, res) => {
+  await validateOrThrow(s.createFull, req.body);
+  const result = await service.createFull(req.body);
+  return success(res, result, 'Tạo thành tích năm và nghiên cứu khoa học thành công', 201);
+});
+
 const getAll = asyncHandler(async (req, res) => {
   const result = await service.getAll(req.query);
   return paginated(res, result.rows, result.pagination);
@@ -30,4 +36,4 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, createFull, getAll, getDetail, update, delete: deleteRecord };

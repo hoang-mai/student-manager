@@ -1,24 +1,39 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import {
+  HiOutlineChevronDown,
+  HiOutlinePencil,
+  HiOutlineTrash,
+} from "react-icons/hi";
+import ActionButton from "@/library/ActionButton";
+import Badge from "@/library/Badge";
+import PageContainer from "@/library/PageContainer";
+import Table from "@/library/Table";
+import Typography from "@/library/Typography";
+import { FilterField } from "@/library/table/TableFilter";
+import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
+import useAppMutation from "@/hooks/useAppMutation";
+import useTableQuery from "@/hooks/useTableQuery";
 import { semesterService } from "@/services/semesters";
+import { useConfirmStore } from "@/store/useConfirmStore";
+import { useModalStore } from "@/store/useModalStore";
 import { Semester } from "@/types/semesters";
 import { formatDateTime } from "@/utils/fn-common";
-import Table from "@/library/Table";
-import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
-import ActionButton from "@/library/ActionButton";
-import Typography from "@/library/Typography";
-import PageContainer from "@/library/PageContainer";
-import { FilterField } from "@/library/table/TableFilter";
-import { useConfirmStore } from "@/store/useConfirmStore";
-import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { useModalStore } from "@/store/useModalStore";
-import UpdateSemesterForm from "@/components/commander/semesters/UpdateSemesterForm";
+import CreateSchoolYearForm from "./CreateSchoolYearForm";
 import CreateSemesterForm from "./CreateSemesterForm";
-import useTableQuery from "@/hooks/useTableQuery";
 import SemesterSkeleton from "./SemesterSkeleton";
-import useAppMutation from "@/hooks/useAppMutation";
+import UpdateSemesterForm from "./UpdateSemesterForm";
+
+type SemesterTableRow = Semester & {
+  rowType: "schoolYear" | "semester";
+  termCount?: number;
+  subRows?: SemesterTableRow[];
+};
+
+const getSchoolYearValue = (semester: Semester) =>
+  semester.schoolYearInfo?.schoolYear || semester.schoolYear;
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -37,8 +52,58 @@ export default function Main() {
     setSorting,
   } = useTableQuery<Semester>({
     queryKey: [QUERY_KEYS.SEMESTERS],
-    fetchData: semesterService.getSemesters,
+    fetchData: (params) =>
+      semesterService.getSemesters({ ...params, fetchAll: true }),
   });
+
+  const groupedData = useMemo<PaginatedResponse<SemesterTableRow> | undefined>(
+    () => {
+      if (!semestersData) return undefined;
+
+      const groups = new Map<string, SemesterTableRow[]>();
+      for (const semester of semestersData.data || []) {
+        const schoolYear = getSchoolYearValue(semester);
+        const rows = groups.get(schoolYear) || [];
+        rows.push({
+          ...semester,
+          rowType: "semester",
+        });
+        groups.set(schoolYear, rows);
+      }
+
+      const rows = Array.from(groups.entries()).map(
+        ([schoolYear, semesters]) => {
+          const sortedSemesters = [...semesters].sort((a, b) =>
+            a.code.localeCompare(b.code)
+          );
+          const first = sortedSemesters[0];
+
+          return {
+            ...first,
+            id: `school-year-${schoolYear}`,
+            code: schoolYear,
+            schoolYear,
+            rowType: "schoolYear" as const,
+            termCount: sortedSemesters.length,
+            subRows: sortedSemesters,
+          };
+        }
+      );
+
+      return {
+        ...semestersData,
+        data: rows,
+        pagination: {
+          ...semestersData.pagination,
+          total: rows.length,
+          totalPages: 1,
+          page: 1,
+          limit: Math.max(rows.length, 1),
+        },
+      };
+    },
+    [semestersData]
+  );
 
   const deleteMutation = useAppMutation({
     mutationKey: MUTATION_KEYS.DELETE_SEMESTER,
@@ -48,15 +113,30 @@ export default function Main() {
     errorMessage: "Xóa học kỳ thất bại!",
   });
 
-  const handleAddSemester = useCallback(() => {
+  const handleAddSchoolYear = useCallback(() => {
     openModal({
-      title: "Thêm học kỳ mới",
-      content: <CreateSemesterForm />,
+      title: "Thêm năm học mới",
+      content: <CreateSchoolYearForm />,
+      size: "md",
       config: {
-        mutationKey: MUTATION_KEYS.CREATE_SEMESTER,
+        mutationKey: MUTATION_KEYS.CREATE_SCHOOL_YEAR,
       },
     });
   }, [openModal]);
+
+  const handleAddSemester = useCallback(
+    (schoolYear?: string) => {
+      openModal({
+        title: "Thêm học kỳ mới",
+        content: <CreateSemesterForm initialSchoolYear={schoolYear || ""} />,
+        size: "md",
+        config: {
+          mutationKey: MUTATION_KEYS.CREATE_SEMESTER,
+        },
+      });
+    },
+    [openModal]
+  );
 
   const handleOpenUpdateModal = useCallback(
     (semester: Semester) => {
@@ -72,69 +152,122 @@ export default function Main() {
     [openModal]
   );
 
-  const columns = useMemo<ColumnDef<Semester>[]>(
+  const columns = useMemo<ColumnDef<SemesterTableRow>[]>(
     () => [
-      {
-        id: "code",
-        header: "Mã học kỳ",
-        accessorKey: "code",
-        cell: (info) => (
-          <Typography variant="body" weight="semibold" color="neutral">
-            {info.row.original.code}
-          </Typography>
-        ),
-      },
       {
         id: "schoolYear",
         header: "Năm học",
         accessorKey: "schoolYear",
-        cell: (info) => (
-          <Typography variant="body" color="neutral">
-            {info.row.original.schoolYear}
-          </Typography>
-        ),
+        cell: (info) => {
+          const row = info.row.original;
+          if (row.rowType === "schoolYear") {
+            return (
+              <button
+                type="button"
+                onClick={info.row.getToggleExpandedHandler()}
+                className="flex items-center gap-2 text-left"
+              >
+                <HiOutlineChevronDown
+                  className={`text-neutral-400 transition-transform ${
+                    info.row.getIsExpanded() ? "rotate-180" : ""
+                  }`}
+                  size={18}
+                />
+                <Typography variant="body" weight="bold" color="neutral">
+                  {row.schoolYear}
+                </Typography>
+                <Badge variant="primary">{row.termCount || 0} học kỳ</Badge>
+              </button>
+            );
+          }
+
+          return (
+            <Typography variant="body" color="gray" className="pl-8">
+              {row.schoolYear}
+            </Typography>
+          );
+        },
+      },
+      {
+        id: "code",
+        header: "Mã học kỳ",
+        accessorKey: "code",
+        cell: (info) => {
+          const row = info.row.original;
+          if (row.rowType === "schoolYear") {
+            return (
+              <Typography variant="caption" color="gray">
+                Bấm xổ để xem các học kỳ
+              </Typography>
+            );
+          }
+
+          return (
+            <Typography variant="body" weight="semibold" color="neutral">
+              {row.code}
+            </Typography>
+          );
+        },
       },
       {
         id: "createdAt",
         header: "Ngày tạo",
         accessorKey: "createdAt",
-        cell: (info) => (
-          <Typography
-            variant="caption"
-            weight="semibold"
-            color="gray"
-            className="whitespace-nowrap"
-          >
-            {formatDateTime(info.row.original.createdAt)}
-          </Typography>
-        ),
+        cell: (info) =>
+          info.row.original.rowType === "semester" ? (
+            <Typography
+              variant="caption"
+              weight="semibold"
+              color="gray"
+              className="whitespace-nowrap"
+            >
+              {formatDateTime(info.row.original.createdAt)}
+            </Typography>
+          ) : (
+            <span />
+          ),
       },
       {
         id: "updatedAt",
         header: "Ngày cập nhật",
         accessorKey: "updatedAt",
-        cell: (info) => (
-          <Typography
-            variant="caption"
-            weight="semibold"
-            color="gray"
-            className="whitespace-nowrap"
-          >
-            {formatDateTime(info.row.original.updatedAt)}
-          </Typography>
-        ),
+        cell: (info) =>
+          info.row.original.rowType === "semester" ? (
+            <Typography
+              variant="caption"
+              weight="semibold"
+              color="gray"
+              className="whitespace-nowrap"
+            >
+              {formatDateTime(info.row.original.updatedAt)}
+            </Typography>
+          ) : (
+            <span />
+          ),
       },
       {
         id: "actions",
         header: "Hành động",
         cell: (info) => {
-          const semester = info.row.original;
+          const row = info.row.original;
+          if (row.rowType === "schoolYear") {
+            return (
+              <ActionButton
+                tooltipText="Thêm học kỳ vào năm học này"
+                icon={HiOutlineChevronDown}
+                onClick={() => handleAddSemester(row.schoolYear)}
+                color="green"
+                iconClassName="-rotate-90"
+              />
+            );
+          }
+
           return (
             <div className="flex items-center justify-start gap-1">
               <ActionButton
                 tooltipText="Chỉnh sửa"
                 icon={HiOutlinePencil}
-                onClick={() => handleOpenUpdateModal(semester)}
+                onClick={() => handleOpenUpdateModal(row)}
                 color="blue"
               />
 
@@ -145,11 +278,11 @@ export default function Main() {
                 onClick={() =>
                   openConfirm({
                     title: "Xác nhận xóa",
-                    message: `Bạn có chắc chắn muốn xóa học kỳ "${semester.code}" không?`,
+                    message: `Bạn có chắc chắn muốn xóa học kỳ "${row.code}" không?`,
                     confirmText: "Xóa ngay",
                     variant: "danger",
                     mutationKey: MUTATION_KEYS.DELETE_SEMESTER,
-                    onConfirm: () => deleteMutation.mutate(semester.id),
+                    onConfirm: () => deleteMutation.mutate(row.id),
                   })
                 }
               />
@@ -158,22 +291,22 @@ export default function Main() {
         },
       },
     ],
-    [handleOpenUpdateModal, openConfirm, deleteMutation]
+    [deleteMutation, handleAddSemester, handleOpenUpdateModal, openConfirm]
   );
 
   const filterOptions = useMemo<FilterField[]>(
     () => [
       {
         type: "text",
-        id: "code",
-        label: "Mã học kỳ",
-        placeholder: "Nhập mã học kỳ...",
-      },
-      {
-        type: "text",
         id: "schoolYear",
         label: "Năm học",
         placeholder: "VD: 2024-2025",
+      },
+      {
+        type: "text",
+        id: "code",
+        label: "Mã học kỳ",
+        placeholder: "Nhập mã học kỳ...",
       },
     ],
     []
@@ -183,31 +316,33 @@ export default function Main() {
     <PageContainer
       breadcrumb={[
         { label: "Tổng quan", href: "/commander" },
-        { label: "Quản lý học kỳ" },
+        { label: "Quản lý năm học & học kỳ" },
       ]}
-      title="Quản lý học kỳ"
+      title="Quản lý năm học & học kỳ"
       isLoading={isSemestersLoading}
       skeleton={<SemesterSkeleton />}
       isError={isSemestersError}
       onRetry={refetchSemesters}
     >
-      <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
-        <div className="px-4">
-          <Table
-            data={semestersData}
-            columns={columns}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            columnFilters={columnFilters}
-            onColumnFiltersChange={setColumnFilters}
-            sorting={sorting}
-            onSortingChange={setSorting}
-            filterFields={filterOptions}
-            emptyText="Không tìm thấy học kỳ nào phù hợp"
-            onAdd={handleAddSemester}
-            addLabel="Thêm học kỳ"
-          />
-        </div>
+      <div className="bg-white px-4 dark:bg-neutral-950">
+        <Table
+          data={groupedData}
+          columns={columns}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          columnFilters={columnFilters}
+          onColumnFiltersChange={setColumnFilters}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          filterFields={filterOptions}
+          emptyText="Không tìm thấy năm học hoặc học kỳ phù hợp"
+          getSubRows={(row) => row.subRows}
+          defaultExpanded={{}}
+          onBulkUpdate={handleAddSchoolYear}
+          bulkUpdateLabel="Thêm năm học"
+          onAdd={() => handleAddSemester()}
+          addLabel="Thêm học kỳ"
+        />
       </div>
     </PageContainer>
   );

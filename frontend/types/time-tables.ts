@@ -4,8 +4,21 @@ export interface ScheduleItem {
   endTime: string;
   room: string;
   subjectName?: string | null;
-  week?: string | null;
+  week?: number | null;
 }
+
+export interface ScheduleFormItem {
+  day: string;
+  timeRange: {
+    startTime: string;
+    endTime: string;
+  };
+  room: string;
+  subjectName?: string | null;
+  week?: number | null;
+}
+
+export type ScheduleInput = ScheduleItem | ScheduleFormItem;
 
 export interface TimeTableProfile {
   id?: string;
@@ -25,10 +38,11 @@ export interface TimeTableUser {
 export interface TimeTable {
   id: string;
   userId: string;
+  semesterId?: string | null;
   schedules: ScheduleItem[] | null;
   scheduleCount?: number;
   subjectNames?: string[];
-  weeks?: string[];
+  weeks?: Array<number | string>;
   rooms?: string[];
   user?: TimeTableUser;
   createdAt: string;
@@ -37,12 +51,25 @@ export interface TimeTable {
 
 export interface CreateTimeTableRequest {
   userId: string;
-  schedules?: ScheduleItem[] | null;
+  semesterId?: string | null;
+  schedules?: ScheduleInput[] | null;
 }
 
 export interface UpdateTimeTableRequest {
   userId?: string;
-  schedules?: ScheduleItem[] | null;
+  semesterId?: string | null;
+  schedules?: ScheduleInput[] | null;
+}
+
+export interface BatchTimeTableItem {
+  studentCode: string;
+  semesterId?: string | null;
+  schedules: ScheduleItem[];
+}
+
+export interface BatchTimeTableRequest {
+  semesterId?: string | null;
+  items: BatchTimeTableItem[];
 }
 
 export interface TimeTableQueryRequest extends QueryRequest {
@@ -56,7 +83,7 @@ export interface TimeTableReportRow {
   scheduleCount: number;
   subjectName: string;
   room: string;
-  week: string;
+  week: number | string;
   day: string;
   startTime: string;
   endTime: string;

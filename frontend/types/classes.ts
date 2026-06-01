@@ -23,6 +23,10 @@ export interface UpdateClassRequest {
   studentCount?: number;
 }
 
+export interface AssignStudentsBatchRequest {
+  studentCodes: string[];
+}
+
 export interface ClassQueryRequest extends QueryRequest {
   educationLevelId?: string;
   className?: string;

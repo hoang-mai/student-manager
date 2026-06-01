@@ -3,8 +3,10 @@ const User = db.user;
 const Semester = db.semester;
 const { NotFoundError, BadRequestError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
+const { findStudentUserByCode } = require('../utils/studentLookup');
 
 const TimeTable = db.timeTable;
+const SchoolYear = db.schoolYear;
 
 const ensureStudentUser = async (userId) => {
   const user = await User.findByPk(userId);
@@ -24,13 +26,47 @@ const create = async (data) => {
   await ensureSemester(data.semesterId);
   return TimeTable.create(data);
 };
+
+const createBatch = async (data) => {
+  const items = data.items || [];
+  const results = [];
+
+  if (data.semesterId) {
+    await ensureSemester(data.semesterId);
+  }
+
+  for (const item of items) {
+    const studentCode = item.studentCode;
+    try {
+      const { user } = await findStudentUserByCode(studentCode);
+      const payload = {
+        userId: user.id,
+        semesterId: item.semesterId !== undefined ? item.semesterId : data.semesterId,
+        schedules: item.schedules || [],
+      };
+
+      await ensureSemester(payload.semesterId);
+      const record = await TimeTable.create(payload);
+      results.push({ studentCode, id: record.id, status: 'CREATED' });
+    } catch (err) {
+      results.push({ studentCode, status: 'ERROR', message: err.message });
+    }
+  }
+
+  return {
+    total: results.length,
+    created: results.filter((item) => item.status === 'CREATED').length,
+    errors: results.filter((item) => item.status === 'ERROR').length,
+    results,
+  };
+};
 const getAll = async (query) => {
   const userWhere = {};
   const profileWhere = {};
   const semesterWhere = {};
   const opts = {
     filterFields: ['userId'],
-    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester }],
+    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester, include: [{ model: SchoolYear, as: 'schoolYearInfo' }] }],
   };
 
   if (query.semesterId) opts.filterFields.push('semesterId');
@@ -80,7 +116,7 @@ const getAll = async (query) => {
 
 const getDetail = async (id) => {
   const record = await TimeTable.findByPk(id, {
-    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester }],
+    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester, include: [{ model: SchoolYear, as: 'schoolYearInfo' }] }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy thời khóa biểu');
   return record;
@@ -101,7 +137,7 @@ const deleteRecord = async (id) => {
 
 const getReport = async () => {
   const timetables = await TimeTable.findAll({
-    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester }],
+    include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester, include: [{ model: SchoolYear, as: 'schoolYearInfo' }] }],
   });
 
   const rows = [];
@@ -124,7 +160,7 @@ const getReport = async () => {
         unit: profile?.unit || '',
         fullName: profile?.fullName || '',
         semester: tt.Semester?.code || '',
-        schoolYear: tt.Semester?.schoolYear || '',
+        schoolYear: tt.Semester?.schoolYearInfo?.schoolYear || tt.Semester?.schoolYear || '',
         scheduleCount: schedules.length,
         subjectName: s.subjectName || '',
         room: s.room || '',
@@ -147,4 +183,4 @@ const getReport = async () => {
   };
 };
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord, getReport };
+module.exports = { create, createBatch, getAll, getDetail, update, delete: deleteRecord, getReport };

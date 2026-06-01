@@ -28,10 +28,16 @@ async function seed() {
     });
     console.log('Sample university seeded.');
 
+    const [schoolYear] = await db.schoolYear.findOrCreate({
+      where: { schoolYear: '2024-2025' },
+      defaults: { schoolYear: '2024-2025' },
+    });
+
     await db.semester.findOrCreate({
       where: { code: '2024-2025-HK1' },
       defaults: {
         code: '2024-2025-HK1',
+        schoolYearId: schoolYear.id,
         schoolYear: '2024-2025',
       },
     });

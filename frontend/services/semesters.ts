@@ -1,7 +1,10 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
+  CreateSchoolYearRequest,
   CreateSemesterRequest,
+  CreateTermRequest,
+  SchoolYear,
   Semester,
   SemesterQueryRequest,
   UpdateSemesterRequest,
@@ -18,8 +21,22 @@ export const semesterService = {
     return apiClient.get(`${ENDPOINTS.SEMESTERS.BASE}/${id}`);
   },
 
+  getSchoolYears: async (
+    params?: QueryRequest & { schoolYear?: string }
+  ): Promise<PaginatedResponse<SchoolYear>> => {
+    return apiClient.get(ENDPOINTS.SEMESTERS.SCHOOL_YEARS, { params });
+  },
+
   createSemester: async (data: CreateSemesterRequest) => {
     return apiClient.post(ENDPOINTS.SEMESTERS.BASE, data);
+  },
+
+  createSchoolYear: async (data: CreateSchoolYearRequest) => {
+    return apiClient.post(ENDPOINTS.SEMESTERS.SCHOOL_YEARS, data);
+  },
+
+  createTerm: async (data: CreateTermRequest) => {
+    return apiClient.post(ENDPOINTS.SEMESTERS.TERMS, data);
   },
 
   updateSemester: async (id: string, data: UpdateSemesterRequest) => {
