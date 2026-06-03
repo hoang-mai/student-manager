@@ -1,8 +1,9 @@
 const yup = require('yup');
+const { semesterCode } = require('./common');
 
 const create = yup.object({
   userId: yup.string().uuid('Mã người dùng không hợp lệ').required('Trường này là bắt buộc'),
-  semester: yup.string().max(50).nullable(),
+  semester: semesterCode().nullable(),
   schoolYear: yup.string().max(50).nullable(),
   content: yup.string().nullable(),
   year: yup.number().integer().min(0).nullable(),
@@ -13,7 +14,7 @@ const create = yup.object({
 
 const update = yup.object({
   userId: yup.string().uuid('Mã người dùng không hợp lệ').nullable(),
-  semester: yup.string().max(50).nullable(),
+  semester: semesterCode().nullable(),
   schoolYear: yup.string().max(50).nullable(),
   content: yup.string().nullable(),
   year: yup.number().integer().min(0).nullable(),
@@ -24,7 +25,7 @@ const update = yup.object({
 
 const batchItem = yup.object({
   studentCode: yup.string().max(50).required('Mã học viên là bắt buộc'),
-  semester: yup.string().max(50).nullable(),
+  semester: semesterCode().nullable(),
   schoolYear: yup.string().max(50).nullable(),
   content: yup.string().nullable(),
   year: yup.number().integer().min(0).nullable(),

@@ -501,7 +501,7 @@ async function runAllTests() {
     res = await request('POST', '/achievements', {
       studentId: state.studentId,
       title: 'Thành tích test chức năng',
-      semester: '2024-2025-HK1',
+      semester: '1',
       schoolYear: '2024-2025',
       year: 2025,
       award: 'Giấy khen',
@@ -545,9 +545,9 @@ async function runAllTests() {
     res = await request('POST', '/tuition-fees', {
       studentId: state.studentId,
       totalAmount: 5000000,
-      semester: '2024-2025-HK2',
+      semester: '2',
       schoolYear: '2024-2025',
-      content: `Học phí HK2 2024-2025`,
+      content: `Học phí kỳ 2 2024-2025`,
       status: 'UNPAID',
     }, state.commanderToken);
     test('CH-07', 'Chỉ huy GHI NHẬN học phí cho học viên', res.status, [200, 201]);
@@ -565,7 +565,7 @@ async function runAllTests() {
 
   // Create new semester
   res = await request('POST', '/semesters', {
-    code: `2025-2026-HK1-FUNC-${state.ts}`,
+    code: `${state.ts}`,
     schoolYear: '2025-2026',
   }, state.commanderToken);
   const createSemOk = test('CH-08', 'Chỉ huy THÊM học kỳ mới', res.status, [200, 201]);
@@ -573,7 +573,7 @@ async function runAllTests() {
 
   if (state.createdSemesterId) {
     // Edit semester
-    res = await request('PUT', `/semesters/${state.createdSemesterId}`, { code: `2025-2026-HK1-FUNC-${state.ts}-UPDATED` }, state.commanderToken);
+    res = await request('PUT', `/semesters/${state.createdSemesterId}`, { code: `${state.ts}1` }, state.commanderToken);
     test('CH-08', 'Chỉ huy CHỈNH SỬA học kỳ', res.status, 200);
 
     // Search semester

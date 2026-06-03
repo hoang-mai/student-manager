@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const SCHOOL_YEAR_REGEX = /^\d{4}-\d{4}$/;
-const SEMESTER_CODE_REGEX = /^\d{4}-\d{4}-HK[12]$/;
+const SEMESTER_CODE_REGEX = /^\d+$/;
 const STUDENT_CODE_REGEX = /^[A-Za-z0-9._-]+$/;
 const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -16,12 +16,7 @@ const schoolYear = () => trimString()
   });
 
 const semesterCode = () => trimString()
-  .matches(SEMESTER_CODE_REGEX, 'Mã học kỳ phải có dạng YYYY-YYYY-HK1 hoặc YYYY-YYYY-HK2')
-  .test('semester-school-year-valid', 'Năm học trong mã học kỳ phải gồm 2 năm liên tiếp', (value) => {
-    if (!value) return true;
-    const [startYear, endYear] = value.split('-').map(Number);
-    return endYear === startYear + 1;
-  });
+  .matches(SEMESTER_CODE_REGEX, 'Mã học kỳ chỉ được gồm chữ số');
 
 const studentCode = () => trimString()
   .max(50, 'Mã học viên tối đa 50 ký tự')

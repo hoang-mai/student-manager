@@ -8,11 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     code: {
       type: DataTypes.STRING(50),
       allowNull: false,
-      unique: true,
     },
     schoolYearId: {
       type: DataTypes.UUID,
-      allowNull: true,
+      allowNull: false,
     },
     schoolYear: {
       type: DataTypes.STRING(50),
@@ -22,6 +21,12 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'semesters',
     timestamps: true,
     underscored: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ['school_year_id', 'code'],
+      },
+    ],
   });
 
   return Semester;

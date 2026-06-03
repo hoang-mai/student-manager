@@ -6,7 +6,7 @@ const SchoolYear = db.schoolYear;
 const Semester = db.semester;
 
 const normalizeSchoolYear = (schoolYear) => (schoolYear || '').trim();
-const buildTermCode = (schoolYear, term) => `${schoolYear}-HK${term}`;
+const buildTermCode = (term) => String(term);
 
 const resolveSchoolYear = async (data = {}) => {
   if (data.schoolYearId) {
@@ -24,7 +24,7 @@ const resolveSchoolYear = async (data = {}) => {
 };
 
 const attachSchoolYear = async (data) => {
-  if (data.schoolYearId === null) return data;
+  if (data.schoolYearId === null) throw new BadRequestError('Năm học là bắt buộc');
   if (data.schoolYearId || data.schoolYear) {
     const schoolYear = await resolveSchoolYear(data);
     data.schoolYearId = schoolYear.id;
@@ -50,8 +50,8 @@ const getSchoolYears = async (query = {}) => {
 const createTerm = async (data) => {
   const schoolYear = await resolveSchoolYear(data);
   const term = Number(data.term);
-  const code = data.code || buildTermCode(schoolYear.schoolYear, term);
-  const existed = await Semester.findOne({ where: { code } });
+  const code = data.code || buildTermCode(term);
+  const existed = await Semester.findOne({ where: { code, schoolYearId: schoolYear.id } });
   if (existed) throw new BadRequestError(`Đã có học kỳ ${term} cho năm học ${schoolYear.schoolYear}`);
 
   return Semester.create({
@@ -63,6 +63,8 @@ const createTerm = async (data) => {
 
 const create = async (data) => {
   await attachSchoolYear(data);
+  const existed = await Semester.findOne({ where: { code: data.code, schoolYearId: data.schoolYearId } });
+  if (existed) throw new BadRequestError(`Đã có học kỳ ${data.code} cho năm học ${data.schoolYear}`);
   return Semester.create(data);
 };
 
@@ -95,6 +97,16 @@ const getDetail = async (id) => {
 const update = async (id, data) => {
   const record = await getDetail(id);
   await attachSchoolYear(data);
+  const nextCode = data.code !== undefined ? data.code : record.code;
+  const nextSchoolYearId = data.schoolYearId !== undefined ? data.schoolYearId : record.schoolYearId;
+  const existed = await Semester.findOne({
+    where: {
+      code: nextCode,
+      schoolYearId: nextSchoolYearId,
+      id: { [db.Sequelize.Op.ne]: id },
+    },
+  });
+  if (existed) throw new BadRequestError(`Đã có học kỳ ${nextCode} cho năm học ${data.schoolYear || record.schoolYear}`);
   return record.update(data);
 };
 

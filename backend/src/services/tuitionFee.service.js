@@ -18,7 +18,11 @@ const attachSemester = async (data) => {
     semester = await Semester.findByPk(data.semesterId);
     if (!semester) throw new BadRequestError('Không tìm thấy học kỳ');
   } else if (data.semester) {
-    semester = await Semester.findOne({ where: { code: data.semester } });
+    if (!data.schoolYear) throw new BadRequestError('Cần truyền schoolYear khi tìm học kỳ theo mã');
+    const schoolYear = await SchoolYear.findOne({ where: { schoolYear: data.schoolYear } });
+    if (!schoolYear) throw new BadRequestError('Không tìm thấy năm học');
+    semester = await Semester.findOne({ where: { code: data.semester, schoolYearId: schoolYear.id } });
+    if (!semester) throw new BadRequestError('Không tìm thấy học kỳ');
   }
 
   if (semester) {

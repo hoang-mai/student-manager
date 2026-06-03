@@ -1,3 +1,4 @@
+require('dotenv').config();
 const db = require('../models');
 const bcrypt = require('bcrypt');
 
@@ -136,14 +137,14 @@ async function fullSeed() {
     // 7. SEMESTERS
     // ==========================
     const semData = [
-      { code: '2022-2023-HK1', schoolYear: '2022-2023' },
-      { code: '2022-2023-HK2', schoolYear: '2022-2023' },
-      { code: '2023-2024-HK1', schoolYear: '2023-2024' },
-      { code: '2023-2024-HK2', schoolYear: '2023-2024' },
-      { code: '2024-2025-HK1', schoolYear: '2024-2025' },
-      { code: '2024-2025-HK2', schoolYear: '2024-2025' },
-      { code: '2025-2026-HK1', schoolYear: '2025-2026' },
-      { code: '2025-2026-HK2', schoolYear: '2025-2026' },
+      { code: '1', schoolYear: '2022-2023' },
+      { code: '2', schoolYear: '2022-2023' },
+      { code: '1', schoolYear: '2023-2024' },
+      { code: '2', schoolYear: '2023-2024' },
+      { code: '1', schoolYear: '2024-2025' },
+      { code: '2', schoolYear: '2024-2025' },
+      { code: '1', schoolYear: '2025-2026' },
+      { code: '2', schoolYear: '2025-2026' },
     ];
     const schoolYears = {};
     for (const schoolYear of [...new Set(semData.map(s => s.schoolYear))]) {
@@ -161,6 +162,7 @@ async function fullSeed() {
     const getSchoolYearsForEnrollment = (enrollment) =>
       [...new Set(semesters.map(s => s.schoolYear))]
         .filter(schoolYear => Number(schoolYear.split('-')[0]) >= Number(enrollment || 2024));
+    const getSemesterKey = (semester) => `${semester.schoolYear}-${semester.code}`;
 
     // ==========================
     // 8. ACADEMIC RESULTS
@@ -213,8 +215,7 @@ async function fullSeed() {
       const schoolYears = getSchoolYearsForEnrollment(profile.enrollment);
 
       for (const sy of schoolYears) {
-        const semesterCodes = [`${sy}-HK1`, `${sy}-HK2`];
-        const semestersForYear = semesters.filter(s => semesterCodes.includes(s.code));
+        const semestersForYear = semesters.filter(s => s.schoolYear === sy);
 
         const yearly = await db.yearlyResult.create({
           userId: user.id,
@@ -254,10 +255,11 @@ async function fullSeed() {
               letterGrade: grade.letterGrade, gradePoint4: grade.gradePoint4, gradePoint10: grade.gradePoint10,
             });
             subjectsByUserId.get(user.id).push(subjectResult);
-            if (!subjectsByUserIdAndSemester.get(user.id).has(sem.code)) {
-              subjectsByUserIdAndSemester.get(user.id).set(sem.code, []);
+            const semesterKey = getSemesterKey(sem);
+            if (!subjectsByUserIdAndSemester.get(user.id).has(semesterKey)) {
+              subjectsByUserIdAndSemester.get(user.id).set(semesterKey, []);
             }
-            subjectsByUserIdAndSemester.get(user.id).get(sem.code).push(subjectResult);
+            subjectsByUserIdAndSemester.get(user.id).get(semesterKey).push(subjectResult);
 
             semTotalCredits += sub.credits;
             semTotalPoint4 += grade.gradePoint4 * sub.credits;
@@ -329,7 +331,7 @@ async function fullSeed() {
           const numSlots = 1 + Math.floor(Math.random() * 3);
           const selectedSlots = [...timeSlots].sort(() => 0.5 - Math.random()).slice(0, numSlots);
           for (const slot of selectedSlots) {
-            const semesterSubjects = subjectsByUserIdAndSemester.get(user.id).get(semester.code) || [];
+            const semesterSubjects = subjectsByUserIdAndSemester.get(user.id).get(getSemesterKey(semester)) || [];
             const subject = semesterSubjects[Math.floor(Math.random() * semesterSubjects.length)];
             schedules.push({
               day,
@@ -374,12 +376,12 @@ async function fullSeed() {
       const user = hocVienUsers[i];
       const schoolYears = getSchoolYearsForEnrollment(profile.enrollment);
       for (const sy of schoolYears) {
-        for (const hk of ['HK1', 'HK2']) {
-          const semester = semesters.find(s => s.code === `${sy}-${hk}`);
+        for (const hk of ['1', '2']) {
+          const semester = semesters.find(s => s.schoolYear === sy && s.code === hk);
           await db.tuitionFee.create({
             userId: user.id, totalAmount: 4500000 + Math.floor(Math.random() * 2000000),
             semesterId: semester?.id || null,
-            semester: `${sy}-${hk}`, schoolYear: sy,
+            semester: hk, schoolYear: sy,
             content: `Học phí ${sy} - ${hk}`,
             status: ['PAID', 'PAID', 'PAID', 'UNPAID', 'UNPAID'][Math.floor(Math.random() * 5)],
           });
@@ -392,14 +394,14 @@ async function fullSeed() {
     // 12. ACHIEVEMENTS
     // ==========================
     const achievementData = [
-      { idx: 0, title: 'Giải nhất Olympic Tin học toàn quốc', semester: '2023-2024-HK1', schoolYear: '2023-2024', year: 2024, award: 'Giải nhất', content: 'Đạt giải nhất kỳ thi Olympic Tin học toàn quốc năm 2024' },
-      { idx: 0, title: 'Chiến sĩ thi đua cấp cơ sở', semester: '2024-2025-HK1', schoolYear: '2024-2025', year: 2025, award: 'Chiến sĩ thi đua', content: 'Hoàn thành xuất sắc nhiệm vụ năm 2024' },
-      { idx: 1, title: 'Huy chương vàng Hội thao Quân sự', semester: '2023-2024-HK2', schoolYear: '2023-2024', year: 2024, award: 'Huy chương vàng', content: 'Môn bơi lội 100m tự do nữ' },
-      { idx: 2, title: 'Giải ba NCKH cấp trường', semester: '2024-2025-HK1', schoolYear: '2024-2025', year: 2025, award: 'Giải ba', content: 'Đề tài: Ứng dụng AI trong quản lý học viên quân sự' },
-      { idx: 3, title: 'Giấy khen hoàn thành nhiệm vụ', semester: '2024-2025-HK1', schoolYear: '2024-2025', year: 2024, award: 'Giấy khen', content: 'Hoàn thành tốt nhiệm vụ được giao' },
-      { idx: 5, title: 'Sinh viên 5 tốt cấp Trung ương', semester: '2023-2024-HK2', schoolYear: '2023-2024', year: 2024, award: 'Sinh viên 5 tốt', content: 'Danh hiệu cao quý dành cho sinh viên xuất sắc toàn diện' },
-      { idx: 9, title: 'Giải nhì Olympic Tiếng Anh', semester: '2023-2024-HK1', schoolYear: '2023-2024', year: 2023, award: 'Giải nhì', content: 'Đạt giải nhì Olympic Tiếng Anh toàn quốc' },
-      { idx: 9, title: 'Chiến sĩ tiên tiến', semester: '2024-2025-HK1', schoolYear: '2024-2025', year: 2025, award: 'Chiến sĩ tiên tiến', content: 'Đạt danh hiệu Chiến sĩ tiên tiến năm 2024' },
+      { idx: 0, title: 'Giải nhất Olympic Tin học toàn quốc', semester: '1', schoolYear: '2023-2024', year: 2024, award: 'Giải nhất', content: 'Đạt giải nhất kỳ thi Olympic Tin học toàn quốc năm 2024' },
+      { idx: 0, title: 'Chiến sĩ thi đua cấp cơ sở', semester: '1', schoolYear: '2024-2025', year: 2025, award: 'Chiến sĩ thi đua', content: 'Hoàn thành xuất sắc nhiệm vụ năm 2024' },
+      { idx: 1, title: 'Huy chương vàng Hội thao Quân sự', semester: '2', schoolYear: '2023-2024', year: 2024, award: 'Huy chương vàng', content: 'Môn bơi lội 100m tự do nữ' },
+      { idx: 2, title: 'Giải ba NCKH cấp trường', semester: '1', schoolYear: '2024-2025', year: 2025, award: 'Giải ba', content: 'Đề tài: Ứng dụng AI trong quản lý học viên quân sự' },
+      { idx: 3, title: 'Giấy khen hoàn thành nhiệm vụ', semester: '1', schoolYear: '2024-2025', year: 2024, award: 'Giấy khen', content: 'Hoàn thành tốt nhiệm vụ được giao' },
+      { idx: 5, title: 'Sinh viên 5 tốt cấp Trung ương', semester: '2', schoolYear: '2023-2024', year: 2024, award: 'Sinh viên 5 tốt', content: 'Danh hiệu cao quý dành cho sinh viên xuất sắc toàn diện' },
+      { idx: 9, title: 'Giải nhì Olympic Tiếng Anh', semester: '1', schoolYear: '2023-2024', year: 2023, award: 'Giải nhì', content: 'Đạt giải nhì Olympic Tiếng Anh toàn quốc' },
+      { idx: 9, title: 'Chiến sĩ tiên tiến', semester: '1', schoolYear: '2024-2025', year: 2025, award: 'Chiến sĩ tiên tiến', content: 'Đạt danh hiệu Chiến sĩ tiên tiến năm 2024' },
     ];
     for (const a of achievementData) {
       await db.achievement.create({
@@ -578,7 +580,7 @@ async function fullSeed() {
       const enrollment = Number(plain.User.Profile.enrollment || 2024);
       const startYear = Number(plain.Semester.schoolYear.split('-')[0]);
       assertSeed(startYear >= enrollment, `TKB ${plain.id} nằm trước năm nhập học`);
-      const semesterSubjects = subjectsByUserIdAndSemester.get(plain.userId).get(plain.Semester.code) || [];
+      const semesterSubjects = subjectsByUserIdAndSemester.get(plain.userId).get(getSemesterKey(plain.Semester)) || [];
       const subjectNames = new Set(semesterSubjects.map(subject => subject.subjectName));
       assertSeed(subjectNames.size > 0, `TKB ${plain.id} không có môn học kỳ tương ứng`);
       for (const schedule of plain.schedules || []) {

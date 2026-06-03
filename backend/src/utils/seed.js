@@ -1,3 +1,4 @@
+require('dotenv').config();
 const bcrypt = require('bcrypt');
 const db = require('../models');
 
@@ -34,9 +35,9 @@ async function seed() {
     });
 
     await db.semester.findOrCreate({
-      where: { code: '2024-2025-HK1' },
+      where: { schoolYearId: schoolYear.id, code: '1' },
       defaults: {
-        code: '2024-2025-HK1',
+        code: '1',
         schoolYearId: schoolYear.id,
         schoolYear: '2024-2025',
       },
