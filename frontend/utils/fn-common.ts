@@ -134,8 +134,24 @@ export const formatSemesterYear = (
   semester?: string | number | null,
   schoolYear?: string | number | null
 ): string => {
-  const parts = [semester, schoolYear].filter(Boolean);
+  const parts = [semester ? `Học kỳ ${semester}` : "", schoolYear].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : "---";
+};
+
+/**
+ * Tải file từ đối tượng Blob.
+ * @param blob - Đối tượng Blob cần tải xuống
+ * @param fileName - Tên file lưu trữ
+ */
+export const downloadBlob = (blob: Blob, fileName: string) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 };
 
 

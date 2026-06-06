@@ -17,17 +17,15 @@ import {
   HiOutlineCalendar,
   HiOutlineCash,
   HiOutlineCheckCircle,
-  HiOutlineFilter,
   HiOutlineInformationCircle,
   HiOutlineRefresh,
 } from "react-icons/hi";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import Button from "@/library/Button";
-import Divide from "@/library/Divide";
 import Popover from "@/library/Popover";
 import Skeleton from "@/library/Skeleton";
+import Divide from "@/library/Divide";
 import { notificationService } from "@/services/notifications";
 import type { Notification } from "@/types/notifications";
 import { formatDateTime } from "@/utils/fn-common";
@@ -85,7 +83,7 @@ export default function NotificationsPopover() {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.NOTIFICATIONS, "student-header"],
+    queryKey: [QUERY_KEYS.NOTIFICATIONS, "admin-header"],
     queryFn: ({ pageParam }) =>
       notificationService.getNotifications({
         page: pageParam,
@@ -99,7 +97,7 @@ export default function NotificationsPopover() {
   });
 
   const { data: unreadResponse } = useQuery({
-    queryKey: [QUERY_KEYS.NOTIFICATIONS, "student-header-unread"],
+    queryKey: [QUERY_KEYS.NOTIFICATIONS, "admin-header-unread"],
     queryFn: () =>
       notificationService.getNotifications({
         isRead: false,
@@ -158,7 +156,7 @@ export default function NotificationsPopover() {
 
   const openAdvancedFilter = (close: () => void) => {
     close();
-    push("/student/notification");
+    push("/admin/notification");
   };
 
   return (

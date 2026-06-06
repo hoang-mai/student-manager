@@ -16,17 +16,7 @@ import {
 } from "@/utils/validations";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useModalStore } from "@/store/useModalStore";
-
-const downloadBlob = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
+import { downloadBlob } from "@/utils/fn-common";
 
 const CreateBatchUsers: React.FC = () => {
   const { closeModal } = useModalStore();
@@ -67,31 +57,32 @@ const CreateBatchUsers: React.FC = () => {
       className="flex max-h-[85vh] flex-col"
     >
       <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-1">
-        <div className="flex items-start gap-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
-          <div className="rounded-xl bg-blue-100 p-2 text-blue-600 dark:bg-blue-900 dark:text-blue-200">
-            <HiOutlineDownload size={24} />
-          </div>
-          <div className="flex-1">
-            <Typography variant="body" weight="bold" color="primary">
-              File mẫu tạo tài khoản
-            </Typography>
-            <Typography variant="caption" color="gray" className="mt-1 block">
-              Backend xử lý file Excel theo các cột: Tên đăng nhập, Mật khẩu,
-              Vai trò, Mã, Họ và tên, Email, Số điện thoại, Giới tính, Ngày
-              sinh, Quê quán, Khóa học, Đơn vị, Cấp bậc.
-            </Typography>
-            <Button
-              type="button"
-              variant="ghost"
-              icon={HiOutlineDownload}
-              onClick={() => templateMutation.mutate()}
-              isLoading={templateMutation.isPending}
-              className="mt-3"
-            >
-              Tải file mẫu
-            </Button>
+        <div className="rounded-2xl border border-primary-100 bg-primary-50/60 p-4 dark:border-primary-800 dark:bg-primary-950/30">
+          <div className="flex items-start gap-3">
+            <div className="rounded-xl bg-primary-100 p-2 text-primary-600 dark:bg-primary-900 dark:text-primary-200">
+              <HiOutlineDownload size={22} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <Typography variant="body" weight="bold" color="neutral">
+                File mẫu tạo tài khoản
+              </Typography>
+              <Typography variant="caption" color="gray" className="mt-1 block">
+                Sử dụng file mẫu Excel
+              </Typography>
+              <Button
+                type="button"
+                variant="ghost"
+                icon={HiOutlineDownload}
+                onClick={() => templateMutation.mutate()}
+                isLoading={templateMutation.isPending}
+                className="mt-3"
+              >
+                Tải file mẫu
+              </Button>
+            </div>
           </div>
         </div>
+
 
         <Controller
           name="file"

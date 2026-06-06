@@ -58,11 +58,9 @@ export const userService = {
     return apiClient.delete(ENDPOINTS.USERS.DETAIL(id));
   },
 
-  createBatchUsers: async (data: CreateUserRequest[]) => {
-    return apiClient.post(ENDPOINTS.USERS.BATCH, { users: data });
-  },
-
-  importUsers: async (file: File): Promise<ApiResponse<BatchMutationResult>> => {
+  importUsers: async (
+    file: File
+  ): Promise<ApiResponse<BatchMutationResult>> => {
     const formData = new FormData();
     formData.append("file", file);
     return apiClient.post(ENDPOINTS.USERS.IMPORT, formData, {

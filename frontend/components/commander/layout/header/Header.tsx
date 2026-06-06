@@ -26,6 +26,7 @@ import { authService } from "@/services/auth";
 import { useModalStore } from "@/store/useModalStore";
 import ChangePasswordForm from "@/components/commander/layout/header/ChangePasswordForm";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
+import NotificationsPopover from "./NotificationsPopover";
 
 export default function Header() {
   const router = useRouter();
@@ -76,14 +77,8 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-6">
-        {/* Notifications */}
-        <button className="relative size-10 flex items-center justify-center rounded-xl bg-neutral-50 dark:bg-neutral-900 text-neutral-400 dark:text-neutral-500 hover:text-primary-600 dark:hover:text-neutral-100 hover:bg-primary-50 dark:hover:bg-neutral-800 transition-all border border-neutral-100 dark:border-neutral-800 group">
-          <motion.div whileHover={{ rotate: 15, scale: 1.1 }}>
-            <HiOutlineBell size={20} />
-          </motion.div>
-          <span className="absolute top-2.5 right-2.5 size-2 bg-error-500 rounded-full border-2 border-white dark:border-neutral-900" />
-        </button>
-
+        <NotificationsPopover />
+ 
         {/* User Profile & Dropdown */}
         <div className="flex items-center h-10 gap-6">
           <Divide orientation="vertical" className="h-6" />

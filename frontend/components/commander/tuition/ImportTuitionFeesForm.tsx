@@ -15,17 +15,7 @@ import {
   batchExcelFileSchema,
   BatchExcelFileValues,
 } from "@/utils/validations";
-
-const downloadBlob = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
+import { downloadBlob } from "@/utils/fn-common";
 
 export default function ImportTuitionFeesForm() {
   const { closeModal } = useModalStore();
@@ -74,8 +64,7 @@ export default function ImportTuitionFeesForm() {
               File mẫu nhập học phí
             </Typography>
             <Typography variant="caption" color="gray" className="mt-1 block">
-              Backend xử lý file Excel theo các cột: Mã học viên, Năm học, Học
-              kỳ, Số tiền, Nội dung, Trạng thái.
+              Sử dụng file mẫu Excel
             </Typography>
             <Button
               type="button"

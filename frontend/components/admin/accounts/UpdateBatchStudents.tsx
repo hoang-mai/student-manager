@@ -20,6 +20,7 @@ import {
 import Divide from "@/library/Divide";
 import { useModalStore } from "@/store/useModalStore";
 import useAppMutation from "@/hooks/useAppMutation";
+import { downloadBlob } from "@/utils/fn-common";
 
 const UpdateBatchStudents: React.FC = () => {
   const [parsedData, setParsedData] = useState<BatchUpdateStudentValues>([]);
@@ -180,17 +181,10 @@ const UpdateBatchStudents: React.FC = () => {
       bookType: "xlsx",
       type: "array",
     });
-    const data = new Blob([excelBuffer], {
+     const data = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    const url = window.URL.createObjectURL(data);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "Mau_Cap_Nhat_Hoc_Vien.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    downloadBlob(data, "Mau_Cap_Nhat_Hoc_Vien.xlsx");
   };
 
   const onSubmit = () => {

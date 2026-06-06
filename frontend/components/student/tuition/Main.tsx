@@ -39,11 +39,6 @@ const statusConfig: Record<
   },
 };
 
-const getSemesterLabel = (fee: TuitionFee) => {
-  const semester = fee.semesterInfo?.code || fee.semester;
-  const schoolYear = fee.semesterInfo?.schoolYearInfo?.schoolYear || fee.schoolYear;
-  return formatSemesterYear(semester, schoolYear);
-};
 
 export default function Main() {
   const {
@@ -67,25 +62,22 @@ export default function Main() {
       {
         id: "semester",
         header: "Học kỳ",
-        cell: ({ row }) => (
-          <div className="min-w-36">
-            <Typography
-              variant="body"
-              weight="bold"
-              className="text-neutral-900 dark:text-neutral-100"
-            >
-              {getSemesterLabel(row.original)}
-            </Typography>
-            <Typography
-              variant="caption"
-              className="text-neutral-400 dark:text-neutral-500"
-            >
-              {row.original.semesterInfo
-                ? "Theo học kỳ hệ thống"
-                : "Theo bản ghi học phí"}
-            </Typography>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const fee = row.original;
+          const semester = fee.semesterInfo?.code || fee.semester;
+          const schoolYear = fee.semesterInfo?.schoolYearInfo?.schoolYear || fee.schoolYear;
+          return (
+            <div className="min-w-36">
+              <Typography
+                variant="body"
+                weight="bold"
+                className="text-neutral-900 dark:text-neutral-100"
+              >
+                {formatSemesterYear(semester, schoolYear)}
+              </Typography>
+            </div>
+          );
+        },
       },
       {
         id: "content",

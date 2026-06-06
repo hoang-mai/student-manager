@@ -57,54 +57,51 @@ export default function Main() {
       semesterService.getSemesters({ ...params, fetchAll: true }),
   });
 
-  const groupedData = useMemo<PaginatedResponse<SemesterTableRow> | undefined>(
-    () => {
-      if (!semestersData) return undefined;
+  const groupedData = useMemo<
+    PaginatedResponse<SemesterTableRow> | undefined
+  >(() => {
+    if (!semestersData) return undefined;
 
-      const groups = new Map<string, SemesterTableRow[]>();
-      for (const semester of semestersData.data || []) {
-        const schoolYear = getSchoolYearValue(semester);
-        const rows = groups.get(schoolYear) || [];
-        rows.push({
-          ...semester,
-          rowType: "semester",
-        });
-        groups.set(schoolYear, rows);
-      }
+    const groups = new Map<string, SemesterTableRow[]>();
+    for (const semester of semestersData.data || []) {
+      const schoolYear = getSchoolYearValue(semester);
+      const rows = groups.get(schoolYear) || [];
+      rows.push({
+        ...semester,
+        rowType: "semester",
+      });
+      groups.set(schoolYear, rows);
+    }
 
-      const rows = Array.from(groups.entries()).map(
-        ([schoolYear, semesters]) => {
-          const sortedSemesters = [...semesters].sort((a, b) =>
-            Number(a.code) - Number(b.code)
-          );
-          const first = sortedSemesters[0];
-
-          return {
-            ...first,
-            id: `school-year-${schoolYear}`,
-            code: 0,
-            schoolYear,
-            rowType: "schoolYear" as const,
-            termCount: sortedSemesters.length,
-            subRows: sortedSemesters,
-          };
-        }
+    const rows = Array.from(groups.entries()).map(([schoolYear, semesters]) => {
+      const sortedSemesters = [...semesters].sort(
+        (a, b) => Number(a.code) - Number(b.code)
       );
+      const first = sortedSemesters[0];
 
       return {
-        ...semestersData,
-        data: rows,
-        pagination: {
-          ...semestersData.pagination,
-          total: rows.length,
-          totalPages: 1,
-          page: 1,
-          limit: Math.max(rows.length, 1),
-        },
+        ...first,
+        id: `school-year-${schoolYear}`,
+        code: 0,
+        schoolYear,
+        rowType: "schoolYear" as const,
+        termCount: sortedSemesters.length,
+        subRows: sortedSemesters,
       };
-    },
-    [semestersData]
-  );
+    });
+
+    return {
+      ...semestersData,
+      data: rows,
+      pagination: {
+        ...semestersData.pagination,
+        total: rows.length,
+        totalPages: 1,
+        page: 1,
+        limit: Math.max(rows.length, 1),
+      },
+    };
+  }, [semestersData]);
 
   const deleteMutation = useAppMutation({
     mutationKey: MUTATION_KEYS.DELETE_SEMESTER,
@@ -191,7 +188,7 @@ export default function Main() {
       },
       {
         id: "code",
-        header: "Mã học kỳ",
+        header: "Học kỳ",
         accessorKey: "code",
         cell: (info) => {
           const row = info.row.original;
@@ -201,7 +198,7 @@ export default function Main() {
 
           return (
             <Typography variant="body" weight="semibold" color="neutral">
-              {row.code}
+              Học kỳ {row.code}
             </Typography>
           );
         },

@@ -27,22 +27,12 @@ import {
   formatCurrency,
   textOrDash,
   formatSemesterYear,
+  downloadBlob,
 } from "@/utils/fn-common";
 import CreateTuitionFeeForm from "./CreateTuitionFeeForm";
 import ImportTuitionFeesForm from "./ImportTuitionFeesForm";
 import TuitionSkeleton from "./TuitionSkeleton";
 import UpdateTuitionFeeForm from "./UpdateTuitionFeeForm";
-
-const downloadBlob = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();

@@ -56,7 +56,7 @@ export default function Main() {
     sorting,
     setSorting,
   } = useTableQuery<Notification, NotificationQueryRequest>({
-    queryKey: [QUERY_KEYS.NOTIFICATIONS, "student-page"],
+    queryKey: [QUERY_KEYS.NOTIFICATIONS, "commander-page"],
     fetchData: notificationService.getNotifications,
   });
 
@@ -208,7 +208,7 @@ export default function Main() {
   return (
     <PageContainer
       breadcrumb={[
-        { label: "Trang chủ", href: "/student" },
+        { label: "Tổng quan", href: "/commander" },
         { label: "Thông báo" },
       ]}
       title="Thông báo"
@@ -240,7 +240,6 @@ export default function Main() {
           >
             Đọc tất cả
           </Button>
-          
         }
       />
     </PageContainer>

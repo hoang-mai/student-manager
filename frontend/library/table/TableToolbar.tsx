@@ -40,7 +40,7 @@ const TableToolbar = <TData,>({
 
   return (
     <div className="flex flex-col px-2">
-      <div className="flex flex-row items-center justify-end gap-2 mb-4">
+      <div className="flex flex-row items-center justify-end gap-2 mb-4 flex-wrap">
         {actions}
 
         {onBulkUpdate && (

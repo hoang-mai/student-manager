@@ -193,7 +193,7 @@ export default function Main() {
             Bạn chưa có tài khoản?
           </Typography>
           <Link
-            href="/register"
+            href="/contact"
             className="text-primary-600 hover:text-primary-700 transition-colors"
           >
             <Typography variant="caption" weight="bold">
