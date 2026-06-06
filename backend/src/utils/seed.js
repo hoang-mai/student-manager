@@ -35,11 +35,10 @@ async function seed() {
     });
 
     await db.semester.findOrCreate({
-      where: { schoolYearId: schoolYear.id, code: '1' },
+      where: { schoolYearId: schoolYear.id, code: 1 },
       defaults: {
-        code: '1',
+        code: 1,
         schoolYearId: schoolYear.id,
-        schoolYear: '2024-2025',
       },
     });
     console.log('Sample semester seeded.');

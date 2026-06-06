@@ -56,6 +56,22 @@ const createBatchUsersProfiles = asyncHandler(async (req, res) => {
   return success(res, result, 'Tạo tài khoản và hồ sơ hàng loạt thành công', 201);
 });
 
+const importUsers = asyncHandler(async (req, res) => {
+  const users = await service.parseExcelImport(req.file);
+  for (const u of users) {
+    await validateOrThrow(us.batch, u);
+  }
+  const result = await service.createBatchUsersProfiles(users, req.user);
+  return success(res, result, 'Tạo tài khoản từ Excel thành công', 201);
+});
+
+const downloadImportTemplate = asyncHandler(async (req, res) => {
+  const buffer = await service.createImportTemplate();
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=mau-nhap-tai-khoan.xlsx');
+  return res.send(buffer);
+});
+
 const updateBatchProfiles = asyncHandler(async (req, res) => {
   await validateOrThrow(us.batchProfileUpdate, req.body);
   const result = await service.updateBatchProfiles(req.body);
@@ -210,6 +226,13 @@ const getTuitionReport = asyncHandler(async (req, res) => {
   return success(res, result);
 });
 
+const exportTuitionReport = asyncHandler(async (req, res) => {
+  const buffer = await commanderService.exportTuitionReport(req.query);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=bao-cao-hoc-phi.xlsx');
+  return res.send(buffer);
+});
+
 module.exports = {
   create,
   getAll,
@@ -218,6 +241,8 @@ module.exports = {
   delete: deleteRecord,
   createBatchUsers,
   createBatchUsersProfiles,
+  importUsers,
+  downloadImportTemplate,
   updateBatchProfiles,
   graduateBatchProfiles,
   resetPassword,
@@ -244,4 +269,5 @@ module.exports = {
   getPartyTrainingReport,
   getAchievementReport,
   getTuitionReport,
+  exportTuitionReport,
 };

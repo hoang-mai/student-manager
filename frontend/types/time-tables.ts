@@ -35,10 +35,20 @@ export interface TimeTableUser {
   profile?: TimeTableProfile;
 }
 
+export interface TimeTableSemester {
+  id: string;
+  code: number;
+  schoolYearInfo?: {
+    id: string;
+    schoolYear: string;
+  } | null;
+}
+
 export interface TimeTable {
   id: string;
   userId: string;
   semesterId?: string | null;
+  semester?: TimeTableSemester | null;
   schedules: ScheduleItem[] | null;
   scheduleCount?: number;
   subjectNames?: string[];
@@ -80,6 +90,8 @@ export interface TimeTableQueryRequest extends QueryRequest {
 export interface TimeTableReportRow {
   unit: string;
   fullName: string;
+  semester?: string;
+  schoolYear?: string;
   scheduleCount: number;
   subjectName: string;
   room: string;

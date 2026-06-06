@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { HiOutlineAcademicCap } from "react-icons/hi";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { HiOutlineAcademicCap, HiOutlineCalendar } from "react-icons/hi";
 import Button from "@/library/Button";
 import Divide from "@/library/Divide";
 import Select from "@/library/Select";
@@ -14,13 +14,13 @@ import useAppMutation from "@/hooks/useAppMutation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { userService } from "@/services/user";
 import { useModalStore } from "@/store/useModalStore";
+import { semesterService } from "@/services/semesters";
 import { timeTableService } from "@/services/time-tables";
 import {
   createTimeTableSchema,
   CreateTimeTableFormValues,
 } from "@/utils/validations";
-import TimeTableCalendarForm, { emptySchedule } from "./TimeTableCalendarForm";
-import { isDirty } from "zod/v3";
+import TimeTableCalendarForm from "./TimeTableCalendarForm";
 
 export default function CreateTimeTableForm() {
   const { closeModal } = useModalStore();
@@ -61,6 +61,24 @@ export default function CreateTimeTableForm() {
     [studentsData]
   );
 
+  const { data: semestersResponse, isLoading: isLoadingSemesters } = useQuery({
+    queryKey: [QUERY_KEYS.SEMESTERS, "time-table-options"],
+    queryFn: () => semesterService.getSemesters({ fetchAll: true }),
+  });
+
+  const semesterOptions = useMemo(
+    () =>
+      (semestersResponse?.data || []).map((semester) => {
+        const schoolYear = semester.schoolYearInfo?.schoolYear || "";
+
+        return {
+          value: semester.id,
+          label: `${schoolYear} - Học kỳ ${String(semester.code)}`,
+        };
+      }),
+    [semestersResponse]
+  );
+
   const {
     register,
     control,
@@ -70,6 +88,7 @@ export default function CreateTimeTableForm() {
     resolver: zodResolver(createTimeTableSchema),
     defaultValues: {
       userId: "",
+      semesterId: "",
       schedules: [],
     },
   });
@@ -118,6 +137,25 @@ export default function CreateTimeTableForm() {
               onChange: setStudentSearch,
               placeholder: "Tìm theo họ tên học viên...",
             }}
+          />
+        )}
+      />
+
+      <Controller
+        name="semesterId"
+        control={control}
+        render={({ field: { value, onChange } }) => (
+          <Select
+            label="Học kỳ"
+            placeholder="Chọn học kỳ"
+            prefixIcon={<HiOutlineCalendar />}
+            value={value}
+            onChange={(selectedValue) => onChange(String(selectedValue))}
+            options={semesterOptions}
+            isLoading={mutation.isPending || isLoadingSemesters}
+            error={errors.semesterId?.message}
+            emptyText="Chưa có học kỳ"
+            required
           />
         )}
       />

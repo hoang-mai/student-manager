@@ -106,6 +106,22 @@ export const tuitionFeeService = {
     return apiClient.post(ENDPOINTS.TUITION_FEES.BATCH, data);
   },
 
+  importTuitionFees: async (
+    file: File
+  ): Promise<ApiResponse<BatchMutationResult>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post(ENDPOINTS.TUITION_FEES.IMPORT, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  downloadImportTemplate: async (): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.TUITION_FEES.TEMPLATE, {
+      responseType: "blob",
+    });
+  },
+
   updateTuitionFee: async (id: string, data: UpdateTuitionFeeRequest) => {
     return apiClient.put(`${ENDPOINTS.TUITION_FEES.BASE}/${id}`, data);
   },
@@ -114,7 +130,7 @@ export const tuitionFeeService = {
     return apiClient.delete(`${ENDPOINTS.TUITION_FEES.BASE}/${id}`);
   },
 
-  exportTuitionReport: async () => {
+  exportTuitionReport: async (): Promise<Blob> => {
     return apiClient.get(ENDPOINTS.REPORTS.TUITION, {
       responseType: "blob",
     });

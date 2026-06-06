@@ -223,11 +223,12 @@ const getAchievementReport = async () => {
 const getTuitionReport = async (query = {}) => {
   const where = {};
   const semesterWhere = {};
+  const schoolYearWhere = {};
   if (query.semesterId) where.semesterId = query.semesterId;
   if (query.schoolYear) where.schoolYear = query.schoolYear;
   if (query.semester) where.semester = query.semester;
-  if (query.schoolYear) semesterWhere.schoolYear = query.schoolYear;
-  if (query.semester) semesterWhere.code = query.semester;
+  if (query.schoolYear) schoolYearWhere.schoolYear = query.schoolYear;
+  if (query.semester) semesterWhere.code = Number(query.semester);
 
   const fees = await TuitionFee.findAll({
     where,
@@ -236,7 +237,8 @@ const getTuitionReport = async (query = {}) => {
       {
         model: db.semester,
         as: 'semesterInfo',
-        ...(Object.keys(semesterWhere).length > 0 ? { where: semesterWhere, required: true } : {}),
+        include: [{ model: db.schoolYear, as: 'schoolYearInfo', ...(Object.keys(schoolYearWhere).length > 0 ? { where: schoolYearWhere, required: true } : {}) }],
+        ...(Object.keys(semesterWhere).length > 0 || Object.keys(schoolYearWhere).length > 0 ? { where: semesterWhere, required: true } : {}),
       },
     ],
   });
@@ -257,6 +259,75 @@ const getTuitionReport = async (query = {}) => {
   return { detail: fees, summary };
 };
 
+const getTuitionStudentProfile = (fee) => {
+  const plain = typeof fee.get === 'function' ? fee.get({ plain: true }) : fee;
+  return plain.User?.Profile || plain.User?.profile || plain.user?.profile || {};
+};
+
+const getTuitionSemesterValue = (fee) => {
+  const plain = typeof fee.get === 'function' ? fee.get({ plain: true }) : fee;
+  return plain.semesterInfo?.code || plain.semester || '';
+};
+
+const getTuitionSchoolYearValue = (fee) => {
+  const plain = typeof fee.get === 'function' ? fee.get({ plain: true }) : fee;
+  return plain.semesterInfo?.schoolYearInfo?.schoolYear || plain.schoolYear || '';
+};
+
+const exportTuitionReport = async (query = {}) => {
+  const ExcelJS = require('exceljs');
+  const { detail, summary } = await getTuitionReport(query);
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Bao cao hoc phi');
+
+  worksheet.columns = [
+    { header: 'Mã học viên', key: 'studentCode', width: 18 },
+    { header: 'Họ và tên', key: 'fullName', width: 28 },
+    { header: 'Đơn vị', key: 'unit', width: 24 },
+    { header: 'Năm học', key: 'schoolYear', width: 16 },
+    { header: 'Học kỳ', key: 'semester', width: 12 },
+    { header: 'Số tiền', key: 'totalAmount', width: 18 },
+    { header: 'Nội dung', key: 'content', width: 36 },
+    { header: 'Trạng thái', key: 'status', width: 18 },
+  ];
+
+  detail.forEach((fee) => {
+    const profile = getTuitionStudentProfile(fee);
+    worksheet.addRow({
+      studentCode: profile.code || '',
+      fullName: profile.fullName || '',
+      unit: profile.unit || profile.organization || '',
+      schoolYear: getTuitionSchoolYearValue(fee),
+      semester: getTuitionSemesterValue(fee),
+      totalAmount: Number(fee.totalAmount || 0),
+      content: fee.content || '',
+      status: fee.status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán',
+    });
+  });
+
+  worksheet.getRow(1).font = { bold: true };
+  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+  worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+  worksheet.getColumn('totalAmount').numFmt = '#,##0';
+
+  const summarySheet = workbook.addWorksheet('Tong hop');
+  summarySheet.columns = [
+    { header: 'Chỉ tiêu', key: 'label', width: 28 },
+    { header: 'Giá trị', key: 'value', width: 20 },
+  ];
+  summarySheet.addRows([
+    { label: 'Tổng số bản ghi', value: summary.totalStudents },
+    { label: 'Đã thanh toán', value: summary.paid },
+    { label: 'Chưa thanh toán', value: summary.unpaid },
+    { label: 'Tổng số tiền', value: Number(summary.totalAmount || 0) },
+  ]);
+  summarySheet.getRow(1).font = { bold: true };
+  summarySheet.getColumn('value').numFmt = '#,##0';
+
+  return workbook.xlsx.writeBuffer();
+};
+
 module.exports = {
   create,
   getAll,
@@ -269,4 +340,5 @@ module.exports = {
   getPartyTrainingReport,
   getAchievementReport,
   getTuitionReport,
+  exportTuitionReport,
 };

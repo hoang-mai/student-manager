@@ -5,6 +5,7 @@ const swaggerSpec = require('../config/swagger');
 const routeMounts = {
   'auth.route.js': '/auth',
   'gradeRequest.route.js': '',
+  'commanderReport.route.js': '/commanders',
   'user.route.js': '/users',
   'university.route.js': '/universities',
   'organization.route.js': '/organizations',

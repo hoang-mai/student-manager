@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const controller = require('../controllers/tuitionFee.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const { uploadExcel } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -153,6 +154,60 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       }
  *     }
  *   },
+ *   "/tuition-fees/import": {
+ *     "post": {
+ *       "tags": [
+ *         "Tuition Fees"
+ *       ],
+ *       "summary": "COMMANDER: Nhập học phí từ file Excel",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "multipart/form-data": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "file"
+ *               ],
+ *               "properties": {
+ *                 "file": {
+ *                   "type": "string",
+ *                   "format": "binary",
+ *                   "description": "File Excel .xlsx/.xls theo mẫu"
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Batch result"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/tuition-fees/template": {
+ *     "get": {
+ *       "tags": [
+ *         "Tuition Fees"
+ *       ],
+ *       "summary": "COMMANDER: Tải file mẫu nhập học phí",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Excel template",
+ *           "content": {
+ *             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+ *               "schema": {
+ *                 "type": "string",
+ *                 "format": "binary"
+ *               }
+ *             }
+ *           }
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/tuition-fees/{id}": {
  *     "get": {
  *       "tags": [
@@ -226,6 +281,8 @@ router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
 router.post('/batch', controller.createBatch);
+router.post('/import', uploadExcel('file'), controller.importExcel);
+router.get('/template', controller.downloadTemplate);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);

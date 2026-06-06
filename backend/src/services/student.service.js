@@ -290,8 +290,11 @@ const getMyTimeTable = async (userId, query = {}) => {
   if (query.semester || query.schoolYear) {
     include[0].where = {};
     include[0].required = true;
-    if (query.semester) include[0].where.code = query.semester;
-    if (query.schoolYear) include[0].where.schoolYear = query.schoolYear;
+    if (query.semester) include[0].where.code = Number(query.semester);
+    if (query.schoolYear) {
+      include[0].include[0].where = { schoolYear: query.schoolYear };
+      include[0].include[0].required = true;
+    }
   }
 
   return paginateQuery(TimeTable, query, {
@@ -376,8 +379,11 @@ const getMyTuitionFees = async (userId, query = {}) => {
   if (query.semester || query.schoolYear) {
     include[0].where = {};
     include[0].required = true;
-    if (query.semester) include[0].where.code = query.semester;
-    if (query.schoolYear) include[0].where.schoolYear = query.schoolYear;
+    if (query.semester) include[0].where.code = Number(query.semester);
+    if (query.schoolYear) {
+      include[0].include[0].where = { schoolYear: query.schoolYear };
+      include[0].include[0].required = true;
+    }
   }
 
   return paginateQuery(TuitionFee, query, {

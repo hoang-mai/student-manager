@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const controller = require('../controllers/user.controller');
 const { authMiddleware, requireRole, requireStudent, requireAdmin } = require('../middlewares/auth.middleware');
+const { uploadExcel } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -1226,6 +1227,60 @@ const { authMiddleware, requireRole, requireStudent, requireAdmin } = require('.
  *       }
  *     }
  *   },
+ *   "/users/import-template": {
+ *     "get": {
+ *       "tags": [
+ *         "Users"
+ *       ],
+ *       "summary": "ADMIN: Tải file mẫu nhập tài khoản",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Excel template",
+ *           "content": {
+ *             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+ *               "schema": {
+ *                 "type": "string",
+ *                 "format": "binary"
+ *               }
+ *             }
+ *           }
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/users/import": {
+ *     "post": {
+ *       "tags": [
+ *         "Users"
+ *       ],
+ *       "summary": "ADMIN: Tạo tài khoản từ file Excel",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "multipart/form-data": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "file"
+ *               ],
+ *               "properties": {
+ *                 "file": {
+ *                   "type": "string",
+ *                   "format": "binary",
+ *                   "description": "File Excel .xlsx/.xls theo mẫu"
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "[{ id, username, profileId, status }]"
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/users/{id}/reset-password": {
  *     "post": {
  *       "tags": [
@@ -1344,6 +1399,8 @@ router.get('/reports/tuition', controller.getTuitionReport);
 
 // ===================== Admin/Commander: User CRUD (read + update) =====================
 router.put('/batch-profiles', controller.updateBatchProfiles);
+router.get('/import-template', requireAdmin, controller.downloadImportTemplate);
+router.post('/import', requireAdmin, uploadExcel('file'), controller.importUsers);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);

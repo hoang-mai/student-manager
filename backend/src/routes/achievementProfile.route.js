@@ -11,6 +11,16 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *         "Achievements"
  *       ],
  *       "summary": "Thêm hồ sơ thành tích",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/AchievementProfile"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "201": {
  *           "description": "Created"
@@ -23,6 +33,14 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       ],
  *       "summary": "Danh sách hồ sơ thành tích",
  *       "parameters": [
+ *         {
+ *           "name": "userId",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string",
+ *             "format": "uuid"
+ *           }
+ *         },
  *         {
  *           "name": "page",
  *           "in": "query",
@@ -82,6 +100,15 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           }
  *         }
  *       ],
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/AchievementProfile"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "200": {
  *           "description": "OK"

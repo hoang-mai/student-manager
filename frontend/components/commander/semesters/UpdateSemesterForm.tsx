@@ -22,11 +22,6 @@ interface Props {
   semester: Semester;
 }
 
-const getTermFromCode = (code: string) => {
-  const match = code.match(/HK([123])$/);
-  return match?.[1] || "";
-};
-
 export default function UpdateSemesterForm({ semester }: Props) {
   const { closeModal } = useModalStore();
   const { data: schoolYearsResponse, isLoading: isLoadingSchoolYears } =
@@ -51,8 +46,8 @@ export default function UpdateSemesterForm({ semester }: Props) {
   } = useForm<UpdateSemesterFormValues>({
     resolver: zodResolver(updateSemesterSchema),
     defaultValues: {
-      code: getTermFromCode(semester.code),
-      schoolYear: semester.schoolYear,
+      code: String(semester.code),
+      schoolYear: semester.schoolYearInfo?.schoolYear || "",
     },
   });
 
@@ -61,7 +56,7 @@ export default function UpdateSemesterForm({ semester }: Props) {
     mutationFn: (data: UpdateSemesterFormValues) =>
       semesterService.updateSemester(semester.id, {
         schoolYear: data.schoolYear,
-        code: `${data.schoolYear}-HK${data.code}`,
+        code: Number(data.code),
       }),
     invalidateQueryKey: [QUERY_KEYS.SEMESTERS],
     successMessage: "Cập nhật học kỳ thành công!",

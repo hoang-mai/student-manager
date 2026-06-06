@@ -137,14 +137,14 @@ async function fullSeed() {
     // 7. SEMESTERS
     // ==========================
     const semData = [
-      { code: '1', schoolYear: '2022-2023' },
-      { code: '2', schoolYear: '2022-2023' },
-      { code: '1', schoolYear: '2023-2024' },
-      { code: '2', schoolYear: '2023-2024' },
-      { code: '1', schoolYear: '2024-2025' },
-      { code: '2', schoolYear: '2024-2025' },
-      { code: '1', schoolYear: '2025-2026' },
-      { code: '2', schoolYear: '2025-2026' },
+      { code: 1, schoolYear: '2022-2023' },
+      { code: 2, schoolYear: '2022-2023' },
+      { code: 1, schoolYear: '2023-2024' },
+      { code: 2, schoolYear: '2023-2024' },
+      { code: 1, schoolYear: '2024-2025' },
+      { code: 2, schoolYear: '2024-2025' },
+      { code: 1, schoolYear: '2025-2026' },
+      { code: 2, schoolYear: '2025-2026' },
     ];
     const schoolYears = {};
     for (const schoolYear of [...new Set(semData.map(s => s.schoolYear))]) {
@@ -153,10 +153,11 @@ async function fullSeed() {
 
     const semesters = [];
     for (const s of semData) {
-      semesters.push(await db.semester.create({
-        ...s,
+      const semester = await db.semester.create({
+        code: s.code,
         schoolYearId: schoolYears[s.schoolYear].id,
-      }));
+      });
+      semesters.push({ ...semester.get({ plain: true }), schoolYear: s.schoolYear });
     }
 
     const getSchoolYearsForEnrollment = (enrollment) =>
@@ -239,7 +240,7 @@ async function fullSeed() {
 
           const semResult = await db.semesterResult.create({
             userId: user.id,
-            semester: sem.code,
+            semester: String(sem.code),
             schoolYear: sy,
             yearlyResultId: yearly.id,
             totalCredits: 0, averageGrade4: 0, averageGrade10: 0,
@@ -376,12 +377,12 @@ async function fullSeed() {
       const user = hocVienUsers[i];
       const schoolYears = getSchoolYearsForEnrollment(profile.enrollment);
       for (const sy of schoolYears) {
-        for (const hk of ['1', '2']) {
+        for (const hk of [1, 2]) {
           const semester = semesters.find(s => s.schoolYear === sy && s.code === hk);
           await db.tuitionFee.create({
             userId: user.id, totalAmount: 4500000 + Math.floor(Math.random() * 2000000),
             semesterId: semester?.id || null,
-            semester: hk, schoolYear: sy,
+            semester: String(hk), schoolYear: sy,
             content: `Học phí ${sy} - ${hk}`,
             status: ['PAID', 'PAID', 'PAID', 'UNPAID', 'UNPAID'][Math.floor(Math.random() * 5)],
           });
@@ -572,15 +573,16 @@ async function fullSeed() {
     assertSeed(gradeRequestCount === requestSeeds.length, 'số đề xuất điểm không khớp');
 
     const timetableRows = await db.timeTable.findAll({
-      include: [{ model: db.user, include: [{ model: db.profile }] }, { model: db.semester }],
+      include: [{ model: db.user, include: [{ model: db.profile }] }, { model: db.semester, include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] }],
     });
     for (const row of timetableRows) {
       const plain = row.get({ plain: true });
       assertSeed(plain.Semester, `TKB ${plain.id} thiếu học kỳ`);
       const enrollment = Number(plain.User.Profile.enrollment || 2024);
-      const startYear = Number(plain.Semester.schoolYear.split('-')[0]);
+      const semesterSchoolYear = plain.Semester.schoolYearInfo?.schoolYear;
+      const startYear = Number(semesterSchoolYear.split('-')[0]);
       assertSeed(startYear >= enrollment, `TKB ${plain.id} nằm trước năm nhập học`);
-      const semesterSubjects = subjectsByUserIdAndSemester.get(plain.userId).get(getSemesterKey(plain.Semester)) || [];
+      const semesterSubjects = subjectsByUserIdAndSemester.get(plain.userId).get(`${semesterSchoolYear}-${plain.Semester.code}`) || [];
       const subjectNames = new Set(semesterSubjects.map(subject => subject.subjectName));
       assertSeed(subjectNames.size > 0, `TKB ${plain.id} không có môn học kỳ tương ứng`);
       for (const schedule of plain.schedules || []) {
@@ -589,16 +591,17 @@ async function fullSeed() {
     }
 
     const tuitionRows = await db.tuitionFee.findAll({
-      include: [{ model: db.user, include: [{ model: db.profile }] }, { model: db.semester, as: 'semesterInfo' }],
+      include: [{ model: db.user, include: [{ model: db.profile }] }, { model: db.semester, as: 'semesterInfo', include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] }],
     });
     for (const row of tuitionRows) {
       const plain = row.get({ plain: true });
       assertSeed(plain.semesterInfo, `học phí ${plain.id} thiếu học kỳ`);
       const enrollment = Number(plain.User.Profile.enrollment || 2024);
-      const startYear = Number(plain.semesterInfo.schoolYear.split('-')[0]);
+      const semesterSchoolYear = plain.semesterInfo.schoolYearInfo?.schoolYear;
+      const startYear = Number(semesterSchoolYear.split('-')[0]);
       assertSeed(startYear >= enrollment, `học phí ${plain.id} nằm trước năm nhập học`);
-      assertSeed(plain.semester === plain.semesterInfo.code, `học phí ${plain.id} lệch semester code`);
-      assertSeed(plain.schoolYear === plain.semesterInfo.schoolYear, `học phí ${plain.id} lệch schoolYear`);
+      assertSeed(Number(plain.semester) === plain.semesterInfo.code, `học phí ${plain.id} lệch semester code`);
+      assertSeed(plain.schoolYear === semesterSchoolYear, `học phí ${plain.id} lệch schoolYear`);
     }
 
     console.log('Seed validation passed.');

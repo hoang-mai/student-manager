@@ -123,30 +123,7 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *                 "items": {
  *                   "type": "array",
  *                   "items": {
- *                     "type": "object",
- *                     "required": [
- *                       "studentCode"
- *                     ],
- *                     "properties": {
- *                       "studentCode": {
- *                         "type": "string"
- *                       },
- *                       "semester": {
- *                         "type": "string"
- *                       },
- *                       "schoolYear": {
- *                         "type": "string"
- *                       },
- *                       "title": {
- *                         "type": "string"
- *                       },
- *                       "description": {
- *                         "type": "string"
- *                       },
- *                       "award": {
- *                         "type": "string"
- *                       }
- *                     }
+ *                     "$ref": "#/components/schemas/AchievementBatchItem"
  *                   }
  *                 }
  *               }
@@ -198,6 +175,15 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           }
  *         }
  *       ],
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/Achievement"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "200": {
  *           "description": "OK"

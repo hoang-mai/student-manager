@@ -64,6 +64,7 @@ const getAll = async (query) => {
   const userWhere = {};
   const profileWhere = {};
   const semesterWhere = {};
+  const schoolYearWhere = {};
   const opts = {
     filterFields: ['userId'],
     include: [{ model: User, include: [{ model: db.profile }] }, { model: Semester, include: [{ model: SchoolYear, as: 'schoolYearInfo' }] }],
@@ -76,8 +77,8 @@ const getAll = async (query) => {
     profileWhere.code = query.code;
   }
 
-  if (query.semester) semesterWhere.code = query.semester;
-  if (query.schoolYear) semesterWhere.schoolYear = query.schoolYear;
+  if (query.semester) semesterWhere.code = Number(query.semester);
+  if (query.schoolYear) schoolYearWhere.schoolYear = query.schoolYear;
 
   if (query.fullName) {
     profileWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
@@ -96,6 +97,11 @@ const getAll = async (query) => {
 
   if (Object.keys(semesterWhere).length > 0) {
     opts.include[1].where = semesterWhere;
+    opts.include[1].required = true;
+  }
+  if (Object.keys(schoolYearWhere).length > 0) {
+    opts.include[1].include[0].where = schoolYearWhere;
+    opts.include[1].include[0].required = true;
     opts.include[1].required = true;
   }
 
@@ -160,7 +166,7 @@ const getReport = async () => {
         unit: profile?.unit || '',
         fullName: profile?.fullName || '',
         semester: tt.Semester?.code || '',
-        schoolYear: tt.Semester?.schoolYearInfo?.schoolYear || tt.Semester?.schoolYear || '',
+        schoolYear: tt.Semester?.schoolYearInfo?.schoolYear || '',
         scheduleCount: schedules.length,
         subjectName: s.subjectName || '',
         room: s.room || '',

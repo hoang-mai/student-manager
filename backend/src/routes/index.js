@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 router.use('/auth', require('./auth.route'));
 router.use('/', require('./gradeRequest.route'));
+router.use('/commanders', require('./commanderReport.route'));
 router.use('/users', require('./user.route'));
 router.use('/universities', require('./university.route'));
 router.use('/organizations', require('./organization.route'));

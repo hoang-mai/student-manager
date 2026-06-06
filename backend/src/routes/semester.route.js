@@ -259,7 +259,7 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *         "content": {
  *           "application/json": {
  *             "schema": {
- *               "$ref": "#/components/schemas/Semester"
+ *               "$ref": "#/components/schemas/SemesterInput"
  *             }
  *           }
  *         }
@@ -280,7 +280,7 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           "name": "code",
  *           "in": "query",
  *           "schema": {
- *             "type": "string"
+ *             "type": "integer"
  *           }
  *         },
  *         {
@@ -357,6 +357,15 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           }
  *         }
  *       ],
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/SemesterInput"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "200": {
  *           "description": "OK"

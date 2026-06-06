@@ -26,6 +26,8 @@ export const ENDPOINTS = {
     BATCH: "/api/users/batch",
     BATCH_PROFILES: "/api/users/batch-profiles",
     BATCH_GRADUATION: "/api/users/profiles/graduation/batch",
+    IMPORT: "/api/users/import",
+    IMPORT_TEMPLATE: "/api/users/import-template",
   },
   UNIVERSITIES: {
     BASE: "/api/universities",
@@ -55,6 +57,8 @@ export const ENDPOINTS = {
   TUITION_FEES: {
     BASE: "/api/tuition-fees",
     BATCH: "/api/tuition-fees/batch",
+    IMPORT: "/api/tuition-fees/import",
+    TEMPLATE: "/api/tuition-fees/template",
     MY: "/api/users/tuition-fees",
   },
   CUT_RICE: {

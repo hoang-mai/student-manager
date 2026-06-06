@@ -11,6 +11,16 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *         "Achievements"
  *       ],
  *       "summary": "Thêm sáng kiến",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/ScientificInitiative"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "201": {
  *           "description": "Created"
@@ -103,6 +113,15 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           }
  *         }
  *       ],
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/ScientificInitiative"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "200": {
  *           "description": "OK"

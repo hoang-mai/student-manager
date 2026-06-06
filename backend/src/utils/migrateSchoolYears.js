@@ -32,6 +32,21 @@ const migrate = async () => {
   `);
 
   await db.sequelize.query(`
+    ALTER TABLE semesters
+    ALTER COLUMN code TYPE INTEGER
+    USING CASE
+      WHEN code ~ '^[0-9]+$' THEN code::INTEGER
+      WHEN code ~ 'HK[0-9]+$' THEN substring(code from 'HK([0-9]+)$')::INTEGER
+      ELSE NULL
+    END;
+  `);
+
+  await db.sequelize.query(`
+    ALTER TABLE semesters
+    DROP COLUMN IF EXISTS school_year;
+  `);
+
+  await db.sequelize.query(`
     DO $$
     BEGIN
       IF NOT EXISTS (

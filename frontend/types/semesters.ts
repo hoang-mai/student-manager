@@ -1,8 +1,7 @@
 export interface Semester {
   id: string;
-  code: string;
+  code: number;
   schoolYearId?: string | null;
-  schoolYear: string;
   schoolYearInfo?: SchoolYear | null;
   createdAt: string;
   updatedAt: string;
@@ -16,9 +15,9 @@ export interface SchoolYear {
 }
 
 export interface CreateSemesterRequest {
-  code: string;
+  code: number;
   schoolYearId?: string | null;
-  schoolYear: string;
+  schoolYear?: string;
 }
 
 export interface CreateSchoolYearRequest {
@@ -32,13 +31,13 @@ export interface CreateTermRequest {
 }
 
 export interface UpdateSemesterRequest {
-  code?: string;
+  code?: number;
   schoolYearId?: string | null;
   schoolYear?: string;
 }
 
 export interface SemesterQueryRequest extends QueryRequest {
-  code?: string;
+  code?: number | string;
   schoolYearId?: string;
   schoolYear?: string;
 }

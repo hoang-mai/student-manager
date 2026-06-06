@@ -30,10 +30,11 @@ type SemesterTableRow = Semester & {
   rowType: "schoolYear" | "semester";
   termCount?: number;
   subRows?: SemesterTableRow[];
+  schoolYear?: string;
 };
 
 const getSchoolYearValue = (semester: Semester) =>
-  semester.schoolYearInfo?.schoolYear || semester.schoolYear;
+  semester.schoolYearInfo?.schoolYear || "";
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -74,14 +75,14 @@ export default function Main() {
       const rows = Array.from(groups.entries()).map(
         ([schoolYear, semesters]) => {
           const sortedSemesters = [...semesters].sort((a, b) =>
-            a.code.localeCompare(b.code)
+            Number(a.code) - Number(b.code)
           );
           const first = sortedSemesters[0];
 
           return {
             ...first,
             id: `school-year-${schoolYear}`,
-            code: schoolYear,
+            code: 0,
             schoolYear,
             rowType: "schoolYear" as const,
             termCount: sortedSemesters.length,

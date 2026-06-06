@@ -151,12 +151,13 @@ async function main() {
     ok(`GET  ${p.padEnd(28)} | student   `, (await request('GET', p, null, studentToken)).status, 200);
   }
 
-  const ttBody = { schedules: [{ day: 'Monday', startTime: '07:00', endTime: '09:00', room: '101' }] };
+  const semesterId = firstId(await request('GET', '/semesters?limit=1', null, adminToken));
+  const ttBody = { schedules: [{ day: 'Thứ 2', startTime: '07:00', endTime: '09:00', room: '101' }] };
   ok('POST /users/time-table | student (403)   ', (await request('POST', '/users/time-table', ttBody, studentToken)).status, 403);
   ok('POST /users/time-table | admin (403)     ', (await request('POST', '/users/time-table', ttBody, adminToken)).status, 403);
   ok('POST /users/time-table | commander (403) ', (await request('POST', '/users/time-table', ttBody, commanderToken)).status, 403);
   if (studentUserId) {
-    ok('POST /time-tables      | commander nhập TKB ', (await request('POST', '/time-tables', { ...ttBody, userId: studentUserId }, commanderToken)).status, 201);
+    ok('POST /time-tables      | commander nhập TKB ', (await request('POST', '/time-tables', { ...ttBody, userId: studentUserId, semesterId }, commanderToken)).status, 201);
   }
 
   const cutBody = { weekly: { Monday: { morning: true } } };
@@ -195,6 +196,9 @@ async function main() {
     ok(`GET  ${p.padEnd(32)} | commander `, (await request('GET', p, null, commanderToken)).status, 200);
     ok(`GET  ${p.padEnd(32)} | student   `, (await request('GET', p, null, studentToken)).status, 403);
   }
+  ok('GET  /commanders/reports/tuition    | admin     ', (await request('GET', '/commanders/reports/tuition', null, adminToken)).status, 200);
+  ok('GET  /commanders/reports/tuition    | commander ', (await request('GET', '/commanders/reports/tuition', null, commanderToken)).status, 200);
+  ok('GET  /commanders/reports/tuition    | student   ', (await request('GET', '/commanders/reports/tuition', null, studentToken)).status, 403);
 
   // Get first profile for detail tests
   const profPage = await request('GET', '/users/profiles?limit=1', null, adminToken);
@@ -333,12 +337,13 @@ async function main() {
   const firstOrgId = firstId(orgPage);
   const firstElId = firstId(elPage);
 
+  const semesterCodeBase = Number(String(ts).slice(-6));
   const createTests = [
     { path: '/universities', body: { universityCode: `U_ADMIN_${ts}`, universityName: `Uni Admin ${ts}` }, cmdBody: { universityCode: `U_CMD_${ts}`, universityName: `Uni Cmd ${ts}` } },
     { path: '/organizations', body: { organizationName: `Org Admin ${ts}`, universityId: firstUniId }, cmdBody: { organizationName: `Org Cmd ${ts}`, universityId: firstUniId } },
     { path: '/education-levels', body: { levelName: `Level Admin ${ts}`, organizationId: firstOrgId }, cmdBody: { levelName: `Level Cmd ${ts}`, organizationId: firstOrgId } },
     { path: '/classes', body: { className: `Class Admin ${ts}`, educationLevelId: firstElId }, cmdBody: { className: `Class Cmd ${ts}`, educationLevelId: firstElId } },
-    { path: '/semesters', body: { code: `SEM_ADMIN_${ts}`, schoolYear: '2024-2025' }, cmdBody: { code: `SEM_CMD_${ts}`, schoolYear: '2024-2025' } },
+    { path: '/semesters', body: { code: semesterCodeBase, schoolYear: '2024-2025' }, cmdBody: { code: semesterCodeBase + 1, schoolYear: '2024-2025' } },
     { path: '/commander-duty-schedules', body: { userId: commanderUserId, position: 'Admin' }, cmdBody: { userId: commanderUserId, position: 'Cmd' } },
   ];
 

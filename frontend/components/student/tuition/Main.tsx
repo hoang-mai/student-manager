@@ -41,7 +41,7 @@ const statusConfig: Record<
 
 const getSemesterLabel = (fee: TuitionFee) => {
   const semester = fee.semesterInfo?.code || fee.semester;
-  const schoolYear = fee.semesterInfo?.schoolYear || fee.schoolYear;
+  const schoolYear = fee.semesterInfo?.schoolYearInfo?.schoolYear || fee.schoolYear;
   return formatSemesterYear(semester, schoolYear);
 };
 

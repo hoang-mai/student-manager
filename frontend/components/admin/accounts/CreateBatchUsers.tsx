@@ -1,38 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
-import { HiOutlineDownload } from "react-icons/hi";
-import { useForm, Controller } from "react-hook-form";
+import React from "react";
+import { HiOutlineDownload, HiOutlineUpload } from "react-icons/hi";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as XLSX from "xlsx";
 import Button from "@/library/Button";
-import Typography from "@/library/Typography";
+import Divide from "@/library/Divide";
 import FileUpload from "@/library/FileUpload";
+import Typography from "@/library/Typography";
 import { userService } from "@/services/user";
-import { useToastStore } from "@/store/useToastStore";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { CreateUserRequest } from "@/types/auth";
 import {
-  batchUserSchema,
   batchExcelFileSchema,
   BatchExcelFileValues,
 } from "@/utils/validations";
 import useAppMutation from "@/hooks/useAppMutation";
 import { useModalStore } from "@/store/useModalStore";
 
-
-interface ExcelRow {
-  "Tên đăng nhập"?: string;
-  "Họ và tên"?: string;
-  Email?: string;
-  "Vai trò"?: string;
-  "Mật khẩu"?: string;
-}
+const downloadBlob = (blob: Blob, fileName: string) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
 
 const CreateBatchUsers: React.FC = () => {
-  const [parsedData, setParsedData] = useState<CreateUserRequest[]>([]);
-  const [isParsing, setIsParsing] = useState(false);
-  const { addToast } = useToastStore();
   const { closeModal } = useModalStore();
 
   const {
@@ -47,166 +43,53 @@ const CreateBatchUsers: React.FC = () => {
     },
   });
 
-  const handleExcelParsing = (file: File | null) => {
-    if (!file) {
-      setParsedData([]);
-      return;
-    }
+  const templateMutation = useAppMutation({
+    mutationKey: [QUERY_KEYS.USERS, "import-template"],
+    mutationFn: userService.downloadImportTemplate,
+    successMessage: "Tải file mẫu thành công!",
+    errorMessage: "Không thể tải file mẫu!",
+    onSuccess: (blob) => downloadBlob(blob, "mau-nhap-tai-khoan.xlsx"),
+  });
 
-    setIsParsing(true);
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      try {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json<ExcelRow>(worksheet);
-
-        // Mapping Excel headers to API fields
-        const mappedData = json
-          .map((row) => {
-            const rawRole = String(row["Vai trò"] || "")
-              .trim()
-              .toLowerCase();
-            const roleMap: Record<string, "STUDENT" | "COMMANDER" | "ADMIN"> = {
-              "chỉ huy": "COMMANDER",
-              "quản trị viên": "ADMIN",
-              admin: "ADMIN",
-              "học viên": "STUDENT",
-            };
-
-            return {
-              username: String(row["Tên đăng nhập"] || "").trim(),
-              fullName: String(row["Họ và tên"] || "").trim(),
-              email: String(row.Email || "").trim(),
-              role: roleMap[rawRole] || "STUDENT",
-            };
-          })
-          .filter((user) => user.username);
-
-        // Validation data with Zod
-        const result = batchUserSchema.safeParse(mappedData);
-
-        if (!result.success) {
-          const firstError = result.error.issues[0];
-          const errorMessage = `Lỗi dữ liệu: ${firstError.message} (${String(firstError.path[0])})`;
-          addToast({ message: errorMessage, variant: "error" });
-          setParsedData([]);
-          resetField("file");
-          return;
-        }
-
-        setParsedData(result.data as CreateUserRequest[]);
-        if (result.data.length === 0) {
-          addToast({
-            message: "File Excel không có dữ liệu hợp lệ!",
-            variant: "error",
-          });
-          resetField("file");
-          setParsedData([]);
-        }
-      } catch {
-        addToast({ message: "Lỗi định dạng file Excel!", variant: "error" });
-        resetField("file");
-        setParsedData([]);
-      } finally {
-        setIsParsing(false);
-      }
-    };
-
-    reader.onerror = () => {
-      addToast({ message: "Không thể đọc file!", variant: "error" });
-      resetField("file");
-      setParsedData([]);
-      setIsParsing(false);
-    };
-
-    reader.readAsArrayBuffer(file);
-  };
-
-  const batchMutation = useAppMutation({
-    mutationKey: MUTATION_KEYS.CREATE_USER,
-    mutationFn: (data: CreateUserRequest[]) => userService.createBatchUsers(data),
+  const importMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.IMPORT_USERS,
+    mutationFn: (data: BatchExcelFileValues) =>
+      userService.importUsers(data.file),
     invalidateQueryKey: [QUERY_KEYS.USERS],
-    successMessage: "Thêm người dùng thành công!",
-    errorMessage: "Thêm người dùng thất bại!",
+    successMessage: "Tạo tài khoản từ Excel thành công!",
+    errorMessage: "Tạo tài khoản từ Excel thất bại!",
     onSuccess: () => closeModal(),
   });
 
-  const onSubmit = () => {
-    if (parsedData.length === 0) {
-      addToast({
-        message: "Vui lòng chọn file có dữ liệu hợp lệ!",
-        variant: "error",
-      });
-      return;
-    }
-    batchMutation.mutate(parsedData);
-  };
-
-  const downloadTemplate = () => {
-    const templateData = [
-      {
-        "Tên đăng nhập": "nguyenvana",
-        "Họ và tên": "Nguyễn Văn A",
-        Email: "vana@example.com",
-        "Vai trò": "Học viên",
-      },
-      {
-        "Tên đăng nhập": "tranvanb",
-        "Họ và tên": "Trần Văn B",
-        Email: "vanb@example.com",
-        "Vai trò": "Chỉ Huy",
-      },
-    ];
-
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sach nguoi dung");
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const data = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const url = window.URL.createObjectURL(data);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "Mau_Tao_Tai_Khoan.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  };
-
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col max-h-[85vh]"
+      onSubmit={handleSubmit((data) => importMutation.mutate(data))}
+      className="flex max-h-[85vh] flex-col"
     >
-      <div className="flex-1 overflow-y-auto px-1 custom-scrollbar space-y-6">
-        <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-start gap-4">
-          <div className="p-2 rounded-xl bg-blue-100 text-blue-600">
+      <div className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-1">
+        <div className="flex items-start gap-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
+          <div className="rounded-xl bg-blue-100 p-2 text-blue-600 dark:bg-blue-900 dark:text-blue-200">
             <HiOutlineDownload size={24} />
           </div>
           <div className="flex-1">
             <Typography variant="body" weight="bold" color="primary">
-              Hướng dẫn tạo hàng loạt
+              File mẫu tạo tài khoản
             </Typography>
-            <Typography variant="caption" color="gray" className="block mt-1">
-              Sử dụng file mẫu Excel. Cột hỗ trợ: Tên đăng nhập, Họ và tên,
-              Email, Vai trò.
+            <Typography variant="caption" color="gray" className="mt-1 block">
+              Backend xử lý file Excel theo các cột: Tên đăng nhập, Mật khẩu,
+              Vai trò, Mã, Họ và tên, Email, Số điện thoại, Giới tính, Ngày
+              sinh, Quê quán, Khóa học, Đơn vị, Cấp bậc.
             </Typography>
-            <button
+            <Button
               type="button"
-              onClick={downloadTemplate}
-              className="mt-3 text-sm font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer"
+              variant="ghost"
+              icon={HiOutlineDownload}
+              onClick={() => templateMutation.mutate()}
+              isLoading={templateMutation.isPending}
+              className="mt-3"
             >
-              Tải file mẫu (.xlsx)
-            </button>
+              Tải file mẫu
+            </Button>
           </div>
         </div>
 
@@ -215,49 +98,38 @@ const CreateBatchUsers: React.FC = () => {
           control={control}
           render={({ field }) => (
             <FileUpload
-              label="Chọn file danh sách"
+              label="File Excel tài khoản"
               value={field.value}
-              onFileSelect={(file) => {
-                field.onChange(file);
-                handleExcelParsing(file);
-              }}
-              onRemove={() => {
-                setParsedData([]);
-              }}
-              accept=".xlsx, .xls"
+              onFileSelect={(file) => field.onChange(file || undefined)}
+              onRemove={() => resetField("file")}
+              accept=".xlsx,.xls"
               error={errors.file?.message}
-              isLoading={batchMutation.isPending || isParsing}
+              isLoading={importMutation.isPending}
+              placeholder="Chọn file Excel để gửi lên hệ thống"
               required
             />
           )}
         />
-
-        {isParsing && (
-          <div className="py-8 text-center bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
-            <Typography variant="caption" color="gray">
-              Đang phân tích dữ liệu Excel...
-            </Typography>
-          </div>
-        )}
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100 dark:border-neutral-800">
+      <Divide className="mt-6" />
+      <div className="flex items-center justify-end gap-3 pt-6">
         <Button
           variant="ghost"
           type="button"
           onClick={() => closeModal()}
-          disabled={batchMutation.isPending || isParsing}
+          disabled={importMutation.isPending}
         >
           Hủy bỏ
         </Button>
         <Button
           variant="primary"
           type="submit"
-          isLoading={batchMutation.isPending}
-          disabled={!isDirty || parsedData.length === 0 || isParsing}
+          icon={HiOutlineUpload}
+          isLoading={importMutation.isPending}
+          disabled={!isDirty}
         >
-          Tạo {parsedData.length} tài khoản
+          Tải lên
         </Button>
       </div>
     </form>

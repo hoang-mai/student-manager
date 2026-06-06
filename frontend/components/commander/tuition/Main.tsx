@@ -6,6 +6,7 @@ import {
   HiOutlineDocumentDownload,
   HiOutlinePencil,
   HiOutlineTrash,
+  HiOutlineUpload,
 } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Button from "@/library/Button";
@@ -28,8 +29,20 @@ import {
   formatSemesterYear,
 } from "@/utils/fn-common";
 import CreateTuitionFeeForm from "./CreateTuitionFeeForm";
+import ImportTuitionFeesForm from "./ImportTuitionFeesForm";
 import TuitionSkeleton from "./TuitionSkeleton";
 import UpdateTuitionFeeForm from "./UpdateTuitionFeeForm";
+
+const downloadBlob = (blob: Blob, fileName: string) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -64,6 +77,7 @@ export default function Main() {
     mutationFn: tuitionFeeService.exportTuitionReport,
     successMessage: "Xuất báo cáo học phí thành công!",
     errorMessage: "Xuất báo cáo học phí thất bại!",
+    onSuccess: (blob) => downloadBlob(blob, "bao-cao-hoc-phi.xlsx"),
   });
 
   const handleAdd = useCallback(() => {
@@ -72,6 +86,15 @@ export default function Main() {
       content: <CreateTuitionFeeForm />,
       size: "lg",
       config: { mutationKey: MUTATION_KEYS.CREATE_TUITION_FEE },
+    });
+  }, [openModal]);
+
+  const handleImport = useCallback(() => {
+    openModal({
+      title: "Nhập học phí từ Excel",
+      content: <ImportTuitionFeesForm />,
+      size: "lg",
+      config: { mutationKey: MUTATION_KEYS.IMPORT_TUITION_FEES },
     });
   }, [openModal]);
 
@@ -283,15 +306,25 @@ export default function Main() {
             onAdd={handleAdd}
             addLabel="Ghi nhận học phí"
             actions={
-              <Button
-                type="button"
-                onClick={() => exportMutation.mutate()}
-                isLoading={exportMutation.isPending}
-                icon={HiOutlineDocumentDownload}
-                className="flex items-center gap-2 px-4 py-2 bg-secondary-500 border border-secondary-500 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-secondary-600 hover:border-secondary-600 transition-all shadow-lg shadow-secondary-500/20 cursor-pointer active:scale-95 h-auto"
-              >
-                Xuất báo cáo
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={handleImport}
+                  icon={HiOutlineUpload}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 border border-primary-600 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-primary-700 hover:border-primary-700 transition-all shadow-lg shadow-primary-500/20 cursor-pointer active:scale-95 h-auto"
+                >
+                  Nhập Excel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => exportMutation.mutate()}
+                  isLoading={exportMutation.isPending}
+                  icon={HiOutlineDocumentDownload}
+                  className="flex items-center gap-2 px-4 py-2 bg-secondary-500 border border-secondary-500 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-secondary-600 hover:border-secondary-600 transition-all shadow-lg shadow-secondary-500/20 cursor-pointer active:scale-95 h-auto"
+                >
+                  Xuất báo cáo
+                </Button>
+              </div>
             }
           />
         </div>

@@ -6,15 +6,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
     },
     code: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     schoolYearId: {
       type: DataTypes.UUID,
-      allowNull: false,
-    },
-    schoolYear: {
-      type: DataTypes.STRING(50),
       allowNull: false,
     },
   }, {

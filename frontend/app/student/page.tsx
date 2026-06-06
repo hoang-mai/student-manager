@@ -360,7 +360,7 @@ export default function StudentDashboard() {
 
 const getTuitionLabel = (fee: TuitionFee) => {
   const semester = fee.semesterInfo?.code || fee.semester;
-  const schoolYear = fee.semesterInfo?.schoolYear || fee.schoolYear;
+  const schoolYear = fee.semesterInfo?.schoolYearInfo?.schoolYear || fee.schoolYear;
   if (semester && schoolYear) return `${semester} · ${schoolYear}`;
   return semester || schoolYear || "Khoản học phí";
 };

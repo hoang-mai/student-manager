@@ -15,8 +15,10 @@ const schoolYear = () => trimString()
     return endYear === startYear + 1;
   });
 
-const semesterCode = () => trimString()
-  .matches(SEMESTER_CODE_REGEX, 'Mã học kỳ chỉ được gồm chữ số');
+const semesterCode = () => yup.number()
+  .typeError('Mã học kỳ phải là số')
+  .integer('Mã học kỳ phải là số nguyên')
+  .min(1, 'Mã học kỳ phải lớn hơn 0');
 
 const studentCode = () => trimString()
   .max(50, 'Mã học viên tối đa 50 ký tự')

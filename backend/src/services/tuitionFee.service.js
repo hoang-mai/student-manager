@@ -10,6 +10,35 @@ const Student = db.profile;
 const University = db.university;
 const SchoolYear = db.schoolYear;
 
+const normalizeHeader = (value) => String(value || '').trim().toLowerCase();
+
+const getCellValue = (row, headerMap, names) => {
+  for (const name of names) {
+    const index = headerMap.get(normalizeHeader(name));
+    if (!index) continue;
+    const value = row.getCell(index).value;
+    if (value && typeof value === 'object' && 'text' in value) return value.text;
+    if (value && typeof value === 'object' && 'result' in value) return value.result;
+    return value;
+  }
+  return undefined;
+};
+
+const parseAmount = (value) => {
+  if (typeof value === 'number') return value;
+  const normalized = String(value || '').replace(/[.,\s₫đ]/gi, '');
+  const amount = Number(normalized);
+  return Number.isFinite(amount) ? amount : null;
+};
+
+const normalizeStatus = (value) => {
+  const normalized = String(value || '').trim().toUpperCase();
+  if (!normalized) return 'UNPAID';
+  if (['PAID', 'DA THANH TOAN', 'ĐÃ THANH TOÁN', 'DA DONG', 'ĐÃ ĐÓNG'].includes(normalized)) return 'PAID';
+  if (['UNPAID', 'CHUA THANH TOAN', 'CHƯA THANH TOÁN', 'CHUA DONG', 'CHƯA ĐÓNG'].includes(normalized)) return 'UNPAID';
+  return normalized;
+};
+
 const attachSemester = async (data) => {
   if (data.semesterId === null) return data;
 
@@ -21,14 +50,15 @@ const attachSemester = async (data) => {
     if (!data.schoolYear) throw new BadRequestError('Cần truyền schoolYear khi tìm học kỳ theo mã');
     const schoolYear = await SchoolYear.findOne({ where: { schoolYear: data.schoolYear } });
     if (!schoolYear) throw new BadRequestError('Không tìm thấy năm học');
-    semester = await Semester.findOne({ where: { code: data.semester, schoolYearId: schoolYear.id } });
+    semester = await Semester.findOne({ where: { code: Number(data.semester), schoolYearId: schoolYear.id } });
     if (!semester) throw new BadRequestError('Không tìm thấy học kỳ');
   }
 
   if (semester) {
     data.semesterId = semester.id;
-    data.semester = semester.code;
-    data.schoolYear = semester.schoolYear;
+    data.semester = String(semester.code);
+    const schoolYear = await SchoolYear.findByPk(semester.schoolYearId);
+    data.schoolYear = schoolYear?.schoolYear || data.schoolYear;
   }
 
   return data;
@@ -71,6 +101,88 @@ const createBatch = async (data) => {
     results,
   };
 };
+
+const createImportTemplate = async () => {
+  const ExcelJS = require('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Hoc phi');
+
+  worksheet.columns = [
+    { header: 'Mã học viên', key: 'studentCode', width: 18 },
+    { header: 'Năm học', key: 'schoolYear', width: 16 },
+    { header: 'Học kỳ', key: 'semester', width: 12 },
+    { header: 'Số tiền', key: 'totalAmount', width: 16 },
+    { header: 'Nội dung', key: 'content', width: 34 },
+    { header: 'Trạng thái', key: 'status', width: 18 },
+  ];
+
+  worksheet.addRows([
+    {
+      studentCode: 'HV001',
+      schoolYear: '2025-2026',
+      semester: 1,
+      totalAmount: 4500000,
+      content: 'Học phí học kỳ 1 năm học 2025-2026',
+      status: 'UNPAID',
+    },
+    {
+      studentCode: 'HV002',
+      schoolYear: '2025-2026',
+      semester: 2,
+      totalAmount: 5000000,
+      content: 'Học phí học kỳ 2 năm học 2025-2026',
+      status: 'PAID',
+    },
+  ]);
+
+  worksheet.getRow(1).font = { bold: true };
+  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+  worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+
+  worksheet.getColumn('semester').eachCell({ includeEmpty: false }, (cell, rowNumber) => {
+    if (rowNumber > 1) cell.numFmt = '0';
+  });
+  worksheet.getColumn('totalAmount').numFmt = '#,##0';
+
+  return workbook.xlsx.writeBuffer();
+};
+
+const parseExcelImport = async (file) => {
+  if (!file?.buffer) throw new BadRequestError('Vui lòng tải lên file Excel');
+
+  const ExcelJS = require('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(file.buffer);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) throw new BadRequestError('File Excel không có sheet dữ liệu');
+
+  const headerMap = new Map();
+  worksheet.getRow(1).eachCell((cell, colNumber) => {
+    headerMap.set(normalizeHeader(cell.value), colNumber);
+  });
+
+  const items = [];
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+
+    const studentCode = String(getCellValue(row, headerMap, ['Mã học viên', 'studentCode']) || '').trim();
+    if (!studentCode) return;
+
+    const totalAmount = parseAmount(getCellValue(row, headerMap, ['Số tiền', 'totalAmount']));
+    items.push({
+      studentCode,
+      schoolYear: String(getCellValue(row, headerMap, ['Năm học', 'schoolYear']) || '').trim(),
+      semester: String(getCellValue(row, headerMap, ['Học kỳ', 'semester']) || '').trim(),
+      totalAmount,
+      content: String(getCellValue(row, headerMap, ['Nội dung', 'content']) || '').trim(),
+      status: normalizeStatus(getCellValue(row, headerMap, ['Trạng thái', 'status'])),
+    });
+  });
+
+  if (!items.length) throw new BadRequestError('File Excel không có dòng học phí hợp lệ');
+
+  return { items };
+};
 const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
@@ -89,8 +201,7 @@ const getAll = async (query) => {
   if (query.code) studentWhere.code = query.code;
   if (query.fullName) studentWhere.fullName = { [db.Sequelize.Op.like]: `%${query.fullName}%` };
   if (query.unit) studentWhere.unit = query.unit;
-  if (query.semester) semesterWhere.code = query.semester;
-  if (query.schoolYear) semesterWhere.schoolYear = query.schoolYear;
+  if (query.semester) semesterWhere.code = Number(query.semester);
 
   if (Object.keys(studentWhere).length > 0) {
     include[0].include[0].where = studentWhere;
@@ -126,4 +237,4 @@ const deleteRecord = async (id) => {
   return { deleted: true };
 };
 
-module.exports = { create, createBatch, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, createBatch, parseExcelImport, createImportTemplate, getAll, getDetail, update, delete: deleteRecord };

@@ -19,7 +19,7 @@ const scheduleItem = yup.object({
 
 const create = yup.object({
   userId: yup.string().uuid('Mã người dùng không hợp lệ').required('Trường này là bắt buộc'),
-  semesterId: yup.string().uuid('Mã học kỳ không hợp lệ').nullable(),
+  semesterId: yup.string().uuid('Mã học kỳ không hợp lệ').required('Học kỳ là bắt buộc'),
   schedules: yup.array().of(scheduleItem).min(1, 'Danh sách lịch học không được rỗng').required('Danh sách lịch học là bắt buộc'),
 });
 

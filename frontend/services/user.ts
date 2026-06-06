@@ -62,6 +62,20 @@ export const userService = {
     return apiClient.post(ENDPOINTS.USERS.BATCH, { users: data });
   },
 
+  importUsers: async (file: File): Promise<ApiResponse<BatchMutationResult>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post(ENDPOINTS.USERS.IMPORT, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  downloadImportTemplate: async (): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.USERS.IMPORT_TEMPLATE, {
+      responseType: "blob",
+    });
+  },
+
   updateBatchStudents: async (data: UpdateProfileRequest[]) => {
     return apiClient.put(ENDPOINTS.USERS.BATCH_PROFILES, data);
   },

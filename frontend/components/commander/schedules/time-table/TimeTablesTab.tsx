@@ -22,6 +22,17 @@ import TimeTableCalendar from "./DetailTimeTable";
 import UpdateTimeTableForm from "./UpdateTimeTableForm";
 import TimeTablesSkeleton from "./TimeTablesSkeleton";
 
+const getSemesterLabel = (timeTable: TimeTable) => {
+  const semester = timeTable.semester;
+  if (!semester?.code) return "Chưa có học kỳ";
+
+  const schoolYear = semester.schoolYearInfo?.schoolYear || "";
+
+  return `${schoolYear ? `${schoolYear} - ` : ""}Học kỳ ${String(
+    semester.code
+  )}`;
+};
+
 export default function TimeTablesTab() {
   const { openModal } = useModalStore();
   const { openConfirm } = useConfirmStore();
@@ -107,6 +118,15 @@ export default function TimeTablesTab() {
               0}{" "}
             buổi
           </Badge>
+        ),
+      },
+      {
+        id: "semester",
+        header: "Học kỳ",
+        cell: (info) => (
+          <Typography variant="body" weight="semibold" color="neutral">
+            {getSemesterLabel(info.row.original)}
+          </Typography>
         ),
       },
       {

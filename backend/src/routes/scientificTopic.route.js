@@ -11,6 +11,16 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *         "Achievements"
  *       ],
  *       "summary": "Thêm đề tài NCKH",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/ScientificTopic"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "201": {
  *           "description": "Created"
@@ -103,6 +113,15 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           }
  *         }
  *       ],
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/ScientificTopic"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "200": {
  *           "description": "OK"

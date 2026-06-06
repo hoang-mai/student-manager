@@ -11,6 +11,16 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *         "Achievements"
  *       ],
  *       "summary": "Thêm thành tích năm",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/YearlyAchievement"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "201": {
  *           "description": "Created"
@@ -71,90 +81,7 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *         "content": {
  *           "application/json": {
  *             "schema": {
- *               "type": "object",
- *               "required": [
- *                 "studentCode",
- *                 "year"
- *               ],
- *               "properties": {
- *                 "studentCode": {
- *                   "type": "string",
- *                   "example": "HV001"
- *                 },
- *                 "userId": {
- *                   "type": "string",
- *                   "format": "uuid"
- *                 },
- *                 "year": {
- *                   "type": "integer",
- *                   "example": 2026
- *                 },
- *                 "decisionNumber": {
- *                   "type": "string"
- *                 },
- *                 "decisionDate": {
- *                   "type": "string",
- *                   "format": "date"
- *                 },
- *                 "title": {
- *                   "type": "string"
- *                 },
- *                 "hasMinistryReward": {
- *                   "type": "boolean"
- *                 },
- *                 "hasNationalReward": {
- *                   "type": "boolean"
- *                 },
- *                 "notes": {
- *                   "type": "string"
- *                 },
- *                 "scientificTopics": {
- *                   "type": "array",
- *                   "items": {
- *                     "type": "object",
- *                     "required": [
- *                       "title"
- *                     ],
- *                     "properties": {
- *                       "title": {
- *                         "type": "string"
- *                       },
- *                       "description": {
- *                         "type": "string"
- *                       },
- *                       "year": {
- *                         "type": "integer"
- *                       },
- *                       "status": {
- *                         "type": "string"
- *                       }
- *                     }
- *                   }
- *                 },
- *                 "scientificInitiatives": {
- *                   "type": "array",
- *                   "items": {
- *                     "type": "object",
- *                     "required": [
- *                       "title"
- *                     ],
- *                     "properties": {
- *                       "title": {
- *                         "type": "string"
- *                       },
- *                       "description": {
- *                         "type": "string"
- *                       },
- *                       "year": {
- *                         "type": "integer"
- *                       },
- *                       "status": {
- *                         "type": "string"
- *                       }
- *                     }
- *                   }
- *                 }
- *               }
+ *               "$ref": "#/components/schemas/YearlyAchievementFull"
  *             }
  *           }
  *         }
@@ -203,6 +130,15 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *           }
  *         }
  *       ],
+ *       "requestBody": {
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "$ref": "#/components/schemas/YearlyAchievement"
+ *             }
+ *           }
+ *         }
+ *       },
  *       "responses": {
  *         "200": {
  *           "description": "OK"

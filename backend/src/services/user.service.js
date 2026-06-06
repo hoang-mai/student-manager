@@ -22,6 +22,49 @@ const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('he
 
 const _hashPassword = (password) => bcrypt.hash(password || '123456', 10);
 
+const normalizeHeader = (value) => String(value || '').trim().toLowerCase();
+
+const getCellValue = (row, headerMap, names) => {
+  for (const name of names) {
+    const index = headerMap.get(normalizeHeader(name));
+    if (!index) continue;
+    const value = row.getCell(index).value;
+    if (value && typeof value === 'object' && 'text' in value) return value.text;
+    if (value && typeof value === 'object' && 'result' in value) return value.result;
+    return value;
+  }
+  return undefined;
+};
+
+const toText = (value) => {
+  if (value === null || value === undefined) return undefined;
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  const text = String(value).trim();
+  return text || undefined;
+};
+
+const toNumber = (value) => {
+  if (value === null || value === undefined || value === '') return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+};
+
+const normalizeRole = (value) => {
+  const role = String(value || '').trim().toUpperCase();
+  const roleMap = {
+    'HOC VIEN': 'STUDENT',
+    'HỌC VIÊN': 'STUDENT',
+    STUDENT: 'STUDENT',
+    'CHI HUY': 'COMMANDER',
+    'CHỈ HUY': 'COMMANDER',
+    COMMANDER: 'COMMANDER',
+    'QUAN TRI VIEN': 'ADMIN',
+    'QUẢN TRỊ VIÊN': 'ADMIN',
+    ADMIN: 'ADMIN',
+  };
+  return roleMap[role] || role || 'STUDENT';
+};
+
 const _checkRoleHierarchy = (requester, targetRole) => {
   if (!requester) return;
   if (requester.role === 'COMMANDER' && (targetRole === 'ADMIN' || targetRole === 'COMMANDER')) {
@@ -252,6 +295,110 @@ const createBatchUsersProfiles = async (users, requester) => {
   return results;
 };
 
+const createImportTemplate = async () => {
+  const ExcelJS = require('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Nguoi dung');
+
+  worksheet.columns = [
+    { header: 'Tên đăng nhập', key: 'username', width: 18 },
+    { header: 'Mật khẩu', key: 'password', width: 16 },
+    { header: 'Vai trò', key: 'role', width: 16 },
+    { header: 'Mã', key: 'code', width: 14 },
+    { header: 'Họ và tên', key: 'fullName', width: 26 },
+    { header: 'Email', key: 'email', width: 28 },
+    { header: 'Số điện thoại', key: 'phoneNumber', width: 18 },
+    { header: 'Giới tính', key: 'gender', width: 12 },
+    { header: 'Ngày sinh', key: 'birthday', width: 14 },
+    { header: 'Quê quán', key: 'hometown', width: 24 },
+    { header: 'Khóa học', key: 'enrollment', width: 12 },
+    { header: 'Đơn vị', key: 'unit', width: 20 },
+    { header: 'Cấp bậc', key: 'rank', width: 16 },
+  ];
+
+  worksheet.addRows([
+    {
+      username: 'hv011',
+      password: 'hocvien123',
+      role: 'STUDENT',
+      code: 'HV011',
+      fullName: 'Nguyễn Văn A',
+      email: 'vana@example.com',
+      phoneNumber: '0123456789',
+      gender: 'MALE',
+      birthday: '2005-01-01',
+      hometown: 'Hà Nội',
+      enrollment: 2025,
+      unit: 'Đại đội 1',
+      rank: 'Binh nhất',
+    },
+    {
+      username: 'chihuy03',
+      password: 'chihuy123',
+      role: 'COMMANDER',
+      code: 'CH003',
+      fullName: 'Trần Văn B',
+      email: 'vanb@example.com',
+      phoneNumber: '0987654321',
+      gender: 'MALE',
+      birthday: '1990-02-02',
+      hometown: 'Đà Nẵng',
+      unit: 'Ban chỉ huy',
+      rank: 'Đại úy',
+    },
+  ]);
+
+  worksheet.getRow(1).font = { bold: true };
+  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+  worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+  worksheet.getColumn('birthday').numFmt = 'yyyy-mm-dd';
+
+  return workbook.xlsx.writeBuffer();
+};
+
+const parseExcelImport = async (file) => {
+  if (!file?.buffer) throw new BadRequestError('Vui lòng tải lên file Excel');
+
+  const ExcelJS = require('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(file.buffer);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) throw new BadRequestError('File Excel không có sheet dữ liệu');
+
+  const headerMap = new Map();
+  worksheet.getRow(1).eachCell((cell, colNumber) => {
+    headerMap.set(normalizeHeader(cell.value), colNumber);
+  });
+
+  const users = [];
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+
+    const username = toText(getCellValue(row, headerMap, ['Tên đăng nhập', 'username']));
+    if (!username) return;
+
+    users.push({
+      username,
+      password: toText(getCellValue(row, headerMap, ['Mật khẩu', 'password'])),
+      role: normalizeRole(getCellValue(row, headerMap, ['Vai trò', 'role'])),
+      code: toText(getCellValue(row, headerMap, ['Mã', 'code'])),
+      fullName: toText(getCellValue(row, headerMap, ['Họ và tên', 'fullName'])),
+      email: toText(getCellValue(row, headerMap, ['Email', 'email'])),
+      phoneNumber: toText(getCellValue(row, headerMap, ['Số điện thoại', 'phoneNumber'])),
+      gender: toText(getCellValue(row, headerMap, ['Giới tính', 'gender'])),
+      birthday: toText(getCellValue(row, headerMap, ['Ngày sinh', 'birthday'])),
+      hometown: toText(getCellValue(row, headerMap, ['Quê quán', 'hometown'])),
+      enrollment: toNumber(getCellValue(row, headerMap, ['Khóa học', 'enrollment'])),
+      unit: toText(getCellValue(row, headerMap, ['Đơn vị', 'unit'])),
+      rank: toText(getCellValue(row, headerMap, ['Cấp bậc', 'rank'])),
+    });
+  });
+
+  if (!users.length) throw new BadRequestError('File Excel không có dòng người dùng hợp lệ');
+
+  return users;
+};
+
 const updateBatchProfiles = async (profiles) => {
   const results = [];
   for (const p of profiles) {
@@ -311,6 +458,8 @@ module.exports = {
   updateMyProfile,
   uploadAvatar,
   createBatchUsersProfiles,
+  parseExcelImport,
+  createImportTemplate,
   updateBatchProfiles,
   graduateBatchProfiles,
 };

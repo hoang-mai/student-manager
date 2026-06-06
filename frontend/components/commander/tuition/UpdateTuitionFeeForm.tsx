@@ -92,8 +92,8 @@ export default function UpdateTuitionFeeForm({
   const semesterOptions = useMemo(
     () =>
       (semestersResponse?.data || []).map((item) => ({
-        value: item.code,
-        label: item.code,
+        value: String(item.code),
+        label: `Học kỳ ${item.code}`,
       })),
     [semestersResponse]
   );

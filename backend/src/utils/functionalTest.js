@@ -565,7 +565,7 @@ async function runAllTests() {
 
   // Create new semester
   res = await request('POST', '/semesters', {
-    code: `${state.ts}`,
+    code: Number(`${state.ts}1`),
     schoolYear: '2025-2026',
   }, state.commanderToken);
   const createSemOk = test('CH-08', 'Chỉ huy THÊM học kỳ mới', res.status, [200, 201]);
@@ -573,7 +573,7 @@ async function runAllTests() {
 
   if (state.createdSemesterId) {
     // Edit semester
-    res = await request('PUT', `/semesters/${state.createdSemesterId}`, { code: `${state.ts}1` }, state.commanderToken);
+    res = await request('PUT', `/semesters/${state.createdSemesterId}`, { code: Number(`${state.ts}2`) }, state.commanderToken);
     test('CH-08', 'Chỉ huy CHỈNH SỬA học kỳ', res.status, 200);
 
     // Search semester
