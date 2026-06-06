@@ -8,7 +8,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import type { IconType } from "react-icons";
 import {
   HiOutlineAcademicCap,
@@ -17,14 +17,12 @@ import {
   HiOutlineCalendar,
   HiOutlineCash,
   HiOutlineCheckCircle,
-  HiOutlineFilter,
   HiOutlineInformationCircle,
   HiOutlineRefresh,
 } from "react-icons/hi";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import Button from "@/library/Button";
 import Divide from "@/library/Divide";
 import Popover from "@/library/Popover";
 import Skeleton from "@/library/Skeleton";
@@ -173,9 +171,9 @@ export default function NotificationsPopover() {
               : "bg-neutral-50 dark:bg-neutral-900 text-neutral-400 dark:text-neutral-500 hover:text-primary-600 dark:hover:text-neutral-100 hover:bg-primary-50 dark:hover:bg-neutral-800 border-neutral-100 dark:border-neutral-800"
           }`}
         >
-          <motion.div whileHover={{ rotate: 15, scale: 1.1 }}>
+          <m.div whileHover={{ rotate: 15, scale: 1.1 }}>
             <HiOutlineBell size={20} />
-          </motion.div>
+          </m.div>
           {unreadCount > 0 && (
             <span className="absolute -right-1 -top-1 min-w-5 h-5 px-1 rounded-full bg-error-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-white dark:border-neutral-950">
               {unreadCount > 9 ? "9+" : unreadCount}

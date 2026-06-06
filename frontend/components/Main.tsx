@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  motion,
+  m,
   useScroll,
   useMotionValueEvent,
   type Variants,
@@ -145,7 +145,7 @@ export default function Main() {
       <div className="fixed inset-0 -z-10 bg-linear-to-b from-neutral-900/85 via-primary-900/75 to-neutral-900/90" />
 
       {/* ------------------------------- Navbar ------------------------------- */}
-      <motion.header
+      <m.header
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -190,7 +190,7 @@ export default function Main() {
             </Link>
           </div>
         </nav>
-      </motion.header>
+      </m.header>
 
       {/* -------------------------------- Hero -------------------------------- */}
       <section className="relative isolate flex min-h-screen items-center overflow-hidden">
@@ -199,13 +199,13 @@ export default function Main() {
 
         {/* Floating blobs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 2.5, repeat: Infinity, repeatType: "reverse" }}
             className="absolute -top-32 -left-32 size-96 rounded-full bg-primary-500/30 blur-3xl"
           />
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{
@@ -218,20 +218,20 @@ export default function Main() {
           />
         </div>
 
-        <motion.div
+        <m.div
           variants={stagger}
           initial="hidden"
           animate="visible"
           className="relative z-10 mx-auto w-full max-w-7xl px-4 py-32 text-center sm:px-6"
         >
-          <motion.div variants={fadeUp} className="mb-6 flex justify-center">
+          <m.div variants={fadeUp} className="mb-6 flex justify-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
               <FiShield size={14} />
               Học viện Khoa học Quân sự — HVKHQS
             </span>
-          </motion.div>
+          </m.div>
 
-          <motion.h1
+          <m.h1
             variants={fadeUp}
             className="mx-auto max-w-4xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
           >
@@ -239,18 +239,18 @@ export default function Main() {
             <span className="mt-2 block bg-linear-to-r from-primary-200 via-secondary-200 to-white bg-clip-text text-transparent">
               Thông minh
             </span>
-          </motion.h1>
+          </m.h1>
 
-          <motion.p
+          <m.p
             variants={fadeUp}
             className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg"
           >
             Giải pháp công nghệ tiên tiến cho việc quản lý sinh viên toàn diện tại
             Học viện Khoa học Quân sự. Tối ưu hóa quy trình hành chính, nâng cao
             chất lượng đào tạo và trải nghiệm học tập.
-          </motion.p>
+          </m.p>
 
-          <motion.div
+          <m.div
             variants={fadeUp}
             className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
@@ -268,11 +268,11 @@ export default function Main() {
                 Khám phá tính năng
               </Button>
             </a>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
         {/* Scroll hint */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, y: [0, 10, 0] }}
           transition={{ delay: 1, duration: 1.8, repeat: Infinity }}
@@ -281,12 +281,12 @@ export default function Main() {
           <div className="flex h-9 w-6 items-start justify-center rounded-full border-2 border-white/40 p-1.5">
             <div className="size-1.5 rounded-full bg-white/70" />
           </div>
-        </motion.div>
+        </m.div>
       </section>
 
       {/* -------------------------------- Stats ------------------------------- */}
       <section className="border-y border-white/10 bg-neutral-900/30 backdrop-blur-sm">
-        <motion.div
+        <m.div
           variants={stagger}
           initial="hidden"
           whileInView="visible"
@@ -294,7 +294,7 @@ export default function Main() {
           className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-12 sm:px-6 lg:grid-cols-4"
         >
           {stats.map((stat) => (
-            <motion.div
+            <m.div
               key={stat.label}
               variants={fadeUp}
               className="text-center sm:border-r sm:border-white/10 sm:last:border-r-0 lg:[&:nth-child(2)]:border-r"
@@ -305,16 +305,16 @@ export default function Main() {
               <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-white/60">
                 {stat.label}
               </p>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </section>
 
       {/* ------------------------------ Features ------------------------------ */}
       <section id="features" className="relative isolate scroll-mt-20 overflow-hidden py-20 sm:py-28">
         <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 size-144 -translate-x-1/2 rounded-full bg-primary-500/10 blur-3xl" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <motion.div
+          <m.div
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
@@ -331,9 +331,9 @@ export default function Main() {
               Quản lý toàn diện từ tài khoản, học phí, lịch học đến kết quả đào tạo
               và thông báo — tất cả trong một hệ thống thống nhất.
             </p>
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -341,7 +341,7 @@ export default function Main() {
             className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
           >
             {features.map(({ icon: Icon, title, description }) => (
-              <motion.div
+              <m.div
                 key={title}
                 variants={fadeUp}
                 whileHover={{ y: -6 }}
@@ -354,9 +354,9 @@ export default function Main() {
                 <p className="mt-2 text-xs leading-relaxed text-white/65">
                   {description}
                 </p>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -367,35 +367,35 @@ export default function Main() {
       >
         <div className="pointer-events-none absolute -bottom-24 -right-24 -z-10 size-144 rounded-full bg-secondary-500/10 blur-3xl" />
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
-          <motion.div
+          <m.div
             variants={stagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
-            <motion.p variants={fadeUp} className="text-[11px] font-black uppercase tracking-[0.2em] text-primary-300">
+            <m.p variants={fadeUp} className="text-[11px] font-black uppercase tracking-[0.2em] text-primary-300">
               Giới thiệu
-            </motion.p>
-            <motion.h2 variants={fadeUp} className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            </m.p>
+            <m.h2 variants={fadeUp} className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
               Hiện đại hóa công tác quản lý đào tạo
-            </motion.h2>
-            <motion.p variants={fadeUp} className="mt-4 text-base leading-relaxed text-white/70">
+            </m.h2>
+            <m.p variants={fadeUp} className="mt-4 text-base leading-relaxed text-white/70">
               Hệ thống được xây dựng dành riêng cho Học viện Khoa học Quân sự,
               kết nối học viên, chỉ huy và quản trị viên trên cùng một nền tảng.
               Mọi quy trình hành chính, học tập và rèn luyện được số hóa, minh
               bạch và truy cập dễ dàng.
-            </motion.p>
+            </m.p>
 
-            <motion.div variants={fadeUp} className="mt-8">
+            <m.div variants={fadeUp} className="mt-8">
               <Link href="/login">
                 <Button size="lg" variant="primary" icon={FiArrowRight} iconPlacement="right">
                   Đăng nhập hệ thống
                 </Button>
               </Link>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -403,7 +403,7 @@ export default function Main() {
             className="space-y-4"
           >
             {highlights.map(({ icon: Icon, title, description }) => (
-              <motion.div
+              <m.div
                 key={title}
                 variants={fadeUp}
                 whileHover={{ x: 6 }}
@@ -418,15 +418,15 @@ export default function Main() {
                     {description}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       {/* --------------------------------- CTA -------------------------------- */}
       <section className="py-20 sm:py-28">
-        <motion.div
+        <m.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
@@ -456,7 +456,7 @@ export default function Main() {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </section>
 
       {/* -------------------------------- Footer ------------------------------ */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type Ref } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { HiOutlineClock, HiOutlineChevronDown } from "react-icons/hi";
 import Button from "./Button";
 import Popover from "./Popover";
@@ -220,7 +220,7 @@ export default function TimeRangePicker({
 
       <AnimatePresence mode="wait">
         {error && (
-          <motion.div
+          <m.div
             key={error}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -230,7 +230,7 @@ export default function TimeRangePicker({
             <Typography variant="caption" weight="medium" color="error">
               {error}
             </Typography>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

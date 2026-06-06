@@ -8,7 +8,6 @@ import {
   HiOutlineCash,
   HiOutlineCheckCircle,
   HiOutlineClipboardList,
-  HiOutlineClock,
   HiOutlineExternalLink,
   HiOutlineIdentification,
   HiOutlineOfficeBuilding,

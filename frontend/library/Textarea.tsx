@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type ReactNode, type Ref, type TextareaHTMLAttributes } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import Typography from "./Typography";
 
 type TextareaSize = "sm" | "md" | "lg";
@@ -158,7 +158,7 @@ export default function Textarea({
       </div>
       <AnimatePresence mode="wait">
         {error && (
-          <motion.div
+          <m.div
             key={error}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -168,7 +168,7 @@ export default function Textarea({
             <Typography variant="caption" weight="medium" color="error">
               {error}
             </Typography>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { motion, HTMLMotionProps, Variants } from "motion/react";
+import { m, HTMLMotionProps, Variants } from "motion/react";
 
 type AnimationVariant =
   | "fade"
@@ -92,7 +92,7 @@ const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
   };
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       animate="visible"
       variants={{
@@ -111,7 +111,7 @@ const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
       {...props}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 };
 

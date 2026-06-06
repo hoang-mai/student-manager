@@ -1,5 +1,3 @@
-import { UpdateProfileRequest } from "./user";
-
 export interface SubjectResult {
   id: string;
   semesterResultId: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 
 interface ErrorStateProps {
   /** Tiêu đề của thông báo lỗi (mặc định: 'Đã có lỗi xảy ra') */
@@ -24,7 +24,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
   className = "",
 }) => {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={`flex flex-col items-center justify-center min-h-[50vh] gap-4 text-red-500 text-center ${className}`}
@@ -66,7 +66,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
           Thử lại ngay
         </button>
       )}
-    </motion.div>
+    </m.div>
   );
 };
 

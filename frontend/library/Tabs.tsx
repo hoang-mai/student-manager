@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Typography from "./Typography";
 
@@ -51,10 +51,13 @@ const Tabs: React.FC<TabsProps> = ({
   }, []);
 
   useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
     checkScroll();
-    window.addEventListener("resize", checkScroll);
-    return () => window.removeEventListener("resize", checkScroll);
-  }, [checkScroll, tabs]);
+    const observer = new ResizeObserver(checkScroll);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [checkScroll]);
 
   const scroll = (direction: "left" | "right") => {
     const el = scrollRef.current;
@@ -106,7 +109,7 @@ const Tabs: React.FC<TabsProps> = ({
               `}
               >
                 {isActive && variant === "pills" && (
-                  <motion.div
+                  <m.div
                     layoutId="active-tab"
                     className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-sm dark:shadow-none border border-neutral-200/50 dark:border-neutral-700"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -121,7 +124,7 @@ const Tabs: React.FC<TabsProps> = ({
                 </div>
 
                 {isActive && variant === "underline" && (
-                  <motion.div
+                  <m.div
                     layoutId="active-tab-underline"
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
                   />
@@ -143,7 +146,7 @@ const Tabs: React.FC<TabsProps> = ({
 
       <div className="relative overflow-hidden min-h-[100px]">
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={activeTab}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -151,7 +154,7 @@ const Tabs: React.FC<TabsProps> = ({
             transition={{ duration: 0.2 }}
           >
             {tabs.find((t) => t.id === activeTab)?.content}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     </div>

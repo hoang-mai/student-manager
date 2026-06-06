@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { flexRender } from "@tanstack/react-table";
 import type { Row, Table as TableInstance } from "@tanstack/react-table";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import TableEmptyState from "./TableEmptyState";
 
 interface TableBodyProps<TData> {
@@ -40,7 +40,7 @@ const TableBody = <TData,>({
 
           if (hasGroupContent) {
             return (
-              <motion.tr
+              <m.tr
                 key={row.id}
                 layout
                 initial={{ opacity: 0 }}
@@ -51,12 +51,12 @@ const TableBody = <TData,>({
                 <td colSpan={visibleColumnCount} className="p-0">
                   {groupContent}
                 </td>
-              </motion.tr>
+              </m.tr>
             );
           }
 
           return (
-            <motion.tr
+            <m.tr
               key={row.id}
               layout
               initial={{ opacity: 0 }}
@@ -67,7 +67,7 @@ const TableBody = <TData,>({
               {row.getVisibleCells().map((cell) => {
                 const noWrap = cell.column.columnDef.meta?.noWrap;
                 return (
-                  <motion.td
+                  <m.td
                     key={cell.id}
                     layout
                     transition={{
@@ -78,10 +78,10 @@ const TableBody = <TData,>({
                     className={`p-2 ${row.depth > 0 ? "first:pl-6" : "first:pl-4"} ${noWrap ? "whitespace-nowrap" : ""}`}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </motion.td>
+                  </m.td>
                 );
               })}
-            </motion.tr>
+            </m.tr>
           );
         })
       )}

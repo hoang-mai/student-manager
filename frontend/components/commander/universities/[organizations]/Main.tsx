@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import {
   HiOutlinePlus,
   HiOutlineCollection,
@@ -284,7 +284,7 @@ export default function Main({ universityId }: Props) {
                 </div>
                 <AnimatePresence>
                   {expandedIds.includes(org.id) && (
-                    <motion.div
+                    <m.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -297,7 +297,7 @@ export default function Main({ universityId }: Props) {
                           universityId={universityId}
                         />
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>

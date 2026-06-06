@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode, Ref } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { HiOutlineChevronDown } from "react-icons/hi";
 import Dropdown from "@/library/Dropdown";
 import Typography from "./Typography";
@@ -245,7 +245,7 @@ export default function Select({
 
       <AnimatePresence>
         {error && (
-          <motion.div
+          <m.div
             key={error}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -255,7 +255,7 @@ export default function Select({
             <Typography variant="caption" weight="medium" color="error">
               {error}
             </Typography>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

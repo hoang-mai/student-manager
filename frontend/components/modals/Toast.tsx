@@ -9,7 +9,7 @@ import {
   IoWarning,
   IoClose,
 } from "react-icons/io5";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { TOAST_CONFIG } from "@/constants/constants";
 
 const variantConfig: Record<
@@ -56,7 +56,7 @@ const Toast = () => {
         {toasts.map((toast) => {
           const config = variantConfig[toast.variant];
           return (
-            <motion.div
+            <m.div
               key={toast.id}
               layout
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -89,7 +89,7 @@ const Toast = () => {
 
               {/* Progress bar effect if duration is provided */}
               {toast.duration !== 0 && (
-                <motion.div
+                <m.div
                   initial={{ scaleX: 1 }}
                   animate={{ scaleX: 0 }}
                   transition={{
@@ -100,7 +100,7 @@ const Toast = () => {
                   className={`absolute bottom-0 left-0 h-0.5 w-full origin-left bg-current ${config.accent} opacity-30`}
                 />
               )}
-            </motion.div>
+            </m.div>
           );
         })}
       </AnimatePresence>

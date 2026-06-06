@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { useForm, Controller } from "react-hook-form";
 import { ColumnFiltersState, Table } from "@tanstack/react-table";
 import {
@@ -113,7 +113,7 @@ const TableFilter = <TData,>({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
@@ -202,7 +202,7 @@ const TableFilter = <TData,>({
               </Button>
             </div>
           </form>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

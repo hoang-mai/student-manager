@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import {
   useFloating,
   autoUpdate,
@@ -147,7 +147,7 @@ const Popover: React.FC<PopoverProps> = ({
       <AnimatePresence>
         {isOpen && (
           <FloatingPortal>
-            <motion.div
+            <m.div
               ref={setFloating}
               style={{
                 position: strategy,
@@ -185,7 +185,7 @@ const Popover: React.FC<PopoverProps> = ({
               {typeof children === "function"
                 ? children({ isOpen, placement: basePlacement, close })
                 : children}
-            </motion.div>
+            </m.div>
           </FloatingPortal>
         )}
       </AnimatePresence>

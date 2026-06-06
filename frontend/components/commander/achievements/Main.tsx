@@ -3,7 +3,6 @@
 import { useCallback, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  HiOutlineBadgeCheck,
   HiOutlinePencil,
   HiOutlineTrash,
 } from "react-icons/hi";

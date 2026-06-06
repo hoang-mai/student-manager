@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { useIsMutating } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { HiOutlineX } from "react-icons/hi";
 import Divide from "@/library/Divide";
 import { MUTATION_KEYS } from "@/constants/query-keys";
@@ -52,7 +52,7 @@ export default function Modal() {
       {isOpen && (
         <div className="fixed inset-0 z-999 flex items-center justify-center p-4">
           {/* Lớp nền Overlay */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -65,7 +65,7 @@ export default function Modal() {
           />
 
           {/* Modal Container */}
-          <motion.div
+          <m.div
             ref={modalRef}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -142,7 +142,7 @@ export default function Modal() {
                 </div>
               </div>
             )}
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>

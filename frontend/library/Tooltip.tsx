@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 
 /**
  * Props cho component Tooltip
@@ -75,7 +75,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       {children}
       <AnimatePresence>
         {isVisible && (
-          <motion.div
+          <m.div
             initial={animationVariants[position].initial}
             animate={animationVariants[position].animate}
             exit={animationVariants[position].initial}
@@ -94,7 +94,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                   : "right-full top-1/2 -translate-y-1/2 border-r-neutral-800"
               }`}
             />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

@@ -45,7 +45,7 @@ export default function ApprovalGradeRequestForm({
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm<ApprovalGradeRequestFormValues>({
     resolver: zodResolver(approvalGradeRequestSchema),
     defaultValues: {

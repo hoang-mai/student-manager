@@ -22,7 +22,7 @@ type ScheduleError = Record<
   Partial<Record<keyof ScheduleItem, { message?: string }>>
 >;
 
-export const weekDays = [
+const weekDays = [
   "Thứ 2",
   "Thứ 3",
   "Thứ 4",

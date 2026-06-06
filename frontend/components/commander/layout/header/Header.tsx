@@ -5,14 +5,13 @@ import { ROLES, DEFAULT_VALUES } from "@/constants/constants";
 import Avatar from "@/library/Avatar";
 import {
   HiOutlineLogout,
-  HiOutlineBell,
   HiOutlineChevronDown,
   HiOutlineUser,
   HiOutlineLockClosed,
   HiOutlineMoon,
 } from "react-icons/hi";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import Link from "next/link";
 import Dropdown from "@/library/Dropdown";
 
@@ -117,41 +116,41 @@ export default function Header() {
             <div className="space-y-1">
               {/* Thông tin cá nhân */}
               <Link href="/commander/profile" className="block">
-                <motion.button
+                <m.button
                   whileHover="hover"
                   className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 hover:text-primary-600 dark:hover:text-neutral-100 transition-all text-left group cursor-pointer"
                 >
                   <div className="size-8 rounded-xl bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 dark:text-neutral-500 group-hover:bg-primary-50 dark:group-hover:bg-neutral-800 group-hover:text-primary-600 dark:group-hover:text-neutral-100 transition-all">
-                    <motion.div
+                    <m.div
                       variants={{ hover: { scale: 1.2, rotate: 5 } }}
                       transition={{ type: "spring", stiffness: 400, damping: 10 }}
                     >
                       <HiOutlineUser size={18} />
-                    </motion.div>
+                    </m.div>
                   </div>
                   Thông tin cá nhân
-                </motion.button>
+                </m.button>
               </Link>
 
               {/* Đổi mật khẩu */}
-              <motion.button
+              <m.button
                 whileHover="hover"
                 onClick={handleOpenChangePassword}
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 hover:text-primary-600 dark:hover:text-neutral-100 transition-all text-left group cursor-pointer"
               >
                 <div className="size-8 rounded-xl bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 dark:text-neutral-500 group-hover:bg-primary-50 dark:group-hover:bg-neutral-800 group-hover:text-primary-600 dark:group-hover:text-neutral-100 transition-all">
-                  <motion.div
+                  <m.div
                     variants={{ hover: { y: -2, scale: 1.1 } }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <HiOutlineLockClosed size={18} />
-                  </motion.div>
+                  </m.div>
                 </div>
                 Đổi mật khẩu
-              </motion.button>
+              </m.button>
 
               {/* Chế độ tối */}
-              <motion.div
+              <m.div
                 whileHover="hover"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -160,12 +159,12 @@ export default function Header() {
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 hover:text-primary-600 dark:hover:text-neutral-100 transition-all text-left group cursor-pointer"
               >
                 <div className="size-8 rounded-xl bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 dark:text-neutral-500 group-hover:bg-primary-50 dark:group-hover:bg-neutral-800 group-hover:text-primary-600 dark:group-hover:text-neutral-100 transition-all">
-                  <motion.div
+                  <m.div
                     variants={{ hover: { rotate: -20, scale: 1.1 } }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <HiOutlineMoon size={18} />
-                  </motion.div>
+                  </m.div>
                 </div>
                 Chế độ tối
                 <Toggle
@@ -174,26 +173,26 @@ export default function Header() {
                   size="sm"
                   className="ml-auto"
                 />
-              </motion.div>
+              </m.div>
             </div>
 
             <div className="mt-2 pt-2 relative">
               <Divide className="absolute top-0 left-0 w-full" />
-              <motion.button
+              <m.button
                 whileHover="hover"
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 p-2 rounded-2xl text-sm font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 hover:text-neutral-600 dark:hover:text-neutral-100 transition-all text-left group cursor-pointer"
               >
                 <div className="size-8 rounded-xl bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-error-400 group-hover:bg-error-50 dark:group-hover:bg-error-500/10 group-hover:text-error-600 dark:group-hover:text-error-400 transition-all">
-                  <motion.div
+                  <m.div
                     variants={{ hover: { x: 3, scale: 1.1 } }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <HiOutlineLogout size={18} />
-                  </motion.div>
+                  </m.div>
                 </div>
                 Đăng xuất
-              </motion.button>
+              </m.button>
             </div>
           </Dropdown>
         </div>

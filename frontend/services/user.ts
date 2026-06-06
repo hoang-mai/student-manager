@@ -1,6 +1,5 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
-import { CreateUserRequest } from "@/types/auth";
 import {
   BatchGraduationRequest,
   UserQueryRequest,

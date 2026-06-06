@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import {
   useFloating,
   autoUpdate,
@@ -131,7 +131,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       <AnimatePresence>
         {isOpen && (
           <FloatingPortal>
-            <motion.div
+            <m.div
               ref={setFloating}
               style={{
                 position: strategy,
@@ -167,7 +167,7 @@ const Dropdown: React.FC<DropdownProps> = ({
               `}
             >
               <div onClick={() => handleOpenChange(false)}>{children}</div>
-            </motion.div>
+            </m.div>
           </FloatingPortal>
         )}
       </AnimatePresence>

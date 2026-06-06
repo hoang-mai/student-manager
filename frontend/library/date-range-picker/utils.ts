@@ -64,7 +64,7 @@ export const popoverWidthStyles: Record<DateRangeMode, string> = {
   YYYY: "w-80",
 };
 
-export const pad2 = (value: number) => value.toString().padStart(2, "0");
+const pad2 = (value: number) => value.toString().padStart(2, "0");
 
 export const daysInMonth = (year: number, month: number) =>
   new Date(year, month + 1, 0).getDate();
@@ -72,7 +72,10 @@ export const daysInMonth = (year: number, month: number) =>
 export const firstDayOfMonth = (year: number, month: number) =>
   new Date(year, month, 1).getDay();
 
-export function parseValue(value: string | undefined | null, mode: DateRangeMode) {
+export function parseValue(
+  value: string | undefined | null,
+  mode: DateRangeMode
+) {
   if (!value) return null;
   const parts = value.split("T")[0].split("-");
   const year = Number(parts[0]);
@@ -115,7 +118,9 @@ export function getRangeDistance(
   if (!start || !end) return null;
   if (mode === "YYYY") return Math.abs(end.year - start.year);
   if (mode === "MM/YYYY") {
-    return Math.abs(end.year * 12 + end.month - (start.year * 12 + start.month));
+    return Math.abs(
+      end.year * 12 + end.month - (start.year * 12 + start.month)
+    );
   }
   const startDate = new Date(start.year, start.month, start.day).getTime();
   const endDate = new Date(end.year, end.month, end.day).getTime();

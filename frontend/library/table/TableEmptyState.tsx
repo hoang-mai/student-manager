@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { Table } from "@tanstack/react-table";
 
 interface TableEmptyStateProps<TData> {
@@ -14,7 +14,7 @@ const TableEmptyState = <TData,>({
   emptyText,
 }: TableEmptyStateProps<TData>) => {
   return (
-    <motion.tr
+    <m.tr
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
@@ -49,7 +49,7 @@ const TableEmptyState = <TData,>({
           </div>
         </div>
       </td>
-    </motion.tr>
+    </m.tr>
   );
 };
 
