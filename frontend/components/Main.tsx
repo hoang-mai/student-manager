@@ -433,8 +433,8 @@ export default function Main() {
           viewport={{ once: true, amount: 0.4 }}
           className="mx-auto max-w-5xl px-4 sm:px-6"
         >
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-primary-700 to-primary-900 px-6 py-14 text-center shadow-xl sm:px-12">
-            <div className="pointer-events-none absolute -top-16 -right-16 size-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/8 px-6 py-14 text-center shadow-xl backdrop-blur-md sm:px-12">
+            <div className="pointer-events-none absolute -top-16 -right-16 size-64 rounded-full bg-primary-400/20 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-16 -left-16 size-64 rounded-full bg-secondary-400/20 blur-3xl" />
             <h2 className="relative text-3xl font-black text-white sm:text-4xl">
               Sẵn sàng trải nghiệm hệ thống?
