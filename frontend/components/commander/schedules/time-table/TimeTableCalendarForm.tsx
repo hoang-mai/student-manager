@@ -11,6 +11,7 @@ import {
 import { HiOutlinePlus, HiOutlineTrash } from "react-icons/hi";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
+import MultiSelect from "@/library/MultiSelect";
 import TimeRangePicker from "@/library/TimeRangePicker";
 import Typography from "@/library/Typography";
 import { CreateTimeTableFormValues } from "@/utils/validations";
@@ -32,11 +33,16 @@ const weekDays = [
   "Chủ nhật",
 ];
 
+const weekOptions = Array.from({ length: 20 }, (_, index) => ({
+  value: index + 1,
+  label: `Tuần ${index + 1}`,
+}));
+
 export const emptySchedule: ScheduleItem = {
   day: "Thứ 2",
   room: "",
   subjectName: "",
-  week: null,
+  week: [],
   timeRange: {
     startTime: "",
     endTime: "",
@@ -88,14 +94,19 @@ function ScheduleFields({
       </div>
 
       <div className="grid grid-cols-1 gap-3">
-        <Input
-          label="Tuần học"
-          type="number"
-          placeholder="VD: 1"
-          error={schedulesErrors?.[index]?.week?.message}
-          {...register(`schedules.${index}.week`, {
-            setValueAs: (value) => (value === "" ? null : Number(value)),
-          })}
+        <Controller
+          control={control}
+          name={`schedules.${index}.week`}
+          render={({ field }) => (
+            <MultiSelect
+              label="Tuần học"
+              placeholder="Chọn tuần học"
+              options={weekOptions}
+              value={field.value ?? []}
+              onChange={field.onChange}
+              error={schedulesErrors?.[index]?.week?.message}
+            />
+          )}
         />
         <Controller
           control={control}

@@ -4,23 +4,36 @@ import {
   BatchTimeTableRequest,
   CreateTimeTableRequest,
   ScheduleInput,
+  ScheduleItem,
   TimeTable,
   TimeTableQueryRequest,
   TimeTableReport,
   UpdateTimeTableRequest,
 } from "@/types/time-tables";
 
-const normalizeSchedule = (schedule: ScheduleInput) => {
+// Bung 1 ca học nhiều tuần thành nhiều bản ghi, mỗi tuần một `week` dạng số,
+// để khớp với cấu trúc backend đang lưu (mỗi schedule chỉ có 1 tuần).
+const normalizeSchedule = (schedule: ScheduleInput): ScheduleItem[] => {
+  let base: Omit<ScheduleItem, "week">;
+  let week: number | number[] | null | undefined;
+
   if ("timeRange" in schedule) {
-    const { timeRange, ...rest } = schedule;
-    return {
+    const { timeRange, week: scheduleWeek, ...rest } = schedule;
+    base = {
       ...rest,
       startTime: timeRange.startTime,
       endTime: timeRange.endTime,
     };
+    week = scheduleWeek;
+  } else {
+    const { week: scheduleWeek, ...rest } = schedule;
+    base = rest;
+    week = scheduleWeek;
   }
 
-  return schedule;
+  const weeks = Array.isArray(week) ? week : week == null ? [] : [week];
+  if (weeks.length === 0) return [{ ...base, week: null }];
+  return weeks.map((value) => ({ ...base, week: value }));
 };
 
 const normalizeTimeTablePayload = <
@@ -29,7 +42,7 @@ const normalizeTimeTablePayload = <
   data: T
 ) => ({
   ...data,
-  schedules: data.schedules?.map(normalizeSchedule) ?? data.schedules,
+  schedules: data.schedules?.flatMap(normalizeSchedule) ?? data.schedules,
 });
 
 export const timeTableService = {

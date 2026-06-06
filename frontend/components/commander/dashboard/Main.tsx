@@ -27,7 +27,7 @@ import { userService } from "@/services/user";
 import { GradeRequest, statusMap } from "@/types/student-academic";
 import { TuitionFee } from "@/types/tuition-fees";
 import { Student } from "@/types/user";
-import { formatDate, formatDateTime } from "@/utils/fn-common";
+import { formatDate, formatDateTime, formatSemesterYear } from "@/utils/fn-common";
 
 type Tone = "primary" | "success" | "warning" | "error" | "sky" | "neutral";
 
@@ -387,7 +387,7 @@ const TuitionItem = ({ tuition }: { tuition: TuitionFee }) => (
         {tuition.user?.profile?.fullName || "Chưa có tên học viên"}
       </Typography>
       <Typography variant="caption" color="gray" className="mt-1 block">
-        {tuition.semester} · {tuition.schoolYear}
+        {formatSemesterYear(tuition.semester, tuition.schoolYear)}
       </Typography>
     </div>
     <Badge variant="warning">Chưa nộp</Badge>

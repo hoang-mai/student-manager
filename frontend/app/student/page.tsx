@@ -30,7 +30,7 @@ import type { CutRice, MealDayKey, MealSlotKey } from "@/types/cut-rice";
 import type { Notification } from "@/types/notifications";
 import type { ScheduleItem } from "@/types/time-tables";
 import type { TuitionFee } from "@/types/tuition-fees";
-import { formatDateTime, formatScore } from "@/utils/fn-common";
+import { formatDateTime, formatScore, formatSemesterYear } from "@/utils/fn-common";
 
 const mealDays: MealDayKey[] = [
   "Thứ 2",
@@ -361,7 +361,7 @@ export default function StudentDashboard() {
 const getTuitionLabel = (fee: TuitionFee) => {
   const semester = fee.semesterInfo?.code || fee.semester;
   const schoolYear = fee.semesterInfo?.schoolYearInfo?.schoolYear || fee.schoolYear;
-  if (semester && schoolYear) return `${semester} · ${schoolYear}`;
+  if (semester && schoolYear) return formatSemesterYear(semester, schoolYear);
   return semester || schoolYear || "Khoản học phí";
 };
 

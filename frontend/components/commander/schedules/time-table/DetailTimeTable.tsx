@@ -3,6 +3,7 @@
 import Badge from "@/library/Badge";
 import Typography from "@/library/Typography";
 import { ScheduleItem, TimeTable } from "@/types/time-tables";
+import { formatSemesterYear } from "@/utils/fn-common";
 
 const weekDays = [
   "Thứ 2",
@@ -17,16 +18,6 @@ const weekDays = [
 const getScheduleTime = (schedule: ScheduleItem) =>
   `${schedule.startTime} - ${schedule.endTime}`;
 
-const getSemesterLabel = (timeTable: TimeTable) => {
-  const semester = timeTable.semester;
-  if (!semester?.code) return "Chưa có học kỳ";
-
-  const schoolYear = semester.schoolYearInfo?.schoolYear || "";
-
-  return `${schoolYear ? `${schoolYear} - ` : ""}Học kỳ ${String(
-    semester.code
-  )}`;
-};
 
 interface TimeTableCalendarProps {
   timeTable: TimeTable;
@@ -74,7 +65,10 @@ export default function TimeTableCalendar({
             variant="secondary"
             className="dark:border-secondary-700 dark:bg-secondary-500/20 dark:text-secondary-100"
           >
-            {getSemesterLabel(timeTable)}
+            {formatSemesterYear(
+              timeTable.semester?.code,
+              timeTable.semester?.schoolYearInfo?.schoolYear
+            )}
           </Badge>
           {timeTable.rooms?.map((room) => (
             <Badge

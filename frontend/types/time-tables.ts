@@ -15,7 +15,8 @@ export interface ScheduleFormItem {
   };
   room: string;
   subjectName?: string | null;
-  week?: number | null;
+  /** Danh sách tuần học áp dụng cho ca học (form dùng MultiSelect) */
+  week?: number[] | null;
 }
 
 export type ScheduleInput = ScheduleItem | ScheduleFormItem;

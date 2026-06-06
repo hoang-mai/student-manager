@@ -15,7 +15,7 @@ import Badge from "@/library/Badge";
 import Button from "@/library/Button";
 import Typography from "@/library/Typography";
 import { GradeRequest, requestTypeMap, statusMap } from "@/types/student-academic";
-import { formatDateTime, formatScore } from "@/utils/fn-common";
+import { formatDateTime, formatScore, formatSemesterYear } from "@/utils/fn-common";
 
 interface GradeRequestDetailProps {
   request: GradeRequest;
@@ -24,8 +24,7 @@ interface GradeRequestDetailProps {
 
 const getSemesterLabel = (request: GradeRequest) => {
   const semester = request.subjectResult?.semesterResult;
-  if (!semester) return "---";
-  return [semester.semester, semester.schoolYear].filter(Boolean).join(" · ") || "---";
+  return formatSemesterYear(semester?.semester, semester?.schoolYear);
 };
 
 export default function GradeRequestDetail({ request }: GradeRequestDetailProps) {

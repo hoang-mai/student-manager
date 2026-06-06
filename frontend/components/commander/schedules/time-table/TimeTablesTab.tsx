@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
+import { useQuery } from "@tanstack/react-query";
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Badge from "@/library/Badge";
@@ -13,25 +14,17 @@ import useAppMutation from "@/hooks/useAppMutation";
 import useTableQuery from "@/hooks/useTableQuery";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { timeTableService } from "@/services/time-tables";
+import { semesterService } from "@/services/semesters";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
-import { formatDateTime } from "@/utils/fn-common";
+import { formatDateTime, formatSemesterYear } from "@/utils/fn-common";
 import { TimeTable } from "@/types/time-tables";
+
 import CreateTimeTableForm from "./CreateTimeTableForm";
 import TimeTableCalendar from "./DetailTimeTable";
 import UpdateTimeTableForm from "./UpdateTimeTableForm";
 import TimeTablesSkeleton from "./TimeTablesSkeleton";
 
-const getSemesterLabel = (timeTable: TimeTable) => {
-  const semester = timeTable.semester;
-  if (!semester?.code) return "Chưa có học kỳ";
-
-  const schoolYear = semester.schoolYearInfo?.schoolYear || "";
-
-  return `${schoolYear ? `${schoolYear} - ` : ""}Học kỳ ${String(
-    semester.code
-  )}`;
-};
 
 export default function TimeTablesTab() {
   const { openModal } = useModalStore();
@@ -125,7 +118,10 @@ export default function TimeTablesTab() {
         header: "Học kỳ",
         cell: (info) => (
           <Typography variant="body" weight="semibold" color="neutral">
-            {getSemesterLabel(info.row.original)}
+            {formatSemesterYear(
+              info.row.original.semester?.code,
+              info.row.original.semester?.schoolYearInfo?.schoolYear
+            )}
           </Typography>
         ),
       },
@@ -208,6 +204,38 @@ export default function TimeTablesTab() {
     ]
   );
 
+  const { data: semestersResponse } = useQuery({
+    queryKey: [QUERY_KEYS.SEMESTERS, "time-table-options"],
+    queryFn: () => semesterService.getSemesters({ fetchAll: true }),
+  });
+
+  const semesters = useMemo(
+    () => semestersResponse?.data || [],
+    [semestersResponse]
+  );
+
+  const semesterCodeOptions = useMemo(
+    () =>
+      [...new Set(semesters.map((semester) => semester.code))]
+        .sort((a, b) => a - b)
+        .map((code) => ({ value: String(code), label: `Học kỳ ${code}` })),
+    [semesters]
+  );
+
+  const schoolYearOptions = useMemo(
+    () =>
+      [
+        ...new Set(
+          semesters
+            .map((semester) => semester.schoolYearInfo?.schoolYear)
+            .filter((schoolYear): schoolYear is string => Boolean(schoolYear))
+        ),
+      ]
+        .sort()
+        .map((schoolYear) => ({ value: schoolYear, label: schoolYear })),
+    [semesters]
+  );
+
   const filterOptions = useMemo<FilterField[]>(
     () => [
       {
@@ -222,8 +250,22 @@ export default function TimeTablesTab() {
         label: "Mã học viên",
         placeholder: "Nhập mã học viên...",
       },
+      {
+        type: "select",
+        id: "schoolYear",
+        label: "Năm học",
+        placeholder: "Chọn năm học",
+        options: schoolYearOptions,
+      },
+      {
+        type: "select",
+        id: "semester",
+        label: "Học kỳ",
+        placeholder: "Chọn học kỳ",
+        options: semesterCodeOptions,
+      },
     ],
-    []
+    [schoolYearOptions, semesterCodeOptions]
   );
 
   if (isLoading) return <TimeTablesSkeleton />;
