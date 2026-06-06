@@ -11,9 +11,7 @@ import {
   UpdateTimeTableRequest,
 } from "@/types/time-tables";
 
-// Bung 1 ca học nhiều tuần thành nhiều bản ghi, mỗi tuần một `week` dạng số,
-// để khớp với cấu trúc backend đang lưu (mỗi schedule chỉ có 1 tuần).
-const normalizeSchedule = (schedule: ScheduleInput): ScheduleItem[] => {
+const normalizeSchedule = (schedule: ScheduleInput): ScheduleItem => {
   let base: Omit<ScheduleItem, "week">;
   let week: number | number[] | null | undefined;
 
@@ -31,9 +29,10 @@ const normalizeSchedule = (schedule: ScheduleInput): ScheduleItem[] => {
     week = scheduleWeek;
   }
 
-  const weeks = Array.isArray(week) ? week : week == null ? [] : [week];
-  if (weeks.length === 0) return [{ ...base, week: null }];
-  return weeks.map((value) => ({ ...base, week: value }));
+  return {
+    ...base,
+    week: Array.isArray(week) ? week : week ?? null,
+  };
 };
 
 const normalizeTimeTablePayload = <
@@ -42,7 +41,7 @@ const normalizeTimeTablePayload = <
   data: T
 ) => ({
   ...data,
-  schedules: data.schedules?.flatMap(normalizeSchedule) ?? data.schedules,
+  schedules: data.schedules?.map(normalizeSchedule) ?? data.schedules,
 });
 
 export const timeTableService = {

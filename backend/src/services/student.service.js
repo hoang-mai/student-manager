@@ -247,7 +247,7 @@ const updateProfile = async (userId, data) => {
   if (!student) throw new NotFoundError('Không tìm thấy học viên');
 
   const allowedFields = [
-    'currentAddress', 'phoneNumber', 'email', 'avatar',
+    'currentAddress', 'phoneNumber', 'email',
     'rank', 'unit', 'positionGovernment', 'positionParty',
   ];
   const updateData = {};
@@ -256,12 +256,6 @@ const updateProfile = async (userId, data) => {
   }
 
   return student.update(updateData);
-};
-
-const uploadAvatar = async (userId, avatarUrl) => {
-  const student = await Student.findByPk(userId);
-  if (!student) throw new NotFoundError('Không tìm thấy học viên');
-  return student.update({ avatar: avatarUrl });
 };
 
 // ===================== HV-03: Academic Results =====================
@@ -428,7 +422,6 @@ module.exports = {
   update,
   delete: deleteRecord,
   exportStudents,
-  uploadAvatar,
   getAcademicResults,
   getMyTimeTable,
   createMyTimeTable,

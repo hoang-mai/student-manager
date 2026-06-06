@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, type ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { authService } from "@/services/auth";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
@@ -29,9 +30,11 @@ import UpdateProfileForm from "./UpdateProfileForm";
 import ProfileSkeleton from "./ProfileSkeleton";
 import Button from "@/library/Button";
 import { IconType } from "react-icons";
+import useAppMutation from "@/hooks/useAppMutation";
 
 export default function Main() {
   const { openModal } = useModalStore();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const {
     data: profileResponse,
     isLoading,
@@ -47,6 +50,14 @@ export default function Main() {
   const commander = profile?.profile;
   const shouldShowMissingProfile = !isLoading && !isError && (!profile || !commander);
 
+  const avatarMutation = useAppMutation({
+    mutationKey: MUTATION_KEYS.UPDATE_AVATAR,
+    mutationFn: authService.uploadAvatar,
+    invalidateQueryKey: [QUERY_KEYS.PROFILE],
+    successMessage: "Cập nhật ảnh đại diện thành công",
+    errorMessage: "Cập nhật ảnh đại diện thất bại",
+  });
+
   const handleUpdateProfile = () => {
     if (!commander) return;
 
@@ -58,6 +69,13 @@ export default function Main() {
         mutationKey: MUTATION_KEYS.UPDATE_PROFILE,
       },
     });
+  };
+
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    avatarMutation.mutate(file);
   };
 
   return (
@@ -79,6 +97,13 @@ export default function Main() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/30 dark:bg-neutral-900/60 backdrop-blur-sm p-6 rounded-4xl border border-white/60 dark:border-neutral-800 shadow-sm dark:shadow-none">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           <div className="relative group shrink-0">
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
             <Avatar
               src={commander?.avatar}
               alt={commander?.fullName}
@@ -86,7 +111,9 @@ export default function Main() {
               className="border-4 border-white dark:border-neutral-800 shadow-xl shadow-primary-900/10 dark:shadow-black/30"
             />
             <button
-              onClick={handleUpdateProfile}
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={avatarMutation.isPending}
               className="absolute bottom-1 right-1 size-10 rounded-full bg-primary-600 text-white flex items-center justify-center border-4 border-white dark:border-neutral-900 shadow-lg dark:shadow-black/30 hover:bg-primary-700 transition-all z-10"
             >
               <HiOutlinePencil size={18} />

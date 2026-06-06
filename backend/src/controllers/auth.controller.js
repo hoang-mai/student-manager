@@ -32,7 +32,7 @@ const updateProfile = asyncHandler(async (req, res) => {
     'fullName', 'email', 'gender', 'birthday', 'hometown', 'ethnicity',
     'religion', 'currentAddress', 'placeOfBirth', 'phoneNumber', 'cccd',
     'partyMemberCardNumber', 'unit', 'rank', 'positionGovernment', 'positionParty',
-    'fullPartyMember', 'probationaryPartyMember', 'dateOfEnlistment', 'avatar',
+    'fullPartyMember', 'probationaryPartyMember', 'dateOfEnlistment',
     'enrollment', 'graduationDate', 'currentCpa4', 'currentCpa10', 'familyMember',
     'foreignRelations', 'startWork', 'organization', 'classId', 'organizationId',
     'universityId', 'educationLevelId',

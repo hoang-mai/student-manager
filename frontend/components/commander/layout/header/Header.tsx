@@ -17,8 +17,6 @@ import Dropdown from "@/library/Dropdown";
 
 import Divide from "@/library/Divide";
 import Toggle from "@/library/Toggle";
-import { useTheme } from "next-themes";
-import Cookies from "js-cookie";
 import { THEMES } from "@/constants/constants";
 import { useQuery } from "@tanstack/react-query";
 import { authService } from "@/services/auth";
@@ -26,6 +24,7 @@ import { useModalStore } from "@/store/useModalStore";
 import ChangePasswordForm from "@/components/commander/layout/header/ChangePasswordForm";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import NotificationsPopover from "./NotificationsPopover";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function Header() {
   const router = useRouter();
@@ -44,7 +43,6 @@ export default function Header() {
   const handleToggleTheme = () => {
     const nextTheme = isDarkMode ? THEMES.LIGHT : THEMES.DARK;
     setTheme(nextTheme);
-    Cookies.set("theme", nextTheme, { expires: 365 });
   };
 
   const handleLogout = () => {

@@ -18,7 +18,6 @@
 | `jwt-decode` | Giải mã nội dung của JWT token để lấy thông tin bên trong. |
 | `motion` | Tạo animation và hiệu ứng chuyển động cho UI. |
 | `next` | Framework React dùng để xây dựng ứng dụng web production với Next.js. |
-| `next-themes` | Quản lý dark mode / light mode và theme giao diện. |
 | `react` | Thư viện lõi để xây dựng giao diện người dùng. |
 | `react-dom` | Kết nối React với DOM của trình duyệt. |
 | `react-hook-form` | Quản lý form hiệu quả, ít re-render, dễ validate. |
@@ -41,5 +40,4 @@
 | `prettier` | Format code tự động. |
 | `tailwindcss` | Framework CSS utility-first để dựng giao diện nhanh. |
 | `typescript` | Bổ sung kiểu tĩnh cho JavaScript. |
-
 

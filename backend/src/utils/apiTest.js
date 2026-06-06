@@ -35,6 +35,45 @@ async function request(method, path, body = null, token = null) {
   });
 }
 
+async function uploadAvatar(path, token = null) {
+  const boundary = `----student-manager-${Date.now()}`;
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+    'base64'
+  );
+  const body = Buffer.concat([
+    Buffer.from(`--${boundary}\r\n`),
+    Buffer.from('Content-Disposition: form-data; name="avatar"; filename="avatar.png"\r\n'),
+    Buffer.from('Content-Type: image/png\r\n\r\n'),
+    png,
+    Buffer.from(`\r\n--${boundary}--\r\n`),
+  ]);
+  const url = `${BASE_URL}${path}`;
+  const headers = {
+    'Content-Type': `multipart/form-data; boundary=${boundary}`,
+    'Content-Length': body.length,
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  return new Promise((resolve, reject) => {
+    const options = new URL(url);
+    const req = http.request(
+      { hostname: options.hostname, port: options.port, path: options.pathname + options.search, method: 'POST', headers },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+          catch { resolve({ status: res.statusCode, body: data }); }
+        });
+      }
+    );
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
 function ok(label, status, expected) {
   const pass = status === expected;
   pass ? passed++ : failed++;
@@ -56,6 +95,15 @@ function firstId(res) {
   const rows = Array.isArray(data) ? data : data.rows;
   if (!rows || !rows.length) return null;
   return String(rows[0].id);
+}
+
+async function restoreAvatar(profile) {
+  if (!profile?.id) return;
+  const db = require('../models');
+  await db.profile.update(
+    { avatar: profile.avatar ?? null },
+    { where: { id: profile.id } }
+  );
 }
 
 async function main() {
@@ -152,7 +200,7 @@ async function main() {
   }
 
   const semesterId = firstId(await request('GET', '/semesters?limit=1', null, adminToken));
-  const ttBody = { schedules: [{ day: 'Thứ 2', startTime: '07:00', endTime: '09:00', room: '101' }] };
+  const ttBody = { schedules: [{ day: 'Thứ 2', startTime: '07:00', endTime: '09:00', room: '101', subjectName: 'Toán cao cấp', week: [1, 2, 3] }] };
   ok('POST /users/time-table | student (403)   ', (await request('POST', '/users/time-table', ttBody, studentToken)).status, 403);
   ok('POST /users/time-table | admin (403)     ', (await request('POST', '/users/time-table', ttBody, adminToken)).status, 403);
   ok('POST /users/time-table | commander (403) ', (await request('POST', '/users/time-table', ttBody, commanderToken)).status, 403);
@@ -169,17 +217,22 @@ async function main() {
   // 6. PROFILE SELF (Student + Commander only)
   // =================================================================
   section('6. USERS: PROFILE SELF (Student + Commander)');
-  ok('GET  /users/profile    | student (200)   ', (await request('GET', '/users/profile', null, studentToken)).status, 200);
-  ok('GET  /users/profile    | commander (200) ', (await request('GET', '/users/profile', null, commanderToken)).status, 200);
+  const studentProfileBefore = await request('GET', '/users/profile', null, studentToken);
+  const commanderProfileBefore = await request('GET', '/users/profile', null, commanderToken);
+  ok('GET  /users/profile    | student (200)   ', studentProfileBefore.status, 200);
+  ok('GET  /users/profile    | commander (200) ', commanderProfileBefore.status, 200);
   ok('GET  /users/profile    | admin (403)     ', (await request('GET', '/users/profile', null, adminToken)).status, 403);
 
   ok('PUT  /users/profile    | student (200)   ', (await request('PUT', '/users/profile', { phoneNumber: '011' }, studentToken)).status, 200);
   ok('PUT  /users/profile    | commander (200) ', (await request('PUT', '/users/profile', { phoneNumber: '022' }, commanderToken)).status, 200);
   ok('PUT  /users/profile    | admin (403)     ', (await request('PUT', '/users/profile', { phoneNumber: '033' }, adminToken)).status, 403);
 
-  ok('POST /users/avatar     | student (200)   ', (await request('POST', '/users/avatar', { avatar: 'url' }, studentToken)).status, 200);
-  ok('POST /users/avatar     | commander (200) ', (await request('POST', '/users/avatar', { avatar: 'url' }, commanderToken)).status, 200);
-  ok('POST /users/avatar     | admin (403)     ', (await request('POST', '/users/avatar', { avatar: 'url' }, adminToken)).status, 403);
+  ok('POST /users/avatar     | student file (200)   ', (await uploadAvatar('/users/avatar', studentToken)).status, 200);
+  ok('POST /users/avatar     | commander file (200) ', (await uploadAvatar('/users/avatar', commanderToken)).status, 200);
+  ok('POST /users/avatar     | json no file (400)   ', (await request('POST', '/users/avatar', { avatar: null }, studentToken)).status, 400);
+  ok('POST /users/avatar     | admin (403)           ', (await uploadAvatar('/users/avatar', adminToken)).status, 403);
+  await restoreAvatar(studentProfileBefore.body?.data);
+  await restoreAvatar(commanderProfileBefore.body?.data);
 
   // =================================================================
   // 7. ADMIN+COMMANDER SHARED (Profile management, Reports, Users list)
@@ -199,6 +252,15 @@ async function main() {
   ok('GET  /commanders/reports/tuition    | admin     ', (await request('GET', '/commanders/reports/tuition', null, adminToken)).status, 200);
   ok('GET  /commanders/reports/tuition    | commander ', (await request('GET', '/commanders/reports/tuition', null, commanderToken)).status, 200);
   ok('GET  /commanders/reports/tuition    | student   ', (await request('GET', '/commanders/reports/tuition', null, studentToken)).status, 403);
+  ok('GET  /admins/dashboard              | admin     ', (await request('GET', '/admins/dashboard', null, adminToken)).status, 200);
+  ok('GET  /admins/dashboard              | commander ', (await request('GET', '/admins/dashboard', null, commanderToken)).status, 403);
+  ok('GET  /admins/dashboard              | student   ', (await request('GET', '/admins/dashboard', null, studentToken)).status, 403);
+  ok('GET  /commanders/dashboard          | admin     ', (await request('GET', '/commanders/dashboard', null, adminToken)).status, 403);
+  ok('GET  /commanders/dashboard          | commander ', (await request('GET', '/commanders/dashboard', null, commanderToken)).status, 200);
+  ok('GET  /commanders/dashboard          | student   ', (await request('GET', '/commanders/dashboard', null, studentToken)).status, 403);
+  ok('GET  /students/dashboard            | admin     ', (await request('GET', '/students/dashboard', null, adminToken)).status, 403);
+  ok('GET  /students/dashboard            | commander ', (await request('GET', '/students/dashboard', null, commanderToken)).status, 403);
+  ok('GET  /students/dashboard            | student   ', (await request('GET', '/students/dashboard', null, studentToken)).status, 200);
 
   // Get first profile for detail tests
   const profPage = await request('GET', '/users/profiles?limit=1', null, adminToken);

@@ -4,6 +4,7 @@ const db = require('../models');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 const { findStudentUserByCode } = require('../utils/studentLookup');
+const fileStorage = require('./fileStorage.service');
 
 const User = db.user;
 const Profile = db.profile;
@@ -12,7 +13,7 @@ const PROFILE_FIELDS = [
   'code', 'fullName', 'email', 'gender', 'birthday', 'hometown', 'ethnicity',
   'religion', 'currentAddress', 'placeOfBirth', 'phoneNumber', 'cccd',
   'partyMemberCardNumber', 'unit', 'rank', 'positionGovernment', 'positionParty',
-  'fullPartyMember', 'probationaryPartyMember', 'dateOfEnlistment', 'avatar',
+  'fullPartyMember', 'probationaryPartyMember', 'dateOfEnlistment',
   'enrollment', 'graduationDate', 'currentCpa4', 'currentCpa10', 'familyMember',
   'foreignRelations', 'startWork', 'organization', 'classId', 'organizationId',
   'universityId', 'educationLevelId',
@@ -262,11 +263,16 @@ const updateMyProfile = async (userId, data) => {
   return user.Profile;
 };
 
-const uploadAvatar = async (userId, avatarUrl) => {
+const saveAvatarUrl = async (userId, avatarUrl) => {
   const user = await User.findByPk(userId, { include: [{ model: Profile }] });
   if (!user || !user.Profile) throw new NotFoundError('Không tìm thấy hồ sơ');
   await user.Profile.update({ avatar: avatarUrl });
   return { avatar: avatarUrl };
+};
+
+const uploadAvatarFile = async (userId, file) => {
+  const uploaded = await fileStorage.uploadBuffer({ file, folder: `avatars/${userId}` });
+  return saveAvatarUrl(userId, uploaded.url);
 };
 
 const createBatchUsersProfiles = async (users, requester) => {
@@ -456,7 +462,7 @@ module.exports = {
   toggleActive,
   getMyProfile,
   updateMyProfile,
-  uploadAvatar,
+  uploadAvatarFile,
   createBatchUsersProfiles,
   parseExcelImport,
   createImportTemplate,

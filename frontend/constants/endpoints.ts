@@ -12,6 +12,7 @@ export const ENDPOINTS = {
     MARK_NOTIFICATION_READ: (id: string | number) =>
       `/api/auth/notifications/${id}/read`,
     MARK_ALL_NOTIFICATIONS_READ: "/api/auth/notifications/read-all",
+    AVATAR: "/api/users/avatar",
   },
   USERS: {
     BASE: "/api/users",
@@ -103,6 +104,9 @@ export const ENDPOINTS = {
       `/api/commanders/grade-requests/${id}/reject`,
   },
   REPORTS: {
+    ADMIN_DASHBOARD: "/api/admins/dashboard",
+    COMMANDER_DASHBOARD: "/api/commanders/dashboard",
+    STUDENT_DASHBOARD: "/api/students/dashboard",
     TUITION: "/api/commanders/reports/tuition",
   },
 } as const;

@@ -26,6 +26,12 @@ export default function UpdateProfileForm({
   initialData,
 }: UpdateProfileFormProps) {
   const { closeModal } = useModalStore();
+  const textValue = (value: string | null | undefined) => value ?? "";
+  const optionalNumber = (value: unknown) => {
+    if (value === "" || value === null || value === undefined) return null;
+    const numberValue = Number(value);
+    return Number.isNaN(numberValue) ? null : numberValue;
+  };
 
   const {
     register,
@@ -35,26 +41,26 @@ export default function UpdateProfileForm({
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      fullName: initialData.fullName,
-      email: initialData.email,
-      phoneNumber: initialData.phoneNumber,
-      birthday: initialData.birthday,
+      fullName: textValue(initialData.fullName),
+      email: textValue(initialData.email),
+      phoneNumber: textValue(initialData.phoneNumber),
+      birthday: textValue(initialData.birthday),
       gender: initialData.gender,
-      cccd: initialData.cccd,
-      currentAddress: initialData.currentAddress,
-      hometown: initialData.hometown,
-      placeOfBirth: initialData.placeOfBirth,
-      ethnicity: initialData.ethnicity,
-      religion: initialData.religion,
-      rank: initialData.rank,
-      unit: initialData.unit,
-      positionGovernment: initialData.positionGovernment,
-      positionParty: initialData.positionParty,
-      startWork: initialData.startWork,
-      dateOfEnlistment: initialData.dateOfEnlistment,
-      probationaryPartyMember: initialData.probationaryPartyMember,
-      fullPartyMember: initialData.fullPartyMember,
-      partyMemberCardNumber: initialData.partyMemberCardNumber,
+      cccd: textValue(initialData.cccd),
+      currentAddress: textValue(initialData.currentAddress),
+      hometown: textValue(initialData.hometown),
+      placeOfBirth: textValue(initialData.placeOfBirth),
+      ethnicity: textValue(initialData.ethnicity),
+      religion: textValue(initialData.religion),
+      rank: textValue(initialData.rank),
+      unit: textValue(initialData.unit),
+      positionGovernment: textValue(initialData.positionGovernment),
+      positionParty: textValue(initialData.positionParty),
+      startWork: initialData.startWork ?? null,
+      dateOfEnlistment: textValue(initialData.dateOfEnlistment),
+      probationaryPartyMember: textValue(initialData.probationaryPartyMember),
+      fullPartyMember: textValue(initialData.fullPartyMember),
+      partyMemberCardNumber: textValue(initialData.partyMemberCardNumber),
     },
   });
 
@@ -235,7 +241,7 @@ export default function UpdateProfileForm({
               type="number"
               placeholder="Nhập năm bắt đầu công tác"
               error={errors.startWork?.message}
-              {...register("startWork", { valueAsNumber: true })}
+              {...register("startWork", { setValueAs: optionalNumber })}
             />
             <Controller
               name="dateOfEnlistment"

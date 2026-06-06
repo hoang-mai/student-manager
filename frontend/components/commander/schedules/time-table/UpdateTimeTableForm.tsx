@@ -26,7 +26,11 @@ const toFormSchedules = (schedules: TimeTable["schedules"]) =>
     day: schedule.day,
     room: schedule.room,
     subjectName: schedule.subjectName,
-    week: schedule.week != null ? [schedule.week] : [],
+    week: Array.isArray(schedule.week)
+      ? schedule.week
+      : schedule.week != null
+        ? [schedule.week]
+        : [],
     timeRange: {
       startTime: schedule.startTime,
       endTime: schedule.endTime,

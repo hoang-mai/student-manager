@@ -21,6 +21,11 @@ const ensureSemester = async (semesterId) => {
   if (!semester) throw new BadRequestError('Không tìm thấy học kỳ');
 };
 
+const getScheduleWeeks = (schedule) => {
+  if (Array.isArray(schedule.week)) return schedule.week.filter(Boolean);
+  return schedule.week ? [schedule.week] : [];
+};
+
 const create = async (data) => {
   await ensureStudentUser(data.userId);
   await ensureSemester(data.semesterId);
@@ -112,7 +117,7 @@ const getAll = async (query) => {
     const schedules = plain.schedules || [];
     plain.scheduleCount = schedules.length;
     plain.subjectNames = [...new Set(schedules.map(s => s.subjectName).filter(Boolean))];
-    plain.weeks = [...new Set(schedules.map(s => s.week).filter(Boolean))];
+    plain.weeks = [...new Set(schedules.flatMap(getScheduleWeeks))];
     plain.rooms = [...new Set(schedules.map(s => s.room).filter(Boolean))];
     return plain;
   });
@@ -160,7 +165,8 @@ const getReport = async () => {
     for (const s of schedules) {
       totalSchedules++;
       if (s.subjectName) subjectSet.add(s.subjectName);
-      if (s.week) weekSet.add(s.week);
+      const weeks = getScheduleWeeks(s);
+      weeks.forEach((week) => weekSet.add(week));
 
       rows.push({
         unit: profile?.unit || '',
@@ -170,7 +176,7 @@ const getReport = async () => {
         scheduleCount: schedules.length,
         subjectName: s.subjectName || '',
         room: s.room || '',
-        week: s.week || '',
+        week: weeks.join(', '),
         day: s.day || '',
         startTime: s.startTime || '',
         endTime: s.endTime || '',

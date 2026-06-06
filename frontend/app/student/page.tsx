@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   HiOutlineAcademicCap,
@@ -10,530 +9,259 @@ import {
   HiOutlineCash,
   HiOutlineChartBar,
   HiOutlineCheckCircle,
-  HiOutlineChevronRight,
-  HiOutlineClipboardList,
   HiOutlineIdentification,
 } from "react-icons/hi";
 import type { IconType } from "react-icons";
 import AnimatedContainer from "@/library/AnimatedContainer";
-import Badge, { BadgeVariant } from "@/library/Badge";
+import Badge from "@/library/Badge";
 import Skeleton from "@/library/Skeleton";
 import Typography from "@/library/Typography";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { academicResultService } from "@/services/academic-results";
-import { authService } from "@/services/auth";
-import { cutRiceService } from "@/services/cut-rice";
-import { notificationService } from "@/services/notifications";
-import { timeTableService } from "@/services/time-tables";
-import { tuitionFeeService } from "@/services/tuition-fees";
-import type { CutRice, MealDayKey, MealSlotKey } from "@/types/cut-rice";
-import type { Notification } from "@/types/notifications";
-import type { ScheduleItem } from "@/types/time-tables";
-import type { TuitionFee } from "@/types/tuition-fees";
-import { formatDateTime, formatScore, formatSemesterYear } from "@/utils/fn-common";
+import { dashboardService } from "@/services/dashboard";
+import { DashboardChartItem } from "@/types/dashboard";
+import {
+  formatCurrency,
+  formatDateTime,
+  formatScore,
+  formatSemesterYear,
+} from "@/utils/fn-common";
 
-const mealDays: MealDayKey[] = [
-  "Thứ 2",
-  "Thứ 3",
-  "Thứ 4",
-  "Thứ 5",
-  "Thứ 6",
-  "Thứ 7",
-  "Chủ nhật",
-];
-
-const mealSlots: MealSlotKey[] = ["morning", "noon", "evening"];
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(value);
-
-const getCutMealCount = (record?: CutRice) =>
-  mealDays.reduce((total, day) => {
-    const weekly = record?.weekly || {};
-    const slot = weekly[day] || weekly[day.toLowerCase()] || {};
-    return total + mealSlots.reduce((sum, meal) => sum + Number(Boolean(slot[meal])), 0);
-  }, 0);
-
-const getScheduleLabel = (schedule: ScheduleItem) =>
-  `${schedule.day} · ${schedule.startTime} - ${schedule.endTime}`;
+const formatNumber = (value?: number) => (value ?? 0).toLocaleString("vi-VN");
 
 export default function StudentDashboard() {
-  const profileQuery = useQuery({
-    queryKey: [QUERY_KEYS.PROFILE],
-    queryFn: authService.getProfile,
+  const dashboardQuery = useQuery({
+    queryKey: [QUERY_KEYS.STUDENT_DASHBOARD],
+    queryFn: dashboardService.getStudentDashboard,
   });
 
-  const academicQuery = useQuery({
-    queryKey: [QUERY_KEYS.STUDENT_RESULTS, "dashboard"],
-    queryFn: () => academicResultService.getAcademicResults({ fetchAll: true }),
-  });
+  const dashboard = dashboardQuery.data?.data;
+  const profile = dashboard?.profile;
 
-  const timeTableQuery = useQuery({
-    queryKey: [QUERY_KEYS.STUDENT_TIME_TABLE, "dashboard"],
-    queryFn: () => timeTableService.getMyTimeTables({ fetchAll: true }),
-  });
-
-  const cutRiceQuery = useQuery({
-    queryKey: [QUERY_KEYS.CUT_RICE, "student-dashboard"],
-    queryFn: cutRiceService.getMyCutRice,
-  });
-
-  const tuitionQuery = useQuery({
-    queryKey: [QUERY_KEYS.TUITION_FEES, "student-dashboard"],
-    queryFn: () => tuitionFeeService.getMyTuitionFees({ fetchAll: true }),
-  });
-
-  const notificationQuery = useQuery({
-    queryKey: [QUERY_KEYS.NOTIFICATIONS, "student-dashboard"],
-    queryFn: () => notificationService.getNotifications({ limit: 5 }),
-  });
-
-  const unreadNotificationQuery = useQuery({
-    queryKey: [QUERY_KEYS.NOTIFICATIONS, "student-dashboard-unread"],
-    queryFn: () =>
-      notificationService.getNotifications({ isRead: false, fetchAll: true }),
-  });
-
-  const profile = profileQuery.data?.data;
-  const student = profile?.profile;
-  const academicYears = academicQuery.data?.data || [];
-  const latestAcademic = academicYears[0];
-  const timeTables = timeTableQuery.data?.data || [];
-  const schedules = useMemo(
-    () => timeTables.flatMap((timeTable) => timeTable.schedules || []),
-    [timeTables]
-  );
-  const cutRice = cutRiceQuery.data?.data;
-  const tuitionFees = tuitionQuery.data?.data || [];
-  const notifications = notificationQuery.data?.data || [];
-
-  const tuitionSummary = useMemo(() => {
-    const unpaid = tuitionFees.filter((fee) => fee.status === "UNPAID");
-    const unpaidAmount = unpaid.reduce(
-      (total, fee) => total + Number(fee.totalAmount || 0),
-      0
-    );
-
-    return { unpaidCount: unpaid.length, unpaidAmount };
-  }, [tuitionFees]);
-
-  const academicSummary = useMemo(() => {
-    const semesters = academicYears.flatMap((year) => year.semesterResults || []);
-    const subjects = semesters.flatMap((semester) => semester.subjectResults || []);
-    const passedSubjects = academicYears.reduce(
-      (total, year) => total + (year.passedSubjects ?? 0),
-      0
-    );
-    const failedSubjects = academicYears.reduce(
-      (total, year) => total + (year.failedSubjects ?? 0),
-      0
-    );
-
-    return {
-      cpa4: latestAcademic?.cumulativeGrade4 ?? student?.currentCpa4,
-      credits:
-        latestAcademic?.cumulativeCredits ??
-        latestAcademic?.totalCredits ??
-        subjects.reduce((total, subject) => total + (subject.credits ?? 0), 0),
-      passedSubjects,
-      failedSubjects,
-      subjects: subjects.length || latestAcademic?.totalSubjects || 0,
-    };
-  }, [academicYears, latestAcademic, student?.currentCpa4]);
-
-  const unreadCount = unreadNotificationQuery.data?.pagination.total || 0;
-  const cutMealCount = getCutMealCount(cutRice);
-
-  const isLoading =
-    profileQuery.isLoading ||
-    academicQuery.isLoading ||
-    timeTableQuery.isLoading ||
-    cutRiceQuery.isLoading ||
-    tuitionQuery.isLoading ||
-    notificationQuery.isLoading ||
-    unreadNotificationQuery.isLoading;
-
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
+  if (dashboardQuery.isLoading) return <DashboardSkeleton />;
 
   return (
     <AnimatedContainer
       variant="slideUp"
-      className="min-h-screen space-y-6 rounded-2xl bg-white p-6 text-neutral-900 transition-colors duration-300 dark:bg-neutral-950 dark:text-neutral-100"
+      className="min-h-screen space-y-6 rounded-2xl bg-white p-6 text-neutral-900 transition-colors dark:bg-neutral-950 dark:text-neutral-100"
     >
       <header className="flex flex-col gap-4 border-b border-neutral-100 pb-6 dark:border-neutral-800 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <Typography variant="label" color="primary" tracking="wide">
-            Tổng quan sinh viên
+            Dashboard học viên
           </Typography>
           <Typography variant="h1" transform="uppercase" className="mt-2">
-            {student?.fullName || profile?.username || "Học viên"}
+            {profile?.fullName || profile?.username || "Học viên"}
           </Typography>
           <div className="mt-3 flex flex-wrap gap-2">
             <Badge variant="primary" className="gap-1.5">
               <HiOutlineIdentification size={13} />
-              {student?.code || "---"}
+              {profile?.code || "---"}
             </Badge>
             <Badge variant={profile?.isActive ? "success" : "error"}>
               {profile?.isActive ? "Đang học tập" : "Tài khoản bị khóa"}
             </Badge>
-            {student?.class?.className && (
-              <Badge variant="secondary">{student.class.className}</Badge>
-            )}
+            {profile?.className && <Badge variant="secondary">{profile.className}</Badge>}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:flex">
           <QuickLink href="/student/time-table" label="Lịch học" icon={HiOutlineCalendar} />
           <QuickLink href="/student/results" label="Kết quả" icon={HiOutlineAcademicCap} />
-          <QuickLink href="/student/meal-schedules" label="Cắt cơm" icon={HiOutlineClipboardList} />
+          <QuickLink href="/student/tuition" label="Học phí" icon={HiOutlineCash} />
         </div>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard
-          label="CPA hệ 4"
-          value={formatScore(academicSummary.cpa4)}
-          helper={`${academicSummary.credits || 0} tín chỉ tích lũy`}
-          icon={HiOutlineChartBar}
-          tone="primary"
-        />
-        <SummaryCard
-          label="Môn đã đạt"
-          value={academicSummary.passedSubjects.toLocaleString("vi-VN")}
-          helper={`${academicSummary.subjects} môn đã ghi nhận`}
-          icon={HiOutlineCheckCircle}
-          tone="success"
-        />
-        <SummaryCard
-          label="Lịch học"
-          value={schedules.length.toLocaleString("vi-VN")}
-          helper={`${timeTables.length} bản ghi thời khóa biểu`}
-          icon={HiOutlineCalendar}
-          tone="secondary"
-        />
-        <SummaryCard
-          label="Học phí chưa đóng"
-          value={tuitionSummary.unpaidCount.toLocaleString("vi-VN")}
-          helper={formatCurrency(tuitionSummary.unpaidAmount)}
-          icon={HiOutlineCash}
-          tone={tuitionSummary.unpaidCount ? "warning" : "neutral"}
-        />
+        <SummaryCard label="CPA hệ 4" value={formatScore(dashboard?.overview.cpa4)} helper={`${dashboard?.overview.credits || 0} tín chỉ tích lũy`} icon={HiOutlineChartBar} tone="primary" />
+        <SummaryCard label="Môn đã đạt" value={formatNumber(dashboard?.overview.passedSubjects)} helper={`${dashboard?.overview.failedSubjects || 0} môn chưa đạt`} icon={HiOutlineCheckCircle} tone="success" />
+        <SummaryCard label="Lịch học" value={formatNumber(dashboard?.overview.scheduleCount)} helper={`${dashboard?.overview.cutMealCount || 0} bữa cắt cơm`} icon={HiOutlineCalendar} tone="secondary" />
+        <SummaryCard label="Học phí chưa nộp" value={formatNumber(dashboard?.overview.unpaidTuitionCount)} helper={formatCurrency(dashboard?.overview.unpaidTuitionAmount || 0)} icon={HiOutlineCash} tone={dashboard?.overview.unpaidTuitionCount ? "warning" : "neutral"} />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
-        <Panel
-          title="Lịch học gần đây"
-          href="/student/time-table"
-          icon={HiOutlineCalendar}
-          actionLabel="Xem lịch"
-        >
-          {schedules.length ? (
-            <div className="grid gap-3 md:grid-cols-2">
-              {schedules.slice(0, 6).map((schedule, index) => (
-                <div
-                  key={`${schedule.day}-${schedule.startTime}-${schedule.room}-${index}`}
-                  className="rounded-2xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/70"
-                >
-                  <Typography variant="body" weight="black" className="text-neutral-900 dark:text-neutral-100">
+      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <Panel title="Tiến độ CPA theo năm">
+          <VerticalBars data={dashboard?.charts.academicTrend || []} />
+        </Panel>
+        <Panel title="Tổng quan học tập">
+          <HorizontalBars data={dashboard?.charts.subjectStatus || []} />
+        </Panel>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-3">
+        <Panel title="Lịch học gần đây" href="/student/time-table">
+          <div className="space-y-3">
+            {dashboard?.recent.schedules.length ? (
+              dashboard.recent.schedules.map((schedule, index) => (
+                <div key={`${schedule.day}-${schedule.startTime}-${index}`} className="rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/50">
+                  <Typography variant="body" weight="semibold">
                     {schedule.subjectName || "Môn học"}
                   </Typography>
-                  <Typography variant="caption" className="mt-2 block text-neutral-500 dark:text-neutral-400">
-                    {getScheduleLabel(schedule)}
+                  <Typography variant="caption" color="gray" className="mt-1 block">
+                    {schedule.day} - {schedule.startTime} đến {schedule.endTime}
                   </Typography>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {schedule.room && <Badge variant="secondary">Phòng {schedule.room}</Badge>}
                     {schedule.week && <Badge variant="neutral">Tuần {schedule.week}</Badge>}
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyBlock text="Chưa có lịch học được ghi nhận" />
-          )}
-        </Panel>
-
-        <div className="space-y-6">
-          <Panel
-            title="Lịch cắt cơm"
-            href="/student/meal-schedules"
-            icon={HiOutlineClipboardList}
-            actionLabel="Chi tiết"
-          >
-            <div className="grid grid-cols-2 gap-3">
-              <MetricPill label="Bữa cắt" value={`${cutMealCount}/21`} />
-              <MetricPill
-                label="Trạng thái"
-                value={cutRice?.isAutoGenerated ? "Tự động" : "Thủ công"}
-              />
-            </div>
-            <Typography variant="caption" className="mt-4 block text-neutral-500 dark:text-neutral-400">
-              Cập nhật:{" "}
-              {cutRice?.lastUpdated
-                ? formatDateTime(cutRice.lastUpdated)
-                : cutRice?.updatedAt
-                  ? formatDateTime(cutRice.updatedAt)
-                  : "Chưa có dữ liệu"}
-            </Typography>
-          </Panel>
-
-          <Panel
-            title="Thông báo"
-            href="/student/notification"
-            icon={HiOutlineBell}
-            actionLabel="Xem tất cả"
-          >
-            <div className="mb-4 flex items-center justify-between rounded-2xl border border-primary-100 bg-primary-50 p-3 dark:border-primary-700/60 dark:bg-primary-950/40">
-              <Typography variant="caption" weight="black" className="text-primary-700 dark:text-primary-100">
-                Chưa đọc
-              </Typography>
-              <Badge variant={unreadCount ? "primary" : "neutral"}>
-                {unreadCount.toLocaleString("vi-VN")}
-              </Badge>
-            </div>
-            <NotificationList notifications={notifications} />
-          </Panel>
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <Panel title="Kết quả học tập" href="/student/results" icon={HiOutlineAcademicCap} actionLabel="Xem điểm">
-          <div className="grid grid-cols-3 gap-3">
-            <MetricPill label="Môn học" value={academicSummary.subjects.toLocaleString("vi-VN")} />
-            <MetricPill label="Môn đạt" value={academicSummary.passedSubjects.toLocaleString("vi-VN")} />
-            <MetricPill label="Môn nợ" value={academicSummary.failedSubjects.toLocaleString("vi-VN")} />
-          </div>
-          <div className="mt-4 rounded-2xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/70">
-            <Typography variant="caption" color="gray">
-              Năm học mới nhất
-            </Typography>
-            <Typography variant="body" weight="black" className="mt-1 text-neutral-900 dark:text-neutral-100">
-              {latestAcademic?.schoolYear || "---"}
-            </Typography>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge variant="primary">CPA 4: {formatScore(latestAcademic?.cumulativeGrade4)}</Badge>
-              <Badge variant="secondary">CPA 10: {formatScore(latestAcademic?.cumulativeGrade10)}</Badge>
-            </div>
+              ))
+            ) : (
+              <EmptyLine icon={HiOutlineCalendar} text="Chưa có lịch học." />
+            )}
           </div>
         </Panel>
 
-        <Panel title="Học phí" href="/student/tuition" icon={HiOutlineCash} actionLabel="Xem học phí">
-          {tuitionFees.length ? (
-            <div className="space-y-3">
-              {tuitionFees.slice(0, 4).map((fee) => (
-                <div
-                  key={fee.id}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/70"
-                >
+        <Panel title="Học phí của tôi" href="/student/tuition">
+          <div className="space-y-3">
+            {dashboard?.recent.tuition.length ? (
+              dashboard.recent.tuition.map((fee) => (
+                <div key={fee.id} className="flex items-center justify-between gap-4 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/50">
                   <div className="min-w-0">
-                    <Typography variant="body" weight="black" className="truncate text-neutral-900 dark:text-neutral-100">
-                      {getTuitionLabel(fee)}
+                    <Typography variant="body" weight="semibold">
+                      {formatCurrency(fee.amount)}
                     </Typography>
-                    <Typography variant="caption" className="mt-1 block text-neutral-500 dark:text-neutral-400">
-                      {fee.content || "---"}
+                    <Typography variant="caption" color="gray" className="mt-1 block">
+                      {formatSemesterYear(String(fee.semester), fee.schoolYear)}
                     </Typography>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <Typography variant="caption" weight="black" className="text-neutral-600 dark:text-neutral-300">
-                      {formatCurrency(Number(fee.totalAmount || 0))}
-                    </Typography>
-                    <Badge variant={fee.status === "PAID" ? "success" : "warning"} className="mt-2">
-                      {fee.status === "PAID" ? "Đã đóng" : "Chưa đóng"}
-                    </Badge>
-                  </div>
+                  <Badge variant={fee.status === "PAID" ? "success" : "warning"}>
+                    {fee.status === "PAID" ? "Đã nộp" : "Chưa nộp"}
+                  </Badge>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyBlock text="Chưa có khoản học phí" />
-          )}
+              ))
+            ) : (
+              <EmptyLine icon={HiOutlineCash} text="Chưa có bản ghi học phí." />
+            )}
+          </div>
+        </Panel>
+
+        <Panel title="Thông báo mới" href="/student/notification">
+          <div className="mb-3 flex items-center justify-between rounded-xl bg-primary-50 p-3 text-primary-700 dark:bg-primary-950/40 dark:text-primary-100">
+            <Typography variant="caption" weight="bold">
+              Chưa đọc
+            </Typography>
+            <Badge variant="primary">{formatNumber(dashboard?.overview.unreadNotifications)}</Badge>
+          </div>
+          <div className="space-y-3">
+            {dashboard?.recent.notifications.length ? (
+              dashboard.recent.notifications.map((notification) => (
+                <div key={notification.id} className="rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/50">
+                  <Typography variant="body" weight="semibold">
+                    {notification.title}
+                  </Typography>
+                  <Typography variant="caption" color="gray" className="mt-1 block">
+                    {formatDateTime(notification.createdAt)}
+                  </Typography>
+                </div>
+              ))
+            ) : (
+              <EmptyLine icon={HiOutlineBell} text="Chưa có thông báo." />
+            )}
+          </div>
         </Panel>
       </section>
     </AnimatedContainer>
   );
 }
 
-const getTuitionLabel = (fee: TuitionFee) => {
-  const semester = fee.semesterInfo?.code || fee.semester;
-  const schoolYear = fee.semesterInfo?.schoolYearInfo?.schoolYear || fee.schoolYear;
-  if (semester && schoolYear) return formatSemesterYear(semester, schoolYear);
-  return semester || schoolYear || "Khoản học phí";
-};
-
-const toneClasses: Record<
-  "primary" | "secondary" | "success" | "warning" | "neutral",
-  string
-> = {
-  primary: "border-primary-100 bg-primary-50 text-primary-700 dark:border-primary-700/60 dark:bg-primary-950/40 dark:text-primary-100",
-  secondary: "border-secondary-100 bg-secondary-50 text-secondary-700 dark:border-secondary-700/60 dark:bg-secondary-950/40 dark:text-secondary-100",
-  success: "border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-950/40 dark:text-emerald-100",
-  warning: "border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-100",
+const cardTone = {
+  primary: "border-primary-100 bg-primary-50 text-primary-700 dark:border-primary-800 dark:bg-primary-950/40 dark:text-primary-100",
+  success: "border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100",
+  warning: "border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100",
+  secondary: "border-sky-100 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100",
   neutral: "border-neutral-100 bg-neutral-50 text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",
 };
 
-const SummaryCard = ({
-  label,
-  value,
-  helper,
-  icon: Icon,
-  tone,
-}: {
+const SummaryCard = ({ label, value, helper, icon: Icon, tone }: {
   label: string;
   value: string;
   helper: string;
   icon: IconType;
-  tone: keyof typeof toneClasses;
+  tone: keyof typeof cardTone;
 }) => (
-  <div className={`rounded-2xl border p-4 shadow-sm ${toneClasses[tone]}`}>
-    <div className="flex items-center justify-between gap-3">
-      <Typography variant="caption" weight="black" className="opacity-80">
-        {label}
-      </Typography>
-      <Icon size={20} className="shrink-0 opacity-80" />
+  <div className={`rounded-2xl border p-5 ${cardTone[tone]}`}>
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <Typography variant="label" weight="bold" className="opacity-80">{label}</Typography>
+        <div className="mt-3 text-3xl font-black leading-none">{value}</div>
+      </div>
+      <div className="flex size-10 items-center justify-center rounded-xl bg-white/70 shadow-sm dark:bg-neutral-950/40">
+        <Icon size={20} />
+      </div>
     </div>
-    <p className="mt-3 text-3xl font-black leading-none">{value}</p>
-    <p className="mt-2 text-xs font-bold opacity-70">{helper}</p>
+    <Typography variant="caption" className="mt-3 block opacity-75">{helper}</Typography>
   </div>
 );
 
-const Panel = ({
-  title,
-  href,
-  icon: Icon,
-  actionLabel,
-  children,
-}: {
-  title: string;
-  href: string;
-  icon: IconType;
-  actionLabel: string;
-  children: React.ReactNode;
-}) => (
+const QuickLink = ({ href, label, icon: Icon }: { href: string; label: string; icon: IconType }) => (
+  <Link href={href} className="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-3 text-sm font-bold text-neutral-700 transition-colors hover:border-primary-300 hover:text-primary-600 dark:border-neutral-800 dark:text-neutral-200">
+    <Icon size={18} />
+    {label}
+  </Link>
+);
+
+const Panel = ({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) => (
   <section className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950 dark:shadow-none">
     <div className="mb-4 flex items-center justify-between gap-4">
-      <div className="flex min-w-0 items-center gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
-          <Icon size={20} />
-        </div>
-        <Typography variant="h3" className="truncate text-neutral-900 dark:text-neutral-100">
-          {title}
-        </Typography>
-      </div>
-      <Link
-        href={href}
-        className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl border border-neutral-200 px-3 text-[10px] font-black uppercase tracking-wider text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-primary-600 dark:border-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-900 dark:hover:text-neutral-100"
-      >
-        {actionLabel}
-        <HiOutlineChevronRight size={14} />
-      </Link>
+      <Typography variant="h3" weight="bold">{title}</Typography>
+      {href && <Link href={href} className="text-sm font-bold text-primary-600">Xem thêm</Link>}
     </div>
     {children}
   </section>
 );
 
-const QuickLink = ({
-  href,
-  label,
-  icon: Icon,
-}: {
-  href: string;
-  label: string;
-  icon: IconType;
-}) => (
-  <Link
-    href={href}
-    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-neutral-200 px-3 text-xs font-black uppercase tracking-wider text-neutral-600 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-neutral-100"
-  >
-    <Icon size={16} />
-    {label}
-  </Link>
-);
-
-const MetricPill = ({ label, value }: { label: string; value: string }) => (
-  <div className="rounded-2xl border border-neutral-100 bg-neutral-50/70 p-3 dark:border-neutral-800 dark:bg-neutral-900/70">
-    <Typography variant="caption" color="gray">
-      {label}
-    </Typography>
-    <Typography variant="body" weight="black" className="mt-1 text-neutral-900 dark:text-neutral-100">
-      {value}
-    </Typography>
-  </div>
-);
-
-const NotificationList = ({ notifications }: { notifications: Notification[] }) => {
-  if (!notifications.length) return <EmptyBlock text="Chưa có thông báo" />;
-
+const HorizontalBars = ({ data }: { data: DashboardChartItem[] }) => {
+  const max = Math.max(...data.map((item) => item.value), 1);
   return (
-    <div className="space-y-3">
-      {notifications.slice(0, 4).map((notification) => (
-        <div
-          key={notification.id}
-          className="rounded-2xl border border-neutral-100 bg-neutral-50/70 p-3 dark:border-neutral-800 dark:bg-neutral-900/70"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <Typography variant="body" weight="black" className="line-clamp-1 text-neutral-900 dark:text-neutral-100">
-              {notification.title}
-            </Typography>
-            <Badge variant={getNotificationVariant(notification.type)} className="shrink-0">
-              {notification.isRead ? "Đã đọc" : "Mới"}
-            </Badge>
+    <div className="space-y-4">
+      {data.map((item) => (
+        <div key={item.label} className="space-y-2">
+          <div className="flex justify-between">
+            <Typography variant="caption" weight="semibold">{item.label}</Typography>
+            <Typography variant="caption" weight="bold" color="gray">{formatNumber(item.value)}</Typography>
           </div>
-          {notification.content && (
-            <Typography variant="caption" className="mt-2 block line-clamp-2 text-neutral-500 dark:text-neutral-400">
-              {notification.content}
-            </Typography>
-          )}
+          <div className="h-3 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+            <div className="h-full rounded-full bg-primary-500" style={{ width: `${Math.max(6, (item.value / max) * 100)}%` }} />
+          </div>
         </div>
       ))}
     </div>
   );
 };
 
-const getNotificationVariant = (type?: string | null): BadgeVariant => {
-  if (type === "TUITION") return "secondary";
-  if (type === "CUT_RICE") return "warning";
-  if (type === "ACHIEVEMENT") return "success";
-  if (type === "GRADE") return "primary";
-  return "neutral";
+const VerticalBars = ({ data }: { data: DashboardChartItem[] }) => {
+  const max = Math.max(...data.map((item) => item.value), 1);
+  if (!data.length) return <EmptyLine icon={HiOutlineChartBar} text="Chưa có dữ liệu học tập." />;
+  return (
+    <div className="flex h-64 items-end gap-3 overflow-x-auto pt-6">
+      {data.map((item) => (
+        <div key={item.label} className="flex min-w-20 flex-1 flex-col items-center gap-2">
+          <Typography variant="caption" weight="bold">{formatScore(item.value)}</Typography>
+          <div className="w-full rounded-t-xl bg-sky-500" style={{ height: Math.max(18, (item.value / max) * 190) }} />
+          <Typography variant="caption" color="gray" className="line-clamp-2 min-h-9 text-center">{item.label}</Typography>
+        </div>
+      ))}
+    </div>
+  );
 };
 
-const EmptyBlock = ({ text }: { text: string }) => (
-  <div className="flex min-h-28 items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/70 p-6 text-center dark:border-neutral-800 dark:bg-neutral-900/50">
-    <Typography variant="caption" className="text-neutral-500 dark:text-neutral-400">
-      {text}
-    </Typography>
+const EmptyLine = ({ icon: Icon, text }: { icon: IconType; text: string }) => (
+  <div className="flex items-center gap-3 rounded-xl border border-dashed border-neutral-200 p-5 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+    <Icon size={22} />
+    <Typography variant="body" color="gray">{text}</Typography>
   </div>
 );
 
 const DashboardSkeleton = () => (
-  <AnimatedContainer
-    variant="slideUp"
-    className="min-h-screen space-y-6 rounded-2xl bg-white p-6 dark:bg-neutral-950"
-  >
-    <div className="flex flex-col gap-4 border-b border-neutral-100 pb-6 dark:border-neutral-800">
-      <Skeleton variant="text" width={150} height={16} />
-      <Skeleton variant="text" width={320} height={32} />
-      <div className="flex gap-2">
-        <Skeleton variant="rounded" width={90} height={24} />
-        <Skeleton variant="rounded" width={120} height={24} />
-      </div>
-    </div>
+  <div className="space-y-6 rounded-2xl bg-white p-6 dark:bg-neutral-950">
+    <Skeleton width={320} height={40} />
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <Skeleton key={index} variant="rounded" height={130} />
-      ))}
+      {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} height={140} />)}
     </div>
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
-      <Skeleton variant="rounded" height={360} />
-      <div className="space-y-6">
-        <Skeleton variant="rounded" height={160} />
-        <Skeleton variant="rounded" height={260} />
-      </div>
+    <div className="grid gap-6 xl:grid-cols-3">
+      <Skeleton height={320} />
+      <Skeleton height={320} />
+      <Skeleton height={320} />
     </div>
-  </AnimatedContainer>
+  </div>
 );

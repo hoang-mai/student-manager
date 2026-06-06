@@ -43,7 +43,10 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${theme} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300"
+      >
         <ThemeProvider initialTheme={theme}>
           <QueryProvider>
             <MotionProvider>

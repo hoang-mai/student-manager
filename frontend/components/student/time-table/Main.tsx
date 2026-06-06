@@ -9,12 +9,29 @@ import { ScheduleItem, TimeTable } from "@/types/time-tables";
 import TimeTableCalendar from "./TimeTableCalendar";
 import TimeTableSkeleton from "./TimeTableSkeleton";
 
-const getUniqueValues = (schedules: ScheduleItem[], key: keyof ScheduleItem) =>
+const getUniqueStringValues = (
+  schedules: ScheduleItem[],
+  key: "subjectName" | "room"
+) =>
   Array.from(
     new Set(
       schedules
         .map((schedule) => schedule[key])
-        .filter((value): value is string => typeof value === "string" && value.length > 0)
+        .filter(
+          (value): value is string =>
+            typeof value === "string" && value.length > 0
+        )
+    )
+  );
+
+const getUniqueWeeks = (schedules: ScheduleItem[]) =>
+  Array.from(
+    new Set(
+      schedules
+        .flatMap((schedule) =>
+          Array.isArray(schedule.week) ? schedule.week : [schedule.week]
+        )
+        .filter((value): value is number => typeof value === "number")
     )
   );
 
@@ -33,9 +50,9 @@ export default function Main() {
       userId: timeTables[0]?.userId || "",
       schedules,
       scheduleCount: schedules.length,
-      subjectNames: getUniqueValues(schedules, "subjectName"),
-      weeks: getUniqueValues(schedules, "week"),
-      rooms: getUniqueValues(schedules, "room"),
+      subjectNames: getUniqueStringValues(schedules, "subjectName"),
+      weeks: getUniqueWeeks(schedules),
+      rooms: getUniqueStringValues(schedules, "room"),
       createdAt: timeTables[0]?.createdAt || "",
       updatedAt: timeTables[0]?.updatedAt || "",
     };

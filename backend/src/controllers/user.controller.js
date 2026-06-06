@@ -3,7 +3,7 @@ const service = require('../services/user.service');
 const studentService = require('../services/student.service');
 const commanderService = require('../services/commander.service');
 const { success, paginated, validateOrThrow } = require('../utils/response');
-const { ForbiddenError } = require('../utils/apiError');
+const { BadRequestError, ForbiddenError } = require('../utils/apiError');
 const us = require('../validations/user.validation');
 const ss = require('../validations/student.validation');
 const cs = require('../validations/commander.validation');
@@ -109,7 +109,11 @@ const updateMyProfile = asyncHandler(async (req, res) => {
 });
 
 const uploadAvatar = asyncHandler(async (req, res) => {
-  const result = await service.uploadAvatar(req.userId, req.body.avatar);
+  if (!req.file) {
+    throw new BadRequestError('Vui lòng chọn file avatar để tải lên');
+  }
+
+  const result = await service.uploadAvatarFile(req.userId, req.file);
   return success(res, result, 'Upload avatar thành công');
 });
 

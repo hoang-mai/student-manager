@@ -11,6 +11,16 @@ const excelUpload = multer({
   },
 });
 
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const isImage = /^image\/(png|jpe?g|webp)$/i.test(file.mimetype);
+    if (!isImage) return cb(new BadRequestError('Chỉ chấp nhận ảnh PNG, JPG, JPEG hoặc WEBP'));
+    return cb(null, true);
+  },
+});
+
 const uploadExcel = (fieldName = 'file') => (req, res, next) => {
   excelUpload.single(fieldName)(req, res, (err) => {
     if (!err) return next();
@@ -21,4 +31,14 @@ const uploadExcel = (fieldName = 'file') => (req, res, next) => {
   });
 };
 
-module.exports = { uploadExcel };
+const uploadImage = (fieldName = 'file') => (req, res, next) => {
+  imageUpload.single(fieldName)(req, res, (err) => {
+    if (!err) return next();
+    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+      return next(new BadRequestError('Dung lượng ảnh tối đa là 2MB'));
+    }
+    return next(err);
+  });
+};
+
+module.exports = { uploadExcel, uploadImage };

@@ -16,14 +16,13 @@ import Dropdown from "@/library/Dropdown";
 
 import Divide from "@/library/Divide";
 import Toggle from "@/library/Toggle";
-import { useTheme } from "next-themes";
-import Cookies from "js-cookie";
 import { THEMES } from "@/constants/constants";
 import { useModalStore } from "@/store/useModalStore";
 import ChangePasswordForm from "@/components/admin/layout/header/ChangePasswordForm";
 import Typography from "@/library/Typography";
 import { MUTATION_KEYS } from "@/constants/query-keys";
 import NotificationsPopover from "./NotificationsPopover";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function Header() {
   const router = useRouter();
@@ -35,7 +34,6 @@ export default function Header() {
   const handleToggleTheme = () => {
     const nextTheme = isDarkMode ? THEMES.LIGHT : THEMES.DARK;
     setTheme(nextTheme);
-    Cookies.set("theme", nextTheme, { expires: 365 });
   };
 
   const handleLogout = () => {

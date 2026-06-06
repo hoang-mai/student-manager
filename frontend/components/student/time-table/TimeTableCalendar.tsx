@@ -8,6 +8,11 @@ const weekDays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 
 
 const getScheduleTime = (schedule: ScheduleItem) => `${schedule.startTime} - ${schedule.endTime}`;
 
+const formatWeeks = (week: ScheduleItem["week"]) => {
+  if (Array.isArray(week)) return week.length ? week.join(", ") : "";
+  return week ? String(week) : "";
+};
+
 interface TimeTableCalendarProps {
   timeTable: TimeTable;
 }
@@ -72,9 +77,9 @@ export default function TimeTableCalendar({ timeTable }: TimeTableCalendarProps)
                       <Badge variant="secondary" className="dark:border-secondary-700 dark:bg-secondary-500/20 dark:text-secondary-100">
                         Phòng {schedule.room}
                       </Badge>
-                      {schedule.week && (
+                      {formatWeeks(schedule.week) && (
                         <Badge variant="secondary" className="dark:border-secondary-700 dark:bg-secondary-500/20 dark:text-secondary-100">
-                          Tuần {schedule.week}
+                          Tuần {formatWeeks(schedule.week)}
                         </Badge>
                       )}
                     </div>

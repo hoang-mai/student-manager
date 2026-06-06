@@ -4,7 +4,7 @@ export interface ScheduleItem {
   endTime: string;
   room: string;
   subjectName?: string | null;
-  week?: number | null;
+  week?: number | number[] | null;
 }
 
 export interface ScheduleFormItem {
@@ -96,7 +96,7 @@ export interface TimeTableReportRow {
   scheduleCount: number;
   subjectName: string;
   room: string;
-  week: number | string;
+  week: number | number[] | string;
   day: string;
   startTime: string;
   endTime: string;

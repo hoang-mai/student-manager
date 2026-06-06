@@ -1,10 +1,54 @@
 const router = require('express').Router();
 const controller = require('../controllers/user.controller');
+const dashboardController = require('../controllers/dashboard.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
  * {
+ *   "/commanders/dashboard": {
+ *     "get": {
+ *       "tags": [
+ *         "Reports"
+ *       ],
+ *       "summary": "CH-09: Thống kê dashboard chỉ huy",
+ *       "description": "Tổng hợp số liệu, biểu đồ và cảnh báo để hiển thị dashboard.",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Dữ liệu dashboard",
+ *           "content": {
+ *             "application/json": {
+ *               "schema": {
+ *                 "type": "object",
+ *                 "properties": {
+ *                   "success": {
+ *                     "type": "boolean"
+ *                   },
+ *                   "data": {
+ *                     "type": "object",
+ *                     "properties": {
+ *                       "overview": {
+ *                         "type": "object"
+ *                       },
+ *                       "charts": {
+ *                         "type": "object"
+ *                       },
+ *                       "alerts": {
+ *                         "type": "object"
+ *                       },
+ *                       "recent": {
+ *                         "type": "object"
+ *                       }
+ *                     }
+ *                   }
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/commanders/reports/tuition": {
  *     "get": {
  *       "tags": [
@@ -56,6 +100,7 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  * }
  */
 
+router.get('/dashboard', authMiddleware, requireRole('COMMANDER'), dashboardController.getCommanderDashboard);
 router.get('/reports/tuition', authMiddleware, requireRole('ADMIN', 'COMMANDER'), controller.exportTuitionReport);
 
 module.exports = router;

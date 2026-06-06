@@ -21,6 +21,9 @@ export const QUERY_KEYS = {
   STUDENT_GRADE_REQUESTS: "studentGradeRequests",
   COMMANDER_GRADE_REQUESTS: "commanderGradeRequests",
   NOTIFICATIONS: "notifications",
+  ADMIN_DASHBOARD: "adminDashboard",
+  COMMANDER_DASHBOARD: "commanderDashboard",
+  STUDENT_DASHBOARD: "studentDashboard",
 } as const;
 
 /**
@@ -31,6 +34,7 @@ export const MUTATION_KEYS = {
   MODAL_IDLE: ["__modal_idle__"],
   CHANGE_PASSWORD: [QUERY_KEYS.USERS, "change-password"],
   UPDATE_PROFILE: [QUERY_KEYS.PROFILE, "update"],
+  UPDATE_AVATAR: [QUERY_KEYS.PROFILE, "avatar"],
   CREATE_USER: [QUERY_KEYS.USERS, "create"],
   IMPORT_USERS: [QUERY_KEYS.USERS, "import"],
   UPDATE_USER: [QUERY_KEYS.USERS, "update"],

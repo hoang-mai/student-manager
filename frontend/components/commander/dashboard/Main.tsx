@@ -6,11 +6,11 @@ import {
   HiOutlineAcademicCap,
   HiOutlineBadgeCheck,
   HiOutlineCash,
+  HiOutlineChartBar,
   HiOutlineCheckCircle,
-  HiOutlineClipboardList,
+  HiOutlineExclamation,
   HiOutlineExternalLink,
   HiOutlineIdentification,
-  HiOutlineOfficeBuilding,
   HiOutlineViewGrid,
 } from "react-icons/hi";
 import type { IconType } from "react-icons";
@@ -19,15 +19,20 @@ import PageContainer from "@/library/PageContainer";
 import Skeleton from "@/library/Skeleton";
 import Typography from "@/library/Typography";
 import { QUERY_KEYS } from "@/constants/query-keys";
-import { achievementService } from "@/services/achievements";
-import { classService } from "@/services/classes";
-import { gradeRequestService } from "@/services/grade-requests";
-import { tuitionFeeService } from "@/services/tuition-fees";
-import { userService } from "@/services/user";
-import { GradeRequest, statusMap } from "@/types/student-academic";
-import { TuitionFee } from "@/types/tuition-fees";
-import { Student } from "@/types/user";
-import { formatDate, formatDateTime, formatSemesterYear } from "@/utils/fn-common";
+import { dashboardService } from "@/services/dashboard";
+import {
+  DashboardChartItem,
+  DashboardGradeRequestAlert,
+  DashboardRecentStudent,
+  DashboardRiskStudent,
+  DashboardTuitionAlert,
+} from "@/types/dashboard";
+import {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  formatSemesterYear,
+} from "@/utils/fn-common";
 
 type Tone = "primary" | "success" | "warning" | "error" | "sky" | "neutral";
 
@@ -47,89 +52,18 @@ const toneStyles: Record<Tone, string> = {
 
 const formatNumber = (value?: number) => (value ?? 0).toLocaleString("vi-VN");
 
-const getTotal = <T,>(response?: PaginatedResponse<T>) =>
-  response?.pagination?.total ?? response?.data?.length ?? 0;
-
 export default function Main() {
-  const studentsQuery = useQuery({
-    queryKey: [QUERY_KEYS.STUDENT_PROFILES, "dashboard-total"],
-    queryFn: () => userService.getStudentProfiles({ page: 1, limit: 1 }),
+  const dashboardQuery = useQuery({
+    queryKey: [QUERY_KEYS.COMMANDER_DASHBOARD],
+    queryFn: dashboardService.getCommanderDashboard,
   });
 
-  const recentStudentsQuery = useQuery({
-    queryKey: [QUERY_KEYS.STUDENT_PROFILES, "dashboard-recent"],
-    queryFn: () =>
-      userService.getStudentProfiles({
-        page: 1,
-        limit: 5,
-        sortBy: "updatedAt",
-        sortOrder: "desc",
-      }),
-  });
-
-  const classesQuery = useQuery({
-    queryKey: [QUERY_KEYS.CLASSES, "dashboard-total"],
-    queryFn: () => classService.getClasses({ page: 1, limit: 1 }),
-  });
-
-  const pendingRequestsQuery = useQuery({
-    queryKey: [QUERY_KEYS.COMMANDER_GRADE_REQUESTS, "dashboard-pending"],
-    queryFn: () =>
-      gradeRequestService.getCommanderGradeRequests({
-        page: 1,
-        limit: 5,
-        status: "PENDING",
-      }),
-  });
-
-  const unpaidTuitionQuery = useQuery({
-    queryKey: [QUERY_KEYS.TUITION_FEES, "dashboard-unpaid"],
-    queryFn: () =>
-      tuitionFeeService.getTuitionFees({
-        page: 1,
-        limit: 5,
-        status: "UNPAID",
-      }),
-  });
-
-  const achievementsQuery = useQuery({
-    queryKey: [QUERY_KEYS.ACHIEVEMENTS, "dashboard-total"],
-    queryFn: () => achievementService.getAchievements({ page: 1, limit: 1 }),
-  });
-
-  const pendingRequests = pendingRequestsQuery.data?.data || [];
-  const unpaidTuition = unpaidTuitionQuery.data?.data || [];
-  const recentStudents = recentStudentsQuery.data?.data || [];
-
-  const isLoading =
-    studentsQuery.isLoading ||
-    classesQuery.isLoading ||
-    pendingRequestsQuery.isLoading ||
-    unpaidTuitionQuery.isLoading ||
-    achievementsQuery.isLoading ||
-    recentStudentsQuery.isLoading;
-
-  const hasError =
-    studentsQuery.isError ||
-    classesQuery.isError ||
-    pendingRequestsQuery.isError ||
-    unpaidTuitionQuery.isError ||
-    achievementsQuery.isError ||
-    recentStudentsQuery.isError;
-
-  const refetchAll = () => {
-    studentsQuery.refetch();
-    classesQuery.refetch();
-    pendingRequestsQuery.refetch();
-    unpaidTuitionQuery.refetch();
-    achievementsQuery.refetch();
-    recentStudentsQuery.refetch();
-  };
+  const dashboard = dashboardQuery.data?.data;
 
   const stats = [
     {
       label: "Học viên",
-      value: formatNumber(getTotal(studentsQuery.data)),
+      value: formatNumber(dashboard?.overview.totalStudents),
       helper: "Hồ sơ đang quản lý",
       href: "/commander/profiles",
       icon: HiOutlineIdentification,
@@ -137,23 +71,23 @@ export default function Main() {
     },
     {
       label: "Lớp học",
-      value: formatNumber(getTotal(classesQuery.data)),
+      value: formatNumber(dashboard?.overview.totalClasses),
       helper: "Lớp trong hệ thống",
       href: "/commander/classes",
       icon: HiOutlineViewGrid,
       tone: "sky",
     },
     {
-      label: "Chờ phê duyệt",
-      value: formatNumber(getTotal(pendingRequestsQuery.data)),
+      label: "Chờ duyệt",
+      value: formatNumber(dashboard?.overview.pendingGradeRequests),
       helper: "Đề xuất kết quả học tập",
       href: "/commander/approvals",
       icon: HiOutlineCheckCircle,
       tone: "warning",
     },
     {
-      label: "Chưa nộp học phí",
-      value: formatNumber(getTotal(unpaidTuitionQuery.data)),
+      label: "Chưa nộp phí",
+      value: formatNumber(dashboard?.overview.unpaidTuitionRecords),
       helper: "Bản ghi cần theo dõi",
       href: "/commander/tuition",
       icon: HiOutlineCash,
@@ -161,11 +95,19 @@ export default function Main() {
     },
     {
       label: "Thành tích",
-      value: formatNumber(getTotal(achievementsQuery.data)),
+      value: formatNumber(dashboard?.overview.totalAchievements),
       helper: "Khen thưởng đã ghi nhận",
       href: "/commander/achievements",
       icon: HiOutlineBadgeCheck,
       tone: "success",
+    },
+    {
+      label: "Rủi ro",
+      value: formatNumber(dashboard?.overview.atRiskStudents),
+      helper: "Học viên cần chú ý",
+      href: "/commander/profiles",
+      icon: HiOutlineExclamation,
+      tone: "neutral",
     },
   ] satisfies Array<{
     label: string;
@@ -180,29 +122,77 @@ export default function Main() {
     <PageContainer
       breadcrumb={[{ label: "Tổng quan" }]}
       title="Tổng quan hệ thống"
-      subtitle="Tóm tắt nhanh tình hình học viên, đề xuất, học phí và dữ liệu quản lý trong ngày."
-      isLoading={isLoading}
+      subtitle="Thống kê nhanh tình hình học viên, học phí, học tập và thành tích."
+      isLoading={dashboardQuery.isLoading}
       skeleton={<DashboardSkeleton />}
-      isError={hasError}
-      onRetry={refetchAll}
+      isError={dashboardQuery.isError}
+      onRetry={dashboardQuery.refetch}
       className="space-y-8"
     >
       <div className="space-y-8">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
           {stats.map((item) => (
             <StatCard key={item.label} {...item} />
           ))}
         </div>
 
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_0.9fr]">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1fr]">
+          <Panel title="Học lực theo năm">
+            <HorizontalBars data={dashboard?.charts.academicStatus || []} />
+          </Panel>
+          <Panel title="Trạng thái học phí">
+            <DonutChart data={dashboard?.charts.tuitionStatus || []} />
+          </Panel>
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <Panel title="Học viên theo đơn vị">
+            <HorizontalBars data={dashboard?.charts.studentsByUnit || []} />
+          </Panel>
+          <Panel title="Đề xuất điểm">
+            <VerticalBars data={dashboard?.charts.gradeRequests || []} />
+          </Panel>
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <Panel
+            title="Học viên cần chú ý"
+            href="/commander/profiles"
+            actionLabel="Xem hồ sơ"
+          >
+            <div className="space-y-3">
+              {dashboard?.alerts.riskStudents.length ? (
+                dashboard.alerts.riskStudents.map((student) => (
+                  <RiskStudentItem key={student.id} student={student} />
+                ))
+              ) : (
+                <EmptyLine
+                  icon={HiOutlineCheckCircle}
+                  title="Chưa có cảnh báo học viên"
+                  description="Các cảnh báo học tập và học phí sẽ xuất hiện tại đây."
+                />
+              )}
+            </div>
+          </Panel>
+
+          <Panel
+            title="Thành tích theo năm"
+            href="/commander/achievements"
+            actionLabel="Xem thành tích"
+          >
+            <VerticalBars data={dashboard?.charts.achievementsByYear || []} />
+          </Panel>
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <Panel
             title="Đề xuất cần xử lý"
             href="/commander/approvals"
             actionLabel="Xem tất cả"
           >
             <div className="space-y-3">
-              {pendingRequests.length ? (
-                pendingRequests.map((request) => (
+              {dashboard?.alerts.pendingRequests.length ? (
+                dashboard.alerts.pendingRequests.map((request) => (
                   <PendingRequestItem key={request.id} request={request} />
                 ))
               ) : (
@@ -215,45 +205,14 @@ export default function Main() {
             </div>
           </Panel>
 
-          <Panel title="Tác vụ nhanh">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <QuickAction
-                href="/commander/profiles"
-                icon={HiOutlineIdentification}
-                label="Hồ sơ học viên"
-                description="Tra cứu và cập nhật hồ sơ"
-              />
-              <QuickAction
-                href="/commander/achievements"
-                icon={HiOutlineBadgeCheck}
-                label="Quản lý thành tích"
-                description="Ghi nhận khen thưởng"
-              />
-              <QuickAction
-                href="/commander/schedules"
-                icon={HiOutlineClipboardList}
-                label="Lịch học & cắt cơm"
-                description="Theo dõi lịch trong tuần"
-              />
-              <QuickAction
-                href="/commander/universities"
-                icon={HiOutlineOfficeBuilding}
-                label="Cơ sở đào tạo"
-                description="Trường, ngành và trình độ"
-              />
-            </div>
-          </Panel>
-        </section>
-
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <Panel
             title="Học phí chưa thanh toán"
             href="/commander/tuition"
             actionLabel="Quản lý học phí"
           >
             <div className="space-y-3">
-              {unpaidTuition.length ? (
-                unpaidTuition.map((item) => (
+              {dashboard?.alerts.unpaidTuition.length ? (
+                dashboard.alerts.unpaidTuition.map((item) => (
                   <TuitionItem key={item.id} tuition={item} />
                 ))
               ) : (
@@ -272,8 +231,8 @@ export default function Main() {
             actionLabel="Xem hồ sơ"
           >
             <div className="space-y-3">
-              {recentStudents.length ? (
-                recentStudents.map((student) => (
+              {dashboard?.recent.students.length ? (
+                dashboard.recent.students.map((student) => (
                   <StudentItem key={student.id} student={student} />
                 ))
               ) : (
@@ -357,44 +316,204 @@ const Panel = ({
   </section>
 );
 
-const PendingRequestItem = ({ request }: { request: GradeRequest }) => (
+const HorizontalBars = ({ data }: { data: DashboardChartItem[] }) => {
+  const max = Math.max(...data.map((item) => item.value), 1);
+  if (!data.length) {
+    return (
+      <EmptyLine
+        icon={HiOutlineChartBar}
+        title="Chưa có dữ liệu"
+        description="Dữ liệu thống kê sẽ được hiển thị khi có bản ghi."
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {data.map((item) => {
+        const width = Math.max(6, Math.round((item.value / max) * 100));
+        return (
+          <div key={item.label} className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <Typography variant="caption" weight="semibold" color="neutral">
+                {item.label}
+              </Typography>
+              <Typography variant="caption" weight="bold" color="gray">
+                {formatNumber(item.value)}
+              </Typography>
+            </div>
+            <div className="h-3 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+              <div
+                className="h-full rounded-full bg-primary-500"
+                style={{ width: `${width}%` }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const VerticalBars = ({ data }: { data: DashboardChartItem[] }) => {
+  const max = Math.max(...data.map((item) => item.value), 1);
+  if (!data.length) {
+    return (
+      <EmptyLine
+        icon={HiOutlineChartBar}
+        title="Chưa có dữ liệu"
+        description="Dữ liệu thống kê sẽ được hiển thị khi có bản ghi."
+      />
+    );
+  }
+
+  return (
+    <div className="flex h-64 items-end gap-3 overflow-x-auto pt-6">
+      {data.map((item) => {
+        const height = Math.max(18, Math.round((item.value / max) * 190));
+        return (
+          <div key={item.label} className="flex min-w-20 flex-1 flex-col items-center gap-2">
+            <Typography variant="caption" weight="bold" color="neutral">
+              {formatNumber(item.value)}
+            </Typography>
+            <div
+              className="w-full rounded-t-xl bg-sky-500"
+              style={{ height }}
+            />
+            <Typography
+              variant="caption"
+              color="gray"
+              className="line-clamp-2 min-h-9 text-center"
+            >
+              {item.label}
+            </Typography>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const DonutChart = ({ data }: { data: DashboardChartItem[] }) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const paid = data.find((item) => item.label === "Đã nộp")?.value || 0;
+  const paidPercent = total ? Math.round((paid / total) * 100) : 0;
+
+  if (!data.length) {
+    return (
+      <EmptyLine
+        icon={HiOutlineCash}
+        title="Chưa có dữ liệu"
+        description="Trạng thái học phí sẽ được tổng hợp tại đây."
+      />
+    );
+  }
+
+  return (
+    <div className="grid gap-6 md:grid-cols-[180px_1fr] md:items-center">
+      <div
+        className="mx-auto flex size-44 items-center justify-center rounded-full"
+        style={{
+          background: `conic-gradient(#10b981 0 ${paidPercent}%, #f59e0b ${paidPercent}% 100%)`,
+        }}
+      >
+        <div className="flex size-28 flex-col items-center justify-center rounded-full bg-white dark:bg-neutral-950">
+          <Typography variant="h2" weight="black" color="neutral">
+            {paidPercent}%
+          </Typography>
+          <Typography variant="caption" color="gray">
+            đã nộp
+          </Typography>
+        </div>
+      </div>
+      <div className="space-y-3">
+        {data.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center justify-between gap-4 rounded-xl bg-neutral-50 p-3 dark:bg-neutral-900"
+          >
+            <div>
+              <Typography variant="body" weight="semibold" color="neutral">
+                {item.label}
+              </Typography>
+              <Typography variant="caption" color="gray">
+                {formatCurrency(item.amount || 0)}
+              </Typography>
+            </div>
+            <Badge variant={item.label === "Đã nộp" ? "success" : "warning"}>
+              {formatNumber(item.value)}
+            </Badge>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const RiskStudentItem = ({ student }: { student: DashboardRiskStudent }) => (
+  <Link
+    href="/commander/profiles"
+    className="block rounded-xl border border-amber-100 bg-amber-50/60 p-4 transition-colors hover:border-amber-200 hover:bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/20 dark:hover:border-amber-800"
+  >
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <Typography variant="body" weight="semibold" className="break-words">
+          {student.fullName}
+        </Typography>
+        <Typography variant="caption" color="gray" className="mt-1 block">
+          {student.code || "Chưa có mã"} - CPA:{" "}
+          {student.cpa4 !== null ? Number(student.cpa4).toFixed(2) : "Chưa có"}
+        </Typography>
+      </div>
+      <Badge variant="warning">{student.reasons.length} cảnh báo</Badge>
+    </div>
+    <div className="mt-3 flex flex-wrap gap-2">
+      {student.reasons.map((reason) => (
+        <Badge key={reason} variant="neutral">
+          {reason}
+        </Badge>
+      ))}
+    </div>
+  </Link>
+);
+
+const PendingRequestItem = ({ request }: { request: DashboardGradeRequestAlert }) => (
   <Link
     href="/commander/approvals"
     className="flex items-center justify-between gap-4 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 transition-colors hover:border-primary-200 hover:bg-primary-50/50 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-primary-800 dark:hover:bg-primary-950/20"
   >
     <div className="min-w-0">
       <Typography variant="body" weight="semibold" className="break-words">
-        {request.user?.profile?.fullName || "Chưa có tên học viên"}
+        {request.studentName}
       </Typography>
       <Typography variant="caption" color="gray" className="mt-1 block">
-        {request.subjectResult?.subjectName || "Kết quả học tập"} ·{" "}
-        {formatDate(request.createdAt)}
+        {request.subjectName} - {formatDate(request.createdAt)}
       </Typography>
     </div>
-    <Badge variant={statusMap[request.status].variant}>
-      {statusMap[request.status].label}
-    </Badge>
+    <Badge variant="warning">Chờ duyệt</Badge>
   </Link>
 );
 
-const TuitionItem = ({ tuition }: { tuition: TuitionFee }) => (
+const TuitionItem = ({ tuition }: { tuition: DashboardTuitionAlert }) => (
   <Link
     href="/commander/tuition"
     className="flex items-center justify-between gap-4 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 transition-colors hover:border-error-200 hover:bg-error-50/40 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-error-900 dark:hover:bg-error-950/20"
   >
     <div className="min-w-0">
       <Typography variant="body" weight="semibold" className="break-words">
-        {tuition.user?.profile?.fullName || "Chưa có tên học viên"}
+        {tuition.studentName}
       </Typography>
       <Typography variant="caption" color="gray" className="mt-1 block">
-        {formatSemesterYear(tuition.semester, tuition.schoolYear)}
+        {formatSemesterYear(String(tuition.semester), tuition.schoolYear)}
       </Typography>
     </div>
-    <Badge variant="warning">Chưa nộp</Badge>
+    <Typography variant="caption" weight="bold" className="whitespace-nowrap text-amber-600">
+      {formatCurrency(tuition.amount)}
+    </Typography>
   </Link>
 );
 
-const StudentItem = ({ student }: { student: Student }) => (
+const StudentItem = ({ student }: { student: DashboardRecentStudent }) => (
   <Link
     href="/commander/profiles"
     className="flex items-center justify-between gap-4 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 transition-colors hover:border-sky-200 hover:bg-sky-50/40 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-sky-900 dark:hover:bg-sky-950/20"
@@ -404,42 +523,13 @@ const StudentItem = ({ student }: { student: Student }) => (
         {student.fullName || "Chưa cập nhật"}
       </Typography>
       <Typography variant="caption" color="gray" className="mt-1 block">
-        {student.code || "Chưa có mã"} ·{" "}
-        {student.class?.className || student.unit || "Chưa phân lớp"}
+        {student.code || "Chưa có mã"} -{" "}
+        {student.className || student.unit || "Chưa phân lớp"}
       </Typography>
     </div>
     <Typography variant="caption" color="gray" className="whitespace-nowrap">
       {formatDateTime(student.updatedAt)}
     </Typography>
-  </Link>
-);
-
-const QuickAction = ({
-  href,
-  icon: Icon,
-  label,
-  description,
-}: {
-  href: string;
-  icon: IconType;
-  label: string;
-  description: string;
-}) => (
-  <Link
-    href={href}
-    className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 transition-colors hover:border-primary-200 hover:bg-primary-50/50 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-primary-800 dark:hover:bg-primary-950/20"
-  >
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-primary-600 shadow-sm dark:bg-neutral-950 dark:text-primary-300">
-      <Icon size={20} />
-    </div>
-    <div className="min-w-0">
-      <Typography variant="body" weight="semibold" className="break-words">
-        {label}
-      </Typography>
-      <Typography variant="caption" color="gray">
-        {description}
-      </Typography>
-    </div>
   </Link>
 );
 
@@ -471,18 +561,19 @@ const DashboardSkeleton = () => (
       <Skeleton width={260} height={36} />
       <Skeleton width={520} height={18} />
     </div>
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-      {Array.from({ length: 5 }).map((_, index) => (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
+      {Array.from({ length: 6 }).map((_, index) => (
         <Skeleton key={index} height={142} />
       ))}
     </div>
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_0.9fr]">
-      <Skeleton height={360} />
-      <Skeleton height={360} />
-    </div>
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-      <Skeleton height={320} />
-      <Skeleton height={320} />
+      <Skeleton height={330} />
+      <Skeleton height={330} />
+    </div>
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <Skeleton height={360} />
+      <Skeleton height={360} />
+      <Skeleton height={360} />
     </div>
   </div>
 );

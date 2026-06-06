@@ -1,9 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Cookies from "js-cookie";
 import { m } from "motion/react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -24,6 +22,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useModalStore } from "@/store/useModalStore";
 import ChangePasswordForm from "./ChangePasswordForm";
 import NotificationsPopover from "./NotificationsPopover";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function Header() {
   const { replace } = useRouter();
@@ -42,7 +41,6 @@ export default function Header() {
   const handleToggleTheme = () => {
     const nextTheme = isDarkMode ? THEMES.LIGHT : THEMES.DARK;
     setTheme(nextTheme);
-    Cookies.set("theme", nextTheme, { expires: 365 });
   };
 
   const handleLogout = () => {

@@ -1,7 +1,10 @@
 const router = require('express').Router();
 
 router.use('/auth', require('./auth.route'));
+router.use('/files', require('./file.route'));
 router.use('/', require('./gradeRequest.route'));
+router.use('/admins', require('./adminDashboard.route'));
+router.use('/students', require('./studentDashboard.route'));
 router.use('/commanders', require('./commanderReport.route'));
 router.use('/users', require('./user.route'));
 router.use('/universities', require('./university.route'));

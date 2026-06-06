@@ -158,8 +158,24 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *                               "type": "string"
  *                             },
  *                             "week": {
- *                               "type": "integer",
- *                               "example": 1
+ *                               "oneOf": [
+ *                                 {
+ *                                   "type": "integer",
+ *                                   "example": 1
+ *                                 },
+ *                                 {
+ *                                   "type": "array",
+ *                                   "items": {
+ *                                     "type": "integer"
+ *                                   },
+ *                                   "example": [
+ *                                     1,
+ *                                     2,
+ *                                     3,
+ *                                     4
+ *                                   ]
+ *                                 }
+ *                               ]
  *                             }
  *                           }
  *                         }

@@ -4,7 +4,10 @@ const swaggerSpec = require('../config/swagger');
 
 const routeMounts = {
   'auth.route.js': '/auth',
+  'file.route.js': '/files',
   'gradeRequest.route.js': '',
+  'adminDashboard.route.js': '/admins',
+  'studentDashboard.route.js': '/students',
   'commanderReport.route.js': '/commanders',
   'user.route.js': '/users',
   'university.route.js': '/universities',

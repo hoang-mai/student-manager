@@ -25,6 +25,14 @@ export const authService = {
     return apiClient.put(ENDPOINTS.AUTH.PROFILE, data);
   },
 
+  uploadAvatar: async (file: File): Promise<ApiResponse<{ avatar: string }>> => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+    return apiClient.post(ENDPOINTS.AUTH.AVATAR, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
   register: async (data: CreateUserRequest) => {
     return apiClient.post(ENDPOINTS.AUTH.REGISTER, data);
   },

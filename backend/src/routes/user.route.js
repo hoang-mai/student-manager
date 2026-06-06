@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const controller = require('../controllers/user.controller');
 const { authMiddleware, requireRole, requireStudent, requireAdmin } = require('../middlewares/auth.middleware');
-const { uploadExcel } = require('../middlewares/upload.middleware');
+const { uploadExcel, uploadImage } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -330,12 +330,13 @@ const { uploadExcel } = require('../middlewares/upload.middleware');
  *       "summary": "HV-02: Upload avatar",
  *       "requestBody": {
  *         "content": {
- *           "application/json": {
+ *           "multipart/form-data": {
  *             "schema": {
  *               "type": "object",
  *               "properties": {
  *                 "avatar": {
- *                   "type": "string"
+ *                   "type": "string",
+ *                   "format": "binary"
  *                 }
  *               }
  *             }
@@ -1375,7 +1376,7 @@ router.get('/tuition-fees', requireStudent, controller.getMyTuitionFees);
 // ===================== Profile (cá nhân) =====================
 router.get('/profile', requireRole('STUDENT', 'COMMANDER'), controller.getMyProfile);
 router.put('/profile', requireRole('STUDENT', 'COMMANDER'), controller.updateMyProfile);
-router.post('/avatar', requireRole('STUDENT', 'COMMANDER'), controller.uploadAvatar);
+router.post('/avatar', requireRole('STUDENT', 'COMMANDER'), uploadImage('avatar'), controller.uploadAvatar);
 
 // ===================== Admin/Commander: Quản lý hồ sơ =====================
 router.use(requireRole('ADMIN', 'COMMANDER'));

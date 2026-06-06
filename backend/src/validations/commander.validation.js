@@ -24,7 +24,6 @@ const create = yup.object({
   fullPartyMember: yup.date().nullable(),
   probationaryPartyMember: yup.date().nullable(),
   dateOfEnlistment: yup.date().nullable(),
-  avatar: yup.string().max(255).nullable(),
 });
 
 const update = yup.object({
@@ -50,7 +49,6 @@ const update = yup.object({
   fullPartyMember: yup.date().nullable(),
   probationaryPartyMember: yup.date().nullable(),
   dateOfEnlistment: yup.date().nullable(),
-  avatar: yup.string().max(255).nullable(),
 });
 
 const profileUpdate = yup.object({
@@ -75,7 +73,6 @@ const profileUpdate = yup.object({
   fullPartyMember: yup.date().nullable(),
   probationaryPartyMember: yup.date().nullable(),
   dateOfEnlistment: yup.date().nullable(),
-  avatar: yup.string().max(255).nullable(),
 });
 
 module.exports = { create, update, profileUpdate };
