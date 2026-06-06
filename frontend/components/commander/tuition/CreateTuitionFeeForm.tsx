@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
@@ -26,6 +26,8 @@ import {
   createTuitionFeeSchema,
   CreateTuitionFeeFormValues,
 } from "@/utils/validations";
+import CurrencyInput from "@/library/CurrencyInput";
+import Textarea from "@/library/Textarea";
 
 export default function CreateTuitionFeeForm() {
   const { closeModal } = useModalStore();
@@ -71,7 +73,6 @@ export default function CreateTuitionFeeForm() {
     handleSubmit,
     control,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<CreateTuitionFeeFormValues>({
     resolver: zodResolver(createTuitionFeeSchema),
@@ -84,7 +85,7 @@ export default function CreateTuitionFeeForm() {
       status: "UNPAID",
     },
   });
-  const selectedSchoolYear = watch("schoolYear");
+  const selectedSchoolYear = useWatch({ control, name: "schoolYear" });
 
   const { data: schoolYearsResponse, isLoading: isLoadingSchoolYears } =
     useQuery({
@@ -162,18 +163,42 @@ export default function CreateTuitionFeeForm() {
           />
         )}
       />
-
-      <Input
-        label="Số tiền cần nộp"
-        type="number"
-        placeholder="VD: 2500000"
-        prefixIcon={<HiOutlineCash />}
-        error={errors.totalAmount?.message}
-        isLoading={mutation.isPending}
-        {...register("totalAmount", { valueAsNumber: true })}
-        required
-      />
-
+      <div className="grid gap-4 md:grid-cols-2">
+        <Controller
+          name="totalAmount"
+          control={control}
+          render={({ field }) => (
+            <CurrencyInput
+              label="Số tiền cần nộp"
+              placeholder="VD: 2.500.000"
+              prefixIcon={<HiOutlineCash />}
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.totalAmount?.message}
+              isLoading={mutation.isPending}
+              required
+            />
+          )}
+        />
+        <Controller
+          name="status"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Select
+              label="Trạng thái"
+              error={errors.status?.message}
+              options={[
+                { label: "Chưa thanh toán", value: "UNPAID" },
+                { label: "Đã thanh toán", value: "PAID" },
+              ]}
+              value={value}
+              onChange={(value) => onChange(value)}
+              isLoading={mutation.isPending}
+              required
+            />
+          )}
+        />
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Controller
           name="schoolYear"
@@ -222,7 +247,7 @@ export default function CreateTuitionFeeForm() {
         />
       </div>
 
-      <Input
+      <Textarea
         label="Nội dung"
         placeholder="VD: Học phí học kỳ 1 năm học 2024-2025"
         prefixIcon={<HiOutlineClipboardList />}
@@ -230,25 +255,6 @@ export default function CreateTuitionFeeForm() {
         isLoading={mutation.isPending}
         {...register("content")}
         required
-      />
-
-      <Controller
-        name="status"
-        control={control}
-        render={({ field: { value, onChange } }) => (
-          <Select
-            label="Trạng thái"
-            error={errors.status?.message}
-            options={[
-              { label: "Chưa thanh toán", value: "UNPAID" },
-              { label: "Đã thanh toán", value: "PAID" },
-            ]}
-            value={value}
-            onChange={(value) => onChange(value)}
-            isLoading={mutation.isPending}
-            required
-          />
-        )}
       />
 
       <Divide />

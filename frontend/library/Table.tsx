@@ -73,6 +73,8 @@ export interface TableProps<TData> {
   onBulkUpdate?: () => void;
   /** Nhãn cho nút cập nhật hàng loạt */
   bulkUpdateLabel?: string;
+  /** Các node hành động tùy chỉnh hiển thị trên thanh công cụ (vd: nút xuất báo cáo) */
+  actions?: ReactNode;
 }
 
 const Table = <TData,>({
@@ -97,6 +99,7 @@ const Table = <TData,>({
   addLabel,
   onBulkUpdate,
   bulkUpdateLabel,
+  actions,
 }: TableProps<TData>) => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
@@ -201,6 +204,7 @@ const Table = <TData,>({
         addLabel={addLabel}
         onBulkUpdate={onBulkUpdate}
         bulkUpdateLabel={bulkUpdateLabel}
+        actions={actions}
       />
 
       <DragDropProvider onDragEnd={handleDragEnd}>

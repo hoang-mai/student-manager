@@ -60,7 +60,7 @@ export default function StudentProfileDetail({
       <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50/60 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-800">
         <Avatar src={student.avatar} alt={student.fullName} size={72} />
         <div className="min-w-0">
-          <Typography variant="h2" weight="bold" className="break-words">
+          <Typography variant="h2" weight="bold" className="wrap-break-word">
             {student.fullName || "Chưa cập nhật"}
           </Typography>
           <div className="flex flex-wrap items-center gap-2 mt-2">

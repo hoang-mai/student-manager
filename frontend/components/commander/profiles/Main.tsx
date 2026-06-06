@@ -10,7 +10,7 @@ import Table from "@/library/Table";
 import Typography from "@/library/Typography";
 import useTableQuery from "@/hooks/useTableQuery";
 import { FilterField } from "@/library/table/TableFilter";
-import { GENDER } from "@/constants/constants";
+import { GENDER, RANKS } from "@/constants/constants";
 import { QUERY_KEYS, MUTATION_KEYS } from "@/constants/query-keys";
 import { useModalStore } from "@/store/useModalStore";
 import { userService } from "@/services/user";
@@ -45,10 +45,7 @@ export default function Main() {
       openModal({
         title: "Chi tiết hồ sơ học viên",
         content: (
-          <StudentProfileDetail
-            studentId={student.id}
-            initialData={student}
-          />
+          <StudentProfileDetail studentId={student.id} initialData={student} />
         ),
         size: "xl",
       });
@@ -91,9 +88,9 @@ export default function Main() {
                   variant="body"
                   weight="semibold"
                   color="neutral"
-                  className="break-words"
+                  className="wrap-break-word"
                 >
-                  {student.fullName || "Chưa cập nhật"}
+                  {textOrDash(student.fullName)}
                 </Typography>
                 <Typography variant="caption" color="gray">
                   Mã học viên: {textOrDash(student.code)}
@@ -227,10 +224,19 @@ export default function Main() {
         placeholder: "Nhập đơn vị...",
       },
       {
-        type: "text",
+        type: "select",
         id: "rank",
         label: "Cấp bậc",
-        placeholder: "Nhập cấp bậc...",
+        placeholder: "Chọn cấp bậc...",
+        options: Object.values(RANKS).map((rank) => ({
+          value: rank,
+          label: rank,
+        })),
+        selectFilter: {
+          enabled: true,
+          mode: "client",
+          placeholder: "Tìm kiếm cấp bậc...",
+        },
       },
     ],
     []

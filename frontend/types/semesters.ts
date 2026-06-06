@@ -28,7 +28,7 @@ export interface CreateSchoolYearRequest {
 export interface CreateTermRequest {
   schoolYearId?: string | null;
   schoolYear?: string;
-  term: 1 | 2;
+  term: 1 | 2 | 3;
 }
 
 export interface UpdateSemesterRequest {

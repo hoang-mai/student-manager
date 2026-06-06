@@ -8,6 +8,7 @@ import {
   HiOutlineTrash,
 } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
+import Button from "@/library/Button";
 import PageContainer from "@/library/PageContainer";
 import Table from "@/library/Table";
 import Badge from "@/library/Badge";
@@ -236,9 +237,9 @@ export default function Main() {
         type: "select",
         id: "semester",
         label: "Học kỳ",
-        options: Array.from({ length: 5 }, (_, i) => ({
+        options: Array.from({ length: 3 }, (_, i) => ({
           label: `Học kỳ ${i + 1}`,
-          value: `HK${i + 1}`,
+          value: `${i + 1}`,
         })),
       },
       {
@@ -267,16 +268,6 @@ export default function Main() {
       onRetry={refetch}
     >
       <div className="relative overflow-hidden bg-white transition-colors dark:bg-neutral-950">
-        <div className="mb-4 flex justify-end px-4">
-          <button
-            type="button"
-            onClick={() => exportMutation.mutate()}
-            disabled={exportMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:shadow-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <HiOutlineDocumentDownload /> Xuất báo cáo
-          </button>
-        </div>
         <div className="px-4">
           <Table
             data={tuitionFeesData}
@@ -291,6 +282,17 @@ export default function Main() {
             emptyText="Không tìm thấy bản ghi học phí phù hợp"
             onAdd={handleAdd}
             addLabel="Ghi nhận học phí"
+            actions={
+              <Button
+                type="button"
+                onClick={() => exportMutation.mutate()}
+                isLoading={exportMutation.isPending}
+                icon={HiOutlineDocumentDownload}
+                className="flex items-center gap-2 px-4 py-2 bg-secondary-500 border border-secondary-500 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white hover:bg-secondary-600 hover:border-secondary-600 transition-all shadow-lg shadow-secondary-500/20 cursor-pointer active:scale-95 h-auto"
+              >
+                Xuất báo cáo
+              </Button>
+            }
           />
         </div>
       </div>

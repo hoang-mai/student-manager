@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { Table } from "@tanstack/react-table";
 import { HiOutlineAdjustments, HiOutlineFilter, HiOutlinePlus, HiOutlineUpload } from "react-icons/hi";
 import TableFilter, { FilterField } from "./TableFilter";
@@ -21,6 +22,8 @@ interface TableToolbarProps<TData> {
   onBulkUpdate?: () => void;
   /** Nhãn cho nút cập nhật hàng loạt */
   bulkUpdateLabel?: string;
+  /** Các node hành động tùy chỉnh hiển thị trên thanh công cụ (vd: nút xuất báo cáo) */
+  actions?: ReactNode;
 }
 
 const TableToolbar = <TData,>({
@@ -31,12 +34,15 @@ const TableToolbar = <TData,>({
   addLabel,
   onBulkUpdate,
   bulkUpdateLabel,
+  actions,
 }: TableToolbarProps<TData>) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
     <div className="flex flex-col px-2">
       <div className="flex flex-row items-center justify-end gap-2 mb-4">
+        {actions}
+
         {onBulkUpdate && (
           <Button
             type="button"

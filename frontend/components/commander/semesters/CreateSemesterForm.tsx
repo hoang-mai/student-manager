@@ -57,7 +57,7 @@ export default function CreateSemesterForm({
     mutationFn: (data: CreateSemesterFormValues) =>
       semesterService.createTerm({
         schoolYear: data.schoolYear,
-        term: Number(data.code) as 1 | 2,
+        term: Number(data.code) as 1 | 2 | 3,
       }),
     invalidateQueryKey: [QUERY_KEYS.SEMESTERS],
     successMessage: "Thêm học kỳ thành công!",
@@ -78,7 +78,7 @@ export default function CreateSemesterForm({
             label="Học kỳ"
             placeholder="Chọn học kỳ"
             prefixIcon={<HiOutlineAcademicCap />}
-            options={[1, 2].map((semester) => ({
+            options={[1, 2, 3].map((semester) => ({
               value: String(semester),
               label: `Học kỳ ${semester}`,
             }))}

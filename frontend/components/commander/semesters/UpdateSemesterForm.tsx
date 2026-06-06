@@ -23,7 +23,7 @@ interface Props {
 }
 
 const getTermFromCode = (code: string) => {
-  const match = code.match(/HK([12])$/);
+  const match = code.match(/HK([123])$/);
   return match?.[1] || "";
 };
 
@@ -82,7 +82,7 @@ export default function UpdateSemesterForm({ semester }: Props) {
             label="Học kỳ"
             placeholder="Chọn học kỳ"
             prefixIcon={<HiOutlineAcademicCap />}
-            options={[1, 2].map((semester) => ({
+            options={[1, 2, 3].map((semester) => ({
               value: String(semester),
               label: `Học kỳ ${semester}`,
             }))}

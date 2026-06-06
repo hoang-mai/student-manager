@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { ColumnDef, Row } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import {
   HiOutlineChevronDown,
   HiOutlinePencil,
@@ -195,11 +195,7 @@ export default function Main() {
         cell: (info) => {
           const row = info.row.original;
           if (row.rowType === "schoolYear") {
-            return (
-              <Typography variant="caption" color="gray">
-                Bấm xổ để xem các học kỳ
-              </Typography>
-            );
+            return null;
           }
 
           return (
@@ -251,15 +247,7 @@ export default function Main() {
         cell: (info) => {
           const row = info.row.original;
           if (row.rowType === "schoolYear") {
-            return (
-              <ActionButton
-                tooltipText="Thêm học kỳ vào năm học này"
-                icon={HiOutlineChevronDown}
-                onClick={() => handleAddSemester(row.schoolYear)}
-                color="green"
-                iconClassName="-rotate-90"
-              />
-            );
+            return null;
           }
 
           return (
@@ -291,22 +279,17 @@ export default function Main() {
         },
       },
     ],
-    [deleteMutation, handleAddSemester, handleOpenUpdateModal, openConfirm]
+    [deleteMutation, handleOpenUpdateModal, openConfirm]
   );
 
   const filterOptions = useMemo<FilterField[]>(
     () => [
       {
-        type: "text",
+        type: "date-range",
         id: "schoolYear",
         label: "Năm học",
-        placeholder: "VD: 2024-2025",
-      },
-      {
-        type: "text",
-        id: "code",
-        label: "Mã học kỳ",
-        placeholder: "Nhập mã học kỳ...",
+        mode: "YYYY",
+        maxRange: 1,
       },
     ],
     []
@@ -337,7 +320,6 @@ export default function Main() {
           filterFields={filterOptions}
           emptyText="Không tìm thấy năm học hoặc học kỳ phù hợp"
           getSubRows={(row) => row.subRows}
-          defaultExpanded={{}}
           onBulkUpdate={handleAddSchoolYear}
           bulkUpdateLabel="Thêm năm học"
           onAdd={() => handleAddSemester()}
