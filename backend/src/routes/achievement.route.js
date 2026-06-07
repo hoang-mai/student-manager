@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const controller = require('../controllers/achievement.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const { uploadExcel } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -138,6 +139,98 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       }
  *     }
  *   },
+ *   "/achievements/import": {
+ *     "post": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Nhập thành tích từ Excel",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "multipart/form-data": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "file": {
+ *                   "type": "string",
+ *                   "format": "binary"
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Batch result"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/achievements/template": {
+ *     "get": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Tải file mẫu nhập thành tích",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Excel template"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/achievements/export": {
+ *     "get": {
+ *       "tags": [
+ *         "Achievements"
+ *       ],
+ *       "summary": "Xuất báo cáo thành tích Excel",
+ *       "parameters": [
+ *         {
+ *           "name": "fullName",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "unit",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "schoolYear",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "semester",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "award",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "Excel report"
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/achievements/{id}": {
  *     "get": {
  *       "tags": [
@@ -220,6 +313,9 @@ router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
 router.post('/batch', controller.createBatch);
+router.post('/import', uploadExcel('file'), controller.importExcel);
+router.get('/template', controller.downloadTemplate);
+router.get('/export', controller.exportExcel);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);

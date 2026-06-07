@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const controller = require('../controllers/timeTable.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const { uploadExcel } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -86,6 +87,64 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
  *       "responses": {
  *         "200": {
  *           "description": "OK"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/time-tables/import": {
+ *     "post": {
+ *       "tags": [
+ *         "Time Tables"
+ *       ],
+ *       "summary": "COMMANDER: Nhập thời khóa biểu từ file Excel",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "multipart/form-data": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "file"
+ *               ],
+ *               "properties": {
+ *                 "file": {
+ *                   "type": "string",
+ *                   "format": "binary"
+ *                 }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": {
+ *           "description": "Import result"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/time-tables/template": {
+ *     "get": {
+ *       "tags": [
+ *         "Time Tables"
+ *       ],
+ *       "summary": "Tải file mẫu nhập thời khóa biểu",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Excel template"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/time-tables/export": {
+ *     "get": {
+ *       "tags": [
+ *         "Time Tables"
+ *       ],
+ *       "summary": "Xuất báo cáo thời khóa biểu Excel",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Excel report"
  *         }
  *       }
  *     }
@@ -281,6 +340,9 @@ router.use(requireRole('ADMIN', 'COMMANDER'));
 
 router.post('/', controller.create);
 router.post('/batch', controller.createBatch);
+router.post('/import', uploadExcel('file'), controller.importExcel);
+router.get('/template', controller.downloadTemplate);
+router.get('/export', controller.exportExcel);
 router.get('/', controller.getAll);
 router.get('/report', controller.getReport);
 router.get('/:id', controller.getDetail);

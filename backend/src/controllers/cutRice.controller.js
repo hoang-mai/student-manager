@@ -30,6 +30,18 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
+const importExcel = asyncHandler(async (req, res) => {
+  const result = await service.importExcel(req.file);
+  return success(res, result, 'Nhập lịch cắt cơm từ Excel thành công', 201);
+});
+
+const downloadTemplate = asyncHandler(async (req, res) => {
+  const buffer = await service.createImportTemplate();
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=mau-nhap-lich-cat-com.xlsx');
+  return res.send(buffer);
+});
+
 const exportCutRice = asyncHandler(async (req, res) => {
   const buffer = await service.exportCutRice(req.query);
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -37,4 +49,13 @@ const exportCutRice = asyncHandler(async (req, res) => {
   res.send(buffer);
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord, exportCutRice };
+module.exports = {
+  create,
+  getAll,
+  getDetail,
+  update,
+  delete: deleteRecord,
+  importExcel,
+  downloadTemplate,
+  exportCutRice,
+};

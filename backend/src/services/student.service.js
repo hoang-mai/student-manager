@@ -12,6 +12,7 @@ const SemesterResult = db.semesterResult;
 const SubjectResult = db.subjectResult;
 const TimeTable = db.timeTable;
 const CutRice = db.cutRice;
+const User = db.user;
 const Achievement = db.achievement;
 const AchievementProfile = db.achievementProfile;
 const YearlyAchievement = db.yearlyAchievement;
@@ -318,9 +319,11 @@ const deleteMyTimeTable = async (userId, id) => {
 // ===================== HV-07: Cut Rice =====================
 
 const getMyCutRice = async (userId) => {
-  let record = await CutRice.findOne({ where: { userId } });
+  const include = [{ model: User, include: [{ model: Student }] }];
+  let record = await CutRice.findOne({ where: { userId }, include });
   if (!record) {
     record = await CutRice.create({ userId, weekly: {} });
+    record = await CutRice.findOne({ where: { userId }, include });
   }
   return record;
 };

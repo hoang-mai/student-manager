@@ -15,6 +15,27 @@ const createBatch = asyncHandler(async (req, res) => {
   return success(res, result, 'Nhập thành tích hàng loạt thành công', 201);
 });
 
+const importExcel = asyncHandler(async (req, res) => {
+  const data = await service.parseExcelImport(req.file);
+  await validateOrThrow(s.batch, data);
+  const result = await service.createBatch(data);
+  return success(res, result, 'Nhập thành tích từ Excel thành công', 201);
+});
+
+const downloadTemplate = asyncHandler(async (req, res) => {
+  const buffer = await service.createImportTemplate();
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=mau-nhap-thanh-tich.xlsx');
+  return res.send(buffer);
+});
+
+const exportExcel = asyncHandler(async (req, res) => {
+  const buffer = await service.exportExcel(req.query);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=bao-cao-thanh-tich.xlsx');
+  return res.send(buffer);
+});
+
 const getAll = asyncHandler(async (req, res) => {
   const result = await service.getAll(req.query);
   return paginated(res, result.rows, result.pagination);
@@ -36,4 +57,4 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, createBatch, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, createBatch, importExcel, downloadTemplate, exportExcel, getAll, getDetail, update, delete: deleteRecord };

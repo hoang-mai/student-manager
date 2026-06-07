@@ -56,6 +56,9 @@ export const ENDPOINTS = {
   TIME_TABLES: {
     BASE: "/api/time-tables",
     REPORT: "/api/time-tables/report",
+    IMPORT: "/api/time-tables/import",
+    TEMPLATE: "/api/time-tables/template",
+    EXPORT: "/api/time-tables/export",
     TIME_TABLE: "/api/users/time-table",
   },
   TUITION_FEES: {
@@ -67,6 +70,8 @@ export const ENDPOINTS = {
   CUT_RICE: {
     BASE: "/api/cut-rice",
     MY: "/api/users/cut-rice",
+    IMPORT: "/api/cut-rice/import",
+    TEMPLATE: "/api/cut-rice/template",
     EXPORT: "/api/cut-rice/export",
     GENERATE: (userId: string | number) =>
       `/api/users/cut-rice/generate/${userId}`,
@@ -80,6 +85,9 @@ export const ENDPOINTS = {
   },
   ACHIEVEMENTS: {
     BASE: "/api/achievements",
+    IMPORT: "/api/achievements/import",
+    TEMPLATE: "/api/achievements/template",
+    EXPORT: "/api/achievements/export",
     MY: "/api/users/achievements",
   },
   YEARLY_ACHIEVEMENTS: {

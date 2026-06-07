@@ -45,7 +45,7 @@ const batch = yup.object({
   items: yup.array()
     .of(batchItem)
     .min(1, 'Danh sách thời khóa biểu không được rỗng')
-    .test(uniqueBy((item) => item?.studentCode, 'Mã học viên trong batch không được trùng'))
+    .test(uniqueBy((item) => `${item?.studentCode || ''}-${item?.semesterId || ''}`, 'Mã học viên trong cùng học kỳ không được trùng'))
     .required('Danh sách thời khóa biểu là bắt buộc'),
 });
 

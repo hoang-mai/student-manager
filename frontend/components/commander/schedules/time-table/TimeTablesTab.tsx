@@ -3,9 +3,16 @@
 import { useCallback, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useQuery } from "@tanstack/react-query";
-import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import {
+  HiOutlineDocumentDownload,
+  HiOutlineEye,
+  HiOutlinePencil,
+  HiOutlineTrash,
+  HiOutlineUpload,
+} from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Badge from "@/library/Badge";
+import Button from "@/library/Button";
 import ErrorState from "@/library/ErrorState";
 import Table from "@/library/Table";
 import Typography from "@/library/Typography";
@@ -17,10 +24,11 @@ import { timeTableService } from "@/services/time-tables";
 import { semesterService } from "@/services/semesters";
 import { useConfirmStore } from "@/store/useConfirmStore";
 import { useModalStore } from "@/store/useModalStore";
-import { formatDateTime, formatSemesterYear } from "@/utils/fn-common";
-import { TimeTable } from "@/types/time-tables";
+import { downloadBlob, formatDateTime, formatSemesterYear } from "@/utils/fn-common";
+import { TimeTable, TimeTableQueryRequest } from "@/types/time-tables";
 
 import CreateTimeTableForm from "./CreateTimeTableForm";
+import ImportTimeTablesForm from "./ImportTimeTablesForm";
 import TimeTableCalendar from "./DetailTimeTable";
 import UpdateTimeTableForm from "./UpdateTimeTableForm";
 import TimeTablesSkeleton from "./TimeTablesSkeleton";
@@ -55,6 +63,28 @@ export default function TimeTablesTab() {
     errorMessage: "Xóa lịch học thất bại!",
   });
 
+  const exportMutation = useAppMutation({
+    mutationKey: [QUERY_KEYS.TIME_TABLES, "export"],
+    mutationFn: () => {
+      const filterParams = columnFilters.reduce(
+        (acc, filter) => {
+          acc[filter.id] = filter.value;
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
+
+      return timeTableService.exportTimeTables({
+        ...filterParams,
+        sortBy: sorting[0]?.id,
+        sortOrder: sorting[0]?.desc ? "desc" : "asc",
+      } as TimeTableQueryRequest);
+    },
+    successMessage: "Xuất báo cáo thành công!",
+    errorMessage: "Xuất báo cáo thất bại!",
+    onSuccess: (blob) => downloadBlob(blob, "bao-cao-thoi-khoa-bieu.xlsx"),
+  });
+
   const handleAddTimeTable = () =>
     openModal({
       title: "Nhập lịch học",
@@ -62,6 +92,15 @@ export default function TimeTablesTab() {
       size: "2xl",
       config: { mutationKey: MUTATION_KEYS.CREATE_TIME_TABLE },
     });
+
+  const handleImportTimeTables = useCallback(() => {
+    openModal({
+      title: "Nhập thời khóa biểu từ Excel",
+      content: <ImportTimeTablesForm />,
+      size: "md",
+      config: { mutationKey: [QUERY_KEYS.TIME_TABLES, "import"] },
+    });
+  }, [openModal]);
 
   const handleEditTimeTable = useCallback(
     (timeTable: TimeTable) =>
@@ -294,6 +333,27 @@ export default function TimeTablesTab() {
       emptyText="Không tìm thấy lịch học"
       onAdd={handleAddTimeTable}
       addLabel="Nhập lịch học"
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            onClick={handleImportTimeTables}
+            icon={HiOutlineUpload}
+            className="flex h-auto items-center gap-2 rounded-xl border border-primary-600 bg-primary-600 px-4 py-2 text-[11px]! font-black! uppercase tracking-wider text-white shadow-lg shadow-primary-500/20 transition-all hover:border-primary-700 hover:bg-primary-700 active:scale-95"
+          >
+            Nhập Excel
+          </Button>
+          <Button
+            type="button"
+            onClick={() => exportMutation.mutate()}
+            isLoading={exportMutation.isPending}
+            icon={HiOutlineDocumentDownload}
+            className="flex h-auto items-center gap-2 rounded-xl border border-secondary-500 bg-secondary-500 px-4 py-2 text-[11px]! font-black! uppercase tracking-wider text-white shadow-lg shadow-secondary-500/20 transition-all hover:border-secondary-600 hover:bg-secondary-600 active:scale-95"
+          >
+            Xuất báo cáo
+          </Button>
+        </div>
+      }
     />
   );
 }

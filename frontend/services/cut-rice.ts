@@ -42,6 +42,20 @@ export const cutRiceService = {
     return apiClient.post(ENDPOINTS.CUT_RICE.GENERATE_ALL);
   },
 
+  importExcel: async (file: File): Promise<ApiResponse<BatchMutationResult>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post(ENDPOINTS.CUT_RICE.IMPORT, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  downloadImportTemplate: async (): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.CUT_RICE.TEMPLATE, {
+      responseType: "blob",
+    });
+  },
+
   exportExcel: async (params?: CutRiceQueryRequest): Promise<Blob> => {
     return apiClient.get(ENDPOINTS.CUT_RICE.EXPORT, {
       params,

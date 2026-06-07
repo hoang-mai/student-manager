@@ -78,6 +78,29 @@ export const timeTableService = {
     return apiClient.delete(`${ENDPOINTS.TIME_TABLES.BASE}/${id}`);
   },
 
+  importTimeTables: async (
+    file: File
+  ): Promise<ApiResponse<BatchMutationResult>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post(ENDPOINTS.TIME_TABLES.IMPORT, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  downloadImportTemplate: async (): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.TIME_TABLES.TEMPLATE, {
+      responseType: "blob",
+    });
+  },
+
+  exportTimeTables: async (params?: TimeTableQueryRequest): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.TIME_TABLES.EXPORT, {
+      params,
+      responseType: "blob",
+    });
+  },
+
   getReport: async (): Promise<TimeTableReport> => {
     return apiClient.get(ENDPOINTS.TIME_TABLES.REPORT);
   },

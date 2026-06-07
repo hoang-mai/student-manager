@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { HiOutlineDownload, HiOutlineRefresh } from "react-icons/hi";
+import { HiOutlineDownload, HiOutlinePencil, HiOutlineRefresh, HiOutlineUpload } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Badge from "@/library/Badge";
 import Button from "@/library/Button";
@@ -17,13 +17,28 @@ import { cutRiceService } from "@/services/cut-rice";
 import { downloadBlob, formatDateTime } from "@/utils/fn-common";
 import { CutRice, CutRiceQueryRequest } from "@/types/cut-rice";
 import CutRiceSkeleton from "./CutRiceSkeleton";
+import EditCutRiceForm from "./EditCutRiceForm";
+import ImportCutRiceForm from "./ImportCutRiceForm";
+import { useModalStore } from "@/store/useModalStore";
 
 const mealDays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
 
+const getCutRiceUser = (record: CutRice) => record.User || record.user;
+const getCutRiceProfile = (record: CutRice) => {
+  const user = getCutRiceUser(record);
+  return user?.Profile || user?.profile;
+};
 const getStudentName = (record: CutRice) =>
-  record.User?.Profile?.fullName || record.User?.username || record.userId;
+  getCutRiceProfile(record)?.fullName ||
+  getCutRiceUser(record)?.username ||
+  record.userId;
+const getSlot = (record: CutRice, day: string) => {
+  const weekly = record.weekly || {};
+  return weekly[day] || weekly[day.toLowerCase()] || {};
+};
 
 export default function CutRiceTab() {
+  const { openModal } = useModalStore();
   const cutRice = useTableQuery<CutRice>({
     queryKey: [QUERY_KEYS.CUT_RICE],
     fetchData: cutRiceService.getCutRiceList,
@@ -67,6 +82,15 @@ export default function CutRiceTab() {
     onSuccess: (blob) => downloadBlob(blob, "lich-cat-com.xlsx"),
   });
 
+  const handleImport = () => {
+    openModal({
+      title: "Nhập lịch cắt cơm từ Excel",
+      content: <ImportCutRiceForm />,
+      size: "md",
+      config: { mutationKey: [QUERY_KEYS.CUT_RICE, "import"] },
+    });
+  };
+
   const columns = useMemo<ColumnDef<CutRice>[]>(
     () => [
       {
@@ -79,7 +103,9 @@ export default function CutRiceTab() {
               {getStudentName(info.row.original)}
             </Typography>
             <Typography variant="caption" color="gray">
-              {info.row.original.User?.Profile?.unit || info.row.original.userId}
+              {getCutRiceProfile(info.row.original)?.code ||
+                getCutRiceProfile(info.row.original)?.unit ||
+                info.row.original.userId}
             </Typography>
           </div>
         ),
@@ -98,19 +124,34 @@ export default function CutRiceTab() {
         header: "Lịch cắt",
         cell: (info) => (
           <div className="flex max-w-xl flex-wrap gap-1">
-            {mealDays.map((day) => {
-              const slot = info.row.original.weekly?.[day] || {};
+            {mealDays.some((day) => {
+              const slot = getSlot(info.row.original, day);
+              return slot.morning || slot.noon || slot.evening;
+            }) ? mealDays.map((day) => {
+              const slot = getSlot(info.row.original, day);
               const count = Number(!!slot.morning) + Number(!!slot.noon) + Number(!!slot.evening);
               return count ? (
                 <Badge key={day} variant="secondary">
                   {day}: {count}/3
                 </Badge>
               ) : null;
-            })}
+            }) : (
+              <Typography variant="caption" color="gray">
+                Chưa có lịch cắt
+              </Typography>
+            )}
           </div>
         ),
       },
-      { id: "notes", header: "Ghi chú", accessorKey: "notes" },
+      {
+        id: "notes",
+        header: "Ghi chú",
+        cell: (info) => (
+          <Typography variant="caption" color="gray">
+            {info.row.original.notes || "Không có ghi chú"}
+          </Typography>
+        ),
+      },
       {
         id: "updatedAt",
         header: "Cập nhật",
@@ -122,18 +163,35 @@ export default function CutRiceTab() {
       },
       {
         id: "actions",
-        header: "Tự động",
-        cell: (info) => (
-          <ActionButton
-            tooltipText="Tạo lại tự động"
-            icon={HiOutlineRefresh}
-            color="green"
-            onClick={() => generateOneMutation.mutate(info.row.original.userId)}
-          />
-        ),
+        header: "Thao tác",
+        cell: (info) => {
+          const record = info.row.original;
+          return (
+            <div className="flex items-center gap-1">
+              <ActionButton
+                tooltipText="Chỉnh thủ công"
+                icon={HiOutlinePencil}
+                color="blue"
+                onClick={() =>
+                  openModal({
+                    title: "Chỉnh lịch cắt cơm",
+                    content: <EditCutRiceForm record={record} />,
+                    size: "xl",
+                  })
+                }
+              />
+              <ActionButton
+                tooltipText="Tạo lại tự động"
+                icon={HiOutlineRefresh}
+                color="green"
+                onClick={() => generateOneMutation.mutate(record.userId)}
+              />
+            </div>
+          );
+        },
       },
     ],
-    [generateOneMutation]
+    [generateOneMutation, openModal]
   );
 
   const filterOptions = useMemo<FilterField[]>(
@@ -169,6 +227,12 @@ export default function CutRiceTab() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap justify-end gap-3">
+        <Button
+          variant="secondary"
+          onClick={handleImport}
+        >
+          <HiOutlineUpload /> Nhập Excel
+        </Button>
         <Button
           variant="secondary"
           onClick={() => exportMutation.mutate()}

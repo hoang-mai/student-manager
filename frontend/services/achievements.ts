@@ -21,6 +21,31 @@ export const achievementService = {
     return apiClient.post(ENDPOINTS.ACHIEVEMENTS.BASE, data);
   },
 
+  importAchievements: async (
+    file: File
+  ): Promise<ApiResponse<BatchMutationResult>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post(ENDPOINTS.ACHIEVEMENTS.IMPORT, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  downloadImportTemplate: async (): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.ACHIEVEMENTS.TEMPLATE, {
+      responseType: "blob",
+    });
+  },
+
+  exportAchievements: async (
+    params?: AchievementQueryRequest
+  ): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.ACHIEVEMENTS.EXPORT, {
+      params,
+      responseType: "blob",
+    });
+  },
+
   updateAchievement: async (id: string, data: UpdateAchievementRequest) => {
     return apiClient.put(`${ENDPOINTS.ACHIEVEMENTS.BASE}/${id}`, data);
   },

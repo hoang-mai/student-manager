@@ -30,6 +30,7 @@ export interface CutRiceUser {
   email?: string;
   role?: string;
   Profile?: CutRiceProfile;
+  profile?: CutRiceProfile;
 }
 
 export interface CutRice {
@@ -40,6 +41,7 @@ export interface CutRice {
   lastUpdated: string | null;
   notes?: string | null;
   User?: CutRiceUser;
+  user?: CutRiceUser;
   createdAt: string;
   updatedAt: string;
 }
