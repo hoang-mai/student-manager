@@ -1,12 +1,14 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
+  AssignStudentsRequest,
   AssignStudentsBatchRequest,
   Class,
   ClassQueryRequest,
   CreateClassRequest,
   UpdateClassRequest,
 } from "@/types/classes";
+import { Student, StudentProfileQueryRequest } from "@/types/user";
 
 export const classService = {
   getClasses: async (
@@ -32,10 +34,28 @@ export const classService = {
     return apiClient.delete(`${ENDPOINTS.CLASSES.BASE}/${id}`);
   },
 
+  getClassStudents: async (
+    id: string,
+    params?: StudentProfileQueryRequest
+  ): Promise<PaginatedResponse<Student>> => {
+    return apiClient.get(ENDPOINTS.CLASSES.STUDENTS(id), { params });
+  },
+
   assignStudentsBatch: async (
     id: string,
     data: AssignStudentsBatchRequest
   ): Promise<ApiResponse<BatchMutationResult>> => {
     return apiClient.post(ENDPOINTS.CLASSES.ASSIGN_STUDENTS_BATCH(id), data);
+  },
+
+  assignStudents: async (
+    id: string,
+    data: AssignStudentsRequest
+  ): Promise<ApiResponse<BatchMutationResult>> => {
+    return apiClient.post(ENDPOINTS.CLASSES.STUDENTS(id), data);
+  },
+
+  removeStudent: async (id: string, userId: string) => {
+    return apiClient.delete(ENDPOINTS.CLASSES.STUDENT_DETAIL(id, userId));
   },
 };

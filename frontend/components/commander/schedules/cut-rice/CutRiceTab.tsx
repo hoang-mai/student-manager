@@ -14,8 +14,8 @@ import useAppMutation from "@/hooks/useAppMutation";
 import useTableQuery from "@/hooks/useTableQuery";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { cutRiceService } from "@/services/cut-rice";
-import { formatDateTime } from "@/utils/fn-common";
-import { CutRice } from "@/types/cut-rice";
+import { downloadBlob, formatDateTime } from "@/utils/fn-common";
+import { CutRice, CutRiceQueryRequest } from "@/types/cut-rice";
 import CutRiceSkeleton from "./CutRiceSkeleton";
 
 const mealDays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
@@ -43,6 +43,28 @@ export default function CutRiceTab() {
     invalidateQueryKey: [QUERY_KEYS.CUT_RICE],
     successMessage: "Tạo lại lịch cắt cơm thành công!",
     errorMessage: "Tạo lại lịch cắt cơm thất bại!",
+  });
+
+  const exportMutation = useAppMutation({
+    mutationKey: [QUERY_KEYS.CUT_RICE, "export"],
+    mutationFn: () => {
+      const filterParams = cutRice.columnFilters.reduce(
+        (acc, filter) => {
+          acc[filter.id] = filter.value;
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
+
+      return cutRiceService.exportExcel({
+        ...filterParams,
+        sortBy: cutRice.sorting[0]?.id,
+        sortOrder: cutRice.sorting[0]?.desc ? "desc" : "asc",
+      } as CutRiceQueryRequest);
+    },
+    successMessage: "Xuất Excel thành công!",
+    errorMessage: "Xuất Excel thất bại!",
+    onSuccess: (blob) => downloadBlob(blob, "lich-cat-com.xlsx"),
   });
 
   const columns = useMemo<ColumnDef<CutRice>[]>(
@@ -132,10 +154,6 @@ export default function CutRiceTab() {
     []
   );
 
-  const exportExcel = () => {
-    window.open(`${process.env.NEXT_PUBLIC_API_URL}/api/cut-rice/export`, "_blank");
-  };
-
   if (cutRice.isLoading) return <CutRiceSkeleton />;
 
   if (cutRice.isError) {
@@ -151,7 +169,11 @@ export default function CutRiceTab() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap justify-end gap-3">
-        <Button variant="secondary" onClick={exportExcel}>
+        <Button
+          variant="secondary"
+          onClick={() => exportMutation.mutate()}
+          isLoading={exportMutation.isPending}
+        >
           <HiOutlineDownload /> Xuất Excel
         </Button>
         <Button

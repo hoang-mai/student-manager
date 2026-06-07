@@ -50,21 +50,6 @@ export interface CreateAchievementRequest {
 
 export type UpdateAchievementRequest = CreateAchievementRequest;
 
-export interface BatchAchievementItem {
-  studentCode: string;
-  semester?: string | null;
-  schoolYear?: string | null;
-  content?: string | null;
-  year?: number | null;
-  title?: string | null;
-  description?: string | null;
-  award?: string | null;
-}
-
-export interface BatchAchievementRequest {
-  items: BatchAchievementItem[];
-}
-
 export interface AchievementProfile {
   id: string;
   userId: string;

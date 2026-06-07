@@ -66,6 +66,21 @@ const normalizeRole = (value) => {
   return roleMap[role] || role || 'STUDENT';
 };
 
+const normalizeGender = (value) => {
+  const gender = String(value || '').trim().toUpperCase();
+  const genderMap = {
+    NAM: 'MALE',
+    MALE: 'MALE',
+    'NỮ': 'FEMALE',
+    NU: 'FEMALE',
+    FEMALE: 'FEMALE',
+    KHAC: 'OTHER',
+    KHÁC: 'OTHER',
+    OTHER: 'OTHER',
+  };
+  return genderMap[gender] || toText(value);
+};
+
 const _checkRoleHierarchy = (requester, targetRole) => {
   if (!requester) return;
   if (requester.role === 'COMMANDER' && (targetRole === 'ADMIN' || targetRole === 'COMMANDER')) {
@@ -146,6 +161,99 @@ const getAll = async (query) => {
       },
     ],
   });
+};
+
+const exportUsers = async (query = {}) => {
+  const where = {};
+  const profileWhere = {};
+
+  if (query.username) where.username = { [db.Sequelize.Op.iLike]: `%${query.username}%` };
+  if (query.role) where.role = query.role;
+  if (query.isActive !== undefined && query.isActive !== '') {
+    where.isActive = String(query.isActive) === 'true';
+  }
+  if (query.code) profileWhere.code = query.code;
+  if (query.fullName) profileWhere.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
+
+  const orderFieldMap = {
+    username: 'username',
+    role: 'role',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+  };
+  const sortField = orderFieldMap[query.sortBy] || 'createdAt';
+  const sortOrder = query.sortOrder === 'asc' ? 'ASC' : 'DESC';
+
+  const users = await User.findAll({
+    where,
+    include: [
+      {
+        model: Profile,
+        ...(Object.keys(profileWhere).length > 0 ? { where: profileWhere, required: true } : {}),
+        include: [
+          { model: db.university },
+          { model: db.class },
+          { model: db.organization },
+          { model: db.educationLevel },
+        ],
+      },
+    ],
+    order: [[sortField, sortOrder]],
+  });
+
+  const ExcelJS = require('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Tai khoan');
+
+  worksheet.columns = [
+    { header: 'Tên đăng nhập', key: 'username', width: 22 },
+    { header: 'Vai trò', key: 'role', width: 16 },
+    { header: 'Trạng thái', key: 'isActive', width: 18 },
+    { header: 'Mã', key: 'code', width: 16 },
+    { header: 'Họ và tên', key: 'fullName', width: 28 },
+    { header: 'Email', key: 'email', width: 28 },
+    { header: 'Số điện thoại', key: 'phoneNumber', width: 18 },
+    { header: 'Đơn vị', key: 'unit', width: 22 },
+    { header: 'Cấp bậc', key: 'rank', width: 16 },
+    { header: 'Lớp', key: 'className', width: 22 },
+    { header: 'Khoa/Ngành', key: 'organizationName', width: 26 },
+    { header: 'Trường đại học', key: 'universityName', width: 28 },
+    { header: 'Ngày tạo', key: 'createdAt', width: 22 },
+    { header: 'Ngày cập nhật', key: 'updatedAt', width: 22 },
+  ];
+
+  for (const user of users) {
+    const plain = user.get({ plain: true });
+    const profile = plain.Profile || {};
+    worksheet.addRow({
+      username: plain.username,
+      role: plain.role,
+      isActive: plain.isActive ? 'Đang hoạt động' : 'Đã khóa',
+      code: profile.code || '',
+      fullName: profile.fullName || '',
+      email: profile.email || '',
+      phoneNumber: profile.phoneNumber || '',
+      unit: profile.unit || '',
+      rank: profile.rank || '',
+      className: profile.Class?.className || '',
+      organizationName: profile.Organization?.organizationName || '',
+      universityName: profile.University?.universityName || '',
+      createdAt: plain.createdAt,
+      updatedAt: plain.updatedAt,
+    });
+  }
+
+  worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  worksheet.getRow(1).fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF4472C4' },
+  };
+  worksheet.getColumn('createdAt').numFmt = 'dd/mm/yyyy hh:mm:ss';
+  worksheet.getColumn('updatedAt').numFmt = 'dd/mm/yyyy hh:mm:ss';
+
+  return workbook.xlsx.writeBuffer();
 };
 
 const getDetail = async (id) => {
@@ -362,6 +470,77 @@ const createImportTemplate = async () => {
   return workbook.xlsx.writeBuffer();
 };
 
+const createBatchProfileUpdateTemplate = async () => {
+  const ExcelJS = require('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Cap nhat hoc vien');
+
+  worksheet.columns = [
+    { header: 'Mã học viên', key: 'code', width: 18 },
+    { header: 'Họ và tên', key: 'fullName', width: 26 },
+    { header: 'Email', key: 'email', width: 28 },
+    { header: 'Số điện thoại', key: 'phoneNumber', width: 18 },
+    { header: 'Ngày sinh', key: 'birthday', width: 14 },
+    { header: 'CCCD', key: 'cccd', width: 18 },
+    { header: 'Giới tính', key: 'gender', width: 12 },
+    { header: 'Quê quán', key: 'hometown', width: 24 },
+    { header: 'Nơi sinh', key: 'placeOfBirth', width: 24 },
+    { header: 'Dân tộc', key: 'ethnicity', width: 14 },
+    { header: 'Tôn giáo', key: 'religion', width: 14 },
+    { header: 'Cấp bậc', key: 'rank', width: 16 },
+    { header: 'Đơn vị', key: 'unit', width: 20 },
+    { header: 'Chức vụ chính quyền', key: 'positionGovernment', width: 22 },
+    { header: 'Chức vụ Đảng', key: 'positionParty', width: 20 },
+    { header: 'Địa chỉ hiện tại', key: 'currentAddress', width: 28 },
+    { header: 'Ngày nhập ngũ', key: 'dateOfEnlistment', width: 16 },
+    { header: 'Khóa học', key: 'enrollment', width: 12 },
+    { header: 'CPA 4.0', key: 'currentCpa4', width: 12 },
+    { header: 'CPA 10.0', key: 'currentCpa10', width: 12 },
+    { header: 'Ngày tốt nghiệp', key: 'graduationDate', width: 16 },
+    { header: 'Số thẻ Đảng', key: 'partyMemberCardNumber', width: 18 },
+    { header: 'Đảng viên dự bị', key: 'probationaryPartyMember', width: 18 },
+    { header: 'Đảng viên chính thức', key: 'fullPartyMember', width: 20 },
+  ];
+
+  worksheet.addRows([
+    {
+      code: 'HV001',
+      fullName: 'Nguyễn Văn A',
+      email: 'vana@example.com',
+      phoneNumber: '0123456789',
+      birthday: '2005-01-01',
+      cccd: '001205000001',
+      gender: 'MALE',
+      hometown: 'Hà Nội',
+      placeOfBirth: 'Hà Nội',
+      ethnicity: 'Kinh',
+      religion: 'Không',
+      rank: 'Binh nhất',
+      unit: 'Đại đội 1',
+      positionGovernment: 'Chiến sĩ',
+      positionParty: 'Đoàn viên',
+      currentAddress: 'Ký túc xá Khu A',
+      dateOfEnlistment: '2025-02-15',
+      enrollment: 2025,
+      currentCpa4: 3.2,
+      currentCpa10: 8.0,
+      graduationDate: '',
+      partyMemberCardNumber: '',
+      probationaryPartyMember: '',
+      fullPartyMember: '',
+    },
+  ]);
+
+  worksheet.getRow(1).font = { bold: true };
+  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+  worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+  ['birthday', 'dateOfEnlistment', 'graduationDate', 'probationaryPartyMember', 'fullPartyMember'].forEach((key) => {
+    worksheet.getColumn(key).numFmt = 'yyyy-mm-dd';
+  });
+
+  return workbook.xlsx.writeBuffer();
+};
+
 const parseExcelImport = async (file) => {
   if (!file?.buffer) throw new BadRequestError('Vui lòng tải lên file Excel');
 
@@ -391,7 +570,7 @@ const parseExcelImport = async (file) => {
       fullName: toText(getCellValue(row, headerMap, ['Họ và tên', 'fullName'])),
       email: toText(getCellValue(row, headerMap, ['Email', 'email'])),
       phoneNumber: toText(getCellValue(row, headerMap, ['Số điện thoại', 'phoneNumber'])),
-      gender: toText(getCellValue(row, headerMap, ['Giới tính', 'gender'])),
+      gender: normalizeGender(getCellValue(row, headerMap, ['Giới tính', 'gender'])),
       birthday: toText(getCellValue(row, headerMap, ['Ngày sinh', 'birthday'])),
       hometown: toText(getCellValue(row, headerMap, ['Quê quán', 'hometown'])),
       enrollment: toNumber(getCellValue(row, headerMap, ['Khóa học', 'enrollment'])),
@@ -403,6 +582,59 @@ const parseExcelImport = async (file) => {
   if (!users.length) throw new BadRequestError('File Excel không có dòng người dùng hợp lệ');
 
   return users;
+};
+
+const parseBatchProfileUpdateExcelImport = async (file) => {
+  if (!file?.buffer) throw new BadRequestError('Vui lòng tải lên file Excel');
+
+  const ExcelJS = require('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(file.buffer);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) throw new BadRequestError('File Excel không có sheet dữ liệu');
+
+  const headerMap = new Map();
+  worksheet.getRow(1).eachCell((cell, colNumber) => {
+    headerMap.set(normalizeHeader(cell.value), colNumber);
+  });
+
+  const profiles = [];
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+
+    const code = toText(getCellValue(row, headerMap, ['Mã học viên', 'code']));
+    if (!code) return;
+
+    profiles.push({
+      code,
+      fullName: toText(getCellValue(row, headerMap, ['Họ và tên', 'fullName'])),
+      email: toText(getCellValue(row, headerMap, ['Email', 'email'])),
+      phoneNumber: toText(getCellValue(row, headerMap, ['Số điện thoại', 'phoneNumber'])),
+      birthday: toText(getCellValue(row, headerMap, ['Ngày sinh', 'birthday'])),
+      cccd: toText(getCellValue(row, headerMap, ['CCCD', 'cccd'])),
+      gender: normalizeGender(getCellValue(row, headerMap, ['Giới tính', 'gender'])),
+      hometown: toText(getCellValue(row, headerMap, ['Quê quán', 'hometown'])),
+      placeOfBirth: toText(getCellValue(row, headerMap, ['Nơi sinh', 'placeOfBirth'])),
+      ethnicity: toText(getCellValue(row, headerMap, ['Dân tộc', 'ethnicity'])),
+      religion: toText(getCellValue(row, headerMap, ['Tôn giáo', 'religion'])),
+      rank: toText(getCellValue(row, headerMap, ['Cấp bậc', 'rank'])),
+      unit: toText(getCellValue(row, headerMap, ['Đơn vị', 'unit'])),
+      positionGovernment: toText(getCellValue(row, headerMap, ['Chức vụ chính quyền', 'positionGovernment'])),
+      positionParty: toText(getCellValue(row, headerMap, ['Chức vụ Đảng', 'positionParty'])),
+      currentAddress: toText(getCellValue(row, headerMap, ['Địa chỉ hiện tại', 'currentAddress'])),
+      dateOfEnlistment: toText(getCellValue(row, headerMap, ['Ngày nhập ngũ', 'dateOfEnlistment'])),
+      enrollment: toNumber(getCellValue(row, headerMap, ['Khóa học', 'enrollment'])),
+      currentCpa4: toNumber(getCellValue(row, headerMap, ['CPA 4.0', 'currentCpa4'])),
+      currentCpa10: toNumber(getCellValue(row, headerMap, ['CPA 10.0', 'currentCpa10'])),
+      graduationDate: toText(getCellValue(row, headerMap, ['Ngày tốt nghiệp', 'graduationDate'])),
+      partyMemberCardNumber: toText(getCellValue(row, headerMap, ['Số thẻ Đảng', 'partyMemberCardNumber'])),
+      probationaryPartyMember: toText(getCellValue(row, headerMap, ['Đảng viên dự bị', 'probationaryPartyMember'])),
+      fullPartyMember: toText(getCellValue(row, headerMap, ['Đảng viên chính thức', 'fullPartyMember'])),
+    });
+  });
+
+  if (!profiles.length) throw new BadRequestError('File Excel không có dòng học viên hợp lệ');
+  return profiles;
 };
 
 const updateBatchProfiles = async (profiles) => {
@@ -454,6 +686,7 @@ const graduateBatchProfiles = async (data) => {
 module.exports = {
   create,
   getAll,
+  exportUsers,
   getDetail,
   update,
   delete: deleteRecord,
@@ -466,6 +699,8 @@ module.exports = {
   createBatchUsersProfiles,
   parseExcelImport,
   createImportTemplate,
+  parseBatchProfileUpdateExcelImport,
+  createBatchProfileUpdateTemplate,
   updateBatchProfiles,
   graduateBatchProfiles,
 };

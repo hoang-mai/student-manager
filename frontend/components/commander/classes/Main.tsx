@@ -8,7 +8,7 @@ import { universityService } from "@/services/universities";
 import { Class } from "@/types/classes";
 import { formatDateTime, textOrDash } from "@/utils/fn-common";
 import Table from "@/library/Table";
-import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import { HiOutlinePencil, HiOutlineTrash, HiOutlineUserGroup } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Typography from "@/library/Typography";
 import PageContainer from "@/library/PageContainer";
@@ -22,6 +22,7 @@ import useTableQuery from "@/hooks/useTableQuery";
 import ClassSkeleton from "./ClassSkeleton";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import useAppMutation from "@/hooks/useAppMutation";
+import ManageClassStudentsModal from "@/components/classes/ManageClassStudentsModal";
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -91,6 +92,17 @@ export default function Main() {
         config: {
           mutationKey: MUTATION_KEYS.UPDATE_CLASS,
         },
+      });
+    },
+    [openModal]
+  );
+
+  const handleOpenStudentsModal = useCallback(
+    (cls: Class) => {
+      openModal({
+        title: "Quản lý học viên trong lớp",
+        content: <ManageClassStudentsModal cls={cls} />,
+        size: "2xl",
       });
     },
     [openModal]
@@ -186,6 +198,12 @@ export default function Main() {
           return (
             <div className="flex items-center justify-start gap-1">
               <ActionButton
+                tooltipText="Quản lý học viên"
+                icon={HiOutlineUserGroup}
+                onClick={() => handleOpenStudentsModal(cls)}
+                color="green"
+              />
+              <ActionButton
                 tooltipText="Chỉnh sửa"
                 icon={HiOutlinePencil}
                 onClick={() => handleOpenUpdateModal(cls)}
@@ -212,7 +230,7 @@ export default function Main() {
         },
       },
     ],
-    [handleOpenUpdateModal, openConfirm, deleteMutation]
+    [handleOpenStudentsModal, handleOpenUpdateModal, openConfirm, deleteMutation]
   );
 
   const universityOptions = useMemo(() => {

@@ -6,7 +6,7 @@ import { userService } from "@/services/user";
 import { UserDetailResponse, UserQueryRequest } from "@/types/user";
 import { ROLES } from "@/constants/constants";
 import useTableQuery from "@/hooks/useTableQuery";
-import { formatDateTime } from "@/utils/fn-common";
+import { downloadBlob, formatDateTime } from "@/utils/fn-common";
 import Table from "@/library/Table";
 import Badge, { BadgeVariant } from "@/library/Badge";
 import {
@@ -66,6 +66,28 @@ export default function Main() {
     invalidateQueryKey: [QUERY_KEYS.USERS],
     successMessage: "Xóa tài khoản thành công!",
     errorMessage: "Xóa tài khoản thất bại!",
+  });
+
+  const exportMutation = useAppMutation({
+    mutationKey: [QUERY_KEYS.USERS, "export"],
+    mutationFn: () => {
+      const filterParams = columnFilters.reduce(
+        (acc, filter) => {
+          acc[filter.id] = filter.value;
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
+
+      return userService.exportUsers({
+        ...filterParams,
+        sortBy: sorting[0]?.id,
+        sortOrder: sorting[0]?.desc ? "desc" : "asc",
+      } as UserQueryRequest);
+    },
+    successMessage: "Xuất Excel thành công!",
+    errorMessage: "Xuất Excel thất bại!",
+    onSuccess: (blob) => downloadBlob(blob, "danh-sach-tai-khoan.xlsx"),
   });
 
   const handleOpenCreateModal = useCallback(() => {
@@ -363,13 +385,18 @@ export default function Main() {
       onRetry={refetchUsers}
     >
       <div className="flex justify-end mb-6">
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all cursor-pointer shadow-sm dark:shadow-none">
+        <button
+          type="button"
+          onClick={() => exportMutation.mutate()}
+          disabled={exportMutation.isPending}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all cursor-pointer shadow-sm dark:shadow-none disabled:opacity-70 disabled:cursor-not-allowed"
+        >
           <HiOutlineDownload
             size={16}
             className="text-neutral-600 dark:text-neutral-300"
           />
           <Typography variant="label" color="neutral">
-            Xuất Excel
+            {exportMutation.isPending ? "Đang xuất..." : "Xuất Excel"}
           </Typography>
         </button>
       </div>

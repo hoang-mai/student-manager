@@ -22,6 +22,13 @@ const getAll = asyncHandler(async (req, res) => {
   return paginated(res, result.rows, result.pagination);
 });
 
+const exportUsers = asyncHandler(async (req, res) => {
+  const buffer = await service.exportUsers(req.query);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=danh-sach-tai-khoan.xlsx');
+  return res.send(buffer);
+});
+
 const getDetail = asyncHandler(async (req, res) => {
   const result = await service.getDetail(req.params.id);
   return success(res, result);
@@ -73,9 +80,19 @@ const downloadImportTemplate = asyncHandler(async (req, res) => {
 });
 
 const updateBatchProfiles = asyncHandler(async (req, res) => {
-  await validateOrThrow(us.batchProfileUpdate, req.body);
-  const result = await service.updateBatchProfiles(req.body);
-  return success(res, result, 'Cập nhật hồ sơ hàng loạt thành công');
+  const profiles = req.file
+    ? await service.parseBatchProfileUpdateExcelImport(req.file)
+    : req.body;
+  await validateOrThrow(us.batchProfileUpdate, profiles);
+  const result = await service.updateBatchProfiles(profiles);
+  return success(res, result, req.file ? 'Cập nhật hồ sơ từ Excel thành công' : 'Cập nhật hồ sơ hàng loạt thành công');
+});
+
+const downloadBatchProfilesTemplate = asyncHandler(async (req, res) => {
+  const buffer = await service.createBatchProfileUpdateTemplate();
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=mau-cap-nhat-hoc-vien.xlsx');
+  return res.send(buffer);
 });
 
 const graduateBatchProfiles = asyncHandler(async (req, res) => {
@@ -240,6 +257,7 @@ const exportTuitionReport = asyncHandler(async (req, res) => {
 module.exports = {
   create,
   getAll,
+  exportUsers,
   getDetail,
   update,
   delete: deleteRecord,
@@ -247,6 +265,7 @@ module.exports = {
   createBatchUsersProfiles,
   importUsers,
   downloadImportTemplate,
+  downloadBatchProfilesTemplate,
   updateBatchProfiles,
   graduateBatchProfiles,
   resetPassword,

@@ -1,7 +1,6 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
-  BatchGraduationRequest,
   UserQueryRequest,
   UserDetailResponse,
   UpdateProfileRequest,
@@ -57,6 +56,13 @@ export const userService = {
     return apiClient.delete(ENDPOINTS.USERS.DETAIL(id));
   },
 
+  exportUsers: async (params?: UserQueryRequest): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.USERS.EXPORT, {
+      params,
+      responseType: "blob",
+    });
+  },
+
   importUsers: async (
     file: File
   ): Promise<ApiResponse<BatchMutationResult>> => {
@@ -73,13 +79,19 @@ export const userService = {
     });
   },
 
-  updateBatchStudents: async (data: UpdateProfileRequest[]) => {
-    return apiClient.put(ENDPOINTS.USERS.BATCH_PROFILES, data);
+  importBatchStudents: async (
+    file: File
+  ): Promise<ApiResponse<BatchMutationResult>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.put(ENDPOINTS.USERS.BATCH_PROFILES, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   },
 
-  graduateBatchStudents: async (
-    data: BatchGraduationRequest
-  ): Promise<ApiResponse<BatchMutationResult>> => {
-    return apiClient.post(ENDPOINTS.USERS.BATCH_GRADUATION, data);
+  downloadBatchStudentsTemplate: async (): Promise<Blob> => {
+    return apiClient.get(ENDPOINTS.USERS.BATCH_PROFILES_TEMPLATE, {
+      responseType: "blob",
+    });
   },
 };

@@ -91,11 +91,11 @@ async function fullSeed() {
     // 5. CLASSES
     // ==========================
     const classData = [
-      { className: 'CNTT-K60', studentCount: 30, educationLevelId: eduLevels[0].id },
-      { className: 'CNTT-K61', studentCount: 35, educationLevelId: eduLevels[0].id },
-      { className: 'KT-K62', studentCount: 28, educationLevelId: eduLevels[2].id },
-      { className: 'NN-K63', studentCount: 25, educationLevelId: eduLevels[4].id },
-      { className: 'DT-K62', studentCount: 32, educationLevelId: eduLevels[5].id },
+      { className: 'CNTT-K60', studentCount: 0, educationLevelId: eduLevels[0].id },
+      { className: 'CNTT-K61', studentCount: 0, educationLevelId: eduLevels[0].id },
+      { className: 'KT-K62', studentCount: 0, educationLevelId: eduLevels[2].id },
+      { className: 'NN-K63', studentCount: 0, educationLevelId: eduLevels[4].id },
+      { className: 'DT-K62', studentCount: 0, educationLevelId: eduLevels[5].id },
     ];
     const classes = [];
     for (const c of classData) classes.push(await db.class.create(c));
@@ -131,6 +131,12 @@ async function fullSeed() {
       });
       hocVienUsers.push(user);
     }
+
+    for (const cls of classes) {
+      const actualStudentCount = await db.profile.count({ where: { classId: cls.id } });
+      await cls.update({ studentCount: actualStudentCount });
+    }
+
     console.log(`10 Students seeded.`);
 
     // ==========================
@@ -544,6 +550,8 @@ async function fullSeed() {
       missingTimeTableSemester,
       missingTuitionSemester,
       gradeRequestCount,
+      studentUsersWithoutProfile,
+      commanderUsersWithoutProfile,
     ] = await Promise.all([
       db.user.count({ where: { role: 'ADMIN' } }),
       db.user.count({ where: { role: 'COMMANDER' } }),
@@ -557,12 +565,16 @@ async function fullSeed() {
       db.timeTable.count({ where: { semesterId: null } }),
       db.tuitionFee.count({ where: { semesterId: null } }),
       db.gradeRequest.count(),
+      db.user.count({ where: { role: 'STUDENT', profileId: null } }),
+      db.user.count({ where: { role: 'COMMANDER', profileId: null } }),
     ]);
 
     assertSeed(adminCount === 1, 'phải có đúng 1 admin');
     assertSeed(commanderCount === 2, 'phải có đúng 2 chỉ huy');
     assertSeed(studentCount === studentList.length, 'số tài khoản học viên không khớp');
     assertSeed(profileCount === studentList.length + 2, 'số hồ sơ profile không khớp');
+    assertSeed(studentUsersWithoutProfile === 0, 'không được có tài khoản học viên thiếu hồ sơ');
+    assertSeed(commanderUsersWithoutProfile === 0, 'không được có tài khoản chỉ huy thiếu hồ sơ');
     assertSeed(semesterCount === semData.length, 'số học kỳ không khớp');
     assertSeed(yearlyResultCount === expectedAcademicRows, 'số kết quả năm không khớp năm học theo enrollment');
     assertSeed(semesterResultCount === expectedSemesterRows, 'số kết quả học kỳ không khớp năm học theo enrollment');
@@ -571,6 +583,12 @@ async function fullSeed() {
     assertSeed(missingTimeTableSemester === 0, 'time_tables không được thiếu semesterId');
     assertSeed(missingTuitionSemester === 0, 'tuition_fees không được thiếu semesterId');
     assertSeed(gradeRequestCount === requestSeeds.length, 'số đề xuất điểm không khớp');
+
+    for (const cls of classes) {
+      const actualStudentCount = await db.profile.count({ where: { classId: cls.id } });
+      await cls.reload();
+      assertSeed(cls.studentCount === actualStudentCount, `lớp ${cls.className} lệch studentCount`);
+    }
 
     const timetableRows = await db.timeTable.findAll({
       include: [{ model: db.user, include: [{ model: db.profile }] }, { model: db.semester, include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] }],

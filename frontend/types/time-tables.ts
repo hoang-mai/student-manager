@@ -72,17 +72,6 @@ export interface UpdateTimeTableRequest {
   schedules?: ScheduleInput[] | null;
 }
 
-export interface BatchTimeTableItem {
-  studentCode: string;
-  semesterId?: string | null;
-  schedules: ScheduleItem[];
-}
-
-export interface BatchTimeTableRequest {
-  semesterId?: string | null;
-  items: BatchTimeTableItem[];
-}
-
 export interface TimeTableQueryRequest extends QueryRequest {
   userId?: string;
   fullName?: string;

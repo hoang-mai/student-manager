@@ -26,9 +26,10 @@ export const ENDPOINTS = {
       `${ENDPOINTS.USERS.BASE}/${id}/reset-password`,
     BATCH: "/api/users/batch",
     BATCH_PROFILES: "/api/users/batch-profiles",
-    BATCH_GRADUATION: "/api/users/profiles/graduation/batch",
+    BATCH_PROFILES_TEMPLATE: "/api/users/batch-profiles/template",
     IMPORT: "/api/users/import",
     IMPORT_TEMPLATE: "/api/users/import-template",
+    EXPORT: "/api/users/export",
   },
   UNIVERSITIES: {
     BASE: "/api/universities",
@@ -41,6 +42,9 @@ export const ENDPOINTS = {
   },
   CLASSES: {
     BASE: "/api/classes",
+    STUDENTS: (id: string | number) => `/api/classes/${id}/students`,
+    STUDENT_DETAIL: (id: string | number, userId: string | number) =>
+      `/api/classes/${id}/students/${userId}`,
     ASSIGN_STUDENTS_BATCH: (id: string | number) =>
       `/api/classes/${id}/students/batch`,
   },
@@ -51,13 +55,11 @@ export const ENDPOINTS = {
   },
   TIME_TABLES: {
     BASE: "/api/time-tables",
-    BATCH: "/api/time-tables/batch",
     REPORT: "/api/time-tables/report",
     TIME_TABLE: "/api/users/time-table",
   },
   TUITION_FEES: {
     BASE: "/api/tuition-fees",
-    BATCH: "/api/tuition-fees/batch",
     IMPORT: "/api/tuition-fees/import",
     TEMPLATE: "/api/tuition-fees/template",
     MY: "/api/users/tuition-fees",
@@ -78,7 +80,6 @@ export const ENDPOINTS = {
   },
   ACHIEVEMENTS: {
     BASE: "/api/achievements",
-    BATCH: "/api/achievements/batch",
     MY: "/api/users/achievements",
   },
   YEARLY_ACHIEVEMENTS: {

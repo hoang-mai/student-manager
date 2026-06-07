@@ -17,11 +17,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import Table from "@/library/Table";
 import { FilterField } from "@/library/table/TableFilter";
 import ActionButton from "@/library/ActionButton";
-import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import { HiOutlinePencil, HiOutlineTrash, HiOutlineUserGroup } from "react-icons/hi";
 import { formatDateTime } from "@/utils/fn-common";
 import useTableQuery from "@/hooks/useTableQuery";
 import useAppMutation from "@/hooks/useAppMutation";
 import PageContainer from "@/library/PageContainer";
+import ManageClassStudentsModal from "@/components/classes/ManageClassStudentsModal";
 
 interface Props {
   universityId: string;
@@ -114,6 +115,17 @@ export default function Main({
     [educationLevelId, openModal]
   );
 
+  const handleOpenStudentsModal = useCallback(
+    (cls: Class) => {
+      openModal({
+        title: "Quản lý học viên trong lớp",
+        content: <ManageClassStudentsModal cls={cls} />,
+        size: "2xl",
+      });
+    },
+    [openModal]
+  );
+
   const deleteClassMutation = useAppMutation({
     mutationKey: MUTATION_KEYS.DELETE_CLASS,
     mutationFn: (id: string) => classService.deleteClass(id),
@@ -182,6 +194,12 @@ export default function Main({
           return (
             <div className="flex items-center justify-start gap-1">
               <ActionButton
+                tooltipText="Quản lý học viên"
+                icon={HiOutlineUserGroup}
+                color="green"
+                onClick={() => handleOpenStudentsModal(cls)}
+              />
+              <ActionButton
                 tooltipText="Chỉnh sửa"
                 icon={HiOutlinePencil}
                 color="blue"
@@ -207,7 +225,7 @@ export default function Main({
         },
       },
     ],
-    [handleOpenUpdateClassModal, openConfirm, deleteClassMutation]
+    [handleOpenStudentsModal, handleOpenUpdateClassModal, openConfirm, deleteClassMutation]
   );
 
   const filterOptions = useMemo<FilterField[]>(

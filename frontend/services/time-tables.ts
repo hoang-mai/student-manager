@@ -1,7 +1,6 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
-  BatchTimeTableRequest,
   CreateTimeTableRequest,
   ScheduleInput,
   ScheduleItem,
@@ -66,12 +65,6 @@ export const timeTableService = {
       ENDPOINTS.TIME_TABLES.BASE,
       normalizeTimeTablePayload(data)
     );
-  },
-
-  createBatchTimeTables: async (
-    data: BatchTimeTableRequest
-  ): Promise<ApiResponse<BatchMutationResult>> => {
-    return apiClient.post(ENDPOINTS.TIME_TABLES.BATCH, data);
   },
 
   updateTimeTable: async (id: string, data: UpdateTimeTableRequest) => {

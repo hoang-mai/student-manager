@@ -1,7 +1,6 @@
 import apiClient from "./axios-client";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
-  BatchTuitionFeeRequest,
   CreateTuitionFeeRequest,
   TuitionFee,
   TuitionFeeQueryRequest,
@@ -98,12 +97,6 @@ export const tuitionFeeService = {
 
   createTuitionFee: async (data: CreateTuitionFeeRequest) => {
     return apiClient.post(ENDPOINTS.TUITION_FEES.BASE, data);
-  },
-
-  createBatchTuitionFees: async (
-    data: BatchTuitionFeeRequest
-  ): Promise<ApiResponse<BatchMutationResult>> => {
-    return apiClient.post(ENDPOINTS.TUITION_FEES.BATCH, data);
   },
 
   importTuitionFees: async (

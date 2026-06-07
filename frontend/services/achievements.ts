@@ -2,7 +2,6 @@ import { ENDPOINTS } from "@/constants/endpoints";
 import {
   Achievement,
   AchievementQueryRequest,
-  BatchAchievementRequest,
   CreateAchievementRequest,
   CreateYearlyAchievementFullRequest,
   CreateYearlyAchievementFullResponse,
@@ -20,12 +19,6 @@ export const achievementService = {
 
   createAchievement: async (data: CreateAchievementRequest) => {
     return apiClient.post(ENDPOINTS.ACHIEVEMENTS.BASE, data);
-  },
-
-  createBatchAchievements: async (
-    data: BatchAchievementRequest
-  ): Promise<ApiResponse<BatchMutationResult>> => {
-    return apiClient.post(ENDPOINTS.ACHIEVEMENTS.BATCH, data);
   },
 
   updateAchievement: async (id: string, data: UpdateAchievementRequest) => {

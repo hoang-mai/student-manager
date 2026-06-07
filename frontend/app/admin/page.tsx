@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
+  HiOutlineAcademicCap,
   HiOutlineCheckCircle,
+  HiOutlineCollection,
   HiOutlineExclamation,
   HiOutlineIdentification,
+  HiOutlineOfficeBuilding,
   HiOutlineShieldCheck,
   HiOutlineUserGroup,
 } from "react-icons/hi";
@@ -53,6 +56,34 @@ export default function AdminDashboard() {
         <SummaryCard label="Đang hoạt động" value={dashboard?.overview.activeUsers} helper="Tài khoản khả dụng" icon={HiOutlineCheckCircle} tone="success" />
         <SummaryCard label="Bị khóa" value={dashboard?.overview.inactiveUsers} helper="Cần rà soát" icon={HiOutlineExclamation} tone="warning" />
         <SummaryCard label="Thiếu hồ sơ" value={dashboard?.overview.usersWithoutProfile} helper="User chưa gắn profile" icon={HiOutlineIdentification} tone="error" />
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard label="Cơ sở đào tạo" value={dashboard?.overview.totalUniversities} helper="Trường/đơn vị cấp trường" icon={HiOutlineOfficeBuilding} tone="primary" href="/admin/universities" />
+        <SummaryCard label="Khoa/Đơn vị" value={dashboard?.overview.totalOrganizations} helper="Đơn vị trực thuộc" icon={HiOutlineCollection} tone="success" href="/admin/universities" />
+        <SummaryCard label="Lớp học" value={dashboard?.overview.totalClasses} helper="Lớp đang quản lý" icon={HiOutlineAcademicCap} tone="warning" href="/admin/classes" />
+        <SummaryCard label="Học viên" value={dashboard?.overview.totalStudents} helper="Tài khoản học viên" icon={HiOutlineIdentification} tone="primary" href="/admin/accounts" />
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        <ManagementLink
+          href="/admin/universities"
+          icon={HiOutlineOfficeBuilding}
+          title="Cơ sở đào tạo"
+          description={`${formatNumber(dashboard?.overview.totalUniversities)} trường, ${formatNumber(dashboard?.overview.totalOrganizations)} khoa/đơn vị`}
+        />
+        <ManagementLink
+          href="/admin/classes"
+          icon={HiOutlineAcademicCap}
+          title="Quản lý lớp học"
+          description={`${formatNumber(dashboard?.overview.totalClasses)} lớp, gắn với trình độ đào tạo`}
+        />
+        <ManagementLink
+          href="/admin/accounts"
+          icon={HiOutlineUserGroup}
+          title="Quản lý tài khoản"
+          description={`${formatNumber(dashboard?.overview.totalUsers)} tài khoản, ${formatNumber(dashboard?.overview.activeUsers)} đang hoạt động`}
+        />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">
@@ -128,29 +159,73 @@ const toneClass = {
   error: "border-error-100 bg-error-50 text-error-700 dark:border-error-800 dark:bg-error-950/40 dark:text-error-100",
 };
 
-const SummaryCard = ({ label, value, helper, icon: Icon, tone }: {
+const SummaryCard = ({ label, value, helper, icon: Icon, tone, href }: {
   label: string;
   value?: number;
   helper: string;
   icon: IconType;
   tone: keyof typeof toneClass;
-}) => (
-  <div className={`rounded-2xl border p-5 ${toneClass[tone]}`}>
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <Typography variant="label" weight="bold" className="opacity-80">
-          {label}
-        </Typography>
-        <div className="mt-3 text-3xl font-black leading-none">{formatNumber(value)}</div>
+  href?: string;
+}) => {
+  const content = (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <Typography variant="label" weight="bold" className="opacity-80">
+            {label}
+          </Typography>
+          <div className="mt-3 text-3xl font-black leading-none">{formatNumber(value)}</div>
+        </div>
+        <div className="flex size-10 items-center justify-center rounded-xl bg-white/70 shadow-sm dark:bg-neutral-950/40">
+          <Icon size={20} />
+        </div>
       </div>
-      <div className="flex size-10 items-center justify-center rounded-xl bg-white/70 shadow-sm dark:bg-neutral-950/40">
-        <Icon size={20} />
+      <Typography variant="caption" className="mt-3 block opacity-75">
+        {helper}
+      </Typography>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={`block rounded-2xl border p-5 transition-transform hover:-translate-y-0.5 ${toneClass[tone]}`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={`rounded-2xl border p-5 ${toneClass[tone]}`}>
+      {content}
+    </div>
+  );
+};
+
+const ManagementLink = ({ href, icon: Icon, title, description }: {
+  href: string;
+  icon: IconType;
+  title: string;
+  description: string;
+}) => (
+  <Link
+    href={href}
+    className="group flex items-center justify-between gap-4 rounded-2xl border border-neutral-100 bg-neutral-50/70 p-5 transition-colors hover:border-primary-200 hover:bg-primary-50/60 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-primary-800 dark:hover:bg-primary-950/30"
+  >
+    <div className="flex min-w-0 items-center gap-4">
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary-600 shadow-sm dark:bg-neutral-950 dark:text-primary-300">
+        <Icon size={22} />
+      </div>
+      <div className="min-w-0">
+        <Typography variant="body" weight="bold" color="neutral">
+          {title}
+        </Typography>
+        <Typography variant="caption" color="gray" className="mt-1 block">
+          {description}
+        </Typography>
       </div>
     </div>
-    <Typography variant="caption" className="mt-3 block opacity-75">
-      {helper}
-    </Typography>
-  </div>
+    <span className="text-lg font-black text-neutral-300 transition-colors group-hover:text-primary-500">-&gt;</span>
+  </Link>
 );
 
 const Panel = ({ title, children }: { title: string; children: React.ReactNode }) => (

@@ -825,6 +825,21 @@ const { uploadExcel, uploadImage } = require('../middlewares/upload.middleware')
  *                 "rank": "Thượng sĩ"
  *               }
  *             ]
+ *           },
+ *           "multipart/form-data": {
+ *             "schema": {
+ *               "type": "object",
+ *               "required": [
+ *                 "file"
+ *               ],
+ *               "properties": {
+ *                 "file": {
+ *                   "type": "string",
+ *                   "format": "binary",
+ *                   "description": "File Excel .xlsx/.xls theo mẫu cập nhật học viên"
+ *                 }
+ *               }
+ *             }
  *           }
  *         }
  *       },
@@ -840,6 +855,27 @@ const { uploadExcel, uploadImage } = require('../middlewares/upload.middleware')
  *         },
  *         "403": {
  *           "$ref": "#/components/responses/403"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/users/batch-profiles/template": {
+ *     "get": {
+ *       "tags": [
+ *         "Users"
+ *       ],
+ *       "summary": "Tải file mẫu cập nhật học viên hàng loạt",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Excel template",
+ *           "content": {
+ *             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+ *               "schema": {
+ *                 "type": "string",
+ *                 "format": "binary"
+ *               }
+ *             }
+ *           }
  *         }
  *       }
  *     }
@@ -970,6 +1006,64 @@ const { uploadExcel, uploadImage } = require('../middlewares/upload.middleware')
  *         },
  *         "403": {
  *           "$ref": "#/components/responses/403"
+ *         }
+ *       }
+ *     }
+ *   },
+ *   "/users/export": {
+ *     "get": {
+ *       "tags": [
+ *         "Users"
+ *       ],
+ *       "summary": "ADMIN: Xuất Excel danh sách tài khoản",
+ *       "parameters": [
+ *         {
+ *           "name": "username",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "fullName",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "code",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "role",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "string"
+ *           }
+ *         },
+ *         {
+ *           "name": "isActive",
+ *           "in": "query",
+ *           "schema": {
+ *             "type": "boolean"
+ *           }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": {
+ *           "description": "File Excel danh sách tài khoản",
+ *           "content": {
+ *             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+ *               "schema": {
+ *                 "type": "string",
+ *                 "format": "binary"
+ *               }
+ *             }
+ *           }
  *         }
  *       }
  *     }
@@ -1399,9 +1493,11 @@ router.get('/reports/achievements', controller.getAchievementReport);
 router.get('/reports/tuition', controller.getTuitionReport);
 
 // ===================== Admin/Commander: User CRUD (read + update) =====================
-router.put('/batch-profiles', controller.updateBatchProfiles);
+router.get('/batch-profiles/template', controller.downloadBatchProfilesTemplate);
+router.put('/batch-profiles', uploadExcel('file'), controller.updateBatchProfiles);
 router.get('/import-template', requireAdmin, controller.downloadImportTemplate);
 router.post('/import', requireAdmin, uploadExcel('file'), controller.importUsers);
+router.get('/export', requireAdmin, controller.exportUsers);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
 router.put('/:id', controller.update);

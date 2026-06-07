@@ -61,17 +61,6 @@ export interface UpdateProfileRequest {
   startWork?: number | null;
 }
 
-export interface BatchGraduationStudent {
-  code: string;
-  graduationDate: string;
-}
-
-export interface BatchGraduationRequest {
-  graduationDate?: string | null;
-  studentCodes?: string[];
-  students?: BatchGraduationStudent[];
-}
-
 export interface University {
   id: string;
   universityCode: string;
@@ -112,6 +101,7 @@ export interface EducationLevel {
 
 export interface Student {
   id: string;
+  User?: Pick<User, "id" | "username" | "role" | "isActive">;
   code: string;
   fullName: string;
   avatar: string | null;
@@ -181,4 +171,5 @@ export interface Commander {
 
 export interface UserDetailResponse extends User {
   profile: (Student & Commander) | null;
+  Profile?: (Student & Commander) | null;
 }

@@ -27,6 +27,10 @@ export interface AssignStudentsBatchRequest {
   studentCodes: string[];
 }
 
+export interface AssignStudentsRequest {
+  userIds: string[];
+}
+
 export interface ClassQueryRequest extends QueryRequest {
   educationLevelId?: string;
   className?: string;

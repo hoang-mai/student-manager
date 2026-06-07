@@ -111,7 +111,7 @@ const getStudents = async (classId, query) => {
 
   return paginateQuery(Profile, query, {
     where,
-    include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }],
+    include: [{ model: User }, { model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }],
   });
 };
 

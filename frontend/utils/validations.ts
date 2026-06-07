@@ -122,44 +122,6 @@ export const batchExcelFileSchema = z.object({
 export type BatchExcelFileValues = z.infer<typeof batchExcelFileSchema>;
 
 /**
- * Schema cho việc cập nhật học viên hàng loạt từ Excel
- */
-export const batchUpdateStudentSchema = z.array(
-  z.object({
-    code: z.string().min(1, "Mã học viên không được để trống"),
-    fullName: z.string().min(1, "Họ và tên không được để trống"),
-    email: z
-      .email("Email không hợp lệ")
-      .nullable()
-      .or(z.literal(""))
-      .optional(),
-    phoneNumber: z.string().nullable().or(z.literal("")).optional(),
-    birthday: z.string().nullable().or(z.literal("")).optional(),
-    cccd: z.string().nullable().or(z.literal("")).optional(),
-    gender: z.enum(["MALE", "FEMALE"], "Giới tính không được để trống"),
-    hometown: z.string().nullable().or(z.literal("")).optional(),
-    placeOfBirth: z.string().nullable().or(z.literal("")).optional(),
-    ethnicity: z.string().nullable().or(z.literal("")).optional(),
-    religion: z.string().nullable().or(z.literal("")).optional(),
-    rank: z.string().nullable().or(z.literal("")).optional(),
-    unit: z.string().nullable().or(z.literal("")).optional(),
-    positionGovernment: z.string().nullable().or(z.literal("")).optional(),
-    positionParty: z.string().nullable().or(z.literal("")).optional(),
-    currentAddress: z.string().nullable().or(z.literal("")).optional(),
-    dateOfEnlistment: z.string().nullable().or(z.literal("")).optional(),
-    enrollment: z.number().nullable().optional(),
-    currentCpa4: z.number().nullable().optional(),
-    currentCpa10: z.number().nullable().optional(),
-    graduationDate: z.string().nullable().or(z.literal("")).optional(),
-    partyMemberCardNumber: z.string().nullable().or(z.literal("")).optional(),
-    probationaryPartyMember: z.string().nullable().or(z.literal("")).optional(),
-    fullPartyMember: z.string().nullable().or(z.literal("")).optional(),
-  })
-);
-
-export type BatchUpdateStudentValues = z.infer<typeof batchUpdateStudentSchema>;
-
-/**
  * Schema validation cho form thêm/sửa trường đại học
  */
 export const universitySchema = z.object({
