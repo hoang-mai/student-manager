@@ -1,42 +1,66 @@
 import Skeleton from "@/library/Skeleton";
 
-export default function TimeTableSkeleton() {
+interface TimeTableSkeletonProps {
+  showFilter?: boolean;
+}
+
+export default function TimeTableSkeleton({
+  showFilter = true,
+}: TimeTableSkeletonProps) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-3">
-        <Skeleton variant="rounded" width={100} height={28} />
-        <Skeleton variant="rounded" width={90} height={28} />
-        <Skeleton variant="rounded" width={90} height={28} />
-      </div>
+      {showFilter && (
+        <div className="flex justify-end">
+          <Skeleton variant="rounded" width={360} height={44} />
+        </div>
+      )}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 7 }).map((_, i) => (
-          <div
-            key={i}
-            className="min-h-44 rounded-3xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-700/80 dark:bg-neutral-900"
-          >
-            <div className="mb-4 flex items-center justify-between border-b border-neutral-100 pb-3 dark:border-neutral-700/80">
-              <Skeleton variant="text" width={60} height={16} />
-              <Skeleton variant="rounded" width={50} height={22} />
+      <div className="overflow-hidden rounded-3xl border border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-950">
+        <div className="grid min-h-[520px] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="p-5 sm:p-7">
+            <div className="mb-7 flex items-center justify-between">
+              <Skeleton variant="rounded" width={40} height={40} />
+              <Skeleton variant="text" width={160} height={24} />
+              <Skeleton variant="rounded" width={40} height={40} />
             </div>
-            <div className="space-y-3">
-              {Array.from({ length: i % 3 === 0 ? 0 : i % 2 === 0 ? 2 : 1 }).map((_, j) => (
-                <div key={j} className="rounded-2xl border border-neutral-100 p-3 dark:border-neutral-700/50">
-                  <Skeleton variant="text" width={120} height={14} />
-                  <div className="mt-2 flex gap-2">
-                    <Skeleton variant="rounded" width={80} height={22} />
-                    <Skeleton variant="rounded" width={70} height={22} />
-                  </div>
-                </div>
+
+            <div className="grid grid-cols-7 gap-2">
+              {Array.from({ length: 7 }).map((_, index) => (
+                <Skeleton
+                  key={`label-${index}`}
+                  variant="text"
+                  width="100%"
+                  height={18}
+                />
               ))}
-              {i % 3 === 0 && (
-                <div className="flex h-24 items-center justify-center rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-700">
-                  <Skeleton variant="text" width={100} height={12} />
-                </div>
-              )}
+              {Array.from({ length: 35 }).map((_, index) => (
+                <Skeleton
+                  key={`day-${index}`}
+                  variant="rounded"
+                  width="100%"
+                  height={52}
+                />
+              ))}
             </div>
           </div>
-        ))}
+
+          <div className="border-t border-neutral-100 bg-neutral-50/70 p-5 sm:p-7 lg:border-l lg:border-t-0 dark:border-neutral-800 dark:bg-neutral-900/70">
+            <div className="mb-8 flex flex-col items-center gap-2">
+              <Skeleton variant="text" width={180} height={24} />
+              <Skeleton variant="text" width={140} height={14} />
+            </div>
+            <div className="space-y-4">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  variant="rounded"
+                  width="100%"
+                  height={140}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

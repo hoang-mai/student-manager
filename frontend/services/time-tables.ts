@@ -5,6 +5,7 @@ import {
   ScheduleInput,
   ScheduleItem,
   TimeTable,
+  TimeTableSemester,
   TimeTableQueryRequest,
   TimeTableReport,
   UpdateTimeTableRequest,
@@ -58,6 +59,12 @@ export const timeTableService = {
     params?: TimeTableQueryRequest
   ): Promise<PaginatedResponse<TimeTable>> => {
     return apiClient.get(ENDPOINTS.TIME_TABLES.TIME_TABLE, { params });
+  },
+
+  getMyTimeTableSemesters: async (): Promise<
+    ApiResponse<TimeTableSemester[]>
+  > => {
+    return apiClient.get(ENDPOINTS.TIME_TABLES.MY_SEMESTERS);
   },
 
   createTimeTable: async (data: CreateTimeTableRequest) => {

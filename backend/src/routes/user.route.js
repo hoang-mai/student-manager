@@ -113,6 +113,22 @@ const { uploadExcel, uploadImage } = require('../middlewares/upload.middleware')
  *       }
  *     }
  *   },
+ *   "/users/time-table-semesters": {
+ *     "get": {
+ *       "tags": [
+ *         "Profile"
+ *       ],
+ *       "summary": "List semesters that have a timetable for the current student",
+ *       "responses": {
+ *         "200": {
+ *           "description": "Semester[]"
+ *         },
+ *         "403": {
+ *           "$ref": "#/components/responses/403"
+ *         }
+ *       }
+ *     }
+ *   },
  *   "/users/time-table/{id}": {
  *     "put": {
  *       "tags": [
@@ -1455,6 +1471,7 @@ router.get('/academic-results', requireStudent, controller.getAcademicResults);
 
 // ===================== Student: Thời khóa biểu =====================
 router.get('/time-table', requireStudent, controller.getMyTimeTable);
+router.get('/time-table-semesters', requireStudent, controller.getMyTimeTableSemesters);
 router.post('/time-table', requireStudent, controller.denyMyTimeTableMutation);
 router.put('/time-table/:id', requireStudent, controller.denyMyTimeTableMutation);
 router.delete('/time-table/:id', requireStudent, controller.denyMyTimeTableMutation);

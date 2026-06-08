@@ -75,6 +75,9 @@ export interface UpdateTimeTableRequest {
 export interface TimeTableQueryRequest extends QueryRequest {
   userId?: string;
   fullName?: string;
+  semesterId?: string;
+  semester?: string | number;
+  schoolYear?: string;
 }
 
 export interface TimeTableReportRow {

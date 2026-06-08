@@ -6,7 +6,6 @@ import {
   HiOutlineAcademicCap,
   HiOutlineBadgeCheck,
   HiOutlineCash,
-  HiOutlineChartBar,
   HiOutlineCheckCircle,
   HiOutlineExclamation,
   HiOutlineExternalLink,
@@ -18,10 +17,10 @@ import Badge from "@/library/Badge";
 import PageContainer from "@/library/PageContainer";
 import Skeleton from "@/library/Skeleton";
 import Typography from "@/library/Typography";
+import { BarsChart, DonutChart } from "@/library/charts";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { dashboardService } from "@/services/dashboard";
 import {
-  DashboardChartItem,
   DashboardGradeRequestAlert,
   DashboardRecentStudent,
   DashboardRiskStudent,
@@ -138,7 +137,7 @@ export default function Main() {
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1fr]">
           <Panel title="Học lực theo năm">
-            <HorizontalBars data={dashboard?.charts.academicStatus || []} />
+            <BarsChart data={dashboard?.charts.academicStatus || []} />
           </Panel>
           <Panel title="Trạng thái học phí">
             <DonutChart data={dashboard?.charts.tuitionStatus || []} />
@@ -147,10 +146,10 @@ export default function Main() {
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <Panel title="Học viên theo đơn vị">
-            <HorizontalBars data={dashboard?.charts.studentsByUnit || []} />
+            <BarsChart data={dashboard?.charts.studentsByUnit || []} color="#0ea5e9" />
           </Panel>
           <Panel title="Đề xuất điểm">
-            <VerticalBars data={dashboard?.charts.gradeRequests || []} />
+            <BarsChart data={dashboard?.charts.gradeRequests || []} color="#f59e0b" />
           </Panel>
         </section>
 
@@ -180,7 +179,10 @@ export default function Main() {
             href="/commander/achievements"
             actionLabel="Xem thành tích"
           >
-            <VerticalBars data={dashboard?.charts.achievementsByYear || []} />
+            <BarsChart
+              data={dashboard?.charts.achievementsByYear || []}
+              color="#10b981"
+            />
           </Panel>
         </section>
 
@@ -316,140 +318,6 @@ const Panel = ({
   </section>
 );
 
-const HorizontalBars = ({ data }: { data: DashboardChartItem[] }) => {
-  const max = Math.max(...data.map((item) => item.value), 1);
-  if (!data.length) {
-    return (
-      <EmptyLine
-        icon={HiOutlineChartBar}
-        title="Chưa có dữ liệu"
-        description="Dữ liệu thống kê sẽ được hiển thị khi có bản ghi."
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {data.map((item) => {
-        const width = Math.max(6, Math.round((item.value / max) * 100));
-        return (
-          <div key={item.label} className="space-y-2">
-            <div className="flex items-center justify-between gap-3">
-              <Typography variant="caption" weight="semibold" color="neutral">
-                {item.label}
-              </Typography>
-              <Typography variant="caption" weight="bold" color="gray">
-                {formatNumber(item.value)}
-              </Typography>
-            </div>
-            <div className="h-3 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
-              <div
-                className="h-full rounded-full bg-primary-500"
-                style={{ width: `${width}%` }}
-              />
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const VerticalBars = ({ data }: { data: DashboardChartItem[] }) => {
-  const max = Math.max(...data.map((item) => item.value), 1);
-  if (!data.length) {
-    return (
-      <EmptyLine
-        icon={HiOutlineChartBar}
-        title="Chưa có dữ liệu"
-        description="Dữ liệu thống kê sẽ được hiển thị khi có bản ghi."
-      />
-    );
-  }
-
-  return (
-    <div className="flex h-64 items-end gap-3 overflow-x-auto pt-6">
-      {data.map((item) => {
-        const height = Math.max(18, Math.round((item.value / max) * 190));
-        return (
-          <div key={item.label} className="flex min-w-20 flex-1 flex-col items-center gap-2">
-            <Typography variant="caption" weight="bold" color="neutral">
-              {formatNumber(item.value)}
-            </Typography>
-            <div
-              className="w-full rounded-t-xl bg-sky-500"
-              style={{ height }}
-            />
-            <Typography
-              variant="caption"
-              color="gray"
-              className="line-clamp-2 min-h-9 text-center"
-            >
-              {item.label}
-            </Typography>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const DonutChart = ({ data }: { data: DashboardChartItem[] }) => {
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  const paid = data.find((item) => item.label === "Đã nộp")?.value || 0;
-  const paidPercent = total ? Math.round((paid / total) * 100) : 0;
-
-  if (!data.length) {
-    return (
-      <EmptyLine
-        icon={HiOutlineCash}
-        title="Chưa có dữ liệu"
-        description="Trạng thái học phí sẽ được tổng hợp tại đây."
-      />
-    );
-  }
-
-  return (
-    <div className="grid gap-6 md:grid-cols-[180px_1fr] md:items-center">
-      <div
-        className="mx-auto flex size-44 items-center justify-center rounded-full"
-        style={{
-          background: `conic-gradient(#10b981 0 ${paidPercent}%, #f59e0b ${paidPercent}% 100%)`,
-        }}
-      >
-        <div className="flex size-28 flex-col items-center justify-center rounded-full bg-white dark:bg-neutral-950">
-          <Typography variant="h2" weight="black" color="neutral">
-            {paidPercent}%
-          </Typography>
-          <Typography variant="caption" color="gray">
-            đã nộp
-          </Typography>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {data.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center justify-between gap-4 rounded-xl bg-neutral-50 p-3 dark:bg-neutral-900"
-          >
-            <div>
-              <Typography variant="body" weight="semibold" color="neutral">
-                {item.label}
-              </Typography>
-              <Typography variant="caption" color="gray">
-                {formatCurrency(item.amount || 0)}
-              </Typography>
-            </div>
-            <Badge variant={item.label === "Đã nộp" ? "success" : "warning"}>
-              {formatNumber(item.value)}
-            </Badge>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 const RiskStudentItem = ({ student }: { student: DashboardRiskStudent }) => (
   <Link
     href="/commander/profiles"
@@ -556,7 +424,7 @@ const EmptyLine = ({
 );
 
 const DashboardSkeleton = () => (
-  <div className="space-y-8 rounded-2xl bg-white p-6 min-h-screen dark:bg-neutral-950">
+  <div className="min-h-screen space-y-8 rounded-2xl bg-white p-6 dark:bg-neutral-950">
     <div className="space-y-2">
       <Skeleton width={260} height={36} />
       <Skeleton width={520} height={18} />

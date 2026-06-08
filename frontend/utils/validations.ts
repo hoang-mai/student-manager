@@ -370,7 +370,7 @@ export const scheduleItemSchema = z.object({
     endTime: z.string().regex(timePattern, "Giờ kết thúc không hợp lệ"),
   }),
   room: z.string().min(1, "Phòng học là bắt buộc"),
-  subjectName: z.string().optional().nullable(),
+  subjectName: z.string().min(1, "Môn học là bắt buộc"),
   week: z
     .array(
       z

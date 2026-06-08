@@ -113,52 +113,54 @@ export default function CreateTimeTableForm() {
       onSubmit={handleSubmit((data) => mutation.mutate(data))}
       className="max-h-[85vh] space-y-6 overflow-y-auto py-2 pr-2"
     >
-      <Controller
-        name="userId"
-        control={control}
-        render={({ field: { value, onChange } }) => (
-          <Select
-            label="Học viên"
-            placeholder="Chọn học viên"
-            prefixIcon={<HiOutlineAcademicCap />}
-            value={value}
-            onChange={(selectedValue) => onChange(selectedValue)}
-            options={studentOptions}
-            hasNextPage={hasNextStudents}
-            isFetchingNextPage={isFetchingNextStudents}
-            onLoadMore={fetchNextStudents}
-            isLoading={isLoadingStudents}
-            error={errors.userId?.message}
-            emptyText="Không tìm thấy học viên"
-            required
-            filter={{
-              enabled: true,
-              mode: "server",
-              onChange: setStudentSearch,
-              placeholder: "Tìm theo họ tên học viên...",
-            }}
-          />
-        )}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Controller
+          name="userId"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Select
+              label="Học viên"
+              placeholder="Chọn học viên"
+              prefixIcon={<HiOutlineAcademicCap />}
+              value={value}
+              onChange={(selectedValue) => onChange(selectedValue)}
+              options={studentOptions}
+              hasNextPage={hasNextStudents}
+              isFetchingNextPage={isFetchingNextStudents}
+              onLoadMore={fetchNextStudents}
+              isLoading={isLoadingStudents}
+              error={errors.userId?.message}
+              emptyText="Không tìm thấy học viên"
+              required
+              filter={{
+                enabled: true,
+                mode: "server",
+                onChange: setStudentSearch,
+                placeholder: "Tìm theo họ tên học viên...",
+              }}
+            />
+          )}
+        />
 
-      <Controller
-        name="semesterId"
-        control={control}
-        render={({ field: { value, onChange } }) => (
-          <Select
-            label="Học kỳ"
-            placeholder="Chọn học kỳ"
-            prefixIcon={<HiOutlineCalendar />}
-            value={value}
-            onChange={(selectedValue) => onChange(String(selectedValue))}
-            options={semesterOptions}
-            isLoading={mutation.isPending || isLoadingSemesters}
-            error={errors.semesterId?.message}
-            emptyText="Chưa có học kỳ"
-            required
-          />
-        )}
-      />
+        <Controller
+          name="semesterId"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Select
+              label="Học kỳ"
+              placeholder="Chọn học kỳ"
+              prefixIcon={<HiOutlineCalendar />}
+              value={value}
+              onChange={(selectedValue) => onChange(String(selectedValue))}
+              options={semesterOptions}
+              isLoading={mutation.isPending || isLoadingSemesters}
+              error={errors.semesterId?.message}
+              emptyText="Chưa có học kỳ"
+              required
+            />
+          )}
+        />
+      </div>
 
       <TimeTableCalendarForm
         control={control}

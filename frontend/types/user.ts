@@ -101,7 +101,7 @@ export interface EducationLevel {
 
 export interface Student {
   id: string;
-  User?: Pick<User, "id" | "username" | "role" | "isActive">;
+  user?: Pick<User, "id" | "username" | "role" | "isActive">;
   code: string;
   fullName: string;
   avatar: string | null;

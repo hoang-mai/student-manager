@@ -17,12 +17,18 @@ import { ColumnDef } from "@tanstack/react-table";
 import Table from "@/library/Table";
 import { FilterField } from "@/library/table/TableFilter";
 import ActionButton from "@/library/ActionButton";
-import { HiOutlinePencil, HiOutlineTrash, HiOutlineUserGroup } from "react-icons/hi";
+import {
+  HiOutlinePencil,
+  HiOutlineTrash,
+  HiOutlineUserAdd,
+  HiOutlineUserGroup,
+} from "react-icons/hi";
 import { formatDateTime } from "@/utils/fn-common";
 import useTableQuery from "@/hooks/useTableQuery";
 import useAppMutation from "@/hooks/useAppMutation";
 import PageContainer from "@/library/PageContainer";
-import ManageClassStudentsModal from "@/components/classes/ManageClassStudentsModal";
+import AddClassStudentsModal from "@/components/classes/AddClassStudentsModal";
+import ClassStudentsListModal from "@/components/classes/ClassStudentsListModal";
 
 interface Props {
   universityId: string;
@@ -115,11 +121,22 @@ export default function Main({
     [educationLevelId, openModal]
   );
 
-  const handleOpenStudentsModal = useCallback(
+  const handleOpenAddStudentsModal = useCallback(
     (cls: Class) => {
       openModal({
-        title: "Quản lý học viên trong lớp",
-        content: <ManageClassStudentsModal cls={cls} />,
+        title: "Thêm học viên vào lớp",
+        content: <AddClassStudentsModal cls={cls} />,
+        size: "2xl",
+      });
+    },
+    [openModal]
+  );
+
+  const handleOpenStudentsListModal = useCallback(
+    (cls: Class) => {
+      openModal({
+        title: "Danh sách học viên trong lớp",
+        content: <ClassStudentsListModal cls={cls} />,
         size: "2xl",
       });
     },
@@ -194,10 +211,16 @@ export default function Main({
           return (
             <div className="flex items-center justify-start gap-1">
               <ActionButton
-                tooltipText="Quản lý học viên"
-                icon={HiOutlineUserGroup}
+                tooltipText="Thêm học viên"
+                icon={HiOutlineUserAdd}
                 color="green"
-                onClick={() => handleOpenStudentsModal(cls)}
+                onClick={() => handleOpenAddStudentsModal(cls)}
+              />
+              <ActionButton
+                tooltipText="Danh sách học viên"
+                icon={HiOutlineUserGroup}
+                color="secondary"
+                onClick={() => handleOpenStudentsListModal(cls)}
               />
               <ActionButton
                 tooltipText="Chỉnh sửa"
@@ -225,7 +248,13 @@ export default function Main({
         },
       },
     ],
-    [handleOpenStudentsModal, handleOpenUpdateClassModal, openConfirm, deleteClassMutation]
+    [
+      handleOpenAddStudentsModal,
+      handleOpenStudentsListModal,
+      handleOpenUpdateClassModal,
+      openConfirm,
+      deleteClassMutation,
+    ]
   );
 
   const filterOptions = useMemo<FilterField[]>(

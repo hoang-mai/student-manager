@@ -8,7 +8,12 @@ import { universityService } from "@/services/universities";
 import { Class } from "@/types/classes";
 import { formatDateTime, textOrDash } from "@/utils/fn-common";
 import Table from "@/library/Table";
-import { HiOutlinePencil, HiOutlineTrash, HiOutlineUserGroup } from "react-icons/hi";
+import {
+  HiOutlinePencil,
+  HiOutlineTrash,
+  HiOutlineUserAdd,
+  HiOutlineUserGroup,
+} from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Typography from "@/library/Typography";
 import PageContainer from "@/library/PageContainer";
@@ -22,7 +27,8 @@ import useTableQuery from "@/hooks/useTableQuery";
 import ClassSkeleton from "./ClassSkeleton";
 import { DEFAULT_PAGE } from "@/constants/constants";
 import useAppMutation from "@/hooks/useAppMutation";
-import ManageClassStudentsModal from "@/components/classes/ManageClassStudentsModal";
+import AddClassStudentsModal from "@/components/classes/AddClassStudentsModal";
+import ClassStudentsListModal from "@/components/classes/ClassStudentsListModal";
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -97,11 +103,22 @@ export default function Main() {
     [openModal]
   );
 
-  const handleOpenStudentsModal = useCallback(
+  const handleOpenAddStudentsModal = useCallback(
     (cls: Class) => {
       openModal({
-        title: "Quản lý học viên trong lớp",
-        content: <ManageClassStudentsModal cls={cls} />,
+        title: "Thêm học viên vào lớp",
+        content: <AddClassStudentsModal cls={cls} />,
+        size: "2xl",
+      });
+    },
+    [openModal]
+  );
+
+  const handleOpenStudentsListModal = useCallback(
+    (cls: Class) => {
+      openModal({
+        title: "Danh sách học viên trong lớp",
+        content: <ClassStudentsListModal cls={cls} />,
         size: "2xl",
       });
     },
@@ -198,10 +215,16 @@ export default function Main() {
           return (
             <div className="flex items-center justify-start gap-1">
               <ActionButton
-                tooltipText="Quản lý học viên"
-                icon={HiOutlineUserGroup}
-                onClick={() => handleOpenStudentsModal(cls)}
+                tooltipText="Thêm học viên"
+                icon={HiOutlineUserAdd}
+                onClick={() => handleOpenAddStudentsModal(cls)}
                 color="green"
+              />
+              <ActionButton
+                tooltipText="Danh sách học viên"
+                icon={HiOutlineUserGroup}
+                onClick={() => handleOpenStudentsListModal(cls)}
+                color="secondary"
               />
               <ActionButton
                 tooltipText="Chỉnh sửa"
@@ -230,7 +253,13 @@ export default function Main() {
         },
       },
     ],
-    [handleOpenStudentsModal, handleOpenUpdateModal, openConfirm, deleteMutation]
+    [
+      handleOpenAddStudentsModal,
+      handleOpenStudentsListModal,
+      handleOpenUpdateModal,
+      openConfirm,
+      deleteMutation,
+    ]
   );
 
   const universityOptions = useMemo(() => {

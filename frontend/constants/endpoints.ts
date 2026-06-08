@@ -60,6 +60,7 @@ export const ENDPOINTS = {
     TEMPLATE: "/api/time-tables/template",
     EXPORT: "/api/time-tables/export",
     TIME_TABLE: "/api/users/time-table",
+    MY_SEMESTERS: "/api/users/time-table-semesters",
   },
   TUITION_FEES: {
     BASE: "/api/tuition-fees",

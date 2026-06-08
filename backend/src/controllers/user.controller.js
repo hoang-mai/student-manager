@@ -148,6 +148,11 @@ const getMyTimeTable = asyncHandler(async (req, res) => {
   return paginated(res, result.rows, result.pagination);
 });
 
+const getMyTimeTableSemesters = asyncHandler(async (req, res) => {
+  const result = await studentService.getMyTimeTableSemesters(req.userId);
+  return success(res, result);
+});
+
 const denyMyTimeTableMutation = asyncHandler(async () => {
   throw new ForbiddenError('Chỉ chỉ huy mới được nhập và cập nhật lịch học');
 });
@@ -275,6 +280,7 @@ module.exports = {
   uploadAvatar,
   getAcademicResults,
   getMyTimeTable,
+  getMyTimeTableSemesters,
   denyMyTimeTableMutation,
   getMyCutRice,
   updateMyCutRice,

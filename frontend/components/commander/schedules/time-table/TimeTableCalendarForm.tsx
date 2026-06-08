@@ -131,6 +131,7 @@ function ScheduleFields({
         />
         <Input
           label="Tên môn học"
+          required
           placeholder="VD: Toán cao cấp"
           error={schedulesErrors?.[index]?.subjectName?.message}
           {...register(`schedules.${index}.subjectName`)}

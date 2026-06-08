@@ -299,6 +299,37 @@ const getMyTimeTable = async (userId, query = {}) => {
   });
 };
 
+const getMyTimeTableSemesters = async (userId) => {
+  const records = await TimeTable.findAll({
+    attributes: ['semesterId'],
+    where: {
+      userId,
+      semesterId: { [db.Sequelize.Op.ne]: null },
+    },
+    include: [{
+      model: db.semester,
+      required: true,
+      include: [{ model: db.schoolYear, as: 'schoolYearInfo' }],
+    }],
+    order: [['createdAt', 'DESC']],
+  });
+
+  const semestersById = new Map();
+
+  for (const record of records) {
+    const semester = record.get({ plain: true }).Semester;
+    if (semester && !semestersById.has(semester.id)) {
+      semestersById.set(semester.id, semester);
+    }
+  }
+
+  return [...semestersById.values()].sort((a, b) => {
+    const yearA = a.schoolYearInfo?.schoolYear || '';
+    const yearB = b.schoolYearInfo?.schoolYear || '';
+    return yearB.localeCompare(yearA) || Number(b.code) - Number(a.code);
+  });
+};
+
 const createMyTimeTable = async (userId, data) => {
   return TimeTable.create({ ...data, userId });
 };
@@ -427,6 +458,7 @@ module.exports = {
   exportStudents,
   getAcademicResults,
   getMyTimeTable,
+  getMyTimeTableSemesters,
   createMyTimeTable,
   updateMyTimeTable,
   deleteMyTimeTable,
