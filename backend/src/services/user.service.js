@@ -16,7 +16,7 @@ const PROFILE_FIELDS = [
   'fullPartyMember', 'probationaryPartyMember', 'dateOfEnlistment',
   'enrollment', 'graduationDate', 'currentCpa4', 'currentCpa10', 'familyMember',
   'foreignRelations', 'startWork', 'organization', 'classId', 'organizationId',
-  'universityId', 'educationLevelId',
+  'universityId', 'educationLevelId', 'commanderId',
 ];
 
 const _generateCode = (prefix) => `${prefix}${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
@@ -88,7 +88,49 @@ const _checkRoleHierarchy = (requester, targetRole) => {
   }
 };
 
+const _checkCommanderAssignmentPermission = (requester, data) => {
+  if (data.commanderId !== undefined && requester?.role !== 'ADMIN') {
+    throw new ForbiddenError('Chi admin moi duoc gan chi huy quan ly hoc vien');
+  }
+};
+
+const _resolveCommanderId = async (value) => {
+  const commanderRef = toText(value);
+  if (!commanderRef) return null;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(commanderRef);
+
+  const byUser = await User.findOne({
+    where: {
+      role: 'COMMANDER',
+      [db.Sequelize.Op.or]: [
+        ...(isUuid ? [{ id: commanderRef }] : []),
+        { username: commanderRef },
+      ],
+    },
+  });
+  if (byUser) return byUser.id;
+
+  const byProfile = await Profile.findOne({
+    where: { code: commanderRef },
+    include: [{ model: User, where: { role: 'COMMANDER' }, required: true }],
+  });
+  if (byProfile?.User) return byProfile.User.id;
+
+  throw new BadRequestError(`Khong tim thay chi huy quan ly: ${commanderRef}`);
+};
+
+const _assertCommanderCanManageUserRecord = (requester, record) => {
+  if (requester?.role !== 'COMMANDER') return;
+  if (record.role !== 'STUDENT' || record.Profile?.commanderId !== requester.id) {
+    throw new ForbiddenError('Chi huy chi duoc quan ly hoc vien minh phu trach');
+  }
+};
+
 const _createProfile = async (data, requester) => {
+  _checkCommanderAssignmentPermission(requester, data);
+  if (data.commanderId !== undefined) {
+    data.commanderId = await _resolveCommanderId(data.commanderId);
+  }
   if (data.role === 'ADMIN' && requester && requester.role !== 'ADMIN') {
     throw new ForbiddenError('Chỉ admin mới có thể tạo tài khoản admin');
   }
@@ -135,7 +177,7 @@ const create = async (data, requester) => {
   return User.create(data);
 };
 
-const getAll = async (query) => {
+const getAll = async (query, requester) => {
   const where = {};
   const profileWhere = {};
 
@@ -145,6 +187,10 @@ const getAll = async (query) => {
 
   if (query.code) profileWhere.code = query.code;
   if (query.fullName) profileWhere.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
+  if (requester?.role === 'COMMANDER') {
+    where.role = 'STUDENT';
+    profileWhere.commanderId = requester.id;
+  }
 
   return paginateQuery(User, query, {
     where,
@@ -157,6 +203,7 @@ const getAll = async (query) => {
           { model: db.class },
           { model: db.organization },
           { model: db.educationLevel },
+          { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] },
         ],
       },
     ],
@@ -196,6 +243,7 @@ const exportUsers = async (query = {}) => {
           { model: db.class },
           { model: db.organization },
           { model: db.educationLevel },
+          { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] },
         ],
       },
     ],
@@ -216,6 +264,7 @@ const exportUsers = async (query = {}) => {
     { header: 'Số điện thoại', key: 'phoneNumber', width: 18 },
     { header: 'Đơn vị', key: 'unit', width: 22 },
     { header: 'Cấp bậc', key: 'rank', width: 16 },
+    { header: 'Chỉ huy quản lý', key: 'commanderId', width: 18 },
     { header: 'Lớp', key: 'className', width: 22 },
     { header: 'Khoa/Ngành', key: 'organizationName', width: 26 },
     { header: 'Trường đại học', key: 'universityName', width: 28 },
@@ -256,7 +305,7 @@ const exportUsers = async (query = {}) => {
   return workbook.xlsx.writeBuffer();
 };
 
-const getDetail = async (id) => {
+const getDetail = async (id, requester) => {
   const record = await User.findByPk(id, {
     include: [
       {
@@ -266,17 +315,23 @@ const getDetail = async (id) => {
           { model: db.class },
           { model: db.organization },
           { model: db.educationLevel },
+          { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] },
         ],
       },
     ],
   });
   if (!record) throw new NotFoundError('Không tìm thấy người dùng');
+  _assertCommanderCanManageUserRecord(requester, record);
   return record;
 };
 
 const update = async (id, data, requester) => {
-  const record = await getDetail(id);
+  const record = await getDetail(id, requester);
   _checkRoleHierarchy(requester, record.role);
+  _checkCommanderAssignmentPermission(requester, data);
+  if (data.commanderId !== undefined) {
+    data.commanderId = await _resolveCommanderId(data.commanderId);
+  }
   if (data.role) {
     _checkRoleHierarchy(requester, data.role);
   }
@@ -300,7 +355,7 @@ const update = async (id, data, requester) => {
 };
 
 const deleteRecord = async (id, requester) => {
-  const record = await getDetail(id);
+  const record = await getDetail(id, requester);
   _checkRoleHierarchy(requester, record.role);
   await record.destroy();
   return { deleted: true };
@@ -445,6 +500,7 @@ const createImportTemplate = async () => {
       enrollment: 2025,
       unit: 'Đại đội 1',
       rank: 'Binh nhất',
+      commanderId: 'chihuy01',
     },
     {
       username: 'chihuy03',
@@ -497,6 +553,7 @@ const createBatchProfileUpdateTemplate = async () => {
     { header: 'CPA 4.0', key: 'currentCpa4', width: 12 },
     { header: 'CPA 10.0', key: 'currentCpa10', width: 12 },
     { header: 'Ngày tốt nghiệp', key: 'graduationDate', width: 16 },
+    { header: 'Chỉ huy quản lý', key: 'commanderId', width: 18 },
     { header: 'Số thẻ Đảng', key: 'partyMemberCardNumber', width: 18 },
     { header: 'Đảng viên dự bị', key: 'probationaryPartyMember', width: 18 },
     { header: 'Đảng viên chính thức', key: 'fullPartyMember', width: 20 },
@@ -525,6 +582,7 @@ const createBatchProfileUpdateTemplate = async () => {
       currentCpa4: 3.2,
       currentCpa10: 8.0,
       graduationDate: '',
+      commanderId: 'chihuy01',
       partyMemberCardNumber: '',
       probationaryPartyMember: '',
       fullPartyMember: '',
@@ -576,6 +634,7 @@ const parseExcelImport = async (file) => {
       enrollment: toNumber(getCellValue(row, headerMap, ['Khóa học', 'enrollment'])),
       unit: toText(getCellValue(row, headerMap, ['Đơn vị', 'unit'])),
       rank: toText(getCellValue(row, headerMap, ['Cấp bậc', 'rank'])),
+      commanderId: toText(getCellValue(row, headerMap, ['Chỉ huy quản lý', 'Chi huy quan ly', 'commanderId', 'commanderUsername'])),
     });
   });
 
@@ -627,6 +686,7 @@ const parseBatchProfileUpdateExcelImport = async (file) => {
       currentCpa4: toNumber(getCellValue(row, headerMap, ['CPA 4.0', 'currentCpa4'])),
       currentCpa10: toNumber(getCellValue(row, headerMap, ['CPA 10.0', 'currentCpa10'])),
       graduationDate: toText(getCellValue(row, headerMap, ['Ngày tốt nghiệp', 'graduationDate'])),
+      commanderId: toText(getCellValue(row, headerMap, ['Chỉ huy quản lý', 'Chi huy quan ly', 'commanderId', 'commanderUsername'])),
       partyMemberCardNumber: toText(getCellValue(row, headerMap, ['Số thẻ Đảng', 'partyMemberCardNumber'])),
       probationaryPartyMember: toText(getCellValue(row, headerMap, ['Đảng viên dự bị', 'probationaryPartyMember'])),
       fullPartyMember: toText(getCellValue(row, headerMap, ['Đảng viên chính thức', 'fullPartyMember'])),

@@ -32,6 +32,7 @@ const create = yup.object({
   organizationId: yup.string().uuid('Mã đơn vị không hợp lệ').nullable(),
   universityId: yup.string().uuid('Mã trường không hợp lệ').nullable(),
   educationLevelId: yup.string().uuid('Mã trình độ đào tạo không hợp lệ').nullable(),
+  commanderId: yup.string().uuid('Mã chỉ huy không hợp lệ').nullable(),
 });
 
 const update = yup.object({
@@ -65,6 +66,7 @@ const update = yup.object({
   organizationId: yup.string().uuid('Mã đơn vị không hợp lệ').nullable(),
   universityId: yup.string().uuid('Mã trường không hợp lệ').nullable(),
   educationLevelId: yup.string().uuid('Mã trình độ đào tạo không hợp lệ').nullable(),
+  commanderId: yup.string().uuid('Mã chỉ huy không hợp lệ').nullable(),
 });
 
 const profileUpdate = yup.object({

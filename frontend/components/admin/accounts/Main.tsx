@@ -188,6 +188,34 @@ export default function Main() {
         },
       },
       {
+        id: "commander",
+        header: "Chỉ huy quản lý",
+        cell: (info) => {
+          const user = info.row.original;
+          const profile = user.profile || user.Profile;
+          const commander = profile?.commander || profile?.Commander;
+          const commanderName = commander?.username;
+
+          if (user.role !== ROLES.STUDENT.ROLE) {
+            return (
+              <Typography variant="caption" color="gray">
+                -
+              </Typography>
+            );
+          }
+
+          return (
+            <Typography
+              variant="body"
+              weight="semibold"
+              color={commanderName ? "neutral" : "gray"}
+            >
+              {commanderName || "Chưa gán"}
+            </Typography>
+          );
+        },
+      },
+      {
         id: "isActive",
         header: "Trạng thái",
         accessorKey: "isActive",

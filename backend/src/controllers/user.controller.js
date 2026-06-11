@@ -18,7 +18,7 @@ const create = asyncHandler(async (req, res) => {
 });
 
 const getAll = asyncHandler(async (req, res) => {
-  const result = await service.getAll(req.query);
+  const result = await service.getAll(req.query, req.user);
   return paginated(res, result.rows, result.pagination);
 });
 
@@ -30,7 +30,7 @@ const exportUsers = asyncHandler(async (req, res) => {
 });
 
 const getDetail = asyncHandler(async (req, res) => {
-  const result = await service.getDetail(req.params.id);
+  const result = await service.getDetail(req.params.id, req.user);
   return success(res, result);
 });
 
@@ -160,7 +160,7 @@ const denyMyTimeTableMutation = asyncHandler(async () => {
 // ===================== Student: Cắt cơm =====================
 
 const getMyCutRice = asyncHandler(async (req, res) => {
-  const result = await studentService.getMyCutRice(req.userId);
+  const result = await studentService.getMyCutRice(req.userId, req.query);
   return success(res, result);
 });
 
@@ -168,6 +168,17 @@ const updateMyCutRice = asyncHandler(async (req, res) => {
   await validateOrThrow(crs.cutRice || crs.update, req.body);
   const result = await studentService.updateMyCutRice(req.userId, req.body);
   return success(res, result, 'Cập nhật lịch cắt cơm thành công');
+});
+
+const createMyCutRiceRequest = asyncHandler(async (req, res) => {
+  await validateOrThrow(crs.request, req.body);
+  const result = await studentService.createMyCutRiceRequest(req.userId, req.body);
+  return success(res, result, 'Gửi yêu cầu cắt cơm thành công', 201);
+});
+
+const getMyCutRiceRequests = asyncHandler(async (req, res) => {
+  const result = await studentService.getMyCutRiceRequests(req.userId, req.query);
+  return paginated(res, result.rows, result.pagination);
 });
 
 // ===================== Student: Thành tích & Học phí =====================
@@ -191,28 +202,28 @@ const createProfile = asyncHandler(async (req, res) => {
 });
 
 const getAllProfiles = asyncHandler(async (req, res) => {
-  const result = await studentService.getAll(req.query);
+  const result = await studentService.getAll(req.query, req.user);
   return paginated(res, result.rows, result.pagination);
 });
 
 const getProfileDetail = asyncHandler(async (req, res) => {
-  const result = await studentService.getDetail(req.params.id);
+  const result = await studentService.getDetail(req.params.id, req.user);
   return success(res, result);
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
   await validateOrThrow(ss.update, req.body);
-  const result = await studentService.update(req.params.id, req.body);
+  const result = await studentService.update(req.params.id, req.body, req.user);
   return success(res, result, 'Cập nhật hồ sơ thành công');
 });
 
 const deleteProfile = asyncHandler(async (req, res) => {
-  await studentService.delete(req.params.id);
+  await studentService.delete(req.params.id, req.user);
   return success(res, null, 'Xóa hồ sơ thành công');
 });
 
 const exportProfiles = asyncHandler(async (req, res) => {
-  const buffer = await studentService.exportStudents(req.query);
+  const buffer = await studentService.exportStudents(req.query, req.user);
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.setHeader('Content-Disposition', 'attachment; filename=danh-sach-ho-so.xlsx');
   res.send(buffer);
@@ -221,12 +232,12 @@ const exportProfiles = asyncHandler(async (req, res) => {
 // ===================== Commander: Cắt cơm hàng loạt =====================
 
 const generateCutRice = asyncHandler(async (req, res) => {
-  const result = await commanderService.generateCutRice(req.params.userId);
+  const result = await commanderService.generateCutRice(req.params.userId, req.query, req.user);
   return success(res, result, 'Tạo lịch cắt cơm tự động thành công');
 });
 
 const generateAllCutRice = asyncHandler(async (req, res) => {
-  const result = await commanderService.generateAllCutRice();
+  const result = await commanderService.generateAllCutRice(req.user);
   return success(res, result, 'Tạo lịch cắt cơm hàng loạt thành công');
 });
 
@@ -284,6 +295,8 @@ module.exports = {
   denyMyTimeTableMutation,
   getMyCutRice,
   updateMyCutRice,
+  createMyCutRiceRequest,
+  getMyCutRiceRequests,
   getMyAchievements,
   getMyTuitionFees,
   createProfile,

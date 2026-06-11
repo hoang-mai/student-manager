@@ -1,5 +1,5 @@
 const db = require('../models');
-const { NotFoundError, BadRequestError } = require('../utils/apiError');
+const { NotFoundError, BadRequestError, ForbiddenError } = require('../utils/apiError');
 const { paginateQuery } = require('../utils/response');
 
 const Student = db.profile;
@@ -12,6 +12,7 @@ const SemesterResult = db.semesterResult;
 const SubjectResult = db.subjectResult;
 const TimeTable = db.timeTable;
 const CutRice = db.cutRice;
+const CutRiceRequest = db.cutRiceRequest;
 const User = db.user;
 const Achievement = db.achievement;
 const AchievementProfile = db.achievementProfile;
@@ -20,6 +21,47 @@ const ScientificInitiative = db.scientificInitiative;
 const ScientificTopic = db.scientificTopic;
 const TuitionFee = db.tuitionFee;
 const Notification = db.notification;
+const Semester = db.semester;
+
+const isCommander = (requester) => requester?.role === 'COMMANDER';
+
+const applyCommanderScope = (where, requester) => {
+  if (isCommander(requester)) where.commanderId = requester.id;
+};
+
+const assertCommanderCanAccessProfile = (profile, requester) => {
+  if (isCommander(requester) && profile?.commanderId !== requester.id) {
+    throw new NotFoundError('Khong tim thay hoc vien');
+  }
+};
+
+const toDateOnly = (date) => [
+  date.getFullYear(),
+  String(date.getMonth() + 1).padStart(2, '0'),
+  String(date.getDate()).padStart(2, '0'),
+].join('-');
+
+const parseLocalDate = (value) => {
+  if (value instanceof Date) return new Date(value);
+  if (typeof value === 'string') {
+    const [year, month, day] = value.split('-').map(Number);
+    if (year && month && day) return new Date(year, month - 1, day);
+  }
+  return new Date(value);
+};
+
+const getWeekRange = (value = new Date()) => {
+  const date = parseLocalDate(value);
+  if (Number.isNaN(date.getTime())) throw new BadRequestError('Ngay tuan khong hop le');
+  date.setHours(0, 0, 0, 0);
+  const day = date.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const start = new Date(date);
+  start.setDate(date.getDate() + diffToMonday);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return { weekStartDate: toDateOnly(start), weekEndDate: toDateOnly(end) };
+};
 
 const EXCEL_HEADERS = {
   // Thông tin cá nhân
@@ -91,9 +133,9 @@ const resolveField = (obj, path) => {
 // ===================== CRUD Cơ bản =====================
 
 const create = async (data) => Student.create(data);
-const getAll = async (query) => {
+const getAll = async (query, requester) => {
   const where = {};
-  const exactFilterFields = ['gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId'];
+  const exactFilterFields = ['gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId', 'commanderId'];
 
   for (const field of exactFilterFields) {
     if (query[field] !== undefined && query[field] !== '') {
@@ -108,10 +150,11 @@ const getAll = async (query) => {
   if (query.fullName) {
     where.fullName = { [db.Sequelize.Op.iLike]: `%${query.fullName}%` };
   }
+  applyCommanderScope(where, requester);
 
   const opts = {
     where,
-    include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }],
+    include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }, { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] }],
   };
 
   if (query.schoolYear) {
@@ -125,37 +168,42 @@ const getAll = async (query) => {
   return paginateQuery(Student, query, opts);
 };
 
-const getDetail = async (id) => {
+const getDetail = async (id, requester) => {
   const record = await Student.findByPk(id, {
-    include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }],
+    include: [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }, { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy học viên');
+  assertCommanderCanAccessProfile(record, requester);
   return record;
 };
 
-const update = async (id, data) => {
-  const record = await getDetail(id);
+const update = async (id, data, requester) => {
+  if (isCommander(requester) && data.commanderId !== undefined) {
+    throw new ForbiddenError('Chi admin moi duoc gan chi huy quan ly hoc vien');
+  }
+  const record = await getDetail(id, requester);
   return record.update(data);
 };
 
-const deleteRecord = async (id) => {
-  const record = await getDetail(id);
+const deleteRecord = async (id, requester) => {
+  const record = await getDetail(id, requester);
   await record.destroy();
   return { deleted: true };
 };
 
 // ===================== Export Excel =====================
 
-const exportStudents = async (query) => {
+const exportStudents = async (query, requester) => {
   const where = {};
-  const include = [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }];
+  const include = [{ model: Class }, { model: Organization }, { model: University }, { model: EducationLevel }, { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] }];
 
-  const filterFields = ['code', 'fullName', 'gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId'];
+  const filterFields = ['code', 'fullName', 'gender', 'enrollment', 'unit', 'rank', 'classId', 'organizationId', 'universityId', 'educationLevelId', 'commanderId'];
   for (const field of filterFields) {
     if (query[field] !== undefined) {
       where[field] = query[field];
     }
   }
+  applyCommanderScope(where, requester);
 
   if (query.schoolYear) {
     include.push({
@@ -349,27 +397,92 @@ const deleteMyTimeTable = async (userId, id) => {
 
 // ===================== HV-07: Cut Rice =====================
 
-const getMyCutRice = async (userId) => {
-  const include = [{ model: User, include: [{ model: Student }] }];
-  let record = await CutRice.findOne({ where: { userId }, include });
+const getLatestTimeTableSemesterId = async (userId) => {
+  const record = await TimeTable.findOne({
+    where: { userId, semesterId: { [db.Sequelize.Op.ne]: null } },
+    order: [['createdAt', 'DESC']],
+  });
+  return record?.semesterId || null;
+};
+
+const ensureSemester = async (semesterId) => {
+  const semester = await Semester.findByPk(semesterId);
+  if (!semester) throw new BadRequestError('Khong tim thay hoc ky');
+  return semester;
+};
+
+const getMyCutRice = async (userId, query = {}) => {
+  const include = [
+    { model: User, include: [{ model: Student }] },
+    { model: Semester, as: 'semesterInfo', include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] },
+  ];
+  const semesterId = query.semesterId || await getLatestTimeTableSemesterId(userId);
+  const weekRange = getWeekRange(query.weekStartDate || new Date());
+  const where = {
+    userId,
+    semesterId: semesterId || null,
+    weekStartDate: weekRange.weekStartDate,
+  };
+  let record = await CutRice.findOne({ where, include });
   if (!record) {
-    record = await CutRice.create({ userId, weekly: {} });
-    record = await CutRice.findOne({ where: { userId }, include });
+    record = await CutRice.create({ userId, semesterId: semesterId || null, ...weekRange, weekly: {} });
+    record = await CutRice.findOne({ where, include });
   }
   return record;
 };
 
 const updateMyCutRice = async (userId, data) => {
-  let record = await CutRice.findOne({ where: { userId } });
+  const semesterId = data.semesterId || await getLatestTimeTableSemesterId(userId);
+  const weekRange = getWeekRange(data.weekStartDate || new Date());
+  let record = await CutRice.findOne({
+    where: { userId, semesterId: semesterId || null, weekStartDate: weekRange.weekStartDate },
+  });
   if (!record) {
-    record = await CutRice.create({ userId, weekly: {} });
+    record = await CutRice.create({ userId, semesterId: semesterId || null, ...weekRange, weekly: {} });
   }
 
   return record.update({
+    semesterId: data.semesterId !== undefined ? data.semesterId : record.semesterId,
+    ...weekRange,
     weekly: data.weekly !== undefined ? data.weekly : record.weekly,
     isAutoGenerated: false,
     notes: data.notes !== undefined ? data.notes : record.notes,
     lastUpdated: new Date(),
+  });
+};
+
+const createMyCutRiceRequest = async (userId, data) => {
+  await ensureSemester(data.semesterId);
+  const weekRange = getWeekRange(data.weekStartDate);
+  const existingPending = await CutRiceRequest.findOne({
+    where: {
+      userId,
+      semesterId: data.semesterId,
+      weekStartDate: weekRange.weekStartDate,
+      status: 'PENDING',
+    },
+  });
+  if (existingPending) throw new BadRequestError('Da co yeu cau cat com dang cho duyet cho tuan nay');
+
+  return CutRiceRequest.create({
+    userId,
+    semesterId: data.semesterId,
+    ...weekRange,
+    weekly: data.weekly,
+    notes: data.notes || null,
+  });
+};
+
+const getMyCutRiceRequests = async (userId, query = {}) => {
+  const where = { userId };
+  if (query.status) where.status = query.status;
+  if (query.semesterId) where.semesterId = query.semesterId;
+  if (query.weekStartDate) where.weekStartDate = getWeekRange(query.weekStartDate).weekStartDate;
+
+  return paginateQuery(CutRiceRequest, query, {
+    where,
+    include: [{ model: Semester, as: 'semesterInfo', include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] }],
+    order: [['createdAt', 'DESC']],
   });
 };
 
@@ -464,6 +577,8 @@ module.exports = {
   deleteMyTimeTable,
   getMyCutRice,
   updateMyCutRice,
+  createMyCutRiceRequest,
+  getMyCutRiceRequests,
   getMyAchievements,
   getMyTuitionFees,
   getMyNotifications,

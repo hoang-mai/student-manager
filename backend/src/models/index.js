@@ -1,6 +1,15 @@
 const dbConfig = require('../config/dbConfig.js');
 const { Sequelize, DataTypes } = require('sequelize');
 
+const dialectOptions = dbConfig.ssl
+  ? {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    }
+  : {};
+
 const sequelize = new Sequelize(
   dbConfig.DB,
   dbConfig.USER,
@@ -9,12 +18,7 @@ const sequelize = new Sequelize(
     host: dbConfig.HOST,
     port: dbConfig.port,
     dialect: dbConfig.dialect,
-      dialectOptions: {
-          ssl: {
-              require: true,
-              rejectUnauthorized: false,
-          },
-      },
+    dialectOptions,
     logging: false,
     pool: {
       max: dbConfig.pool.max,
@@ -70,6 +74,7 @@ db.scientificTopic = require('./scientificTopic.js')(sequelize, DataTypes);
 // Nhóm Bổ trợ & Lịch trình
 db.commanderDutySchedule = require('./commanderDutySchedule.js')(sequelize, DataTypes);
 db.cutRice = require('./cutRice.js')(sequelize, DataTypes);
+db.cutRiceRequest = require('./cutRiceRequest.js')(sequelize, DataTypes);
 db.notification = require('./notification.js')(sequelize, DataTypes);
 db.gradeRequest = require('./gradeRequest.js')(sequelize, DataTypes);
 
@@ -112,6 +117,8 @@ db.profile.belongsTo(db.educationLevel, { foreignKey: 'education_level_id', onUp
 // Profile 1:1 User
 db.profile.hasOne(db.user, { foreignKey: 'profile_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.user.belongsTo(db.profile, { foreignKey: 'profile_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.user.hasMany(db.profile, { as: 'managedStudents', foreignKey: { name: 'commanderId', field: 'commander_id' }, onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.profile.belongsTo(db.user, { as: 'commander', foreignKey: { name: 'commanderId', field: 'commander_id' }, onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
 // --- Nhóm Kết quả Học tập & Đào tạo ---
 
@@ -178,6 +185,17 @@ db.scientificTopic.belongsTo(db.yearlyAchievement, { foreignKey: 'yearly_achieve
 // User 1:N CutRice
 db.user.hasMany(db.cutRice, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 db.cutRice.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+
+// Semester 1:N CutRice
+db.semester.hasMany(db.cutRice, { as: 'cutRiceSchedules', foreignKey: { name: 'semesterId', field: 'semester_id' }, onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.cutRice.belongsTo(db.semester, { as: 'semesterInfo', foreignKey: { name: 'semesterId', field: 'semester_id' }, onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+
+// User/Semester 1:N CutRiceRequest
+db.user.hasMany(db.cutRiceRequest, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.cutRiceRequest.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.semester.hasMany(db.cutRiceRequest, { as: 'cutRiceRequests', foreignKey: { name: 'semesterId', field: 'semester_id' }, onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.cutRiceRequest.belongsTo(db.semester, { as: 'semesterInfo', foreignKey: { name: 'semesterId', field: 'semester_id' }, onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.cutRiceRequest.belongsTo(db.user, { as: 'reviewer', foreignKey: { name: 'reviewedBy', field: 'reviewed_by' }, onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
 // User 1:N CommanderDutySchedule
 db.user.hasMany(db.commanderDutySchedule, { as: 'dutySchedules', foreignKey: { name: 'userId', field: 'user_id' }, onUpdate: 'CASCADE', onDelete: 'RESTRICT' });

@@ -8,7 +8,7 @@ const getAdminDashboard = asyncHandler(async (req, res) => {
 });
 
 const getCommanderDashboard = asyncHandler(async (req, res) => {
-  const result = await service.getCommanderDashboard(req.query);
+  const result = await service.getCommanderDashboard(req.query, req.user);
   return success(res, result);
 });
 

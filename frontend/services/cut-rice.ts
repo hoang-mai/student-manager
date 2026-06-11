@@ -3,7 +3,11 @@ import { ENDPOINTS } from "@/constants/endpoints";
 import {
   CreateCutRiceRequest,
   CutRice,
+  CutRiceRequest,
+  CutRiceRequestQueryRequest,
   CutRiceQueryRequest,
+  CreateCutRiceRequestPayload,
+  ReviewCutRiceRequestPayload,
   UpdateCutRiceRequest,
 } from "@/types/cut-rice";
 
@@ -18,8 +22,34 @@ export const cutRiceService = {
     return apiClient.get(`${ENDPOINTS.CUT_RICE.BASE}/${id}`);
   },
 
-  getMyCutRice: async (): Promise<ApiResponse<CutRice>> => {
-    return apiClient.get(ENDPOINTS.CUT_RICE.MY);
+  getMyCutRice: async (
+    params?: Pick<CutRiceQueryRequest, "semesterId" | "weekStartDate">
+  ): Promise<ApiResponse<CutRice>> => {
+    return apiClient.get(ENDPOINTS.CUT_RICE.MY, { params });
+  },
+
+  getMyRequests: async (
+    params?: CutRiceRequestQueryRequest
+  ): Promise<PaginatedResponse<CutRiceRequest>> => {
+    return apiClient.get(ENDPOINTS.CUT_RICE.MY_REQUESTS, { params });
+  },
+
+  createMyRequest: async (data: CreateCutRiceRequestPayload) => {
+    return apiClient.post(ENDPOINTS.CUT_RICE.MY_REQUESTS, data);
+  },
+
+  getRequests: async (
+    params?: CutRiceRequestQueryRequest
+  ): Promise<PaginatedResponse<CutRiceRequest>> => {
+    return apiClient.get(ENDPOINTS.CUT_RICE.REQUESTS, { params });
+  },
+
+  approveRequest: async (id: string, data?: ReviewCutRiceRequestPayload) => {
+    return apiClient.post(ENDPOINTS.CUT_RICE.APPROVE_REQUEST(id), data || {});
+  },
+
+  rejectRequest: async (id: string, data?: ReviewCutRiceRequestPayload) => {
+    return apiClient.post(ENDPOINTS.CUT_RICE.REJECT_REQUEST(id), data || {});
   },
 
   createCutRice: async (data: CreateCutRiceRequest) => {
@@ -34,8 +64,17 @@ export const cutRiceService = {
     return apiClient.delete(`${ENDPOINTS.CUT_RICE.BASE}/${id}`);
   },
 
-  generateForStudent: async (userId: string) => {
-    return apiClient.post(ENDPOINTS.CUT_RICE.GENERATE(userId));
+  generateForStudent: async (
+    userId: string,
+    semesterId?: string,
+    weekStartDate?: string
+  ) => {
+    return apiClient.post(ENDPOINTS.CUT_RICE.GENERATE(userId), null, {
+      params: {
+        ...(semesterId ? { semesterId } : {}),
+        ...(weekStartDate ? { weekStartDate } : {}),
+      },
+    });
   },
 
   generateAll: async () => {

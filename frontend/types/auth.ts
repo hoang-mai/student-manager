@@ -33,4 +33,5 @@ export interface CreateUserRequest {
   role: "ADMIN" | "COMMANDER" | "STUDENT";
   fullName: string;
   email?: string;
+  commanderId?: string | null;
 }

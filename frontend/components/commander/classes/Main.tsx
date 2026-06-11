@@ -3,35 +3,24 @@
 import { useMemo, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
+import { HiOutlineUserGroup } from "react-icons/hi";
+import ActionButton from "@/library/ActionButton";
+import PageContainer from "@/library/PageContainer";
+import Table from "@/library/Table";
+import Typography from "@/library/Typography";
+import { FilterField } from "@/library/table/TableFilter";
+import useTableQuery from "@/hooks/useTableQuery";
 import { classService } from "@/services/classes";
 import { universityService } from "@/services/universities";
+import { DEFAULT_PAGE } from "@/constants/constants";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { useModalStore } from "@/store/useModalStore";
 import { Class } from "@/types/classes";
 import { formatDateTime, textOrDash } from "@/utils/fn-common";
-import Table from "@/library/Table";
-import {
-  HiOutlinePencil,
-  HiOutlineTrash,
-  HiOutlineUserAdd,
-  HiOutlineUserGroup,
-} from "react-icons/hi";
-import ActionButton from "@/library/ActionButton";
-import Typography from "@/library/Typography";
-import PageContainer from "@/library/PageContainer";
-import { FilterField } from "@/library/table/TableFilter";
-import { useConfirmStore } from "@/store/useConfirmStore";
-import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
-import { useModalStore } from "@/store/useModalStore";
-import UpdateClassForm from "@/components/commander/classes/UpdateClassForm";
-import CreateClassForm from "./CreateClassForm";
-import useTableQuery from "@/hooks/useTableQuery";
-import ClassSkeleton from "./ClassSkeleton";
-import { DEFAULT_PAGE } from "@/constants/constants";
-import useAppMutation from "@/hooks/useAppMutation";
-import AddClassStudentsModal from "@/components/classes/AddClassStudentsModal";
 import ClassStudentsListModal from "@/components/classes/ClassStudentsListModal";
+import ClassSkeleton from "./ClassSkeleton";
 
 export default function Main() {
-  const { openConfirm } = useConfirmStore();
   const { openModal } = useModalStore();
 
   const {
@@ -71,54 +60,11 @@ export default function Main() {
     fetchData: classService.getClasses,
   });
 
-  const deleteMutation = useAppMutation({
-    mutationKey: MUTATION_KEYS.DELETE_CLASS,
-    mutationFn: (id: string) => classService.deleteClass(id),
-    invalidateQueryKey: [QUERY_KEYS.CLASSES],
-    successMessage: "Xóa lớp học thành công!",
-    errorMessage: "Xóa lớp học thất bại!",
-  });
-
-  const handleAddClass = useCallback(() => {
-    openModal({
-      title: "Thêm lớp học mới",
-      content: <CreateClassForm />,
-      config: {
-        mutationKey: MUTATION_KEYS.CREATE_CLASS,
-      },
-    });
-  }, [openModal]);
-
-  const handleOpenUpdateModal = useCallback(
-    (cls: Class) => {
-      openModal({
-        title: "Chỉnh sửa lớp học",
-        content: <UpdateClassForm cls={cls} />,
-        size: "md",
-        config: {
-          mutationKey: MUTATION_KEYS.UPDATE_CLASS,
-        },
-      });
-    },
-    [openModal]
-  );
-
-  const handleOpenAddStudentsModal = useCallback(
-    (cls: Class) => {
-      openModal({
-        title: "Thêm học viên vào lớp",
-        content: <AddClassStudentsModal cls={cls} />,
-        size: "2xl",
-      });
-    },
-    [openModal]
-  );
-
   const handleOpenStudentsListModal = useCallback(
     (cls: Class) => {
       openModal({
         title: "Danh sách học viên trong lớp",
-        content: <ClassStudentsListModal cls={cls} />,
+        content: <ClassStudentsListModal cls={cls} readOnly />,
         size: "2xl",
       });
     },
@@ -182,12 +128,7 @@ export default function Main() {
         header: "Ngày tạo",
         accessorKey: "createdAt",
         cell: (info) => (
-          <Typography
-            variant="caption"
-            weight="semibold"
-            color="gray"
-            className="whitespace-nowrap"
-          >
+          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
             {formatDateTime(info.row.original.createdAt)}
           </Typography>
         ),
@@ -197,12 +138,7 @@ export default function Main() {
         header: "Ngày cập nhật",
         accessorKey: "updatedAt",
         cell: (info) => (
-          <Typography
-            variant="caption"
-            weight="semibold"
-            color="gray"
-            className="whitespace-nowrap"
-          >
+          <Typography variant="caption" weight="semibold" color="gray" className="whitespace-nowrap">
             {formatDateTime(info.row.original.updatedAt)}
           </Typography>
         ),
@@ -213,62 +149,24 @@ export default function Main() {
         cell: (info) => {
           const cls = info.row.original;
           return (
-            <div className="flex items-center justify-start gap-1">
-              <ActionButton
-                tooltipText="Thêm học viên"
-                icon={HiOutlineUserAdd}
-                onClick={() => handleOpenAddStudentsModal(cls)}
-                color="green"
-              />
-              <ActionButton
-                tooltipText="Danh sách học viên"
-                icon={HiOutlineUserGroup}
-                onClick={() => handleOpenStudentsListModal(cls)}
-                color="secondary"
-              />
-              <ActionButton
-                tooltipText="Chỉnh sửa"
-                icon={HiOutlinePencil}
-                onClick={() => handleOpenUpdateModal(cls)}
-                color="blue"
-              />
-
-              <ActionButton
-                tooltipText="Xóa lớp"
-                icon={HiOutlineTrash}
-                color="red"
-                onClick={() =>
-                  openConfirm({
-                    title: "Xác nhận xóa",
-                    message: `Bạn có chắc chắn muốn xóa lớp "${cls.className}" không?`,
-                    confirmText: "Xóa ngay",
-                    variant: "danger",
-                    mutationKey: MUTATION_KEYS.DELETE_CLASS,
-                    onConfirm: () => deleteMutation.mutate(cls.id),
-                  })
-                }
-              />
-            </div>
+            <ActionButton
+              tooltipText="Danh sách học viên"
+              icon={HiOutlineUserGroup}
+              onClick={() => handleOpenStudentsListModal(cls)}
+              color="secondary"
+            />
           );
         },
       },
     ],
-    [
-      handleOpenAddStudentsModal,
-      handleOpenStudentsListModal,
-      handleOpenUpdateModal,
-      openConfirm,
-      deleteMutation,
-    ]
+    [handleOpenStudentsListModal]
   );
 
   const universityOptions = useMemo(() => {
     const options = [{ value: "", label: "Tất cả trường" }];
-    if (universities) {
-      universities.forEach((uni) => {
-        options.push({ value: uni.id, label: uni.universityName });
-      });
-    }
+    universities?.forEach((uni) => {
+      options.push({ value: uni.id, label: uni.universityName });
+    });
     return options;
   }, [universities]);
 
@@ -310,9 +208,9 @@ export default function Main() {
     <PageContainer
       breadcrumb={[
         { label: "Tổng quan", href: "/commander" },
-        { label: "Quản lý lớp học" },
+        { label: "Lớp học" },
       ]}
-      title="Quản lý lớp học"
+      title="Lớp học"
       isLoading={isClassesLoading}
       skeleton={<ClassSkeleton />}
       isError={isClassesError}
@@ -331,8 +229,6 @@ export default function Main() {
             onSortingChange={setSorting}
             filterFields={filterOptions}
             emptyText="Không tìm thấy lớp học nào phù hợp"
-            onAdd={handleAddClass}
-            addLabel="Thêm lớp học"
           />
         </div>
       </div>

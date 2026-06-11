@@ -20,6 +20,17 @@ const toChartRows = (rows, labelKey = 'label') => rows.map((row) => ({
   amount: row.amount !== undefined ? toNumber(row.amount) : undefined,
 }));
 
+const getManagedProfileWhere = (requester) => (
+  requester?.role === 'COMMANDER' ? { commanderId: requester.id } : {}
+);
+
+const getManagedUserInclude = (requester, extraProfileInclude = []) => ({
+  model: Profile,
+  where: getManagedProfileWhere(requester),
+  required: requester?.role === 'COMMANDER',
+  include: extraProfileInclude,
+});
+
 const groupCount = async (model, field, options = {}) => {
   const labelExpression = db.Sequelize.fn('COALESCE', db.Sequelize.cast(db.Sequelize.col(field), 'text'), 'Chưa xác định');
   const rows = await model.findAll({
@@ -34,12 +45,13 @@ const groupCount = async (model, field, options = {}) => {
   return toChartRows(rows);
 };
 
-const getStudentsByUnit = async () => {
+const getStudentsByUnit = async (requester) => {
   const rows = await Profile.findAll({
     attributes: [
       [db.Sequelize.fn('COALESCE', db.Sequelize.col('unit'), 'Chưa phân đơn vị'), 'label'],
       [db.Sequelize.fn('COUNT', db.Sequelize.col('Profile.id')), 'value'],
     ],
+    where: getManagedProfileWhere(requester),
     include: [{ model: User, attributes: [], where: { role: 'STUDENT' }, required: true }],
     group: [db.Sequelize.fn('COALESCE', db.Sequelize.col('unit'), 'Chưa phân đơn vị')],
     order: [[db.Sequelize.literal('value'), 'DESC']],
@@ -49,7 +61,7 @@ const getStudentsByUnit = async () => {
   return toChartRows(rows);
 };
 
-const getTuitionStatus = async () => {
+const getTuitionStatus = async (requester) => {
   const rows = await TuitionFee.findAll({
     attributes: [
       [db.Sequelize.fn('COALESCE', db.Sequelize.col('status'), 'UNKNOWN'), 'label'],
@@ -57,6 +69,9 @@ const getTuitionStatus = async () => {
       [db.Sequelize.fn('SUM', db.Sequelize.col('total_amount')), 'amount'],
     ],
     group: [db.Sequelize.fn('COALESCE', db.Sequelize.col('status'), 'UNKNOWN')],
+    include: requester?.role === 'COMMANDER'
+      ? [{ model: User, attributes: [], required: true, include: [getManagedUserInclude(requester)] }]
+      : [],
     raw: true,
   });
   return toChartRows(rows).map((item) => ({
@@ -65,23 +80,26 @@ const getTuitionStatus = async () => {
   }));
 };
 
-const getAchievementsByYear = async () => {
+const getAchievementsByYear = async (requester) => {
   const rows = await Achievement.findAll({
     attributes: [
       [db.Sequelize.fn('COALESCE', db.Sequelize.cast(db.Sequelize.col('year'), 'text'), 'Chưa xác định'), 'label'],
       [db.Sequelize.fn('COUNT', db.Sequelize.col('Achievement.id')), 'value'],
     ],
     group: [db.Sequelize.fn('COALESCE', db.Sequelize.cast(db.Sequelize.col('year'), 'text'), 'Chưa xác định')],
+    include: requester?.role === 'COMMANDER'
+      ? [{ model: User, attributes: [], required: true, include: [getManagedUserInclude(requester)] }]
+      : [],
     order: [[db.Sequelize.literal('label'), 'ASC']],
     raw: true,
   });
   return toChartRows(rows);
 };
 
-const getRecentStudents = async () => {
+const getRecentStudents = async (requester) => {
   const users = await User.findAll({
     where: { role: 'STUDENT' },
-    include: [{ model: Profile, include: [{ model: Class }] }],
+    include: [getManagedUserInclude(requester, [{ model: Class }])],
     order: [['updatedAt', 'DESC']],
     limit: 5,
   });
@@ -99,11 +117,11 @@ const getRecentStudents = async () => {
   });
 };
 
-const getPendingRequests = async () => {
+const getPendingRequests = async (requester) => {
   const requests = await GradeRequest.findAll({
     where: { status: 'PENDING' },
     include: [
-      { model: User, include: [{ model: Profile }] },
+      { model: User, required: requester?.role === 'COMMANDER', include: [getManagedUserInclude(requester)] },
       { model: SubjectResult },
     ],
     order: [['createdAt', 'DESC']],
@@ -122,11 +140,11 @@ const getPendingRequests = async () => {
   });
 };
 
-const getUnpaidTuition = async () => {
+const getUnpaidTuition = async (requester) => {
   const records = await TuitionFee.findAll({
     where: { status: 'UNPAID' },
     include: [
-      { model: User, include: [{ model: Profile }] },
+      { model: User, required: requester?.role === 'COMMANDER', include: [getManagedUserInclude(requester)] },
       { model: db.semester, as: 'semesterInfo', include: [{ model: db.schoolYear, as: 'schoolYearInfo' }] },
     ],
     order: [['updatedAt', 'DESC']],
@@ -146,11 +164,11 @@ const getUnpaidTuition = async () => {
   });
 };
 
-const getRiskStudents = async () => {
+const getRiskStudents = async (requester) => {
   const users = await User.findAll({
     where: { role: 'STUDENT' },
     include: [
-      { model: Profile },
+      getManagedUserInclude(requester),
       { model: YearlyResult, required: false },
       { model: TuitionFee, where: { status: 'UNPAID' }, required: false },
     ],
@@ -375,7 +393,7 @@ const getStudentDashboard = async (userId) => {
       order: [['updatedAt', 'DESC']],
     }),
     TimeTable.findAll({ where: { userId }, order: [['updatedAt', 'DESC']] }),
-    CutRice.findOne({ where: { userId } }),
+    CutRice.findOne({ where: { userId }, order: [['weekStartDate', 'DESC'], ['updatedAt', 'DESC']] }),
     Notification.findAll({ where: { userId }, order: [['createdAt', 'DESC']], limit: 5 }),
     Notification.count({ where: { userId, isRead: false } }),
     GradeRequest.count({ where: { userId, status: 'PENDING' } }),

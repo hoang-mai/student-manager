@@ -6,6 +6,7 @@ module.exports = {
     DB: process.env.DB_NAME || 'student_manager',
     dialect: 'postgres',
     port: process.env.DB_PORT || 5432,
+    ssl: process.env.DB_SSL === 'true',
     pool: {
         max: 5,
         min: 0,

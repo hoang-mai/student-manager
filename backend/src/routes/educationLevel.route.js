@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const controller = require('../controllers/educationLevel.controller');
-const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const { authMiddleware, requireRole, requireAdmin } = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
@@ -133,10 +133,10 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
 router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
 
-router.post('/', controller.create);
+router.post('/', requireAdmin, controller.create);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
-router.put('/:id', controller.update);
-router.delete('/:id', controller.delete);
+router.put('/:id', requireAdmin, controller.update);
+router.delete('/:id', requireAdmin, controller.delete);
 
 module.exports = router;

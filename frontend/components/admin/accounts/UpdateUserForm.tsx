@@ -3,6 +3,7 @@
 import React from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
@@ -23,6 +24,24 @@ interface UpdateUserFormProps {
 
 const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
   const { closeModal } = useModalStore();
+  const profile = user.profile || user.Profile;
+
+  const commandersQuery = useQuery({
+    queryKey: [QUERY_KEYS.USERS, "commanders"],
+    queryFn: () => userService.getAllUsers({ role: "COMMANDER", fetchAll: true }),
+    enabled: user.role === "STUDENT",
+  });
+
+  const commanderOptions = React.useMemo(() => {
+    const rows = commandersQuery.data?.data || [];
+    return [
+      { value: "", label: "Chưa gán" },
+      ...rows.map((item) => ({
+        value: item.id,
+        label: item.profile?.fullName || item.Profile?.fullName || item.username,
+      })),
+    ];
+  }, [commandersQuery.data?.data]);
 
   const updateMutation = useAppMutation({
     mutationKey: MUTATION_KEYS.UPDATE_USER,
@@ -42,33 +61,34 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       username: user.username,
-      fullName: user.profile?.fullName,
-      email: user.profile?.email,
-      phoneNumber: user.profile?.phoneNumber,
-      code: user.profile?.code,
-      birthday: user.profile?.birthday,
-      cccd: user.profile?.cccd,
-      gender: user.profile?.gender,
-      hometown: user.profile?.hometown,
-      placeOfBirth: user.profile?.placeOfBirth,
-      ethnicity: user.profile?.ethnicity,
-      religion: user.profile?.religion,
-      rank: user.profile?.rank,
-      unit: user.profile?.unit,
-      positionGovernment: user.profile?.positionGovernment,
-      positionParty: user.profile?.positionParty,
-      currentAddress: user.profile?.currentAddress,
-      dateOfEnlistment: user.profile?.dateOfEnlistment,
-      enrollment: user.profile?.enrollment,
-      currentCpa4: user.profile?.currentCpa4,
-      currentCpa10: user.profile?.currentCpa10,
-      graduationDate: user.profile?.graduationDate,
-      partyMemberCardNumber: user.profile?.partyMemberCardNumber,
-      probationaryPartyMember: user.profile?.probationaryPartyMember,
-      fullPartyMember: user.profile?.fullPartyMember,
-      familyMember: user.profile?.familyMember,
-      foreignRelations: user.profile?.foreignRelations,
-      startWork: user.profile?.startWork,
+      fullName: profile?.fullName,
+      email: profile?.email,
+      phoneNumber: profile?.phoneNumber,
+      code: profile?.code,
+      birthday: profile?.birthday,
+      cccd: profile?.cccd,
+      gender: profile?.gender,
+      hometown: profile?.hometown,
+      placeOfBirth: profile?.placeOfBirth,
+      ethnicity: profile?.ethnicity,
+      religion: profile?.religion,
+      rank: profile?.rank,
+      unit: profile?.unit,
+      positionGovernment: profile?.positionGovernment,
+      positionParty: profile?.positionParty,
+      currentAddress: profile?.currentAddress,
+      dateOfEnlistment: profile?.dateOfEnlistment,
+      enrollment: profile?.enrollment,
+      currentCpa4: profile?.currentCpa4,
+      currentCpa10: profile?.currentCpa10,
+      graduationDate: profile?.graduationDate,
+      partyMemberCardNumber: profile?.partyMemberCardNumber,
+      probationaryPartyMember: profile?.probationaryPartyMember,
+      fullPartyMember: profile?.fullPartyMember,
+      familyMember: profile?.familyMember,
+      foreignRelations: profile?.foreignRelations,
+      startWork: profile?.startWork,
+      commanderId: profile?.commanderId || "",
     },
   });
 
@@ -88,6 +108,9 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
         formattedData[field] = null;
       }
     });
+    if (formattedData.commanderId === "") {
+      formattedData.commanderId = null;
+    }
 
     updateMutation.mutate(formattedData);
   };
@@ -309,6 +332,21 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user }) => {
                   placeholder="Ví dụ: 8.0"
                   {...register("currentCpa10", { valueAsNumber: true })}
                   error={errors.currentCpa10?.message}
+                />
+                <Controller
+                  name="commanderId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      label="Chỉ huy quản lý"
+                      placeholder="Chọn chỉ huy quản lý"
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      options={commanderOptions}
+                      error={errors.commanderId?.message}
+                      isLoading={commandersQuery.isLoading || updateMutation.isPending}
+                    />
+                  )}
                 />
               </>
             )}

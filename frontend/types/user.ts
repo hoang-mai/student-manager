@@ -28,6 +28,7 @@ export interface StudentProfileQueryRequest extends QueryRequest {
   organizationId?: string;
   universityId?: string;
   educationLevelId?: string;
+  commanderId?: string;
 }
 
 export interface UpdateProfileRequest {
@@ -59,6 +60,7 @@ export interface UpdateProfileRequest {
   familyMember?: string | null;
   foreignRelations?: string | null;
   startWork?: number | null;
+  commanderId?: string | null;
 }
 
 export interface University {
@@ -134,11 +136,14 @@ export interface Student {
   religion: string;
   unit: string;
   universityId: string;
+  commanderId: string | null;
   updatedAt: string;
   university?: University;
   class?: Class;
   organization?: Organization;
   educationLevel?: EducationLevel;
+  commander?: Pick<User, "id" | "username" | "role" | "isActive">;
+  Commander?: Pick<User, "id" | "username" | "role" | "isActive">;
 }
 
 export interface Commander {

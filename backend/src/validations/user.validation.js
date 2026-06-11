@@ -34,6 +34,7 @@ const profileFields = {
   organizationId: yup.string().max(36).nullable(),
   universityId: yup.string().max(36).nullable(),
   educationLevelId: yup.string().max(36).nullable(),
+  commanderId: yup.string().max(36).nullable(),
 };
 
 const create = yup.object({
@@ -85,6 +86,7 @@ const update = yup.object({
   organizationId: yup.string().max(36).nullable(),
   universityId: yup.string().max(36).nullable(),
   educationLevelId: yup.string().max(36).nullable(),
+  commanderId: yup.string().max(36).nullable(),
 });
 
 const batch = yup.object({
@@ -131,6 +133,7 @@ const batchProfileUpdate = yup.array().of(
     organizationId: yup.string().max(36).nullable(),
     universityId: yup.string().max(36).nullable(),
     educationLevelId: yup.string().max(36).nullable(),
+    commanderId: yup.string().max(100).nullable(),
   }),
 );
 

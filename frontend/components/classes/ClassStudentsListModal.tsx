@@ -5,7 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { HiOutlineTrash } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
-import Button from "@/library/Button";
 import Table from "@/library/Table";
 import Typography from "@/library/Typography";
 import Skeleton from "@/library/Skeleton";
@@ -22,6 +21,7 @@ import { FilterField } from "@/library/table/TableFilter";
 
 interface Props {
   cls: Class;
+  readOnly?: boolean;
 }
 
 function ClassStudentsListSkeleton() {
@@ -86,7 +86,7 @@ function ClassStudentsListSkeleton() {
   );
 }
 
-export default function ClassStudentsListModal({ cls }: Props) {
+export default function ClassStudentsListModal({ cls, readOnly = false }: Props) {
   const queryClient = useQueryClient();
   const { openConfirm } = useConfirmStore();
 
@@ -164,7 +164,7 @@ export default function ClassStudentsListModal({ cls }: Props) {
           </Typography>
         ),
       },
-      {
+      ...(!readOnly ? [{
         id: "actions",
         header: "Thao tác",
         cell: (info) => {
@@ -190,9 +190,9 @@ export default function ClassStudentsListModal({ cls }: Props) {
             />
           );
         },
-      },
+      }] : []),
     ],
-    [cls.className, cls.id, openConfirm, removeMutation]
+    [cls.className, cls.id, openConfirm, readOnly, removeMutation]
   );
 
   const currentFilterOptions = useMemo<FilterField[]>(

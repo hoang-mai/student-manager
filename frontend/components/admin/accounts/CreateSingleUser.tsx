@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
 import Select from "@/library/Select";
 import { authService } from "@/services/auth";
+import { userService } from "@/services/user";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { CreateUserRequest } from "@/types/auth";
 import { createUserSchema, CreateUserFormValues } from "@/utils/validations";
@@ -17,6 +19,23 @@ import { useModalStore } from "@/store/useModalStore";
 const CreateSingleUser: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { closeModal } = useModalStore()
+
+  const commandersQuery = useQuery({
+    queryKey: [QUERY_KEYS.USERS, "commanders"],
+    queryFn: () => userService.getAllUsers({ role: "COMMANDER", fetchAll: true }),
+  });
+
+  const commanderOptions = React.useMemo(() => {
+    const rows = commandersQuery.data?.data || [];
+    return [
+      { value: "", label: "Chưa gán" },
+      ...rows.map((item) => ({
+        value: item.id,
+        label: item.profile?.fullName || item.Profile?.fullName || item.username,
+      })),
+    ];
+  }, [commandersQuery.data?.data]);
+
   const createMutation = useAppMutation({
     mutationKey: MUTATION_KEYS.CREATE_USER,
     mutationFn: (userData: CreateUserRequest) => authService.register(userData),
@@ -39,11 +58,16 @@ const CreateSingleUser: React.FC = () => {
       fullName: "",
       password: "",
       role: "STUDENT",
+      commanderId: "",
     },
   });
+  const selectedRole = useWatch({ control, name: "role" });
 
   const onSubmit = (data: CreateUserFormValues) => {
-    createMutation.mutate(data);
+    createMutation.mutate({
+      ...data,
+      commanderId: data.role === "STUDENT" && data.commanderId ? data.commanderId : null,
+    });
   };
 
   return (
@@ -113,6 +137,25 @@ const CreateSingleUser: React.FC = () => {
           error={errors.email?.message}
           isLoading={createMutation.isPending}
         />
+        {selectedRole === "STUDENT" && (
+          <div className="md:col-span-2">
+            <Controller
+              name="commanderId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Chỉ huy quản lý"
+                  placeholder="Chọn chỉ huy quản lý"
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  options={commanderOptions}
+                  error={errors.commanderId?.message}
+                  isLoading={commandersQuery.isLoading || createMutation.isPending}
+                />
+              )}
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-100 mt-6">

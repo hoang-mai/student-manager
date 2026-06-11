@@ -1479,6 +1479,8 @@ router.delete('/time-table/:id', requireStudent, controller.denyMyTimeTableMutat
 // ===================== Student: Cắt cơm =====================
 router.get('/cut-rice', requireStudent, controller.getMyCutRice);
 router.put('/cut-rice', requireStudent, controller.updateMyCutRice);
+router.get('/cut-rice/requests', requireStudent, controller.getMyCutRiceRequests);
+router.post('/cut-rice/requests', requireStudent, controller.createMyCutRiceRequest);
 
 // ===================== Student: Thành tích & Học phí =====================
 router.get('/achievements', requireStudent, controller.getMyAchievements);

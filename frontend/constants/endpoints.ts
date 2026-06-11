@@ -71,6 +71,12 @@ export const ENDPOINTS = {
   CUT_RICE: {
     BASE: "/api/cut-rice",
     MY: "/api/users/cut-rice",
+    MY_REQUESTS: "/api/users/cut-rice/requests",
+    REQUESTS: "/api/cut-rice/requests",
+    APPROVE_REQUEST: (id: string | number) =>
+      `/api/cut-rice/requests/${id}/approve`,
+    REJECT_REQUEST: (id: string | number) =>
+      `/api/cut-rice/requests/${id}/reject`,
     IMPORT: "/api/cut-rice/import",
     TEMPLATE: "/api/cut-rice/template",
     EXPORT: "/api/cut-rice/export",

@@ -94,6 +94,10 @@ module.exports = (sequelize, DataTypes) => {
     organization: {
       type: DataTypes.STRING(255),
     },
+    commanderId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
     classId: {
       type: DataTypes.UUID,
     },
