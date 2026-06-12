@@ -21,13 +21,11 @@ const requestInclude = [
   { model: User, as: 'reviewer', attributes: { exclude: ['password', 'refreshToken'] } },
 ];
 
-const cloneInclude = (include) => include.map((item) => ({
-  ...item,
-  include: item.include?.map((nested) => ({
-    ...nested,
-    include: nested.include?.map((child) => ({ ...child })),
-  })),
-}));
+const cloneInclude = (include) => include.map((item) => {
+  const cloned = { ...item };
+  if (item.include) cloned.include = cloneInclude(item.include);
+  return cloned;
+});
 
 const applyCommanderProfileScope = (include, profileWhere, requester) => {
   if (isCommander(requester)) profileWhere.commanderId = requester.id;
