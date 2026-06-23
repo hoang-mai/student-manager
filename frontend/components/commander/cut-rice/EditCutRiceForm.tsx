@@ -98,7 +98,8 @@ export default function EditCutRiceForm({ record }: Props) {
   };
 
   return (
-    <div className="max-h-[82vh] space-y-5 overflow-y-auto py-1 pr-2">
+    <div className="flex max-h-[85vh] flex-col gap-5 pt-2 pb-4">
+      <div className="flex-1 space-y-5 overflow-y-auto pr-2 custom-scrollbar">
       <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/60">
         <Typography variant="caption" weight="bold" color="gray">
           Học viên
@@ -143,7 +144,6 @@ export default function EditCutRiceForm({ record }: Props) {
                       onChange={(checked) => handleToggle(day, meal.key, checked)}
                       disabled={updateMutation.isPending}
                       size="sm"
-                      activeColor="bg-amber-500"
                     />
                   </td>
                 ))}
@@ -162,25 +162,28 @@ export default function EditCutRiceForm({ record }: Props) {
         onChange={(event) => setNotes(event.target.value)}
       />
 
-      <Divide />
+      </div>
 
-      <div className="flex justify-end gap-3">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={closeModal}
-          isLoading={updateMutation.isPending}
-        >
-          Hủy bỏ
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={() => updateMutation.mutate()}
-          isLoading={updateMutation.isPending}
-        >
-          Lưu lịch thủ công
-        </Button>
+      <div className="flex flex-col gap-4 px-4">
+        <Divide className="w-full" />
+        <div className="flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={closeModal}
+            isLoading={updateMutation.isPending}
+          >
+            Hủy bỏ
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => updateMutation.mutate()}
+            isLoading={updateMutation.isPending}
+          >
+            Lưu lịch thủ công
+          </Button>
+        </div>
       </div>
     </div>
   );

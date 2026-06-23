@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   HiOutlineAcademicCap,
   HiOutlineBadgeCheck,
@@ -21,6 +21,7 @@ import useAppMutation from "@/hooks/useAppMutation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useModalStore } from "@/store/useModalStore";
 import { achievementService } from "@/services/achievements";
+import { semesterService } from "@/services/semesters";
 import { userService } from "@/services/user";
 import { Achievement } from "@/types/achievements";
 import {
@@ -92,6 +93,7 @@ export default function AchievementForm({ achievement }: AchievementFormProps) {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<CreateAchievementFormValues>({
     resolver: zodResolver(
@@ -108,6 +110,42 @@ export default function AchievementForm({ achievement }: AchievementFormProps) {
       description: achievement?.description || "",
     },
   });
+
+  const selectedSchoolYear = useWatch({ control, name: "schoolYear" });
+
+  const { data: schoolYearsResponse, isLoading: isLoadingSchoolYears } =
+    useQuery({
+      queryKey: [QUERY_KEYS.SEMESTERS, "school-years"],
+      queryFn: () => semesterService.getSchoolYears({ fetchAll: true }),
+    });
+
+  const { data: semestersResponse, isLoading: isLoadingSemesters } = useQuery({
+    queryKey: [QUERY_KEYS.SEMESTERS, "terms", selectedSchoolYear],
+    queryFn: () =>
+      semesterService.getSemesters({
+        fetchAll: true,
+        schoolYear: selectedSchoolYear || "",
+      }),
+    enabled: Boolean(selectedSchoolYear),
+  });
+
+  const schoolYearOptions = useMemo(
+    () =>
+      (schoolYearsResponse?.data || []).map((item) => ({
+        value: item.schoolYear,
+        label: item.schoolYear,
+      })),
+    [schoolYearsResponse]
+  );
+
+  const semesterOptions = useMemo(
+    () =>
+      (semestersResponse?.data || []).map((item) => ({
+        value: String(item.code),
+        label: `Học kỳ ${item.code}`,
+      })),
+    [semestersResponse]
+  );
 
   const mutation = useAppMutation({
     mutationKey: isUpdate
@@ -130,7 +168,7 @@ export default function AchievementForm({ achievement }: AchievementFormProps) {
   return (
     <form
       onSubmit={handleSubmit((data) => mutation.mutate(data))}
-      className="flex max-h-[85vh] flex-col gap-5 py-2"
+      className="flex max-h-[85vh] flex-col gap-5 pt-2 pb-4"
     >
       <div className="flex-1 space-y-5 overflow-y-auto p-4 custom-scrollbar">
         <Controller
@@ -181,21 +219,48 @@ export default function AchievementForm({ achievement }: AchievementFormProps) {
         />
 
         <div className="grid gap-4 md:grid-cols-3">
-          <Input
-            label="Học kỳ"
-            placeholder="VD: HK1"
-            prefixIcon={<HiOutlineCalendar />}
-            error={errors.semester?.message}
-            isLoading={mutation.isPending}
-            {...register("semester")}
+          <Controller
+            name="schoolYear"
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <Select
+                label="Năm học"
+                placeholder="Chọn năm học"
+                prefixIcon={<HiOutlineCalendar />}
+                value={value ?? ""}
+                onChange={(selectedValue) => {
+                  onChange(String(selectedValue));
+                  setValue("semester", "", { shouldDirty: true });
+                }}
+                options={schoolYearOptions}
+                error={errors.schoolYear?.message}
+                isLoading={mutation.isPending || isLoadingSchoolYears}
+                emptyText="Chưa có năm học"
+              />
+            )}
           />
-          <Input
-            label="Năm học"
-            placeholder="VD: 2024-2025"
-            prefixIcon={<HiOutlineCalendar />}
-            error={errors.schoolYear?.message}
-            isLoading={mutation.isPending}
-            {...register("schoolYear")}
+
+          <Controller
+            name="semester"
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <Select
+                label="Học kỳ"
+                placeholder="Chọn học kỳ"
+                prefixIcon={<HiOutlineCalendar />}
+                value={value ?? ""}
+                onChange={(selectedValue) => onChange(String(selectedValue))}
+                options={semesterOptions}
+                disabled={!selectedSchoolYear}
+                error={errors.semester?.message}
+                isLoading={mutation.isPending || isLoadingSemesters}
+                emptyText={
+                  selectedSchoolYear
+                    ? "Năm học này chưa có học kỳ"
+                    : "Chọn năm học trước"
+                }
+              />
+            )}
           />
           <Input
             label="Năm"
@@ -227,9 +292,9 @@ export default function AchievementForm({ achievement }: AchievementFormProps) {
         />
       </div>
 
-      <div className="flex flex-col gap-4">
-        <Divide />
-        <div className="flex justify-end gap-3 px-4">
+      <div className="flex flex-col gap-4 px-4">
+        <Divide className="w-full" />
+        <div className="flex justify-end gap-3">
           <Button
             variant="ghost"
             type="button"

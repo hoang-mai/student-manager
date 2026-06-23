@@ -56,7 +56,7 @@ export default function StudentProfileDetail({
   }
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-6 pb-8 overflow-y-auto max-h-[calc(100vh-200px)]">
       <div className="flex items-center gap-4 p-4 rounded-2xl bg-neutral-50/60 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-800">
         <Avatar src={student.avatar} alt={student.fullName} size={72} />
         <div className="min-w-0">

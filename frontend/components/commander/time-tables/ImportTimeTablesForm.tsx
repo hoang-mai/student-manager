@@ -52,8 +52,9 @@ export default function ImportTimeTablesForm() {
   return (
     <form
       onSubmit={handleSubmit((data) => importMutation.mutate(data))}
-      className="max-h-[85vh] space-y-6 overflow-y-auto py-2 pr-2"
+      className="flex max-h-[85vh] flex-col gap-6 pt-2 pb-4"
     >
+      <div className="flex-1 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
       <div className="rounded-2xl border border-primary-100 bg-primary-50/60 p-4 dark:border-primary-800 dark:bg-primary-950/30">
         <div className="flex items-start gap-3">
           <div className="rounded-xl bg-primary-100 p-2 text-primary-600 dark:bg-primary-900 dark:text-primary-200">
@@ -99,25 +100,29 @@ export default function ImportTimeTablesForm() {
         )}
       />
 
-      <Divide />
-      <div className="flex justify-end gap-3 px-4">
-        <Button
-          variant="ghost"
-          type="button"
-          onClick={closeModal}
-          isLoading={importMutation.isPending}
-        >
-          Hủy bỏ
-        </Button>
-        <Button
-          variant="primary"
-          type="submit"
-          icon={HiOutlineUpload}
-          disabled={!isDirty}
-          isLoading={importMutation.isPending}
-        >
-          Tải lên
-        </Button>
+      </div>
+
+      <div className="flex flex-col gap-4 px-4">
+        <Divide className="w-full" />
+        <div className="flex justify-end gap-3">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={closeModal}
+            isLoading={importMutation.isPending}
+          >
+            Hủy bỏ
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            icon={HiOutlineUpload}
+            disabled={!isDirty}
+            isLoading={importMutation.isPending}
+          >
+            Tải lên
+          </Button>
+        </div>
       </div>
     </form>
   );

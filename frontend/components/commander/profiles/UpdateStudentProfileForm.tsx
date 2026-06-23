@@ -100,7 +100,7 @@ export default function UpdateStudentProfileForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col max-h-[85vh] py-2 gap-4"
+      className="flex flex-col max-h-[85vh] pt-2 pb-4 gap-4"
     >
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-12">
         <section>
@@ -372,8 +372,8 @@ export default function UpdateStudentProfileForm({
         </section>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <Divide />
+      <div className="flex flex-col gap-4 px-4">
+        <Divide className="w-full" />
         <div className="flex items-center justify-end gap-3">
           <Button
             variant="ghost"

@@ -10,6 +10,7 @@ import {
   HiOutlineClipboardList,
   HiOutlineViewGrid,
   HiOutlineHome,
+  HiOutlineRefresh,
 } from "react-icons/hi";
 
 export type MenuItem = {
@@ -50,9 +51,14 @@ export const COMMANDER_MENU = [
     icon: HiOutlineStop,
   },
   {
-    title: "Lịch học & Cắt cơm",
-    path: "/commander/schedules",
+    title: "Lịch học",
+    path: "/commander/time-tables",
     icon: HiOutlineCalendar,
+  },
+  {
+    title: "Cắt cơm",
+    path: "/commander/cut-rice",
+    icon: HiOutlineRefresh,
   },
   {
     title: "Quản lý học phí",

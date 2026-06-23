@@ -33,6 +33,8 @@ interface PageContainerProps {
   children: React.ReactNode;
   /** Class bổ sung cho container */
   className?: string;
+  /** Nút hành động ở góc phải header */
+  actions?: React.ReactNode;
 }
 
 /**
@@ -50,6 +52,7 @@ export default function PageContainer({
   onRetry,
   children,
   className = "",
+  actions,
 }: PageContainerProps) {
   return (
     <AnimatedContainer
@@ -113,6 +116,7 @@ export default function PageContainer({
                   </Typography>
                 )}
               </div>
+              {actions && <div className="flex items-center gap-3 shrink-0">{actions}</div>}
             </div>
           )}
 

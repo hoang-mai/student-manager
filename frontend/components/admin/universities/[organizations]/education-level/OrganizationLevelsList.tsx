@@ -101,7 +101,7 @@ export default function OrganizationLevelsList({
         <div key={level.id} className="space-y-2">
           <div className="flex items-center justify-between">
             <Link
-              href={`/commander/universities/${universityId}/${orgId}/${level.id}`}
+              href={`/admin/universities/${universityId}/${orgId}/${level.id}`}
               className="flex items-center gap-4 cursor-pointer group flex-1"
             >
               <div className="flex items-center gap-2 group">

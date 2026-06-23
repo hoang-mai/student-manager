@@ -203,7 +203,12 @@ const getAll = async (query, requester) => {
           { model: db.class },
           { model: db.organization },
           { model: db.educationLevel },
-          { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] },
+          { 
+            model: User, 
+            as: 'commander', 
+            attributes: ['id', 'username', 'role', 'isActive'],
+            include: [{ model: Profile, attributes: ['fullName'] }]
+          },
         ],
       },
     ],
@@ -243,7 +248,12 @@ const exportUsers = async (query = {}) => {
           { model: db.class },
           { model: db.organization },
           { model: db.educationLevel },
-          { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] },
+          { 
+            model: User, 
+            as: 'commander', 
+            attributes: ['id', 'username', 'role', 'isActive'],
+            include: [{ model: Profile, attributes: ['fullName'] }]
+          },
         ],
       },
     ],
@@ -315,7 +325,12 @@ const getDetail = async (id, requester) => {
           { model: db.class },
           { model: db.organization },
           { model: db.educationLevel },
-          { model: User, as: 'commander', attributes: ['id', 'username', 'role', 'isActive'] },
+          { 
+            model: User, 
+            as: 'commander', 
+            attributes: ['id', 'username', 'role', 'isActive'],
+            include: [{ model: Profile, attributes: ['fullName'] }]
+          },
         ],
       },
     ],

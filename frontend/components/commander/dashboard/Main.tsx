@@ -153,38 +153,6 @@ export default function Main() {
           </Panel>
         </section>
 
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <Panel
-            title="Học viên cần chú ý"
-            href="/commander/profiles"
-            actionLabel="Xem hồ sơ"
-          >
-            <div className="space-y-3">
-              {dashboard?.alerts.riskStudents.length ? (
-                dashboard.alerts.riskStudents.map((student) => (
-                  <RiskStudentItem key={student.id} student={student} />
-                ))
-              ) : (
-                <EmptyLine
-                  icon={HiOutlineCheckCircle}
-                  title="Chưa có cảnh báo học viên"
-                  description="Các cảnh báo học tập và học phí sẽ xuất hiện tại đây."
-                />
-              )}
-            </div>
-          </Panel>
-
-          <Panel
-            title="Thành tích theo năm"
-            href="/commander/achievements"
-            actionLabel="Xem thành tích"
-          >
-            <BarsChart
-              data={dashboard?.charts.achievementsByYear || []}
-              color="#10b981"
-            />
-          </Panel>
-        </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <Panel

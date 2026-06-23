@@ -3,8 +3,6 @@ import {
   Achievement,
   AchievementQueryRequest,
   CreateAchievementRequest,
-  CreateYearlyAchievementFullRequest,
-  CreateYearlyAchievementFullResponse,
   MyAchievementsResponse,
   UpdateAchievementRequest,
 } from "@/types/achievements";
@@ -56,11 +54,5 @@ export const achievementService = {
 
   getMyAchievements: async (): Promise<ApiResponse<MyAchievementsResponse>> => {
     return apiClient.get(ENDPOINTS.ACHIEVEMENTS.MY);
-  },
-
-  createYearlyAchievementFull: async (
-    data: CreateYearlyAchievementFullRequest
-  ): Promise<ApiResponse<CreateYearlyAchievementFullResponse>> => {
-    return apiClient.post(ENDPOINTS.YEARLY_ACHIEVEMENTS.FULL, data);
   },
 };

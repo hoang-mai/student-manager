@@ -16,6 +16,7 @@ import Select, {
   type SelectOption,
 } from "@/library/Select";
 import DateRangePicker from "@/library/DateRangePicker";
+import DatePicker from "@/library/DatePicker";
 import {
   type DateRangeMode,
   type DateRangeValue,
@@ -161,6 +162,19 @@ const TableFilter = <TData,>({
                             onChange={onChange}
                             mode={field.mode}
                             maxRange={field.maxRange}
+                            placeholder={field.placeholder}
+                          />
+                        )}
+                      />
+                    ) : field.type === "date" ? (
+                      <Controller
+                        name={field.id}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <DatePicker
+                            label={field.label}
+                            value={value as string}
+                            onChange={onChange}
                             placeholder={field.placeholder}
                           />
                         )}

@@ -70,13 +70,6 @@ export default function Main() {
       tone: "warning",
     },
     {
-      label: "Thiếu hồ sơ",
-      value: formatNumber(overview?.usersWithoutProfile),
-      helper: "User chưa gắn profile",
-      icon: HiOutlineIdentification,
-      tone: "error",
-    },
-    {
       label: "Cơ sở đào tạo",
       value: formatNumber(overview?.totalUniversities),
       helper: "Trường/đơn vị cấp trường",
@@ -153,65 +146,6 @@ export default function Main() {
               data={dashboard?.charts.recordsByModule || []}
               color="#0ea5e9"
             />
-          </Panel>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-          <Panel title="Cảnh báo quản trị">
-            <div className="space-y-3">
-              <AlertLine
-                icon={HiOutlineExclamation}
-                label="Tài khoản bị khóa"
-                value={dashboard?.alerts.inactiveUsers || 0}
-              />
-              <AlertLine
-                icon={HiOutlineIdentification}
-                label="User thiếu hồ sơ"
-                value={dashboard?.alerts.usersWithoutProfile || 0}
-              />
-              <AlertLine
-                icon={HiOutlineShieldCheck}
-                label="Đề xuất chờ duyệt"
-                value={dashboard?.alerts.pendingGradeRequests || 0}
-              />
-            </div>
-          </Panel>
-
-          <Panel title="Tài khoản mới tạo">
-            <div className="space-y-3">
-              {dashboard?.recent.users.length ? (
-                dashboard.recent.users.map((user) => (
-                  <Link
-                    key={user.id}
-                    href="/admin/accounts"
-                    className="flex items-center justify-between gap-4 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 transition-colors hover:border-primary-200 hover:bg-primary-50/50 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-primary-800 dark:hover:bg-primary-950/20"
-                  >
-                    <div className="min-w-0">
-                      <Typography variant="body" weight="semibold" className="break-words">
-                        {user.fullName || user.username}
-                      </Typography>
-                      <Typography variant="caption" color="gray" className="mt-1 block">
-                        {user.code || user.username} - {user.role}
-                      </Typography>
-                    </div>
-                    <div className="text-right">
-                      <Badge variant={user.isActive ? "success" : "warning"}>
-                        {user.isActive ? "Hoạt động" : "Đã khóa"}
-                      </Badge>
-                      <Typography variant="caption" color="gray" className="mt-2 block">
-                        {formatDateTime(user.createdAt)}
-                      </Typography>
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <EmptyState
-                  icon={HiOutlineUserGroup}
-                  title="Chưa có tài khoản mới"
-                  description="Các tài khoản vừa được tạo sẽ xuất hiện tại đây."
-                />
-              )}
-            </div>
           </Panel>
         </section>
       </div>

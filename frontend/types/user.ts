@@ -142,8 +142,14 @@ export interface Student {
   class?: Class;
   organization?: Organization;
   educationLevel?: EducationLevel;
-  commander?: Pick<User, "id" | "username" | "role" | "isActive">;
-  Commander?: Pick<User, "id" | "username" | "role" | "isActive">;
+  commander?: Pick<User, "id" | "username" | "role" | "isActive"> & {
+    Profile?: { fullName: string };
+    profile?: { fullName: string };
+  };
+  Commander?: Pick<User, "id" | "username" | "role" | "isActive"> & {
+    Profile?: { fullName: string };
+    profile?: { fullName: string };
+  };
 }
 
 export interface Commander {

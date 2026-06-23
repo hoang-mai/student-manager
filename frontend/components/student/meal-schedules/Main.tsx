@@ -19,6 +19,7 @@ import Select from "@/library/Select";
 import Textarea from "@/library/Textarea";
 import Typography from "@/library/Typography";
 import useAppMutation from "@/hooks/useAppMutation";
+import { useModalStore } from "@/store/useModalStore";
 import { MUTATION_KEYS, QUERY_KEYS } from "@/constants/query-keys";
 import { cutRiceService } from "@/services/cut-rice";
 import { timeTableService } from "@/services/time-tables";
@@ -32,6 +33,7 @@ import {
 import { TimeTableSemester } from "@/types/time-tables";
 import { formatDateTime } from "@/utils/fn-common";
 import MealScheduleSkeleton from "./MealScheduleSkeleton";
+import CreateMealRequestForm from "./CreateMealRequestForm";
 
 const mealDays: MealDayKey[] = [
   "Thứ 2",
@@ -77,12 +79,6 @@ const formatWeekRange = (start?: string | null, end?: string | null) =>
     ? `${start.split("-").reverse().join("/")} - ${end.split("-").reverse().join("/")}`
     : "Chưa chọn tuần";
 
-const createEmptyWeekly = (): WeeklyCutRice =>
-  mealDays.reduce<WeeklyCutRice>((acc, day) => {
-    acc[day] = { morning: false, noon: false, evening: false };
-    return acc;
-  }, {});
-
 const getSlot = (record: CutRice | undefined, day: MealDayKey) => {
   const weekly = record?.weekly || {};
   return weekly[day] || weekly[day.toLowerCase()] || {};
@@ -93,11 +89,6 @@ const getRequestSlot = (record: CutRiceRequest, day: MealDayKey) => {
   return weekly[day] || weekly[day.toLowerCase()] || {};
 };
 
-const getCutRiceUser = (record?: CutRice) => record?.User || record?.user;
-const getCutRiceProfile = (record?: CutRice) => {
-  const user = getCutRiceUser(record);
-  return user?.Profile || user?.profile;
-};
 
 const getSemesterLabel = (semester: TimeTableSemester) => {
   const schoolYear = semester.schoolYearInfo?.schoolYear;
@@ -111,14 +102,11 @@ const getRequestStatus = (request: CutRiceRequest) => {
 };
 
 export default function Main() {
+  const { openModal } = useModalStore();
   const [selectedSemesterId, setSelectedSemesterId] = useState("");
   const [selectedWeekDate, setSelectedWeekDate] = useState(() =>
     toDateOnly(new Date())
   );
-  const [requestWeekly, setRequestWeekly] = useState<WeeklyCutRice>(() =>
-    createEmptyWeekly()
-  );
-  const [requestNotes, setRequestNotes] = useState("");
 
   const {
     data: semestersResponse,
@@ -181,18 +169,6 @@ export default function Main() {
     enabled: Boolean(activeSemesterId),
   });
 
-  const createRequestMutation = useAppMutation({
-    mutationKey: MUTATION_KEYS.CREATE_CUT_RICE_REQUEST,
-    mutationFn: cutRiceService.createMyRequest,
-    invalidateQueryKey: [QUERY_KEYS.CUT_RICE_REQUESTS],
-    successMessage: "Gửi yêu cầu cắt cơm thành công!",
-    errorMessage: "Gửi yêu cầu cắt cơm thất bại!",
-    onSuccess: async () => {
-      setRequestNotes("");
-      await refetchRequests();
-    },
-  });
-
   const cutRice = data?.data;
   const requests = requestsResponse?.data || [];
 
@@ -219,26 +195,6 @@ export default function Main() {
     };
   }, [cutRice]);
 
-  const toggleRequestSlot = (day: MealDayKey, meal: MealSlotKey) => {
-    setRequestWeekly((current) => ({
-      ...current,
-      [day]: {
-        ...(current[day] || {}),
-        [meal]: !current[day]?.[meal],
-      },
-    }));
-  };
-
-  const handleSubmitRequest = () => {
-    if (!activeSemesterId) return;
-    createRequestMutation.mutate({
-      semesterId: activeSemesterId,
-      weekStartDate: activeWeekRange.weekStartDate,
-      weekly: requestWeekly,
-      notes: requestNotes || null,
-    });
-  };
-
   return (
     <PageContainer
       breadcrumb={[
@@ -253,6 +209,27 @@ export default function Main() {
       errorMessage={semesterError?.message}
       onRetry={refetchSemesters}
       className="space-y-8"
+      actions={
+        <Button
+          icon={HiOutlinePaperAirplane}
+          onClick={() => {
+            if (!activeSemesterId) return;
+            openModal({
+              title: "Tạo yêu cầu cắt cơm",
+              content: (
+                <CreateMealRequestForm
+                  semesterId={activeSemesterId}
+                  weekStartDate={activeWeekRange.weekStartDate}
+                  onSuccessCallback={refetchRequests}
+                />
+              ),
+              size: "lg",
+            });
+          }}
+        >
+          Tạo yêu cầu cắt cơm
+        </Button>
+      }
     >
       {semesters.length > 0 ? (
         <div className="space-y-6">
@@ -265,8 +242,6 @@ export default function Main() {
                 value={activeSemesterId}
                 onChange={(value) => {
                   setSelectedSemesterId(String(value));
-                  setRequestWeekly(createEmptyWeekly());
-                  setRequestNotes("");
                 }}
                 options={semesterOptions}
                 emptyText="Chưa có học kỳ"
@@ -278,14 +253,9 @@ export default function Main() {
                 value={selectedWeekDate}
                 onChange={(value) => {
                   setSelectedWeekDate(value || toDateOnly(new Date()));
-                  setRequestWeekly(createEmptyWeekly());
-                  setRequestNotes("");
                 }}
                 placeholder="Chọn ngày trong tuần"
               />
-              <Typography variant="caption" color="gray" className="mt-1 block">
-                {formatWeekRange(activeWeekRange.weekStartDate, activeWeekRange.weekEndDate)}
-              </Typography>
             </div>
           </div>
 
@@ -299,20 +269,6 @@ export default function Main() {
             />
           ) : (
             <>
-              <div className="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-700/80 dark:bg-neutral-900">
-                <Typography variant="caption" weight="bold" className="text-neutral-500 dark:text-neutral-400">
-                  Học viên
-                </Typography>
-                <Typography variant="h4" className="mt-1 text-neutral-900 dark:text-neutral-100">
-                  {getCutRiceProfile(cutRice)?.fullName ||
-                    getCutRiceUser(cutRice)?.username ||
-                    "Chưa có tên học viên"}
-                </Typography>
-                <Typography variant="body" className="mt-1 text-neutral-500 dark:text-neutral-400">
-                  {getCutRiceProfile(cutRice)?.code || "Chưa có mã học viên"}
-                </Typography>
-              </div>
-
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-primary-100 bg-primary-50 p-4 dark:border-primary-700/60 dark:bg-primary-950/40">
                   <div className="flex items-center gap-2 text-primary-700 dark:text-primary-100">
@@ -421,60 +377,8 @@ export default function Main() {
                 })}
               </div>
 
-              <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-                <div className="rounded-3xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-700/80 dark:bg-neutral-900">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div>
-                      <Typography variant="h5" weight="bold">
-                        Tạo yêu cầu cắt cơm
-                      </Typography>
-                      <Typography variant="caption" color="gray">
-                        Chọn các bữa cần cắt cho tuần đang xem.
-                      </Typography>
-                    </div>
-                    <Button
-                      size="sm"
-                      icon={HiOutlinePaperAirplane}
-                      isLoading={createRequestMutation.isPending}
-                      onClick={handleSubmitRequest}
-                    >
-                      Gửi yêu cầu
-                    </Button>
-                  </div>
-
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {mealDays.map((day) => (
-                      <div key={day} className="rounded-2xl border border-neutral-100 p-3 dark:border-neutral-700">
-                        <Typography variant="body" weight="bold" className="mb-3">
-                          {day}
-                        </Typography>
-                        <div className="flex flex-wrap gap-3">
-                          {mealSlots.map((meal) => (
-                            <Checkbox
-                              key={meal.key}
-                              checked={Boolean(requestWeekly[day]?.[meal.key])}
-                              onChange={() => toggleRequestSlot(day, meal.key)}
-                              label={meal.label}
-                              size="sm"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Textarea
-                    className="mt-4"
-                    label="Lý do"
-                    value={requestNotes}
-                    maxLength={255}
-                    onChange={(event) => setRequestNotes(event.target.value)}
-                    placeholder="Nhập lý do hoặc ghi chú cho chỉ huy..."
-                  />
-                </div>
-
-                <div className="rounded-3xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-700/80 dark:bg-neutral-900">
-                  <Typography variant="h5" weight="bold">
+              <div className="rounded-3xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-700/80 dark:bg-neutral-900">
+                <Typography variant="h5" weight="bold">
                     Yêu cầu gần đây
                   </Typography>
                   <div className="mt-4 space-y-3">
@@ -521,7 +425,6 @@ export default function Main() {
                     )}
                   </div>
                 </div>
-              </div>
             </>
           )}
         </div>

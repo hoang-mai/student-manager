@@ -127,7 +127,7 @@ export default function Modal() {
             )}
 
             {/* Content Body */}
-            <div className="flex-1 px-10 custom-scrollbar scroll-smooth">
+            <div className="flex-1 px-10 overflow-y-auto custom-scrollbar scroll-smooth">
               <div className="text-neutral-600 dark:text-neutral-300 font-medium leading-relaxed">
                 {content}
               </div>

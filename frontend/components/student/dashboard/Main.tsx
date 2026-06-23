@@ -3,14 +3,11 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
-  HiOutlineAcademicCap,
-  HiOutlineBell,
   HiOutlineCalendar,
   HiOutlineCash,
   HiOutlineChartBar,
   HiOutlineCheckCircle,
   HiOutlineExternalLink,
-  HiOutlineIdentification,
 } from "react-icons/hi";
 import type { IconType } from "react-icons";
 import Badge from "@/library/Badge";
@@ -22,7 +19,6 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import { dashboardService } from "@/services/dashboard";
 import {
   formatCurrency,
-  formatDateTime,
   formatScore,
   formatSemesterYear,
 } from "@/utils/fn-common";
@@ -66,26 +62,6 @@ export default function Main() {
       className="space-y-8"
     >
       <div className="space-y-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="primary" className="gap-1.5">
-              <HiOutlineIdentification size={13} />
-              {profile?.code || "---"}
-            </Badge>
-            <Badge variant={profile?.isActive ? "success" : "error"}>
-              {profile?.isActive ? "Đang học tập" : "Tài khoản bị khóa"}
-            </Badge>
-            {profile?.className && (
-              <Badge variant="secondary">{profile.className}</Badge>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:flex">
-            <QuickLink href="/student/time-table" label="Lịch học" icon={HiOutlineCalendar} />
-            <QuickLink href="/student/results" label="Kết quả" icon={HiOutlineAcademicCap} />
-            <QuickLink href="/student/tuition" label="Học phí" icon={HiOutlineCash} />
-          </div>
-        </div>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
@@ -164,61 +140,6 @@ export default function Main() {
           </Panel>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-2">
-          <Panel title="Lịch học gần đây" href="/student/time-table">
-            <div className="space-y-3">
-              {dashboard?.recent.schedules.length ? (
-                dashboard.recent.schedules.map((schedule, index) => (
-                  <div
-                    key={`${schedule.day}-${schedule.startTime}-${index}`}
-                    className="rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
-                  >
-                    <Typography variant="body" weight="semibold">
-                      {schedule.subjectName || "Môn học"}
-                    </Typography>
-                    <Typography variant="caption" color="gray" className="mt-1 block">
-                      {schedule.day} - {schedule.startTime} đến {schedule.endTime}
-                    </Typography>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {schedule.room && <Badge variant="secondary">Phòng {schedule.room}</Badge>}
-                      {schedule.week && <Badge variant="neutral">Tuần {schedule.week}</Badge>}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <EmptyLine icon={HiOutlineCalendar} text="Chưa có lịch học." />
-              )}
-            </div>
-          </Panel>
-
-          <Panel title="Thông báo mới" href="/student/notification">
-            <div className="mb-3 flex items-center justify-between rounded-xl bg-primary-50 p-3 text-primary-700 dark:bg-primary-950/40 dark:text-primary-100">
-              <Typography variant="caption" weight="bold">
-                Chưa đọc
-              </Typography>
-              <Badge variant="primary">{formatNumber(overview?.unreadNotifications)}</Badge>
-            </div>
-            <div className="space-y-3">
-              {dashboard?.recent.notifications.length ? (
-                dashboard.recent.notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className="rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
-                  >
-                    <Typography variant="body" weight="semibold">
-                      {notification.title}
-                    </Typography>
-                    <Typography variant="caption" color="gray" className="mt-1 block">
-                      {formatDateTime(notification.createdAt)}
-                    </Typography>
-                  </div>
-                ))
-              ) : (
-                <EmptyLine icon={HiOutlineBell} text="Chưa có thông báo." />
-              )}
-            </div>
-          </Panel>
-        </section>
       </div>
     </PageContainer>
   );

@@ -18,6 +18,7 @@ import {
   HiOutlineEye,
 } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
+import Button from "@/library/Button";
 import Typography from "@/library/Typography";
 import PageContainer from "@/library/PageContainer";
 import { FilterField } from "@/library/table/TableFilter";
@@ -194,7 +195,7 @@ export default function Main() {
           const user = info.row.original;
           const profile = user.profile || user.Profile;
           const commander = profile?.commander || profile?.Commander;
-          const commanderName = commander?.username;
+          const commanderName = commander?.Profile?.fullName || commander?.profile?.fullName || commander?.username;
 
           if (user.role !== ROLES.STUDENT.ROLE) {
             return (
@@ -412,23 +413,6 @@ export default function Main() {
       isError={isUsersError}
       onRetry={refetchUsers}
     >
-      <div className="flex justify-end mb-6">
-        <button
-          type="button"
-          onClick={() => exportMutation.mutate()}
-          disabled={exportMutation.isPending}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all cursor-pointer shadow-sm dark:shadow-none disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          <HiOutlineDownload
-            size={16}
-            className="text-neutral-600 dark:text-neutral-300"
-          />
-          <Typography variant="label" color="neutral">
-            {exportMutation.isPending ? "Đang xuất..." : "Xuất Excel"}
-          </Typography>
-        </button>
-      </div>
-
       <div className="bg-white dark:bg-neutral-950 overflow-hidden relative transition-colors">
         <div className="px-4">
           <Table
@@ -446,6 +430,18 @@ export default function Main() {
             addLabel="Thêm tài khoản"
             onBulkUpdate={handleOpenBulkUpdateModal}
             bulkUpdateLabel="Cập nhật hàng loạt"
+            actions={
+              <Button
+                type="button"
+                onClick={() => exportMutation.mutate()}
+                disabled={exportMutation.isPending}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px]! font-black! uppercase tracking-wider text-white bg-secondary hover:bg-secondary/80 transition-all shadow-lg shadow-secondary/20 cursor-pointer active:scale-95 h-auto"
+                icon={HiOutlineDownload}
+                iconClassName="text-white"
+              >
+                {exportMutation.isPending ? "Đang xuất..." : "Xuất Excel"}
+              </Button>
+            }
           />
         </div>
       </div>

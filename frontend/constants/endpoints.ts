@@ -97,16 +97,7 @@ export const ENDPOINTS = {
     EXPORT: "/api/achievements/export",
     MY: "/api/users/achievements",
   },
-  YEARLY_ACHIEVEMENTS: {
-    BASE: "/api/yearly-achievements",
-    FULL: "/api/yearly-achievements/full",
-  },
-  SCIENTIFIC_TOPICS: {
-    BASE: "/api/scientific-topics",
-  },
-  SCIENTIFIC_INITIATIVES: {
-    BASE: "/api/scientific-initiatives",
-  },
+
   GRADE_REQUESTS: {
     STUDENT_BASE: "/api/students/grade-requests",
     STUDENT_DETAIL: (id: string | number) =>

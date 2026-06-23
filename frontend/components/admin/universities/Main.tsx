@@ -103,7 +103,7 @@ export default function Main() {
           const university = row.original;
           return (
             <Link
-              href={`/commander/universities/${university.id}`}
+              href={`/admin/universities/${university.id}`}
               className="group inline-flex flex-col"
             >
               <Typography
