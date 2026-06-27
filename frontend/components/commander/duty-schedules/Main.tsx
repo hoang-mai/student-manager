@@ -239,7 +239,7 @@ export default function DutySchedulesMain() {
         { label: "Phân công lịch trực" },
       ]}
       title="Phân công lịch trực"
-      subtitle="Quản lý và phân công ca trực cho các chỉ huy"
+      subtitle="Quản lý và phân công ca trực ban"
       isLoading={isLoading}
       skeleton={<DutyScheduleSkeleton />}
       isError={isError}
