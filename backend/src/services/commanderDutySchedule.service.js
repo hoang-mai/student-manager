@@ -21,10 +21,10 @@ const sanitizePayload = (data) => {
   return payload;
 };
 
-const ensureCommander = async (userId) => {
+const ensureStudent = async (userId) => {
   const user = await User.findByPk(userId, { include: [{ model: Profile }] });
-  if (!user) throw new BadRequestError('Không tìm thấy chỉ huy');
-  if (user.role !== 'COMMANDER') throw new BadRequestError('Người được phân công phải là tài khoản chỉ huy');
+  if (!user) throw new BadRequestError('Không tìm thấy học viên');
+  if (user.role !== 'STUDENT') throw new BadRequestError('Người được phân công phải là tài khoản học viên');
   return user;
 };
 
@@ -41,7 +41,7 @@ const flattenCommander = (record) => {
 
 const create = async (data) => {
   const payload = sanitizePayload(data);
-  await ensureCommander(payload.userId);
+  await ensureStudent(payload.userId);
   const record = await CommanderDutySchedule.create(payload);
   return getDetail(record.id);
 };
@@ -69,7 +69,7 @@ const update = async (id, data) => {
   const record = await CommanderDutySchedule.findByPk(id);
   if (!record) throw new NotFoundError('Không tìm thấy lịch trực');
   const payload = sanitizePayload(data);
-  if (payload.userId) await ensureCommander(payload.userId);
+  if (payload.userId) await ensureStudent(payload.userId);
   await record.update(payload);
   return getDetail(id);
 };

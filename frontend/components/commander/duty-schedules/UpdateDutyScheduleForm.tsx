@@ -26,22 +26,22 @@ export default function UpdateDutyScheduleForm({
   schedule,
 }: UpdateDutyScheduleFormProps) {
   const { closeModal } = useModalStore();
-  const [commanderSearch, setCommanderSearch] = useState("");
-  const debouncedSearch = useDebounce(commanderSearch);
+  const [studentSearch, setStudentSearch] = useState("");
+  const debouncedSearch = useDebounce(studentSearch);
 
   const {
-    data: commandersData,
-    fetchNextPage: fetchNextCommanders,
-    hasNextPage: hasNextCommanders,
-    isFetchingNextPage: isFetchingNextCommanders,
-    isLoading: isLoadingCommanders,
+    data: studentsData,
+    fetchNextPage: fetchNextStudents,
+    hasNextPage: hasNextStudents,
+    isFetchingNextPage: isFetchingNextStudents,
+    isLoading: isLoadingStudents,
   } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.USERS, ROLES.COMMANDER.ROLE, debouncedSearch],
+    queryKey: [QUERY_KEYS.USERS, ROLES.STUDENT.ROLE, debouncedSearch],
     queryFn: ({ pageParam }) =>
       userService.getAllUsers({
         page: pageParam,
         limit: DEFAULT_PAGE.PAGE_SIZE,
-        role: ROLES.COMMANDER.ROLE,
+        role: ROLES.STUDENT.ROLE,
         fullName: debouncedSearch || undefined,
       }),
     initialPageParam: DEFAULT_PAGE.PAGE_INDEX + 1,
@@ -52,13 +52,13 @@ export default function UpdateDutyScheduleForm({
     select: (data) => data.pages.flatMap((page) => page.data || []),
   });
 
-  const commanderOptions = useMemo(
+  const studentOptions = useMemo(
     () =>
-      commandersData?.map((commander) => ({
-        value: commander.id,
-        label: commander.profile?.fullName || commander.username,
+      studentsData?.map((student) => ({
+        value: student.id,
+        label: student.profile?.fullName || student.username,
       })) || [],
-    [commandersData]
+    [studentsData]
   );
 
   const mutation = useAppMutation({
@@ -97,22 +97,22 @@ export default function UpdateDutyScheduleForm({
         render={({ field: { value, onChange } }) => (
           <Select
             label="Họ và tên"
-            placeholder="Chọn chỉ huy trực"
+            placeholder="Chọn học viên trực"
             value={value}
             onChange={(value) => onChange(value)}
-            options={commanderOptions}
-            hasNextPage={hasNextCommanders}
-            isFetchingNextPage={isFetchingNextCommanders}
-            onLoadMore={fetchNextCommanders}
-            isLoading={isLoadingCommanders}
+            options={studentOptions}
+            hasNextPage={hasNextStudents}
+            isFetchingNextPage={isFetchingNextStudents}
+            onLoadMore={fetchNextStudents}
+            isLoading={isLoadingStudents}
             error={errors.userId?.message}
-            emptyText="Không tìm thấy chỉ huy"
+            emptyText="Không tìm thấy học viên"
             required
             filter={{
               enabled: true,
               mode: "server",
-              onChange: setCommanderSearch,
-              placeholder: "Tìm kiếm chỉ huy...",
+              onChange: setStudentSearch,
+              placeholder: "Tìm kiếm học viên...",
             }}
           />
         )}

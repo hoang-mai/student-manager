@@ -341,7 +341,7 @@ export type UpdateAchievementFormValues = z.infer<
  * Schema validation cho form phân công lịch trực (Duty Schedule)
  */
 export const createDutyScheduleSchema = z.object({
-  userId: z.string().min(1, "Vui lòng chọn chỉ huy trực"),
+  userId: z.string().min(1, "Vui lòng chọn học viên trực"),
   position: z.string().min(1, "Nhiệm vụ không được để trống"),
   workDay: z.string().min(1, "Ngày trực không được để trống"),
 });
@@ -354,7 +354,7 @@ export type CreateDutyScheduleFormValues = z.infer<
  * Schema validation cho form cập nhật lịch trực (Duty Schedule)
  */
 export const updateDutyScheduleSchema = z.object({
-  userId: z.string().min(1, "Vui lòng chọn chỉ huy trực"),
+  userId: z.string().min(1, "Vui lòng chọn học viên trực"),
   position: z.string().min(1, "Nhiệm vụ không được để trống"),
   workDay: z.string().min(1, "Ngày trực không được để trống"),
 });
