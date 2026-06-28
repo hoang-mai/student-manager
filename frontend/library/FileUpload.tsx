@@ -8,10 +8,24 @@ import {
 } from "react-icons/hi";
 import Typography from "./Typography";
 
+/** Các định dạng được phép: ảnh, PDF, Excel, Word (.docx) */
+const ALLOWED_ACCEPT =
+  "image/*,.pdf,.xlsx,.xls,.docx";
+
+/** Phần mở rộng được phép (so khớp không phân biệt hoa thường) */
+const ALLOWED_EXTENSIONS = ["pdf", "xlsx", "xls", "docx"];
+
+/** Kiểm tra file có thuộc nhóm định dạng cho phép không */
+const isAllowedFile = (file: File): boolean => {
+  if (file.type.startsWith("image/")) return true;
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return ALLOWED_EXTENSIONS.includes(ext);
+};
+
 interface FileUploadProps {
   /** Hàm callback khi file được chọn hoặc bị gỡ bỏ */
   onFileSelect: (file: File | null) => void;
-  /** Các định dạng file chấp nhận (VD: .xlsx, .xls) */
+  /** Các định dạng file chấp nhận (VD: .xlsx, .xls). Mặc định: ảnh, PDF, Excel, Word */
   accept?: string;
   /** Dung lượng tối đa cho phép (MB) */
   maxSizeMB?: number;
@@ -35,7 +49,7 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({
   onFileSelect,
-  accept,
+  accept = ALLOWED_ACCEPT,
   maxSizeMB = 5,
   label,
   placeholder = "Kéo thả file vào đây hoặc click để chọn",
@@ -47,12 +61,20 @@ const FileUpload: React.FC<FileUploadProps> = ({
   value,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [typeError, setTypeError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isInteractionDisabled = disabled || isLoading;
 
   const handleFile = (file: File) => {
     if (isInteractionDisabled) return;
+    if (!isAllowedFile(file)) {
+      setTypeError("Định dạng không hợp lệ. Chỉ chấp nhận ảnh, PDF, Excel, Word.");
+      onFileSelect(null);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+    setTypeError(null);
     onFileSelect(file);
   };
 
@@ -83,10 +105,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const removeFile = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isInteractionDisabled) return;
+    setTypeError(null);
     onFileSelect(null);
     if (onRemove) onRemove();
     if (inputRef.current) inputRef.current.value = "";
   };
+
+  const displayError = error || typeError || undefined;
 
   return (
     <div className={`space-y-2 ${disabled ? "opacity-60" : ""}`}>
@@ -108,7 +133,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           ${disabled ? "cursor-not-allowed bg-neutral-100 border-neutral-200" : "cursor-pointer"}
           ${!isInteractionDisabled && isDragging ? "border-primary-500 bg-primary-50/50" : ""}
           ${!isInteractionDisabled && !isDragging && !isLoading ? "border-neutral-200 dark:border-neutral-800 hover:border-primary-400 dark:hover:border-neutral-700 bg-neutral-50/30 dark:bg-neutral-900/40 dark:bg-neutral-900/40" : ""}
-          ${error ? "border-error-500! bg-error-50/10" : ""}
+          ${displayError ? "border-error-500! bg-error-50/10" : ""}
         `}
       >
         <input
@@ -185,9 +210,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
         )}
       </div>
 
-      {error && (
+      {displayError && (
         <Typography variant="caption" color="error" className="ml-1">
-          {error}
+          {displayError}
         </Typography>
       )}
     </div>
