@@ -32,7 +32,12 @@ export default function Main() {
     setSorting,
   } = useTableQuery<SemesterResult>({
     queryKey: [QUERY_KEYS.STUDENT_RESULTS, "COMMANDER_SEMESTERS_LATEST"],
-    fetchData: (params) => academicManagementService.getSemesterResults({ ...params, latestOnly: true }),
+    fetchData: (params: any) => {
+      const hasSemesterFilter = !!params.semester;
+      const hasSchoolYearFilter = !!params.schoolYear;
+      const latestOnly = (!hasSemesterFilter && !hasSchoolYearFilter) ? true : undefined;
+      return academicManagementService.getSemesterResults({ ...params, latestOnly });
+    },
   });
 
   const columns = useMemo<ColumnDef<SemesterResult>[]>(
@@ -154,10 +159,17 @@ export default function Main() {
         ],
       },
       {
-        type: "text",
+        type: "select",
         id: "schoolYear",
         label: "Năm học",
-        placeholder: "VD: 2024-2025",
+        placeholder: "Chọn năm học...",
+        options: [
+          { value: "", label: "Tất cả" },
+          { value: "2023-2024", label: "2023-2024" },
+          { value: "2024-2025", label: "2024-2025" },
+          { value: "2025-2026", label: "2025-2026" },
+          { value: "2026-2027", label: "2026-2027" },
+        ],
       },
     ],
     []
@@ -187,6 +199,7 @@ export default function Main() {
             onSortingChange={setSorting}
             filterFields={filterOptions}
             emptyText="Không tìm thấy kết quả học tập nào phù hợp"
+            defaultExpanded={false}
             renderSubComponent={(row) => <StudentSemestersTable userId={row.original.userId} excludeId={row.original.id} />}
           />
         </div>

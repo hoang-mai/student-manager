@@ -99,7 +99,7 @@ export default function StudentSemestersTable({ userId, excludeId }: StudentSeme
     <div className="p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-b-xl border-x border-b border-neutral-100 dark:border-neutral-800 shadow-inner">
       <div className="mb-3">
         <Typography variant="body" weight="semibold" className="text-neutral-600 dark:text-neutral-400">
-          Danh sách kết quả học tập theo học kỳ:
+          Kết quả học tập các học kỳ khác:
         </Typography>
       </div>
       <Table
