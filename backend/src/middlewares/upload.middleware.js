@@ -41,4 +41,24 @@ const uploadImage = (fieldName = 'file') => (req, res, next) => {
   });
 };
 
-module.exports = { uploadExcel, uploadImage };
+const evidenceUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const isValid = /^image\/(png|jpe?g|webp)$/i.test(file.mimetype) || file.mimetype === 'application/pdf';
+    if (!isValid) return cb(new BadRequestError('Chỉ chấp nhận ảnh (PNG, JPG, WEBP) hoặc PDF'));
+    return cb(null, true);
+  },
+});
+
+const uploadEvidence = (fieldName = 'file') => (req, res, next) => {
+  evidenceUpload.single(fieldName)(req, res, (err) => {
+    if (!err) return next();
+    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+      return next(new BadRequestError('Dung lượng file tối đa là 5MB'));
+    }
+    return next(err);
+  });
+};
+
+module.exports = { uploadExcel, uploadImage, uploadEvidence };

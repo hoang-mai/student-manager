@@ -16,6 +16,7 @@ import Button from "@/library/Button";
 import Typography from "@/library/Typography";
 import { GradeRequest, requestTypeMap, statusMap } from "@/types/student-academic";
 import { formatDateTime, formatScore, formatSemesterYear } from "@/utils/fn-common";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface GradeRequestDetailProps {
   request: GradeRequest;
@@ -55,7 +56,15 @@ export default function GradeRequestDetail({ request }: GradeRequestDetailProps)
             type="button"
             variant="primary"
             className="rounded-2xl px-6"
-            onClick={() => window.open(request.attachmentUrl || "", "_blank")}
+            onClick={() => {
+              if (request.attachmentUrl) {
+                const token = useAuthStore.getState().accessToken;
+                const url = request.attachmentUrl.includes("?") 
+                  ? `${request.attachmentUrl}&token=${token}` 
+                  : `${request.attachmentUrl}?token=${token}`;
+                window.open(url, "_blank");
+              }
+            }}
           >
             <HiOutlineExternalLink size={20} className="mr-2" />
             Minh chứng

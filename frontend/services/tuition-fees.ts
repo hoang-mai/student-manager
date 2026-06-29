@@ -128,4 +128,8 @@ export const tuitionFeeService = {
       responseType: "blob",
     });
   },
+
+  getHistories: async (id: string): Promise<ApiResponse<any[]>> => {
+    return apiClient.get(`${ENDPOINTS.TUITION_FEES.BASE}/${id}/histories`);
+  },
 };

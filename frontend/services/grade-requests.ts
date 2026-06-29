@@ -12,6 +12,14 @@ export const gradeRequestService = {
     return apiClient.get(ENDPOINTS.GRADE_REQUESTS.STUDENT_BASE, { params });
   },
 
+  uploadEvidence: async (file: File): Promise<ApiResponse<{ url: string }>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post(`${ENDPOINTS.GRADE_REQUESTS.STUDENT_BASE}/evidence`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
   createGradeRequest: async (data: CreateGradeRequestRequest) => {
     return apiClient.post<ApiResponse<GradeRequest>>(ENDPOINTS.GRADE_REQUESTS.STUDENT_BASE, data);
   },

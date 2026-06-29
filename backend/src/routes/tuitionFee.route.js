@@ -285,6 +285,7 @@ router.post('/import', uploadExcel('file'), controller.importExcel);
 router.get('/template', controller.downloadTemplate);
 router.get('/', controller.getAll);
 router.get('/:id', controller.getDetail);
+router.get('/:id/histories', controller.getHistories);
 router.put('/:id', controller.update);
 router.delete('/:id', controller.delete);
 

@@ -39,9 +39,14 @@ const getDetail = asyncHandler(async (req, res) => {
   return success(res, result);
 });
 
+const getHistories = asyncHandler(async (req, res) => {
+  const result = await service.getHistories(req.params.id);
+  return success(res, result);
+});
+
 const update = asyncHandler(async (req, res) => {
   await validateOrThrow(s.update, req.body);
-  const result = await service.update(req.params.id, req.body);
+  const result = await service.update(req.params.id, req.body, req.userId);
   return success(res, result, 'Cập nhật thành công');
 });
 
@@ -50,4 +55,4 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, createBatch, importExcel, downloadTemplate, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, createBatch, importExcel, downloadTemplate, getAll, getDetail, getHistories, update, delete: deleteRecord };

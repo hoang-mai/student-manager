@@ -269,7 +269,9 @@ const ctrl = require('../controllers/gradeRequest.controller');
  */
 
 // ===================== Student (chỉ STUDENT) =====================
+const { uploadEvidence } = require('../middlewares/upload.middleware');
 router.post('/students/grade-requests', authMiddleware, requireStudent, ctrl.create);
+router.post('/students/grade-requests/evidence', authMiddleware, requireStudent, uploadEvidence('file'), ctrl.uploadEvidence);
 router.get('/students/grade-requests', authMiddleware, requireStudent, ctrl.getMyRequests);
 router.get('/students/grade-requests/:id', authMiddleware, requireStudent, ctrl.getMyRequestDetail);
 

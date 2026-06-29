@@ -20,6 +20,9 @@ import {
   createGradeRequestSchema,
   CreateGradeRequestFormValues,
 } from "@/utils/validations";
+import FileUpload from "@/library/FileUpload";
+import { useState } from "react";
+import { useToastStore } from "@/store/useToastStore";
 
 interface CreateGradeRequestFormProps {
   subjects: SubjectResult[];
@@ -29,6 +32,9 @@ export default function CreateGradeRequestForm({
   subjects,
 }: CreateGradeRequestFormProps) {
   const { closeModal } = useModalStore();
+  const { addToast } = useToastStore();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const subjectOptions = subjects.map((subject) => ({
     value: subject.id,
@@ -65,8 +71,21 @@ export default function CreateGradeRequestForm({
     onSuccess: () => closeModal(),
   });
 
-  const onSubmit = (values: CreateGradeRequestFormValues) => {
-    mutation.mutate(values);
+  const onSubmit = async (values: CreateGradeRequestFormValues) => {
+    let attachmentUrl = values.attachmentUrl;
+    if (selectedFile) {
+      setIsUploading(true);
+      try {
+        const res = await gradeRequestService.uploadEvidence(selectedFile);
+        attachmentUrl = res.data.url;
+      } catch (err: any) {
+        setIsUploading(false);
+        addToast({ message: err.message || "Lỗi khi tải minh chứng lên", variant: "error" });
+        return;
+      }
+      setIsUploading(false);
+    }
+    mutation.mutate({ ...values, attachmentUrl });
   };
 
   return (
@@ -138,13 +157,15 @@ export default function CreateGradeRequestForm({
           {...register("proposedGradePoint10", { valueAsNumber: true })}
         />
 
-        <Input
-           label="Minh chứng (URL)"
-           placeholder="Dán liên kết minh chứng nếu có"
-           error={errors.attachmentUrl?.message}
-           isLoading={mutation.isPending}
-           {...register("attachmentUrl")}
-         />
+        <FileUpload
+          label="Minh chứng"
+          accept="image/*,.pdf"
+          maxSizeMB={5}
+          placeholder="Tải lên ảnh hoặc PDF minh chứng (Tối đa 5MB)"
+          onFileSelect={setSelectedFile}
+          value={selectedFile}
+          isLoading={isUploading}
+        />
 
         <Textarea
           label="Lý do đề xuất"
@@ -163,8 +184,8 @@ export default function CreateGradeRequestForm({
         <Button
           type="submit"
           variant="primary"
-          isLoading={mutation.isPending}
-          disabled={subjects.length === 0 || !isDirty}
+          isLoading={mutation.isPending || isUploading}
+          disabled={subjects.length === 0 || !isDirty && !selectedFile}
         >
           Gửi đề xuất
         </Button>

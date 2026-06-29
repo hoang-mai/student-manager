@@ -63,6 +63,7 @@ db.schoolYear = require('./schoolYear.js')(sequelize, DataTypes);
 db.semester = require('./semester.js')(sequelize, DataTypes);
 db.timeTable = require('./timeTable.js')(sequelize, DataTypes);
 db.tuitionFee = require('./tuitionFee.js')(sequelize, DataTypes);
+db.tuitionHistory = require('./tuitionHistory.js')(sequelize, DataTypes);
 
 // Nhóm Thi đua & Nghiên cứu
 db.achievement = require('./achievement.js')(sequelize, DataTypes);
@@ -157,6 +158,14 @@ db.tuitionFee.belongsTo(db.user, { foreignKey: 'user_id', onUpdate: 'CASCADE', o
 // Semester 1:N TuitionFee
 db.semester.hasMany(db.tuitionFee, { as: 'tuitionFees', foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 db.tuitionFee.belongsTo(db.semester, { as: 'semesterInfo', foreignKey: 'semester_id', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+
+// TuitionFee 1:N TuitionHistory
+db.tuitionFee.hasMany(db.tuitionHistory, { foreignKey: 'tuition_fee_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+db.tuitionHistory.belongsTo(db.tuitionFee, { foreignKey: 'tuition_fee_id', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+
+// User 1:N TuitionHistory (changedBy)
+db.user.hasMany(db.tuitionHistory, { foreignKey: 'changed_by', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+db.tuitionHistory.belongsTo(db.user, { as: 'changer', foreignKey: 'changed_by', onUpdate: 'CASCADE', onDelete: 'SET NULL' });
 
 // --- Nhóm Thi đua & Nghiên cứu ---
 

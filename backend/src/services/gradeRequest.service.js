@@ -32,6 +32,13 @@ const create = async (userId, data) => {
     throw new BadRequestError('Môn học không thuộc về học viên này');
   }
 
+  const existingPending = await GradeRequest.findOne({
+    where: { userId, subjectResultId: data.subjectResultId, status: 'PENDING' }
+  });
+  if (existingPending) {
+    throw new BadRequestError('Môn học này đã có đề xuất đang chờ xử lý. Vui lòng chờ phản hồi.');
+  }
+
   return GradeRequest.create({
     userId,
     subjectResultId: data.subjectResultId,
@@ -72,10 +79,14 @@ const getMyRequestDetail = async (userId, id) => {
 
 // ===================== Commander =====================
 
-const getAll = async (query = {}) => {
+const getAll = async (query = {}, requester = {}) => {
   const where = {};
   const studentWhere = {};
   const semesterWhere = {};
+
+  if (requester.role === 'COMMANDER' && requester.profile?.unit) {
+    studentWhere.unit = requester.profile.unit;
+  }
 
   if (query.semester) semesterWhere.semester = query.semester;
   if (query.schoolYear) semesterWhere.schoolYear = query.schoolYear;
@@ -165,12 +176,9 @@ const getDetail = async (id) => {
 
 // ===================== CPA Recalculation =====================
 
-async function recalculateCpa(subjectResultId) {
-  const subject = await SubjectResult.findByPk(subjectResultId);
-  if (!subject) return;
-
+async function recalculateCpa(semesterResultId) {
   // Update semester
-  const semResult = await SemesterResult.findByPk(subject.semesterResultId);
+  const semResult = await SemesterResult.findByPk(semesterResultId);
   if (!semResult) return;
 
   const allSubjects = await SubjectResult.findAll({ where: { semesterResultId: semResult.id } });
@@ -237,6 +245,8 @@ const approve = async (id, reviewerId, reviewNote) => {
   const subject = await SubjectResult.findByPk(req.subjectResultId);
   if (!subject) throw new NotFoundError('Không tìm thấy môn học');
 
+  const semesterResultId = subject.semesterResultId;
+
   if (req.requestType === 'UPDATE' || req.requestType === 'ADD') {
     await subject.update({
       letterGrade: req.proposedLetterGrade || subject.letterGrade,
@@ -247,7 +257,7 @@ const approve = async (id, reviewerId, reviewNote) => {
     await subject.destroy();
   }
 
-  await recalculateCpa(req.subjectResultId);
+  await recalculateCpa(semesterResultId);
 
   await req.update({
     status: 'APPROVED',

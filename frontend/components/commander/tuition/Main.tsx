@@ -7,6 +7,7 @@ import {
   HiOutlinePencil,
   HiOutlineTrash,
   HiOutlineUpload,
+  HiOutlineClock,
 } from "react-icons/hi";
 import ActionButton from "@/library/ActionButton";
 import Button from "@/library/Button";
@@ -33,6 +34,7 @@ import CreateTuitionFeeForm from "./CreateTuitionFeeForm";
 import ImportTuitionFeesForm from "./ImportTuitionFeesForm";
 import TuitionSkeleton from "./TuitionSkeleton";
 import UpdateTuitionFeeForm from "./UpdateTuitionFeeForm";
+import TuitionHistoryModal from "./TuitionHistoryModal";
 
 export default function Main() {
   const { openConfirm } = useConfirmStore();
@@ -95,6 +97,17 @@ export default function Main() {
         content: <UpdateTuitionFeeForm tuitionFee={tuitionFee} />,
         size: "lg",
         config: { mutationKey: MUTATION_KEYS.UPDATE_TUITION_FEE },
+      });
+    },
+    [openModal]
+  );
+
+  const handleViewHistory = useCallback(
+    (tuitionFee: TuitionFee) => {
+      openModal({
+        title: "Lịch sử cập nhật",
+        content: <TuitionHistoryModal tuitionFeeId={tuitionFee.id} />,
+        size: "lg",
       });
     },
     [openModal]
@@ -196,6 +209,12 @@ export default function Main() {
           return (
             <div className="flex items-center gap-1">
               <ActionButton
+                tooltipText="Lịch sử cập nhật"
+                icon={HiOutlineClock}
+                color="orange"
+                onClick={() => handleViewHistory(tuitionFee)}
+              />
+              <ActionButton
                 tooltipText="Cập nhật"
                 icon={HiOutlinePencil}
                 color="blue"
@@ -222,7 +241,7 @@ export default function Main() {
         },
       },
     ],
-    [deleteMutation, handleUpdate, openConfirm]
+    [deleteMutation, handleUpdate, handleViewHistory, openConfirm]
   );
 
   const filterFields = useMemo<FilterField[]>(

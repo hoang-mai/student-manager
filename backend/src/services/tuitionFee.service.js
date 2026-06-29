@@ -225,10 +225,35 @@ const getDetail = async (id) => {
   return record;
 };
 
-const update = async (id, data) => {
+const update = async (id, data, changedBy = null) => {
   const record = await getDetail(id);
+  const oldStatus = record.status;
   await attachSemester(data);
-  return record.update(data);
+  const updated = await record.update(data);
+
+  if (data.status && data.status !== oldStatus) {
+    await db.tuitionHistory.create({
+      tuitionFeeId: id,
+      changedBy,
+      oldStatus,
+      newStatus: data.status,
+      note: 'Cập nhật trạng thái học phí'
+    });
+  }
+
+  return updated;
+};
+
+const getHistories = async (id) => {
+  const record = await TuitionFee.findByPk(id);
+  if (!record) throw new NotFoundError('Không tìm thấy học phí');
+  
+  const histories = await db.tuitionHistory.findAll({
+    where: { tuitionFeeId: id },
+    include: [{ model: User, as: 'changer', attributes: ['id'], include: [{ model: db.profile, attributes: ['fullName', 'code'] }] }],
+    order: [['createdAt', 'DESC']]
+  });
+  return histories;
 };
 
 const deleteRecord = async (id) => {
@@ -237,4 +262,4 @@ const deleteRecord = async (id) => {
   return { deleted: true };
 };
 
-module.exports = { create, createBatch, parseExcelImport, createImportTemplate, getAll, getDetail, update, delete: deleteRecord };
+module.exports = { create, createBatch, parseExcelImport, createImportTemplate, getAll, getDetail, update, delete: deleteRecord, getHistories };

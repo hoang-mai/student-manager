@@ -24,7 +24,7 @@ const getMyRequestDetail = asyncHandler(async (req, res) => {
 // ===================== Commander =====================
 
 const getAll = asyncHandler(async (req, res) => {
-  const r = await service.getAll(req.query);
+  const r = await service.getAll(req.query, req.user);
   return paginated(res, r.rows, r.pagination, r.summary);
 });
 
@@ -45,4 +45,11 @@ const reject = asyncHandler(async (req, res) => {
   return success(res, r, 'Đề xuất đã bị từ chối');
 });
 
-module.exports = { create, getMyRequests, getMyRequestDetail, getAll, getDetail, approve, reject };
+const uploadEvidence = asyncHandler(async (req, res) => {
+  if (!req.file) throw new require('../utils/apiError').BadRequestError('Vui lòng chọn file minh chứng để tải lên');
+  const fileStorageService = require('../services/fileStorage.service');
+  const result = await fileStorageService.uploadFile('evidence', req.userId, req.file);
+  return success(res, result, 'Upload minh chứng thành công');
+});
+
+module.exports = { create, getMyRequests, getMyRequestDetail, getAll, getDetail, approve, reject, uploadEvidence };
