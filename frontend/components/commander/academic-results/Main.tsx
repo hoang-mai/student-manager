@@ -15,10 +15,10 @@ import { useModalStore } from "@/store/useModalStore";
 import { SemesterResult } from "@/types/student-academic";
 import { useRouter } from "next/navigation";
 import { formatScore, textOrDash } from "@/utils/fn-common";
+import StudentSemestersTable from "./StudentSemestersTable";
 
 export default function Main() {
   const router = useRouter();
-
   const {
     data: semesterResultsData,
     isLoading: isSemesterResultsLoading,
@@ -31,8 +31,8 @@ export default function Main() {
     sorting,
     setSorting,
   } = useTableQuery<SemesterResult>({
-    queryKey: [QUERY_KEYS.ACADEMIC_RESULTS, "COMMANDER_SEMESTERS"],
-    fetchData: academicManagementService.getSemesterResults,
+    queryKey: [QUERY_KEYS.STUDENT_RESULTS, "COMMANDER_SEMESTERS_LATEST"],
+    fetchData: (params) => academicManagementService.getSemesterResults({ ...params, latestOnly: true }),
   });
 
   const columns = useMemo<ColumnDef<SemesterResult>[]>(
@@ -118,7 +118,7 @@ export default function Main() {
                 tooltipText="Xem chi tiết & nhập điểm"
                 icon={HiOutlineEye}
                 onClick={() => router.push(`/commander/academic-results/${record.id}`)}
-                color="primary"
+                color="blue"
               />
             </div>
           );
@@ -187,6 +187,7 @@ export default function Main() {
             onSortingChange={setSorting}
             filterFields={filterOptions}
             emptyText="Không tìm thấy kết quả học tập nào phù hợp"
+            renderSubComponent={(row) => <StudentSemestersTable userId={row.original.userId} excludeId={row.original.id} />}
           />
         </div>
       </div>

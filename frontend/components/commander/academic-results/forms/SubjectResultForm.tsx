@@ -44,7 +44,7 @@ export default function SubjectResultForm({
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       subjectCode: initialData?.subjectCode || "",
       subjectName: initialData?.subjectName || "",

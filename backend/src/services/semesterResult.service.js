@@ -52,6 +52,26 @@ const getAll = async (query) => {
     include[0].required = true;
   }
 
+  if (query.excludeId) {
+    where.id = {
+      ...(where.id || {}),
+      [db.Sequelize.Op.ne]: query.excludeId,
+    };
+  }
+
+  if (query.latestOnly === 'true' || query.latestOnly === true) {
+    where.id = {
+      ...(where.id || {}),
+      [db.Sequelize.Op.eq]: db.sequelize.literal(`(
+        SELECT sr2.id 
+        FROM semester_results sr2 
+        WHERE sr2.user_id = "SemesterResult"."user_id" 
+        ORDER BY sr2.school_year DESC, sr2.semester DESC 
+        LIMIT 1
+      )`),
+    };
+  }
+
   return paginateQuery(SemesterResult, query, { where, include });
 };
 
