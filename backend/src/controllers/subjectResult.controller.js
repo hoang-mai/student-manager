@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const service = require('../services/subjectResult.service');
 const { success, paginated, validateOrThrow } = require('../utils/response');
+const { BadRequestError } = require('../utils/apiError');
 const s = require('../validations/subjectResult.validation');
 
 const create = asyncHandler(async (req, res) => {
@@ -30,4 +31,20 @@ const deleteRecord = asyncHandler(async (req, res) => {
   return success(res, null, 'Xóa thành công');
 });
 
-module.exports = { create, getAll, getDetail, update, delete: deleteRecord };
+const downloadTemplate = asyncHandler(async (req, res) => {
+  const buffer = await service.downloadTemplate();
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=DiemMonHoc_Template.xlsx');
+  return res.send(buffer);
+});
+
+const importExcel = asyncHandler(async (req, res) => {
+  if (!req.file) throw new BadRequestError('Vui lòng chọn file Excel');
+  const { semesterResultId } = req.body;
+  if (!semesterResultId) throw new BadRequestError('Thiếu thông tin semesterResultId');
+
+  const result = await service.importExcel(req.file.buffer, semesterResultId);
+  return success(res, result, `Thêm thành công ${result.length} môn học`);
+});
+
+module.exports = { create, getAll, getDetail, update, delete: deleteRecord, downloadTemplate, importExcel };

@@ -90,6 +90,14 @@ export const ENDPOINTS = {
   ACADEMIC_RESULTS: {
     BASE: "/api/users/academic-results",
   },
+  SUBJECT_RESULTS: {
+    BASE: "/api/subject-results",
+    DETAIL: (id: string | number) => `/api/subject-results/${id}`,
+  },
+  SEMESTER_RESULTS: {
+    BASE: "/api/semester-results",
+    DETAIL: (id: string | number) => `/api/semester-results/${id}`,
+  },
   ACHIEVEMENTS: {
     BASE: "/api/achievements",
     IMPORT: "/api/achievements/import",

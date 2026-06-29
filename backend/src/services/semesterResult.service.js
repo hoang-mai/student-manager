@@ -13,7 +13,11 @@ const getAll = async (query) => {
   const where = {};
   const studentWhere = {};
   const include = [
-    { model: User },
+    { 
+      model: User, 
+      attributes: ['id', 'username'],
+      include: [{ model: Student, as: 'Profile' }] 
+    },
     { model: YearlyResult },
     { model: SubjectResult },
   ];
@@ -43,7 +47,8 @@ const getAll = async (query) => {
   }
 
   if (Object.keys(studentWhere).length > 0) {
-    include[0].where = studentWhere;
+    include[0].include[0].where = studentWhere;
+    include[0].include[0].required = true;
     include[0].required = true;
   }
 
@@ -53,7 +58,11 @@ const getAll = async (query) => {
 const getDetail = async (id) => {
   const record = await SemesterResult.findByPk(id, {
     include: [
-      { model: User },
+      { 
+        model: User, 
+        attributes: ['id', 'username'],
+        include: [{ model: Student, as: 'Profile' }] 
+      },
       { model: YearlyResult },
       { model: SubjectResult },
     ],
