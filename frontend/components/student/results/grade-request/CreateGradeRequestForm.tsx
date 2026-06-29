@@ -77,7 +77,9 @@ export default function CreateGradeRequestForm({
       setIsUploading(true);
       try {
         const res = await gradeRequestService.uploadEvidence(selectedFile);
-        attachmentUrl = res.data.url;
+        if (res.data?.url) {
+          attachmentUrl = res.data.url;
+        }
       } catch (err: any) {
         setIsUploading(false);
         addToast({ message: err.message || "Lỗi khi tải minh chứng lên", variant: "error" });

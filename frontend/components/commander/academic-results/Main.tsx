@@ -199,7 +199,7 @@ export default function Main() {
             onSortingChange={setSorting}
             filterFields={filterOptions}
             emptyText="Không tìm thấy kết quả học tập nào phù hợp"
-            defaultExpanded={false}
+            defaultExpanded={{}}
             renderSubComponent={(row) => <StudentSemestersTable userId={row.original.userId} excludeId={row.original.id} />}
           />
         </div>

@@ -228,16 +228,22 @@ const getDetail = async (id) => {
 const update = async (id, data, changedBy = null) => {
   const record = await getDetail(id);
   const oldStatus = record.status;
+  const oldAmount = record.totalAmount;
+  
   await attachSemester(data);
   const updated = await record.update(data);
 
-  if (data.status && data.status !== oldStatus) {
+  const notes = [];
+  if (data.status && data.status !== oldStatus) notes.push('trạng thái');
+  if (data.totalAmount !== undefined && Number(data.totalAmount) !== Number(oldAmount)) notes.push('số tiền');
+
+  if (notes.length > 0) {
     await db.tuitionHistory.create({
       tuitionFeeId: id,
       changedBy,
       oldStatus,
-      newStatus: data.status,
-      note: 'Cập nhật trạng thái học phí'
+      newStatus: data.status || oldStatus,
+      note: `Cập nhật ${notes.join(' và ')} học phí`
     });
   }
 

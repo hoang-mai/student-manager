@@ -211,7 +211,7 @@ export default function Main() {
               <ActionButton
                 tooltipText="Lịch sử cập nhật"
                 icon={HiOutlineClock}
-                color="orange"
+                color="amber"
                 onClick={() => handleViewHistory(tuitionFee)}
               />
               <ActionButton
