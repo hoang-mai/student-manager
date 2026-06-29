@@ -66,6 +66,11 @@ export const COMMANDER_MENU = [
     icon: HiOutlineCash,
   },
   {
+    title: "Quản lý học tập",
+    path: "/commander/academic-results",
+    icon: HiOutlineAcademicCap,
+  },
+  {
     title: "Quản lý học kỳ",
     path: "/commander/semesters",
     icon: HiOutlineAcademicCap,

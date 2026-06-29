@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import type { ReactNode } from "react";
 import { flexRender } from "@tanstack/react-table";
 import type { Row, Table as TableInstance } from "@tanstack/react-table";
@@ -15,6 +16,8 @@ interface TableBodyProps<TData> {
   rowClassName: string;
   /** Render hàng group row, nếu không có trả về row */
   renderGroupRow?: (row: Row<TData>) => ReactNode;
+  /** Render sub component khi expand row */
+  renderSubComponent?: (row: Row<TData>) => ReactNode;
 }
 
 const TableBody = <TData,>({
@@ -22,6 +25,7 @@ const TableBody = <TData,>({
   emptyText,
   rowClassName,
   renderGroupRow,
+  renderSubComponent,
 }: TableBodyProps<TData>) => {
   const rows = table.getRowModel().rows;
   const visibleColumnCount = table.getVisibleLeafColumns().length;
@@ -83,6 +87,29 @@ const TableBody = <TData,>({
               })}
             </m.tr>
           );
+        }).map((rowNode, index) => {
+          // If the element returned is a group row, we just return it.
+          // Otherwise, we check if it is expanded and has renderSubComponent
+          const row = rows[index];
+          if (row.getIsExpanded() && renderSubComponent) {
+            return (
+              <React.Fragment key={row.id + "_fragment"}>
+                {rowNode}
+                <m.tr
+                  layout
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-neutral-50/30 dark:bg-neutral-900/30 border-b border-neutral-100/50 dark:border-neutral-800/70"
+                >
+                  <td colSpan={visibleColumnCount} className="p-4">
+                    {renderSubComponent(row)}
+                  </td>
+                </m.tr>
+              </React.Fragment>
+            );
+          }
+          return rowNode;
         })
       )}
     </AnimatePresence>

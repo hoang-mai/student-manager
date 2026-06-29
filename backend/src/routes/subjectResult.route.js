@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const controller = require('../controllers/subjectResult.controller');
 const { authMiddleware, requireRole } = require('../middlewares/auth.middleware');
+const { uploadExcel } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -124,6 +125,9 @@ const { authMiddleware, requireRole } = require('../middlewares/auth.middleware'
 
 router.use(authMiddleware);
 router.use(requireRole('ADMIN', 'COMMANDER'));
+
+router.get('/template/download', controller.downloadTemplate);
+router.post('/import', uploadExcel('file'), controller.importExcel);
 
 router.post('/', controller.create);
 router.get('/', controller.getAll);

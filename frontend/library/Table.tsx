@@ -63,6 +63,8 @@ export interface TableProps<TData> {
   getSubRows?: (row: TData) => TData[] | undefined;
   /** Render hang group full-width; return null/undefined/false de render row theo columns */
   renderGroupRow?: (row: Row<TData>) => ReactNode;
+  /** Render nội dung chi tiết bên dưới hàng khi được mở rộng (expand) */
+  renderSubComponent?: (row: Row<TData>) => ReactNode;
   /** Expanded mặc định mở */
   defaultExpanded?: ExpandedState;
   /** Callback khi bấm nút thêm (nếu có sẽ hiện nút thêm) */
@@ -94,6 +96,7 @@ const Table = <TData,>({
   rowClassName = "",
   getSubRows,
   renderGroupRow,
+  renderSubComponent,
   defaultExpanded = true,
   onAdd,
   addLabel,
@@ -232,6 +235,7 @@ const Table = <TData,>({
                   emptyText={emptyText}
                   rowClassName={rowClassName}
                   renderGroupRow={renderGroupRow}
+                  renderSubComponent={renderSubComponent}
                 />
               </tbody>
             </table>
