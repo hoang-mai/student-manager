@@ -33,6 +33,12 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'subject_results',
     timestamps: true,
     underscored: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ['semester_result_id', 'subject_code']
+      }
+    ]
   });
 
   return SubjectResult;
