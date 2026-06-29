@@ -167,7 +167,7 @@ export default function ClassStudentsListModal({ cls, readOnly = false }: Props)
       ...(!readOnly ? [{
         id: "actions",
         header: "Thao tác",
-        cell: (info) => {
+        cell: (info: any) => {
           const student = info.row.original;
           const userId = student.user?.id;
 

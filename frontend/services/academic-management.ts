@@ -8,6 +8,12 @@ export interface SemesterResultQueryRequest extends QueryRequest {
   userId?: string;
   fullName?: string;
   unit?: string;
+  gpaFrom?: number;
+  gpaTo?: number;
+  cpaFrom?: number;
+  cpaTo?: number;
+  latestOnly?: boolean;
+  excludeId?: string;
 }
 
 export const academicManagementService = {
@@ -58,7 +64,9 @@ export const academicManagementService = {
     });
   },
 
-  getSubjectResultTemplateUrl: (): string => {
-    return `${process.env.NEXT_PUBLIC_API_URL}${ENDPOINTS.SUBJECT_RESULTS.BASE}/template/download`;
+  downloadSubjectResultTemplate: async (): Promise<Blob> => {
+    return apiClient.get(`${ENDPOINTS.SUBJECT_RESULTS.BASE}/template/download`, {
+      responseType: 'blob',
+    });
   },
 };

@@ -37,8 +37,25 @@ export default function Main({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleDownloadTemplate = () => {
-    window.location.href = academicManagementService.getSubjectResultTemplateUrl();
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadTemplate = async () => {
+    setIsDownloading(true);
+    try {
+      const blob = await academicManagementService.downloadSubjectResultTemplate();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Mau_nhap_diem_mon_hoc.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      addToast({ variant: "error", message: "Tải file mẫu thất bại" });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,7 +178,7 @@ export default function Main({
                 tooltipText="Xóa"
                 icon={HiOutlineTrash}
                 onClick={() => handleDelete(record.id)}
-                color="error"
+                color="red"
               />
             </div>
           );
@@ -193,7 +210,7 @@ export default function Main({
             </Typography>
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleDownloadTemplate} icon={HiOutlineDownload} variant="outline">
+            <Button onClick={handleDownloadTemplate} icon={HiOutlineDownload} variant="outline" isLoading={isDownloading}>
               Tải file mẫu
             </Button>
             <input
