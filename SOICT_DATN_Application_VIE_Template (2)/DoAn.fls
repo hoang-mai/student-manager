@@ -1,8 +1,8 @@
-PWD C:/Users/Admin/Downloads/SOICT_DATN_Application_VIE_Template (2)
+PWD c:/student-manager/SOICT_DATN_Application_VIE_Template (2)
 INPUT c:/texlive/2026/texmf.cnf
 INPUT c:/texlive/2026/texmf-dist/web2c/texmf.cnf
 INPUT c:/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT DoAn.tex
+INPUT c:/student-manager/SOICT_DATN_Application_VIE_Template (2)/DoAn.tex
 OUTPUT DoAn.log
 INPUT c:/texlive/2026/texmf-dist/tex/latex/base/report.cls
 INPUT c:/texlive/2026/texmf-dist/tex/latex/base/report.cls
@@ -569,11 +569,66 @@ INPUT ./Hinhve/Giao dien chi huy.jpg
 INPUT Hinhve/Giao dien chi huy.jpg
 INPUT ./Hinhve/Giao dien chi huy.jpg
 INPUT ./Hinhve/Giao dien chi huy.jpg
+INPUT ./Hinhve/Giao dien quan ly lich hoc.png
+INPUT ./Hinhve/Giao dien quan ly lich hoc.png
+INPUT Hinhve/Giao dien quan ly lich hoc.png
+INPUT ./Hinhve/Giao dien quan ly lich hoc.png
+INPUT ./Hinhve/Giao dien quan ly lich hoc.png
 INPUT ./Hinhve/Giao dien hoc vien.jpg
 INPUT ./Hinhve/Giao dien hoc vien.jpg
 INPUT Hinhve/Giao dien hoc vien.jpg
 INPUT ./Hinhve/Giao dien hoc vien.jpg
 INPUT ./Hinhve/Giao dien hoc vien.jpg
+INPUT ./Hinhve/Giao dien quan ly thanh tich.png
+INPUT ./Hinhve/Giao dien quan ly thanh tich.png
+INPUT Hinhve/Giao dien quan ly thanh tich.png
+INPUT ./Hinhve/Giao dien quan ly thanh tich.png
+INPUT ./Hinhve/Giao dien quan ly thanh tich.png
+INPUT ./Hinhve/Giao dien phe duyet de xuat kqht.png
+INPUT ./Hinhve/Giao dien phe duyet de xuat kqht.png
+INPUT Hinhve/Giao dien phe duyet de xuat kqht.png
+INPUT ./Hinhve/Giao dien phe duyet de xuat kqht.png
+INPUT ./Hinhve/Giao dien phe duyet de xuat kqht.png
+INPUT ./Hinhve/Giao dien quan ly ho so hoc vien.png
+INPUT ./Hinhve/Giao dien quan ly ho so hoc vien.png
+INPUT Hinhve/Giao dien quan ly ho so hoc vien.png
+INPUT ./Hinhve/Giao dien quan ly ho so hoc vien.png
+INPUT ./Hinhve/Giao dien quan ly ho so hoc vien.png
+INPUT ./Hinhve/Quan ly cat com.png
+INPUT ./Hinhve/Quan ly cat com.png
+INPUT Hinhve/Quan ly cat com.png
+INPUT ./Hinhve/Quan ly cat com.png
+INPUT ./Hinhve/Quan ly cat com.png
+INPUT ./Hinhve/Giao dien quan ly hoc tap.png
+INPUT ./Hinhve/Giao dien quan ly hoc tap.png
+INPUT Hinhve/Giao dien quan ly hoc tap.png
+INPUT ./Hinhve/Giao dien quan ly hoc tap.png
+INPUT ./Hinhve/Giao dien quan ly hoc tap.png
+INPUT ./Hinhve/Giao dien phan cong lich ban.png
+INPUT ./Hinhve/Giao dien phan cong lich ban.png
+INPUT Hinhve/Giao dien phan cong lich ban.png
+INPUT ./Hinhve/Giao dien phan cong lich ban.png
+INPUT ./Hinhve/Giao dien phan cong lich ban.png
+INPUT ./Hinhve/Giao dien xem ket qua hoc tap cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem ket qua hoc tap cua hoc vien.png
+INPUT Hinhve/Giao dien xem ket qua hoc tap cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem ket qua hoc tap cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem ket qua hoc tap cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem lich hoc cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem lich hoc cua hoc vien.png
+INPUT Hinhve/Giao dien xem lich hoc cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem lich hoc cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem lich hoc cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem thanh tich cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem thanh tich cua hoc vien.png
+INPUT Hinhve/Giao dien xem thanh tich cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem thanh tich cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem thanh tich cua hoc vien.png
+INPUT ./Hinhve/Giao dien xem hoc phi.png
+INPUT ./Hinhve/Giao dien xem hoc phi.png
+INPUT Hinhve/Giao dien xem hoc phi.png
+INPUT ./Hinhve/Giao dien xem hoc phi.png
+INPUT ./Hinhve/Giao dien xem hoc phi.png
 INPUT ./Chuong/5_Giai_phap_dong_gop.tex
 INPUT ./Chuong/5_Giai_phap_dong_gop.tex
 INPUT Chuong/5_Giai_phap_dong_gop.tex
