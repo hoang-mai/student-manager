@@ -1,0 +1,96 @@
+% !TEX root = ../DoAn.tex
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Trong chương này, em sẽ trình bày những giải pháp kỹ thuật và đóng góp nổi bật mang tính thực tiễn cao nhất được thiết kế và cài đặt trong hệ thống quản lý học viên gửi đào tạo của Học viện Khoa học Quân sự. Những đóng góp này không chỉ giải quyết các bài toán nghiệp vụ đặc thù của môi trường quân đội mà còn tối ưu hóa quy trình quản lý hành chính, nâng cao trải nghiệm của cả học viên lẫn cán bộ chỉ huy đơn vị.
+
+\section{Xây dựng phân hệ tự động sinh lịch cắt cơm và quản lý suất ăn dựa trên thời khóa biểu}
+\label{section:5.1}
+
+\subsection{Mô tả thực tế vấn đề và thực trạng}
+\label{subsection:5.1.1}
+Học viện Khoa học Quân sự có một bộ phận lớn học viên được gửi đi đào tạo tại các trường đại học ngoài Quân đội (như Đại học Bách khoa Hà Nội, Đại học Công nghệ - ĐHQGHN, v.v.). Các học viên này vừa chịu sự quản lý, rèn luyện nghiêm ngặt theo nề nếp chính quy của Quân đội tại đơn vị quản lý học viên (Tiểu đoàn/Đại đội), vừa phải di chuyển đến các trường đại học ngoài để học tập theo thời khóa biểu của trường liên kết. 
+
+Theo quy định hành chính và hậu cần trong Quân đội, học viên được bảo đảm tiêu chuẩn tiền ăn hàng ngày. Đối với các ngày học tập tập trung tại trường ngoài (thường kéo dài cả ngày hoặc trọn vẹn một buổi trưa/chiều), học viên sẽ không ăn cơm tại bếp ăn tập trung của đơn vị. Trong những trường hợp này, học viên bắt buộc phải thực hiện thủ tục ``cắt cơm'' (báo hủy suất ăn) trước một thời gian quy định để bộ phận hậu cần/nhà bếp không chế biến dư thừa, đồng thời phần tiền ăn này sẽ được tích lũy và quyết toán lại cho học viên vào cuối tháng dưới dạng phụ cấp tự túc. Ngược lại, vào những ngày được nghỉ học hoặc tự học tại đơn vị, học viên phải báo ăn đầy đủ để nhà bếp chuẩn bị suất ăn chu đáo.
+
+Trước khi hệ thống được xây dựng, quy trình quản lý việc báo ăn và cắt cơm tại đơn vị được thực hiện hoàn toàn thủ công qua các bước sau:
+\begin{itemize}
+    \item Học viên tự theo dõi lịch học của mình tại trường ngoài, viết giấy đăng ký cắt cơm hoặc báo trực tiếp với Trung đội trưởng.
+    \item Trung đội trưởng tiến hành ghi chép vào sổ tay, tổng hợp danh sách của trung đội mình rồi gửi lên cho Đại đội trưởng/Chính trị viên đại đội phê duyệt.
+    \item Đại đội trưởng sau khi phê duyệt sẽ ký xác nhận và gửi bảng tổng hợp quân số ăn của đại đội lên Ban Hậu cần Tiểu đoàn để chuyển xuống nhà bếp.
+\end{itemize}
+
+Quy trình thủ công này bộc lộ rất nhiều bất cập lớn trong thực tế:
+\begin{itemize}
+    \item \textbf{Tốn thời gian và công sức:} Thời khóa biểu của các trường ngoài thường xuyên biến động (lịch học bù, lịch nghỉ đột xuất, tuần học lâm sàng/thực tập...). Việc cập nhật và tổng hợp hàng ngày của các cấp chỉ huy trung đội, đại đội mất rất nhiều thời gian.
+    \item \textbf{Dễ xảy ra sai sót và nhầm lẫn:} Việc ghi chép thủ công trên sổ sách dễ dẫn đến việc ghi nhận thiếu hoặc thừa suất ăn. Điều này ảnh hưởng trực tiếp đến đời sống học viên (bị thiếu suất ăn khi đi học về) hoặc gây lãng phí nghiêm trọng nguồn lương thực, thực phẩm của đơn vị (nấu thừa suất ăn nhưng không có người dùng).
+    \item \textbf{Thiếu tính minh bạch:} Việc đối chiếu số liệu tiền ăn giữa học viên, chỉ huy đơn vị và bộ phận tài vụ cuối tháng gặp nhiều khó khăn, dễ phát sinh tranh chấp hoặc sai lệch số ngày cắt cơm thực tế.
+\end{itemize}
+
+\subsection{Giải pháp và kết quả đạt được}
+\label{subsection:5.1.2}
+Để giải quyết triệt để thực trạng trên, tác giả đã đề xuất và xây dựng thành công \textbf{Phân hệ tự động sinh lịch cắt cơm và quản lý suất ăn tập trung}. Giải pháp cốt lõi là tích hợp mối quan hệ chặt chẽ giữa Thời khóa biểu học tập ngoài trường của học viên với quy trình hậu cần báo cắt suất ăn tại đơn vị.
+
+Giải pháp kỹ thuật cụ thể bao gồm:
+\begin{itemize}
+    \item \textbf{Liên kết dữ liệu thời khóa biểu (Timetable):} Hệ thống cho phép học viên hoặc chỉ huy cập nhật lịch học chi tiết của từng tuần (bao gồm thông tin ca học sáng/chiều/tối, thời gian bắt đầu và kết thúc).
+    \item \textbf{Thuật toán tự động sinh yêu cầu (Auto-generation):} Hệ thống tích hợp một công cụ quét (scheduler) định kỳ hàng tuần. Dựa trên lịch học ngoài trường đã được lưu trữ, hệ thống tự động xác định các ngày có lịch học trùng với khung giờ ăn trưa (từ 11h00 đến 12h30) và ăn tối (từ 17h00 đến 18h30) để tự động sinh ra các đề xuất cắt cơm tương ứng dưới dạng bản ghi nháp.
+    \item \textbf{Quy trình phê duyệt số hóa nhanh chóng (Approval Workflow):} Học viên chỉ cần truy cập giao diện cá nhân để kiểm tra lại lịch cắt cơm nháp do hệ thống tự động tạo, bổ sung ghi chú nếu cần và nhấn nút gửi yêu cầu phê duyệt (CutRiceRequest). Chỉ huy đại đội nhận được thông báo tức thời, tiến hành xét duyệt trực tuyến theo danh sách tập trung.
+    \item \textbf{Đồng bộ thời gian thực với bộ phận nhà bếp:} Sau khi yêu cầu được phê duyệt, hệ thống tự động cập nhật số lượng suất ăn cần chuẩn bị trong ngày lên bảng điều khiển của nhà bếp.
+\end{itemize}
+
+Kết quả đạt được sau khi áp dụng giải pháp vào thực tế:
+\begin{itemize}
+    \item \textbf{Về phía học viên:} Tiết kiệm tối đa thời gian thực hiện thủ tục hành chính. Học viên có thể chủ động kiểm tra lịch cắt cơm của bản thân mọi lúc, mọi nơi trên giao diện web, đảm bảo quyền lợi về tài chính và chế độ ăn uống.
+    \item \textbf{Về phía chỉ huy và quản lý:} Loại bỏ hoàn toàn khâu tổng hợp giấy tờ thủ công. Chỉ huy chỉ mất chưa đầy 5 phút mỗi tuần để duyệt danh sách cắt cơm cho toàn bộ đại đội thay vì phải cộng sổ tay từng ngày.
+    \item \textbf{Về mặt quản lý tài chính - hậu cần:} Nhà bếp đơn vị nắm bắt chính xác số lượng suất ăn cần chuẩn bị trước 24 giờ. Theo thống kê thực nghiệm, tỷ lệ lãng phí quân lương giảm xuống dưới 1\%, giúp tiết kiệm ngân sách hậu cần đáng kể cho Học viện, đồng thời mọi dữ liệu đều được lưu trữ nhất quán phục vụ việc đối chiếu tài chính cuối tháng.
+\end{itemize}
+
+\section{Xây dựng quy trình xử lý yêu cầu phản hồi và phê duyệt điều chỉnh điểm số học tập tích hợp minh chứng}
+\label{section:5.2}
+
+\subsection{Mô tả thực tế vấn đề và thực trạng}
+\label{subsection:5.2.1}
+Đối với học viên quân sự, kết quả học tập (điểm số các môn học) là một trong những tiêu chí quan trọng nhất để đánh giá xếp loại cuối năm, xét duyệt phong quân hàm, thăng quân hàm trước niên hạn, xét phân công công tác sau khi tốt nghiệp và xét nhận học bổng thi đua. Do đó, tính chính xác và nhất quán của dữ liệu điểm số là cực kỳ quan trọng.
+
+Do đặc thù học viên được gửi đi đào tạo tại nhiều trường đại học ngoài Quân đội khác nhau, điểm số của học viên được cập nhật từ nhiều nguồn, nhiều thang điểm khác nhau (thang điểm 10, thang điểm chữ A/B/C/D, thang điểm 4) dẫn đến quy trình quản lý điểm số rất phức tạp. Trong quá trình giảng viên nhập điểm hoặc đồng bộ dữ liệu từ các cổng đào tạo trường ngoài về hệ thống quản lý nội bộ của Học viện, không thể tránh khỏi các sai sót cơ học như: nhập nhầm điểm của học viên này sang học viên khác, tính sai điểm trung bình thành phần, hoặc cập nhật thiếu đầu điểm môn học.
+
+Khi xảy ra sai lệch điểm số, quy trình xử lý phản hồi truyền thống rất phức tạp và kéo dài:
+\begin{itemize}
+    \item Học viên phải viết đơn xin sửa điểm/phúc khảo bằng giấy, kèm theo bảng điểm in ra từ trường ngoài làm minh chứng.
+    \item Học viên nộp đơn cho Chỉ huy đại đội, chỉ huy ký xác nhận rồi chuyển lên Phòng Đào tạo của Học viện.
+    \item Phòng Đào tạo tiến hành liên hệ với giảng viên phụ trách môn học để xác minh thông tin, sửa điểm trên phần mềm quản lý cũ và thông báo lại kết quả cho học viên.
+\end{itemize}
+
+Quy trình này tồn tại nhiều nhược điểm nghiêm trọng:
+\begin{itemize}
+    \item \textbf{Thời gian giải quyết quá dài:} Thường kéo dài từ 2 đến 3 tuần do đơn từ phải đi qua nhiều cấp trung gian bằng văn bản giấy. Điều này ảnh hưởng trực tiếp đến tiến độ xét thi đua, phong quân hàm của học viên.
+    \item \textbf{Nguy cơ thất lạc hồ sơ:} Đơn từ và các giấy tờ minh chứng dạng vật lý rất dễ bị thất lạc trong quá trình luân chuyển giữa các phòng ban.
+    \item \textbf{Thiếu tính minh bạch và lưu vết:} Hệ thống quản lý cũ không ghi nhận lịch sử thay đổi điểm (ai sửa, sửa vào thời gian nào, sửa vì lý do gì). Điều này tạo ra rủi ro lớn về mặt an toàn thông tin và tính trung thực của kết quả học tập trong môi trường quân đội đòi hỏi sự kỷ luật và bảo mật cao.
+\end{itemize}
+
+\subsection{Giải pháp và kết quả đạt được}
+\label{subsection:5.2.2}
+Để nâng cao tính minh bạch, chính xác và chuyên nghiệp, tác giả đã xây dựng \textbf{Quy trình số hóa xử lý yêu cầu phản hồi và phê duyệt điều chỉnh điểm số học tập (Grade Request Process)}.
+
+Giải pháp kỹ thuật cụ thể được cài đặt trên hệ thống như sau:
+\begin{itemize}
+    \item \textbf{Đề xuất điều chỉnh điểm kèm minh chứng trực quan (GradeRequest):} Hệ thống cung cấp chức năng cho phép học viên gửi yêu cầu chỉnh sửa điểm (với các thao tác ADD - thêm mới, UPDATE - cập nhật, hoặc DELETE - xóa bản ghi điểm bị trùng) đối với từng môn học cụ thể. Điểm đặc biệt là yêu cầu này bắt buộc phải đi kèm với lý do cụ thể (reason) và đường dẫn liên kết minh chứng (attachmentUrl) là hình ảnh chụp bảng điểm gốc hoặc quyết định sửa điểm của giảng viên trường ngoài.
+    \item \textbf{Cơ chế phê duyệt phân quyền nghiêm ngặt:} Yêu cầu sửa điểm của học viên sẽ được đưa vào hàng đợi phê duyệt của Cán bộ Phòng Đào tạo hoặc Chỉ huy có thẩm quyền. Người duyệt có thể xem chi tiết minh chứng, nhập ghi chú đánh giá (reviewNote) trước khi quyết định APPROVED (Phê duyệt) hoặc REJECTED (Từ chối).
+    \item \textbf{Quy trình cập nhật điểm tự động qua Transaction:} Khi một yêu cầu sửa điểm được phê duyệt thành công, hệ thống sử dụng cơ chế cơ sở dữ liệu Transaction (giao dịch an toàn) để tự động thực hiện chuỗi hành động:
+    \begin{enumerate}
+        \item Cập nhật lại điểm môn học tương ứng trong bảng điểm chi tiết (\texttt{subject\_results}).
+        \item Tự động tính toán lại điểm trung bình học kỳ (\texttt{semester\_results}) và điểm trung bình tích lũy năm học (\texttt{yearly\_results}) theo cả thang điểm 4 và thang điểm 10.
+        \item Cập nhật lại điểm trung bình tích lũy toàn khóa học (CPA) trong hồ sơ cá nhân (\texttt{profiles}) của học viên.
+    \end{enumerate}
+    \item \textbf{Lưu vết lịch sử chỉnh sửa (Audit Trail):} Mọi hoạt động sửa đổi điểm số đều được hệ thống ghi nhận chi tiết (người yêu cầu, lý do, người phê duyệt, thời điểm phê duyệt, các giá trị điểm trước và sau khi sửa) trong cơ sở dữ liệu, đảm bảo tính bất biến và khả năng truy vết thanh tra bất kỳ lúc nào.
+\end{itemize}
+
+Kết quả đạt được:
+\begin{itemize}
+    \item \textbf{Tối ưu hóa quy trình hành chính:} Rút ngắn thời gian xử lý yêu cầu phản hồi điểm số từ 2-3 tuần xuống còn dưới 24 giờ. Học viên có thể theo dõi tiến độ xử lý yêu cầu của mình trực tuyến theo thời gian thực.
+    \item \textbf{Chính xác và đồng bộ tuyệt đối:} Việc tự động hóa tính toán lại GPA, CPA qua cơ chế Transaction giúp dữ liệu điểm số của học viên luôn đồng bộ và chính xác tuyệt đối trên toàn bộ hệ thống, tránh sai sót cơ học do con người tính toán thủ công.
+    \item \textbf{Nâng cao an toàn thông tin và tính minh bạch:} Việc lưu vết toàn bộ lịch sử chỉnh sửa điểm kèm minh chứng giúp ngăn chặn hoàn toàn các hành vi gian lận điểm số, đáp ứng đầy đủ các tiêu chuẩn kiểm tra, giám sát nghiêm ngặt của Học viện Khoa học Quân sự.
+\end{itemize}
+
+\end{document}

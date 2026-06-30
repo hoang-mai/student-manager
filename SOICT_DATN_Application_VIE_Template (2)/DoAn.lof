@@ -1,0 +1,35 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Biểu đồ Use Case tổng quan}}{6}{figure.caption.8}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Biểu đồ Use Case cho chức năng quản lý tài khoản}}{8}{figure.caption.9}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Biểu đồ Use Case cho chức năng quản lý thông tin học viên}}{9}{figure.caption.10}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Biểu đồ Use Case cho chức năng quản lý thông tin học tập}}{9}{figure.caption.11}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Nghiệp vụ khi học viên đề xuất và cập nhật kết quả học tập}}{11}{figure.caption.12}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Nghiệp vụ cắt cơm tự động}}{13}{figure.caption.13}%
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Nghiệp vụ quản lý hồ sơ và cấp phát tài khoản tự động}}{14}{figure.caption.14}%
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Nghiệp vụ quản lý và đóng học phí}}{16}{figure.caption.15}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Biểu đồ gói cho server}}{30}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Biểu đồ gói cho client}}{32}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Thiết kế chi tiết các mối quan hệ lớp trong phân hệ Đề xuất và phê duyệt điểm}}{34}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Thiết kế chi tiết các mối quan hệ lớp trong phân hệ Cắt cơm}}{35}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Bảng màu chính của hệ thống}}{35}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Bảng màu phụ trợ của hệ thống}}{36}{figure.caption.30}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Bảng màu trạng thái lỗi của hệ thống}}{36}{figure.caption.31}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Phông chữ UI Sans Serif}}{36}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Các nút bấm cơ bản của hệ thống}}{37}{figure.caption.35}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Các ô nhập liệu cơ bản của hệ thống}}{37}{figure.caption.37}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Thiết kế giao diện bố cục chung}}{38}{figure.caption.38}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Thiết kế giao diện quản lý tài khoản}}{38}{figure.caption.39}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Thiết kế giao diện quản lý lịch học}}{38}{figure.caption.40}%
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Biểu đồ thực thể liên kết (E-R diagram)}}{40}{figure.caption.43}%
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Cơ sở dữ liệu}}{41}{figure.caption.48}%
+\contentsline {figure}{\numberline {4.16}{\ignorespaces Giao diện trang chủ}}{46}{figure.caption.56}%
+\contentsline {figure}{\numberline {4.17}{\ignorespaces Giao diện đăng nhập}}{46}{figure.caption.57}%
+\contentsline {figure}{\numberline {4.18}{\ignorespaces Giao diện chỉ huy}}{46}{figure.caption.58}%
+\contentsline {figure}{\numberline {4.19}{\ignorespaces Giao diện học viên}}{47}{figure.caption.59}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

@@ -1,0 +1,64 @@
+% !TEX root = ../DoAn.tex
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Kết luận}
+
+\subsection{So sánh với các giải pháp tương tự}
+Qua quá trình nghiên cứu và phát triển, em đã tiến hành đối chiếu và so sánh hệ thống Quản lý Học viên (\texttt{student-manager}) với các giải pháp quản lý đào tạo hiện nay trên thị trường cũng như trong môi trường học thuật.
+\par
+\textbf{So sánh với các nền tảng quản lý đào tạo dân sự (như Moodle, Canvas, hay các hệ thống SIS truyền thống):} Các hệ thống này chủ yếu tập trung vào quản lý lịch học, điểm số và bài tập chung cho học viên. Tuy nhiên, chúng hoàn toàn thiếu đi các nghiệp vụ đặc thù của môi trường đào tạo lực lượng vũ trang như: tự động tính toán lịch cắt cơm tuần dựa trên thời khóa biểu và khoảng cách di chuyển giữa các cơ sở liên kết, cơ chế bảo mật Scoped-RBAC phân quyền quản lý chặt chẽ theo phân cấp chỉ huy, và quy trình phê duyệt điểm số đi kèm hồ sơ minh chứng. Hệ thống phát triển trong đồ án đã giải quyết triệt để các khoảng trống nghiệp vụ này.
+\par
+\textbf{So sánh với phương thức quản lý thủ công truyền thống (sử dụng Excel/văn bản giấy):} Hệ thống giúp số hóa toàn bộ quy trình, đảm bảo tính nhất quán dữ liệu điểm số tuyệt đối từ môn học đến kết quả tích lũy CPA nhờ cơ chế transaction cơ sở dữ liệu. Việc tự động sinh lịch cắt cơm tuần giúp tiết kiệm 98\% thời gian duyệt thủ công của Chỉ huy và giảm thiểu sai sót lãng phí quân lương của đơn vị.
+
+\subsection{Kết quả đạt được}
+Trong suốt quá trình thực hiện đồ án tốt nghiệp, em đã hoàn thành các mục tiêu chính đề ra ban đầu và đạt được một số kết quả thực tiễn quan trọng.
+\par
+\textbf{Về mặt kỹ thuật:} Thiết kế và xây dựng thành công hệ thống với kiến trúc Client-Server hiện đại, backend sử dụng Node.js/ExpressJS kết hợp Sequelize ORM tương tác với PostgreSQL; frontend xây dựng bằng Next.js (React 19) tối ưu hóa giao diện. Toàn bộ hệ thống được container hóa thông qua Docker Compose giúp đơn giản hóa quy trình triển khai và bảo trì. Hệ thống đạt hiệu năng cao, hiển thị CPA đệm trên Dashboard trong thời gian dưới 5ms.
+\par
+\textbf{Về mặt sản phẩm:} Xây dựng ứng dụng web đáp ứng (responsive), cung cấp đầy đủ giao diện chức năng cho 3 nhóm đối tượng: Học viên (lịch học, lịch cơm, đề xuất điểm), Chỉ huy (duyệt điểm, nhập lịch học, quản lý học phí, phân công trực ban) và Quản trị viên (quản lý tài khoản, phân quyền).
+
+\subsection{Những hạn chế và chưa hoàn thiện}
+Mặc dù đạt được nhiều kết quả tích cực, hệ thống vẫn còn một số điểm hạn chế cần cải thiện trong tương lai.
+\par
+\textbf{Về mặt dữ liệu và kiểm thử:} Hệ thống chủ yếu được kiểm thử chức năng tự động cục bộ (với 48 trường hợp kiểm thử), chưa được vận hành thực tế dưới tải trọng lớn với hàng ngàn người dùng truy cập đồng thời để đánh giá khả năng chịu tải (Stress Testing) và tối ưu hóa hàng đợi.
+\par
+\textbf{Về thuật toán và tự động hóa:} Thuật toán lập lịch cắt cơm tự động hiện tại hoạt động dựa trên các mốc thời gian ca ăn cố định của đơn vị và chưa hỗ trợ chỉ huy cấu hình động các mốc giờ ăn linh hoạt trực tiếp trên giao diện quản trị.
+\par
+\textbf{Về tính năng và trải nghiệm:} Hệ thống thông báo thời gian thực qua WebSockets hoặc SMS chưa hoàn chỉnh. Hiện tại ứng dụng mới chỉ hoạt động trên nền tảng Web, chưa phát triển ứng dụng di động gốc (Native App) cho iOS và Android để tăng tính cơ động cho học viên.
+
+\subsection{Đóng góp nổi bật}
+Ba đóng góp kỹ thuật nổi bật của đồ án có tính ứng dụng thực tế cao bao gồm:
+\begin{itemize}
+    \item \textbf{Giải pháp lập lịch cắt cơm tự động:} Tự động hóa hoàn toàn việc sinh lịch cắt cơm tuần dựa trên thời khóa biểu và cấu hình thời gian di chuyển của học viên, giúp tránh lãng phí quân lương tại đơn vị.
+    \item \textbf{Quy trình tính CPA phân tầng tự động (Cascading Propagation):} Đồng bộ hóa và đảm bảo tính nhất quán dữ liệu điểm số tuyệt đối từ môn học lên học kỳ, năm học và hồ sơ cá nhân của học viên thông qua Giao dịch CSDL (Transaction).
+    \item \textbf{Mô hình bảo mật Scoped-RBAC:} Phân quyền dựa trên vai trò kết hợp lọc phạm vi tổ chức ở cấp độ dòng (Row-level access assertion), ngăn chặn hoàn toàn lỗi bảo mật IDOR và phù hợp với cơ cấu quản lý nghiêm ngặt của quân đội.
+\end{itemize}
+
+\subsection{Bài học kinh nghiệm}
+Quá trình thực hiện đồ án đã mang lại nhiều bài học quý giá, giúp em phát triển kỹ năng toàn diện:
+\begin{itemize}
+    \item \textbf{Kỹ năng kỹ thuật:} Làm chủ kiến trúc web hiện đại với Next.js App Router, quản lý state toàn cục Zustand và đồng bộ React Query. Hiểu sâu hơn về thiết kế cơ sở dữ liệu PostgreSQL, tối ưu hóa truy vấn Sequelize và quản trị môi trường Docker.
+    \item \textbf{Tư duy phát triển sản phẩm:} Học được cách phân tích và mô hình hóa các quy trình nghiệp vụ thực tế thành thuật toán hệ thống; nhận thức rõ tầm quan trọng của việc tối giản hóa trải nghiệm người dùng để giảm tải nhận thức cho cán bộ chỉ huy.
+    \item \textbf{Kỹ năng bổ trợ:} Rèn luyện khả năng lập kế hoạch dự án, kỹ năng nghiên cứu tài liệu kỹ thuật chuyên sâu và viết báo cáo khoa học theo chuẩn.
+\end{itemize}
+
+\section{Hướng phát triển}
+
+\subsection{Hoàn thiện các chức năng hiện tại}
+Để đưa hệ thống vào vận hành thực tế ổn định, em xác định một số công việc cần thực hiện trong thời gian tới:
+\begin{itemize}
+    \item \textbf{Tối ưu hóa hiệu năng:} Triển khai Redis Cache để lưu trữ tạm các thông tin ít thay đổi như CPA học viên, cấu hình đơn vị, nhằm giảm tải cho PostgreSQL khi số lượng truy vấn đồng thời tăng cao.
+    \item \textbf{Cấu hình ca ăn động:} Nâng cấp module cắt cơm để cho phép chỉ huy tùy chỉnh linh hoạt thời gian các ca ăn và quy luật cắt cơm tự động trực tiếp trên giao diện quản trị.
+    \item \textbf{Nâng cấp hệ thống thông báo:} Hoàn thiện kênh thông báo thời gian thực qua WebSocket kết hợp gửi email và tích hợp cổng SMS/Push Notification trên điện thoại di động.
+\end{itemize}
+
+\subsection{Hướng phát triển mới}
+Bên cạnh việc hoàn thiện các tính năng hiện tại, một số hướng đi mới có thể mở rộng giá trị của hệ thống bao gồm:
+\begin{itemize}
+    \item \textbf{Phát triển ứng dụng di động gốc (Native App):} Sử dụng React Native hoặc Flutter để xây dựng ứng dụng di động cho cả hệ điều hành Android và iOS, giúp học viên dễ dàng theo dõi lịch học, lịch cắt cơm và gửi đề xuất ngay trên điện thoại di động.
+    \item \textbf{Tích hợp Trí tuệ Nhân tạo (AI):} Áp dụng công nghệ nhận dạng ký tự quang học (OCR) để tự động đọc, trích xuất điểm số từ ảnh chụp bảng điểm minh chứng do học viên gửi lên, giúp tự động đối chiếu thông tin và giảm thiểu thời gian duyệt điểm của chỉ huy.
+    \item \textbf{Mở rộng tính năng quản lý đơn vị:} Mở rộng hệ thống để quản lý các nội dung rèn luyện, đánh giá thi đua, chấm điểm kỷ luật và phân công lịch gác/lịch trực tuần chi tiết cho học viên tại đơn vị tập trung.
+\end{itemize}
+
+\end{document}

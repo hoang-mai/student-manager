@@ -1,0 +1,448 @@
+% !TEX root = ../DoAn.tex
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+\section{Khảo sát hiện trạng}
+\label{section:2.1}
+Trong bối cảnh chuyển đổi số đang diễn ra mạnh mẽ, việc ứng dụng công nghệ thông tin vào công tác quản lý giáo dục và đào tạo đã trở thành xu hướng tất yếu, góp phần nâng cao hiệu quả quản lý, giảm khối lượng công việc thủ công, tăng tính chính xác của dữ liệu và hỗ trợ quá trình ra quyết định của các cấp quản lý.
+
+Đối với Học viện Khoa học Quân sự, Hệ 5 là đơn vị có nhiệm vụ quản lý học viên được cử đi đào tạo tại nhiều trường đại học, học viện và cơ sở giáo dục ngoài Quân đội. Do đặc thù học viên học tập tại nhiều địa điểm khác nhau, dữ liệu quản lý được phân tán theo từng cơ sở đào tạo, từng học kỳ và từng lớp học. Điều này gây nhiều khó khăn trong việc thu thập, lưu trữ, đồng bộ và khai thác thông tin phục vụ công tác quản lý.
+Bên cạnh việc quản lý hồ sơ học viên, đơn vị còn phải theo dõi thường xuyên lịch học, kết quả học tập, tình trạng học phí, khen thưởng, kỷ luật và tình hình sinh hoạt của học viên. Đặc biệt, lịch học của học viên tại các trường ngoài Quân đội có ảnh hưởng trực tiếp đến công tác quản lý quân số và bảo đảm hậu cần, nhất là việc tổ chức ăn uống, thực hiện chế độ cắt cơm theo từng ngày học. Nếu thông tin không được cập nhật kịp thời hoặc thiếu chính xác sẽ ảnh hưởng đến công tác điều hành của đơn vị, đồng thời làm giảm hiệu quả trong công tác quản lý học viên.
+
+Qua quá trình khảo sát thực tế, em nhận thấy nhiều nghiệp vụ quản lý hiện nay vẫn được thực hiện bằng các phương pháp thủ công như sử dụng sổ sách, bảng tính Excel . Dữ liệu được lưu trữ rời rạc khiến việc tra cứu, cập nhật và tổng hợp thông tin mất nhiều thời gian, dễ phát sinh sai sót và khó bảo đảm tính thống nhất giữa các nguồn dữ liệu.
+
+Đối với việc quản lý kết quả học tập, điểm số của học viên thường được cập nhật dựa trên các minh chứng do cơ sở đào tạo cung cấp như bảng điểm hoặc phiếu xác nhận kết quả học tập. Tuy nhiên, quy trình tiếp nhận, kiểm tra và phê duyệt các minh chứng này chưa được thực hiện trên một hệ thống thống nhất, dẫn đến việc cập nhật dữ liệu còn chậm, thiếu tính minh bạch và gây khó khăn trong công tác kiểm tra, đối chiếu khi cần thiết.
+
+Ngoài ra, học viên cũng gặp nhiều bất tiện khi muốn tra cứu thông tin cá nhân, lịch học, kết quả học tập hoặc tình trạng học phí do dữ liệu được lưu trữ phân tán ở nhiều nguồn khác nhau. Đối với cán bộ quản lý, việc tổng hợp báo cáo, thống kê kết quả học tập, theo dõi chuyên cần và quản lý hồ sơ học viên vẫn đòi hỏi nhiều thao tác thủ công, ảnh hưởng đến hiệu quả công việc và chất lượng quản lý.
+
+Xuất phát từ những yêu cầu thực tiễn nêu trên, việc xây dựng Hệ thống quản lý học viên tại trường ngoài Quân đội là cần thiết và có ý nghĩa thực tiễn cao. Hệ thống sẽ tập trung dữ liệu học viên trên một nền tảng thống nhất, hỗ trợ quản lý hồ sơ, lịch học, kết quả học tập, học phí, khen thưởng và tình trạng sinh hoạt của học viên; đồng thời hỗ trợ quy trình tiếp nhận và phê duyệt minh chứng kết quả học tập một cách minh bạch, chính xác. Qua đó góp phần nâng cao hiệu quả công tác quản lý, giảm thiểu sai sót trong xử lý dữ liệu, hỗ trợ công tác chỉ huy, điều hành và đáp ứng yêu cầu chuyển đổi số trong quản lý đào tạo của Học viện Khoa học Quân sự.
+
+
+\section{Tổng quan chức năng}
+\label{section:2.2}
+
+\subsection{Biểu đồ use case tổng quát}
+\label{subsection:2.2.1}
+Biểu đồ Use Case tổng quan dưới đây mô tả các chức năng chính của hệ thống quản lý học viên đào tạo tại ngoài quân đội của Học viện Khoa học Quân sự, giúp mô phỏng cách các đối tượng tương tác với hệ thống trong quá trình vận hành và sử dụng. Biểu đồ giúp xác định rõ các tác nhân tham gia, vai trò của từng tác nhân và những chức năng mà hệ thống cung cấp.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do Use Case tong quan.jpg}
+    \caption{Biểu đồ Use Case tổng quan}
+    \label{fig:Fig2}
+\end{figure}
+
+Dưới đây là các chức năng tương ứng với từng vai trò có trong hệ thống:
+
+Chỉ huy:Là người trực tiếp điều hành, quản lý hồ sơ, lịch trình học tập, học phí và phê duyệt các đề xuất từ học viên. Các chức năng chính bao gồm:
+
+- Quản lý tài khoản 
+
+- Quản lý cơ sở đào tạo
+
+- Quản lý hồ sơ học viên
+
+- Phê duyệt đề xuất
+
+- Quản lý thành tích
+
+- Quản lý lịch học, cắt cơm
+
+- Thống kê báo cáo
+
+- Phân công lịch trực
+
+Học viên: Là người tham gia học tập, có quyền truy cập vào thông tin cá nhân, lịch học, kết quả học tập và các chức năng liên quan đến việc quản lý học tập của mình. Các chức năng chính bao gồm:
+
+- Đăng nhập, quản lý tài khoản cá nhân
+
+- Xem thông tin cá nhân
+
+- Xem kết quả học tập
+
+- Đề xuất thay đổi lịch học, cắt cơm
+
+- Theo dõi trạng thái đề xuất
+
+- Quản lý lịch học
+
+- Xem lịch cắt cơm tự động
+
+- Xem thành tích và học phí
+
+- Nhận, xem thông báo 
+
+Quản trị viên: Là người có quyền cao nhất trong hệ thống, chịu trách nhiệm quản lý toàn bộ hệ thống, bao gồm việc tạo tài khoản cho Chỉ huy và Học viên, phân quyền truy cập và đảm bảo an ninh hệ thống. Các chức năng chính bao gồm:
+
+- Phân quyền người dùng
+
+- Quản trị tài khoản hệ thống
+
+\subsection{Biểu đồ use case phân rã “Quản lý tài khoản”}
+\label{subsection:2.2.2}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do use case phan ra Quan ly tai khoan.jpg}
+    \caption{Biểu đồ Use Case cho chức năng quản lý tài khoản}
+    \label{fig:Fig2}
+\end{figure}
+
+Chức năng Quản lý tài khoản hỗ trợ người dùng và quản trị viên thực hiện các thao tác thiết lập, bảo mật và cấp phát quyền truy cập vào hệ thống.
+Đối với mọi người dùng (bao gồm Học viên, Chỉ huy đơn vị và Quản trị viên), chức năng này cho phép họ đăng nhập vào hệ thống để bắt đầu làm việc, chủ động đổi mật khẩu nhằm tăng cường tính bảo mật cho thông tin cá nhân, hoặc sử dụng tính năng quên mật khẩu để dễ dàng khôi phục lại quyền truy cập khi cần thiết.
+Riêng đối với Quản trị viên, hệ thống cung cấp thêm đặc quyền thêm tài khoản mới để chủ động tạo lập, cấp phát tài khoản và quản lý thông tin đăng nhập của các thành viên trong toàn bộ hệ thống một cách nhanh chóng và an toàn.
+
+\subsection{Biểu đồ use case phân rã “Quản lý thông tin học viên”}
+\label{subsection:2.2.3}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do Use Case phan ra Quan ly thong tin hoc vien.jpg}
+    \caption{Biểu đồ Use Case cho chức năng quản lý thông tin học viên}
+    \label{fig:Fig2}
+\end{figure}
+
+Chức năng Quản lý thông tin học viên hỗ trợ học viên và chỉ huy đơn vị trong việc theo dõi, cập nhật và quản lý toàn diện hồ sơ cá nhân trên hệ thống.
+Học viên có thể chủ động xem thông tin cá nhân chi tiết của mình và thực hiện chỉnh sửa thông tin cá nhân khi có sự thay đổi hoặc sai lệch dữ liệu. Song song với đó, Chỉ huy đơn vị được cung cấp đầy đủ các quyền hạn quản trị như thêm học viên mới vào hệ thống, xóa học viên ra khỏi danh sách quản lý của đơn vị khi cần thiết. Đồng thời, chỉ huy cũng có quyền xem và chỉnh sửa thông tin chi tiết của bất kỳ học viên nào dưới quyền quản lý để đảm bảo dữ liệu hồ sơ luôn được cập nhật chính xác, đồng bộ và nhất quán.
+
+\subsection{Biểu đồ use case phân rã “Quản lý thông tin học tập”}
+\label{subsection:2.2.4}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do Use Case phan ra Quan ly thong tin hoc tap.jpg}
+    \caption{Biểu đồ Use Case cho chức năng quản lý thông tin học tập}
+    \label{fig:Fig2}
+\end{figure}
+
+Chức năng Quản lý thông tin học tập hỗ trợ học viên và chỉ huy đơn vị trong việc theo dõi, ghi nhận và cập nhật các thông tin liên quan đến lịch trình học tập, điểm số và học phí trên hệ thống:
+
+Cập nhật lịch học và lịch cắt cơm: Khi lịch học của học viên được cập nhật, hệ thống sẽ kích hoạt tính năng mở rộng Tự động cập nhật lịch cắt cơm tương ứng. Việc này giúp tự động tính toán thời gian đi lại, điều chỉnh danh sách cắt cơm cho từng bữa ăn để tối ưu hóa công tác bảo đảm hậu cần.
+
+Cập nhật kết quả học tập: Đây là chức năng tương tác chung giữa Học viên và Chỉ huy đơn vị. Học viên có thể gửi các đề xuất thêm/sửa/xóa điểm số, trong khi Chỉ huy đơn vị sẽ thực hiện phê duyệt để hệ thống cập nhật và tính toán lại điểm trung bình (GPA, CPA) của học viên.
+
+Cập nhật học phí và trạng thái thanh toán: Chức năng Cập nhật học phí giúp ghi nhận thông tin định mức học phí cần nộp của học viên theo từng đợt. Đồng thời, Chỉ huy đơn vị sẽ thực hiện chức năng mở rộng là Cập nhật trạng thái học phí để theo dõi chi tiết tình hình đóng học phí (đã thanh toán hoặc chưa thanh toán) của học viên dưới quyền.
+
+\subsection{Quy trình nghiệp vụ}
+\label{subsection:2.2.5}
+Quy trình nghiệp vụ khi học viên đề xuất và cập nhật kết quả học tập
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Nghiep vu de xuat va cap nhat ket qua hoc tap.jpg}
+    \caption{Nghiệp vụ khi học viên đề xuất và cập nhật kết quả học tập}
+    \label{fig:Fig2}
+\end{figure}
+
+Quy trình đề xuất và cập nhật kết quả học tập dành cho học viên và chỉ huy đơn vị; quy trình bao gồm:
+(i) Học viên chọn chức năng đề xuất điểm môn học trong trang quản lý kết quả học tập,
+(ii) Hoàn thiện form đề xuất điểm cùng file minh chứng (hình ảnh bảng điểm, chứng chỉ...),
+(iii) Chỉ huy đơn vị kiểm tra thông tin và phê duyệt đề xuất của học viên trên trang phê duyệt,
+(iv) Hệ thống cập nhật điểm mới vào CSDL, tự động tính toán lại điểm trung bình học kỳ (GPA), tích lũy (CPA) và đồng bộ vào hồ sơ học viên.
+Sau khi phê duyệt đề xuất kết quả học tập thành công, hệ thống sẽ tự động cập nhật bảng điểm chi tiết của học viên, hiển thị điểm GPA/CPA mới nhất và gửi thông báo xác nhận thành công đến tài khoản học viên.
+
+Quy trình nghiệp vụ cắt cơm tự động
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Nghiep vu cat com tu dong.jpg}
+    \caption{Nghiệp vụ cắt cơm tự động}
+    \label{fig:Fig2}
+\end{figure}
+
+Quy trình cắt cơm tự động dành cho chỉ huy đơn vị và học viên; quy trình bao gồm:
+(i) Chỉ huy đơn vị cập nhật lịch học của học viên trên trang quản lý lịch học,
+(ii) Hệ thống tự động quét điều kiện thời gian học tập, thời gian đi lại và đối chiếu với khung giờ ăn cố định của đơn vị (sáng 06:00, trưa 11:00, tối 17:30),
+(iii) Hệ thống tự động thêm tên học viên vào danh sách cắt cơm ngày tương ứng và ghi nhận trạng thái tự động sinh.
+Sau khi lịch học được cập nhật thành công, danh sách cắt cơm của ngày tương ứng sẽ hiển thị thông tin suất ăn được cắt của học viên, đồng thời hệ thống tự động gửi thông báo lịch cắt cơm để học viên chủ động theo dõi.
+
+Quy trình nghiệp vụ quản lý hồ sơ và cấp phát tài khoản tự động
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Nghiep vu quan ly ho so va cap phat tai khoan tu dong.jpg}
+    \caption{Nghiệp vụ quản lý hồ sơ và cấp phát tài khoản tự động}
+    \label{fig:Fig2}
+\end{figure}
+
+Quy trình quản lý hồ sơ và cấp phát tài khoản tự động dành cho chỉ huy đơn vị; quy trình bao gồm:
+(i) Chỉ huy đơn vị chọn chức năng quản lý hồ sơ học viên,
+(ii) Hoàn thiện form thông tin học viên mới (hoặc xác nhận xóa học viên cũ),
+(iii) Hệ thống lưu thông tin hồ sơ vào CSDL và tự động tạo (hoặc xóa) tài khoản người dùng liên kết tương ứng (lấy mã học viên làm tên đăng nhập).
+Sau khi thực hiện thao tác quản lý hồ sơ thành công, trang quản lý hồ sơ học viên sẽ hiển thị danh sách đã cập nhật (thêm học viên mới kèm thông tin tài khoản được cấp phát, hoặc loại bỏ hoàn toàn thông tin của học viên cũ).
+
+Quy trình nghiệp vụ quản lý và đóng học phí
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Nghiep vu quan ly va dong hoc phi.jpg}
+    \caption{Nghiệp vụ quản lý và đóng học phí}
+    \label{fig:Fig2}
+\end{figure}    
+
+Quy trình quản lý và đóng học phí dành cho chỉ huy đơn vị và học viên; quy trình bao gồm:
+(i) Chỉ huy đơn vị khai báo định mức học phí cần nộp của học viên theo từng kỳ học,
+(ii) Học viên theo dõi thông tin học phí cần đóng trên trang cá nhân và thực hiện nộp tiền ngoài thực tế,
+(iii) Chỉ huy đơn vị tiếp nhận học phí và cập nhật trạng thái thanh toán học phí của học viên trên hệ thống.
+Sau khi cập nhật trạng thái thanh toán học phí thành công, trang quản lý học phí của chỉ huy và trang cá nhân của học viên sẽ hiển thị trạng thái "Đã thanh toán" kèm theo lịch sử đóng nộp chi tiết.
+
+
+
+\section{Đặc tả chức năng}
+\label{section:2.3}
+
+\subsection{Đặc tả use case Đăng nhập}
+\hfill
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.2cm}|c|p{2cm}|p{8.5cm}|}
+\hline
+\multicolumn{4}{|l|}{\textbf{Tên use case:} Đăng nhập} \\ \hline
+\multicolumn{4}{|l|}{\textbf{ID:} UC01} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tác nhân chính:} Người dùng (Học viên, Chỉ huy, Quản trị viên)} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tiền điều kiện:} Tài khoản đã được tạo và kích hoạt trong hệ thống} \\ \hline
+ & \textbf{STT} & \textbf{Thực hiện} & \textbf{Hành động} \\ \hline
+\multirow{6}{2.2cm}{\textbf{Luồng sự kiện chính}} 
+& 1 & Người dùng & Truy cập vào trang đăng nhập của hệ thống. \\ \cline{2-4}
+& 1.1 & Hệ thống & Hiển thị trang đăng nhập (gồm trường Username và Password). \\ \cline{2-4}
+& 1.2 & Người dùng & Nhập thông tin đăng nhập (Tên tài khoản \& Mật khẩu). \\ \cline{2-4}
+& 1.3 & Người dùng & Bấm nút "Đăng nhập". \\ \cline{2-4}
+& 1.4 & Hệ thống & Xác thực thông tin tài khoản (kiểm tra đối chiếu với CSDL \texttt{users}). \\ \cline{2-4}
+& 1.5 & Hệ thống & Khởi tạo JWT token, lưu phiên đăng nhập và chuyển hướng về Dashboard phù hợp. \\ \hline
+\multirow{3}{2.2cm}{\textbf{Luồng thay thế}} 
+& 1.4a & Hệ thống & Thông báo lỗi ``Tên đăng nhập hoặc mật khẩu không chính xác'' nếu thông tin nhập sai. \\ \cline{2-4}
+& 1.4b & Người dùng & Thực hiện lại thao tác đăng nhập từ bước 1.2. \\ \cline{2-4}
+& 1.4c & Hệ thống & Thông báo ``Tài khoản đã bị khóa'' nếu tài khoản ở trạng thái vô hiệu hóa. \\ \hline
+\multicolumn{4}{|l|}{\textbf{Hậu điều kiện:} Người dùng đăng nhập thành công và duy trì phiên hoạt động} \\ \hline
+\end{tabular}
+\caption{Đặc tả Use case Đăng nhập}
+\label{table:uc_login}
+\end{table}
+
+
+\subsection{Đặc tả use case thêm tài khoản}
+\hfill
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.2cm}|c|p{2cm}|p{8.5cm}|}
+\hline
+\multicolumn{4}{|l|}{\textbf{Tên use case:} Thêm tài khoản} \\ \hline
+\multicolumn{4}{|l|}{\textbf{ID:} UC02} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tác nhân chính:} Chỉ huy, Quản trị viên} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tiền điều kiện:} Đã đăng nhập hệ thống với quyền hành Chỉ huy hoặc Quản trị viên} \\ \hline
+ & \textbf{STT} & \textbf{Thực hiện} & \textbf{Hành động} \\ \hline
+\multirow{6}{2.2cm}{\textbf{Luồng sự kiện chính}} 
+& 1 & Người dùng & Truy cập vào màn hình ``Quản lý tài khoản'' và nhấn ``Thêm tài khoản''. \\ \cline{2-4}
+& 1.1 & Hệ thống & Hiển thị form thông tin thêm tài khoản mới. \\ \cline{2-4}
+& 1.2 & Người dùng & Điền thông tin: Username, Password, Vai trò (STUDENT/COMMANDER/ADMIN), Email. \\ \cline{2-4}
+& 1.3 & Người dùng & Bấm nút ``Lưu tài khoản''. \\ \cline{2-4}
+& 1.4 & Hệ thống & Thực hiện kiểm tra định dạng (Yup validation) và đối chiếu sự tồn tại của Username. \\ \cline{2-4}
+& 1.5 & Hệ thống & Băm mật khẩu (Bcrypt), lưu bản ghi mới vào CSDL \texttt{users} và làm mới danh sách. \\ \hline
+\multirow{3}{2.2cm}{\textbf{Luồng thay thế}} 
+& 1.4a & Hệ thống & Hiển thị thông báo ``Tên đăng nhập đã tồn tại'' nếu bị trùng Username. \\ \cline{2-4}
+& 1.4b & Người dùng & Chỉnh sửa lại Username và thực hiện lại bước 1.3. \\ \cline{2-4}
+& 1.4c & Hệ thống & Hiển thị lỗi đỏ dưới các ô nhập liệu nếu nhập thiếu hoặc sai định dạng email. \\ \hline
+\multicolumn{4}{|l|}{\textbf{Hậu điều kiện:} Tài khoản người dùng mới được lưu trữ thành công vào CSDL} \\ \hline
+\end{tabular}
+\caption{Đặc tả Use case Thêm tài khoản}
+\label{table:uc_add_account}
+\end{table}
+
+
+\subsection{Đặc tả use case thêm học viên}
+\hfill
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.2cm}|c|p{2cm}|p{8.5cm}|}
+\hline
+\multicolumn{4}{|l|}{\textbf{Tên use case:} Thêm học viên} \\ \hline
+\multicolumn{4}{|l|}{\textbf{ID:} UC03} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tác nhân chính:} Chỉ huy} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tiền điều kiện:} Chỉ huy đã đăng nhập; cơ cấu lớp học và trường đã được khởi tạo} \\ \hline
+ & \textbf{STT} & \textbf{Thực hiện} & \textbf{Hành động} \\ \hline
+\multirow{7}{2.2cm}{\textbf{Luồng sự kiện chính}} 
+& 1 & Chỉ huy & Chọn chức năng ``Quản lý hồ sơ học viên'' và ấn nút ``Thêm học viên mới''. \\ \cline{2-4}
+& 1.1 & Hệ thống & Hiển thị form thông tin hồ sơ chi tiết của học viên. \\ \cline{2-4}
+& 1.2 & Chỉ huy & Nhập đầy đủ thông tin: Mã học viên, Họ tên, Ngày sinh, CCCD, Lớp học, Trường liên kết. \\ \cline{2-4}
+& 1.3 & Chỉ huy & Bấm nút ``Lưu thông tin''. \\ \cline{2-4}
+& 1.4 & Hệ thống & Kiểm tra tính hợp lệ dữ liệu (trùng lặp mã học viên, số CCCD). \\ \cline{2-4}
+& 1.5 & Hệ thống & Tạo bản ghi trong bảng \texttt{students}, tự tạo tài khoản đăng nhập tương ứng trong bảng \texttt{users} (User mặc định là mã học viên). \\ \cline{2-4}
+& 1.6 & Hệ thống & Tự động tăng sĩ số trong lớp học tương ứng và thông báo thành công. \\ \hline
+\multirow{2}{2.2cm}{\textbf{Luồng thay thế}} 
+& 1.4a & Hệ thống & Thông báo lỗi ``Mã học viên hoặc số CCCD đã tồn tại''. \\ \cline{2-4}
+& 1.4b & Chỉ huy & Sửa lại dữ liệu bị báo trùng và thực hiện lại bước 1.3. \\ \hline
+\multicolumn{4}{|l|}{\textbf{Hậu điều kiện:} Hồ sơ học viên mới và tài khoản tương ứng được khởi tạo thành công} \\ \hline
+\end{tabular}
+\caption{Đặc tả Use case Thêm học viên}
+\label{table:uc_add_student}
+\end{table}
+
+
+
+
+\subsection{Đặc tả use case cập nhật thông tin học viên}
+\hfill
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.2cm}|c|p{2cm}|p{8.5cm}|}
+\hline
+\multicolumn{4}{|l|}{\textbf{Tên use case:} Cập nhật thông tin học viên} \\ \hline
+\multicolumn{4}{|l|}{\textbf{ID:} UC04} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tác nhân chính:} Chỉ huy, Học viên} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tiền điều kiện:} Người dùng đã đăng nhập thành công vào hệ thống} \\ \hline
+ & \textbf{STT} & \textbf{Thực hiện} & \textbf{Hành động} \\ \hline
+\multirow{5}{2.2cm}{\textbf{Luồng sự kiện chính}} 
+& 1 & Người dùng & Chọn hồ sơ học viên cần chỉnh sửa và nhấn nút ``Chỉnh sửa''. \\ \cline{2-4}
+& 1.1 & Hệ thống & Kiểm tra quyền hạn và áp dụng cơ chế Scoped-RBAC. \\ \cline{2-4}
+& 1.2 & Hệ thống & Hiển thị form điền sẵn dữ liệu hiện có của học viên. \\ \cline{2-4}
+& 1.3 & Người dùng & Thực hiện thay đổi các thông tin cần thiết và ấn nút ``Cập nhật''. \\ \cline{2-4}
+& 1.4 & Hệ thống & Xác thực dữ liệu và thực hiện cập nhật ghi đè vào bảng CSDL \texttt{students}. \\ \hline
+\multirow{3}{2.2cm}{\textbf{Luồng thay thế}} 
+& 1.1a & Hệ thống & Chặn truy cập và báo lỗi ``Không tìm thấy dữ liệu hoặc không có quyền truy cập'' nếu vi phạm Scoped-RBAC. \\ \cline{2-4}
+& 1.4a & Hệ thống & Báo lỗi định dạng trường dữ liệu nhập sai và yêu cầu chỉnh sửa lại. \\ \cline{2-4}
+& 1.4b & Người dùng & Sửa lại dữ liệu hợp lệ và thực hiện lại bước 1.3. \\ \hline
+\multicolumn{4}{|l|}{\textbf{Hậu điều kiện:} Dữ liệu mới của học viên được cập nhật chính xác vào cơ sở dữ liệu} \\ \hline
+\end{tabular}
+\caption{Đặc tả Use case Cập nhật thông tin học viên}
+\label{table:uc_update_student}
+\end{table}
+
+
+
+\subsection{Đặc tả use case thêm lịch học}
+\hfill
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.2cm}|c|p{2cm}|p{8.5cm}|}
+\hline
+\multicolumn{4}{|l|}{\textbf{Tên use case:} Thêm lịch học} \\ \hline
+\multicolumn{4}{|l|}{\textbf{ID:} UC05} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tác nhân chính:} Chỉ huy} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tiền điều kiện:} Chỉ huy đã đăng nhập, tài khoản học viên đích đã tồn tại} \\ \hline
+ & \textbf{STT} & \textbf{Thực hiện} & \textbf{Hành động} \\ \hline
+\multirow{5}{2.2cm}{\textbf{Luồng sự kiện chính}} 
+& 1 & Chỉ huy & Chọn học viên/lớp, học kỳ và tuần học cần thiết lập lịch. \\ \cline{2-4}
+& 1.1 & Hệ thống & Hiển thị form giao diện nhập lịch học hoặc tùy chọn tải lên Excel. \\ \cline{2-4}
+& 1.2 & Chỉ huy & Nhập các thông tin tiết học: thứ học, giờ bắt đầu/kết thúc, môn học rồi nhấn ``Lưu lịch học''. \\ \cline{2-4}
+& 1.3 & Hệ thống & Xác thực dữ liệu và lưu thông tin thời khóa biểu mới vào bảng \texttt{time\_tables}. \\ \cline{2-4}
+& 1.4 & Hệ thống & Tự động gọi \texttt{CutRiceService} đồng bộ sinh lịch cắt cơm tuần vào bảng \texttt{cut\_rice} (\texttt{is\_auto\_generated = true}) và thông báo cho học viên. \\ \hline
+\multirow{2}{2.2cm}{\textbf{Luồng thay thế}} 
+& 1.2a & Chỉ huy & Tải lên file Excel danh sách lịch học bị sai định dạng mẫu. \\ \cline{2-4}
+& 1.2b & Hệ thống & Phân tích tệp lỗi, đưa ra thông báo cảnh báo chi tiết dòng bị lỗi để Chỉ huy chỉnh sửa. \\ \hline
+\multicolumn{4}{|l|}{\textbf{Hậu điều kiện:} Lịch học và lịch cắt cơm tương ứng được cập nhật đồng bộ} \\ \hline
+\end{tabular}
+\caption{Đặc tả Use case Thêm lịch học}
+\label{table:uc_add_timetable}
+\end{table}
+
+
+
+\subsection{Đặc tả use case thêm kết quả học tập}
+\hfill
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.2cm}|c|p{2cm}|p{8.5cm}|}
+\hline
+\multicolumn{4}{|l|}{\textbf{Tên use case:} Thêm kết quả học tập} \\ \hline
+\multicolumn{4}{|l|}{\textbf{ID:} UC06} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tác nhân chính:} Chỉ huy} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tiền điều kiện:} Đã đăng nhập vai trò Chỉ huy; môn học, học kỳ và hồ sơ học viên đã có sẵn} \\ \hline
+ & \textbf{STT} & \textbf{Thực hiện} & \textbf{Hành động} \\ \hline
+\multirow{8}{2.2cm}{\textbf{Luồng sự kiện chính}} 
+& 1 & Chỉ huy & Truy cập màn hình nhập kết quả học tập (hoặc chọn phê duyệt đề xuất điểm PENDING của học viên). \\ \cline{2-4}
+& 1.1 & Chỉ huy & Điền thông tin điểm môn học gồm điểm chữ, điểm hệ 4, điểm hệ 10 và ấn nút ``Xác nhận''. \\ \cline{2-4}
+& 1.2 & Hệ thống & Khởi động một Database Transaction. \\ \cline{2-4}
+& 1.3 & Hệ thống & Ghi nhận/cập nhật điểm môn học mới vào bảng \texttt{subject\_results}. \\ \cline{2-4}
+& 1.4 & Hệ thống & Tính toán lại điểm trung bình học kỳ liên quan trong bảng \texttt{semester\_results}. \\ \cline{2-4}
+& 1.5 & Hệ thống & Tính toán lại CPA năm học liên quan trong bảng \texttt{yearly\_results}. \\ \cline{2-4}
+& 1.6 & Hệ thống & Cập nhật và lưu đệm chỉ số CPA mới vào hồ sơ học viên bảng \texttt{profiles}. \\ \cline{2-4}
+& 1.7 & Hệ thống & Commit Transaction thành công và gửi thông báo thông tin điểm mới đến học viên. \\ \hline
+\multirow{2}{2.2cm}{\textbf{Luồng thay thế}} 
+& 1.2a & Hệ thống & Gặp sự cố tính toán hoặc lỗi kết nối CSDL trong lúc tính toán CPA. \\ \cline{2-4}
+& 1.2b & Hệ thống & Thực hiện Rollback toàn bộ giao dịch để tránh lệch dữ liệu và thông báo lỗi. \\ \hline
+\multicolumn{4}{|l|}{\textbf{Hậu điều kiện:} Điểm số được cập nhật và toàn bộ hệ thống CPA được đồng bộ hóa nhất quán} \\ \hline
+\end{tabular}
+\caption{Đặc tả Use case Thêm kết quả học tập}
+\label{table:uc_add_grade}
+\end{table}
+
+
+\subsection{Đặc tả use case quản lý học phí}
+\hfill
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{2.2cm}|c|p{2cm}|p{8.5cm}|}
+\hline
+\multicolumn{4}{|l|}{\textbf{Tên use case:} Quản lý học phí} \\ \hline
+\multicolumn{4}{|l|}{\textbf{ID:} UC07} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tác nhân chính:} Chỉ huy} \\ \hline
+\multicolumn{4}{|l|}{\textbf{Tiền điều kiện:} Chỉ huy đã đăng nhập thành công vào hệ thống} \\ \hline
+ & \textbf{STT} & \textbf{Thực hiện} & \textbf{Hành động} \\ \hline
+\multirow{5}{2.2cm}{\textbf{Luồng sự kiện chính}} 
+& 1 & Chỉ huy & Chọn mục ``Quản lý học phí'' trên bảng điều hướng. \\ \cline{2-4}
+& 1.1 & Hệ thống & Hiển thị danh sách các bản ghi học phí của học viên (bảng \texttt{tuition\_fees}). \\ \cline{2-4}
+& 1.2 & Chỉ huy & Lọc thông tin, chọn học viên đã hoàn thành đóng tiền và ấn ``Cập nhật thanh toán''. \\ \cline{2-4}
+& 1.3 & Hệ thống & Thay đổi trạng thái học phí từ \texttt{UNPAID} sang \texttt{PAID} và ghi nhận mốc thời gian. \\ \cline{2-4}
+& 1.4 & Hệ thống & Gửi thông báo xác nhận thanh toán học phí thành công cho học viên. \\ \hline
+\multirow{2}{2.2cm}{\textbf{Luồng thay thế}} 
+& 1.2a & Chỉ huy & Chọn chức năng ``Xuất báo cáo học phí'' thay vì cập nhật trạng thái. \\ \cline{2-4}
+& 1.2b & Hệ thống & Tạo biểu mẫu tổng kết danh sách nộp tiền, tự động tải xuống file Word hoặc PDF. \\ \hline
+\multicolumn{4}{|l|}{\textbf{Hậu điều kiện:} Trạng thái học phí của học viên được cập nhật và lưu trữ chính xác} \\ \hline
+\end{tabular}
+\caption{Đặc tả Use case Quản lý học phí}
+\label{table:uc_manage_tuition}
+\end{table}
+
+
+
+\section{Yêu cầu phi chức năng}
+\label{section:2.4}
+\subsection{Yêu cầu tổng quát và trải nghiệm người dùng}
+\label{subsection:2.4.1}
+Hệ thống quản lý học viên liên kết (\texttt{student-manager}) cần được thiết kế linh hoạt, có độ mô-đun hóa cao và dễ mở rộng nhằm đáp ứng nhu cầu quản lý hiện tại cũng như khả năng tích hợp trong tương lai với các cổng thông tin đào tạo của trường đại học ngoài hoặc các hệ thống quản lý học tập (LMS) nội bộ.
+\par
+Hệ thống yêu cầu phân quyền người dùng (Role-Based Access Control) rõ ràng và nghiêm ngặt giữa các vai trò: Học viên (STUDENT), Chỉ huy (COMMANDER), và Quản trị viên (ADMIN). Mỗi nhóm vai trò khi đăng nhập sẽ được điều hướng tới giao diện chức năng và giới hạn phạm vi dữ liệu chuyên biệt tương ứng với nhiệm vụ của họ.
+\par
+Ủng dụng cần đảm bảo tốc độ phản hồi nhanh và trải nghiệm mượt mà. Nhờ cơ chế lưu đệm (cache) dữ liệu của React Query ở Frontend và việc lưu trữ sẵn chỉ số CPA tính toán trước trong bảng \texttt{profiles} ở Backend, hệ thống phải đảm bảo thời gian tải các trang Dashboard quan trọng dưới 5ms khi có yêu cầu truy cập từ người dùng. Ứng dụng phải hoạt động ổn định trên các trình duyệt phổ biến như Google Chrome, Mozilla Firefox, Microsoft Edge, Apple Safari và tương thích linh hoạt (Responsive) trên cả máy tính cá nhân, máy tính bảng và các thiết bị di động cầm tay.
+
+\subsection{Yêu cầu về giao diện người dùng}
+\label{subsection:2.4.2}
+Giao diện hệ thống cần được thiết kế trực quan, khoa học, giúp người dùng dễ dàng tiếp cận các chức năng trọng tâm như xem thời khóa biểu, đề xuất cập nhật điểm số, theo dõi lịch cắt cơm và đóng học phí chỉ trong 1-2 thao tác click chuột.
+\par
+Với đặc thù ứng dụng phục vụ trong môi trường quân sự/công an, thiết kế giao diện yêu cầu tính nghiêm túc, tối giản, bố cục rõ ràng và hạn chế các tông màu lòe loẹt gây rối mắt. Hệ thống sử dụng bảng màu chuẩn hóa thống nhất: màu xanh Navy đậm (\texttt{\#1e3a8a}) làm màu chủ đạo thể hiện tính kỷ luật và chuyên nghiệp; màu xám Slate (\texttt{\#64748b}) cho thanh điều hướng và thông tin phụ trợ; kết hợp các màu trạng thái trực quan (xanh lá Emerald cho trạng thái Đã Duyệt; đỏ Crimson cho trạng thái Từ Chối/Nợ Học Phí; và vàng Amber cho trạng thái Chờ Duyệt).
+\par
+Hệ thống tích hợp các hiệu ứng chuyển động vi mô (micro-animations) nhẹ nhàng thông qua thư viện Framer Motion khi người dùng di chuột (hover) hoặc nhấn nút (active) để tăng tính tương tác, đồng thời sử dụng các thông báo Toast mờ (Glassmorphism) để tránh làm gián đoạn luồng làm việc chính của cán bộ và học viên.
+
+\subsection{Yêu cầu về bảo mật}
+\label{subsection:2.4.3}
+Bảo mật là yêu cầu tối quan trọng do hệ thống quản lý thông tin nhân thân, quá trình học tập và quân hàm quân số của quân nhân. Hệ thống bắt buộc phải kiểm soát quyền truy cập ở cấp độ dòng dữ liệu thông qua giải pháp Scoped-RBAC. Cán bộ Chỉ huy chỉ được phép truy vấn, chỉnh sửa dữ liệu học viên trực thuộc đơn vị mình được phân công quản lý (so khớp qua \texttt{commanderId} trong cơ sở dữ liệu). Mọi hành vi cố tình thay đổi tham số ID trên URL (tấn công IDOR) nhằm truy cập dữ liệu của đơn vị khác đều phải bị hệ thống chặn đứng và trả về lỗi \texttt{404 Not Found} hoặc \texttt{403 Forbidden}.
+\par
+Tất cả các API xử lý nghiệp vụ ở Backend đều phải đi qua lớp trung gian xác thực (Auth Middleware). Việc xác thực người dùng được thực hiện thông qua cơ chế JSON Web Token (JWT). Token này sẽ được cấp sau khi đăng nhập thành công, đính kèm trong header của mỗi yêu cầu HTTP, có thời hạn hiệu lực rõ ràng (Expiration time) và tự động thu hồi/xóa sạch tại Client khi người dùng nhấn đăng xuất (Logout) hoặc hết hạn phiên làm việc.
+\par
+Toàn bộ mật khẩu của người dùng khi lưu trữ vào bảng \texttt{users} trong cơ sở dữ liệu bắt buộc phải được băm một chiều bằng thuật toán Bcrypt với độ phức tạp cao, đảm bảo không thể khôi phục lại mật khẩu gốc ngay cả khi cơ sở dữ liệu bị rò rỉ.
+
+\subsection{Yêu cầu về tính xác thực và toàn vẹn dữ liệu}
+\label{subsection:2.4.4}
+Mọi biểu mẫu nhập liệu từ phía Client và các endpoint API ở Backend đều phải được kiểm tra dữ liệu nghiêm ngặt (Input Validation) thông qua thư viện Yup. Hệ thống phải ngăn chặn và cảnh báo rõ ràng các trường hợp: bỏ trống các trường bắt buộc, nhập sai định dạng email/số điện thoại, nhập số CCCD không hợp lệ, hoặc nhập điểm số nằm ngoài thang đo (điểm hệ 10 phải từ 0.0 đến 10.0, điểm hệ 4 từ 0.0 đến 4.0).
+\par
+Đặc biệt, hệ thống phải bảo đảm tính toàn vẹn dữ liệu tuyệt đối (Data Integrity) đối với quy trình tính toán CPA phân tầng. Khi có sự thay đổi điểm số môn học, chuỗi hành động cập nhật điểm môn (\texttt{subject\_results}) $\rightarrow$ tính lại trung bình học kỳ (\texttt{semester\_results}) $\rightarrow$ tính lại CPA năm (\texttt{yearly\_results}) $\rightarrow$ cập nhật hồ sơ (\texttt{profiles}) phải được thực thi lồng trong một Database Transaction duy nhất. Nếu bất kỳ một bước nào trong chuỗi tính toán này bị lỗi, hệ thống phải tự động hoàn trả (Rollback) toàn bộ dữ liệu về trạng thái ban đầu nhằm tránh hiện tượng lệch điểm số.
+\par
+Mọi hoạt động phê duyệt đề xuất điểm của Chỉ huy, các thao tác thay đổi lịch học hoặc lịch cắt cơm hệ thống đều phải được ghi nhận nhật ký hoạt động (Audit Logs) để phục vụ công tác hậu kiểm nội bộ khi có yêu cầu.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

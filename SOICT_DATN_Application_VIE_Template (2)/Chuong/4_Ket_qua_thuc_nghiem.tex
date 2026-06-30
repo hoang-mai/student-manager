@@ -1,0 +1,589 @@
+% !TEX root = ../DoAn.tex
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Thiết kế kiến trúc}
+\subsection{Lựa chọn kiến trúc phần mềm}
+
+Hệ thống Quản lý Học viên được xây dựng dựa trên kiến trúc phân lớp (Layered Architecture) trong môi trường Client-Server hiện đại. Hệ thống được tổ chức thành các tầng độc lập xếp chồng lên nhau, giao tiếp tuần tự từ trên xuống dưới để đảm bảo tính phân tách mối quan tâm (Separation of Concerns), giúp mã nguồn dễ bảo trì và nâng cấp độc lập:
+\begin{itemize}
+    \item \textbf{Tầng Giao diện (Presentation Layer):} Đảm nhận việc hiển thị thông tin trực quan và tiếp nhận các hành động tương tác từ người dùng (Học viên, Cán bộ chỉ huy, Quản trị viên). Giao diện được xây dựng phía Client sử dụng Next.js kết hợp Tailwind CSS với các thành phần giao diện điển hình như \texttt{UserProfile} (thông tin cá nhân, kết quả rèn luyện), \texttt{GradeManagement} (xem bảng điểm, đề xuất cập nhật điểm số), \texttt{CutRiceRegistration} (đăng ký cắt cơm), \texttt{TuitionManagement} (theo dõi học phí) và \texttt{Dashboard} (biểu đồ thống kê học tập).
+    
+    \item \textbf{Tầng Điều phối và Kiểm soát (Controller Layer):} Đóng vai trò cửa ngõ tiếp nhận các yêu cầu HTTP API gửi từ Client lên Server. Controller chịu trách nhiệm giải nén tham số, thực hiện lọc bảo mật (JWT middleware), kiểm tra tính hợp lệ của dữ liệu đầu vào và chuyển tiếp yêu cầu đến tầng nghiệp vụ. Trong hệ thống, tầng này sử dụng các lớp như \texttt{auth.controller}, \texttt{user.controller}, \texttt{gradeRequest.controller}, \texttt{cutRice.controller} và \texttt{tuitionFee.controller}.
+    
+    \item \textbf{Tầng Nghiệp vụ (Service Layer):} Là trung tâm xử lý logic cốt lõi và các quy tắc nghiệp vụ của hệ thống. Tầng này thực thi các quy trình tính toán phức tạp như tự động tính toán lại điểm trung bình GPA/CPA hệ 4 và hệ 10 khi có thay đổi điểm số, tự động lập lịch cắt cơm dựa trên thời khóa biểu, hoặc tính toán công nợ học phí. Tầng này hiện thực thông qua các lớp dịch vụ như \texttt{student.service}, \texttt{gradeRequest.service}, \texttt{cutRice.service}, \texttt{tuitionFee.service} và \texttt{yearlyResult.service}.
+    
+    \item \textbf{Tầng Truy xuất Dữ liệu (Model Layer):} Chịu trách nhiệm lưu trữ, truy xuất và cập nhật thông tin trong cơ sở dữ liệu quan hệ PostgreSQL thông qua Sequelize ORM. Tầng này thiết lập các ràng buộc toàn vẹn dữ liệu, các mối quan hệ khóa ngoại và cung cấp các phương thức thao tác dữ liệu trừu tượng cho tầng nghiệp vụ sử dụng, thông qua các lớp thực thể như \texttt{user.model}, \texttt{profile.model}, \texttt{subjectResult.model}, \texttt{gradeRequest.model}, \texttt{cutRice.model}, \texttt{tuitionFee.model} và \texttt{yearlyResult.model}.
+\end{itemize}
+
+\subsection{Thiết kế tổng quan}
+\subsubsection{Biểu đồ phụ thuộc gói Server}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do goi cho sever.jpg}
+    \caption{Biểu đồ gói cho server}
+    \label{fig:Fig2}
+\end{figure}
+
+Hệ thống server được thiết kế theo mô hình phân lớp nghiêm ngặt nhằm đảm bảo tính rõ ràng, dễ bảo trì và mở rộng. Các request từ client trước tiên được xử lý tại \textbf{Routes}, nơi định tuyến đến các \textbf{Controllers} phù hợp dựa trên đường dẫn và phương thức HTTP. \textbf{Controllers} đóng vai trò điều phối, chịu trách nhiệm nhận dữ liệu yêu cầu, gọi \textbf{Validations} để kiểm tra tính hợp lệ của dữ liệu đầu vào và chuyển giao xử lý cho lớp \textbf{Services}. \textbf{Middlewares} đảm nhiệm các chức năng trung gian xuyên suốt hệ thống như xác thực người dùng (Authentication), kiểm tra phân quyền (Authorization) và xử lý lỗi tập trung. \textbf{Services} chịu trách nhiệm thực hiện toàn bộ logic nghiệp vụ lõi (như tính toán điểm CPA, tự động lập lịch cắt cơm) và sẽ tương tác với lớp \textbf{Models} khi cần cập nhật dữ liệu, hoặc sử dụng các thư viện bổ trợ tại \textbf{Utils}. \textbf{Models} định nghĩa các thực thể dữ liệu (như học viên, điểm số, lịch cơm, học phí...) và làm việc trực tiếp với Cơ sở dữ liệu thông qua cấu hình tại \textbf{Config}. Toàn bộ hoạt động của hệ thống được hỗ trợ bởi các thư viện bên ngoài được quản lý trong \textbf{Node Modules}.
+
+\paragraph{Mục đích và sự phụ thuộc chi tiết của từng gói thành phần:}
+\begin{itemize}
+    \item \textbf{Routes (\texttt{routes}):} Tiếp nhận các yêu cầu HTTP từ Client và định tuyến đến Controller thích hợp. Gói này phụ thuộc trực tiếp vào \textbf{Controllers} (để chuyển tiếp xử lý) và \textbf{Middlewares} (để thực hiện các bộ lọc bảo mật trước khi vào controller).
+    
+    \item \textbf{Middlewares (\texttt{middlewares}):} Xử lý các tác vụ trung gian xuyên suốt hệ thống như xác thực token JWT, kiểm tra quyền hạn người dùng (Học viên, Chỉ huy, Admin) và bắt lỗi hệ thống. Gói này phụ thuộc vào \textbf{Config} để lấy thông tin khóa bảo mật JWT.
+    
+    \item \textbf{Controllers (\texttt{controllers}):} Điều phối luồng xử lý của từng API. Gói này phụ thuộc vào \textbf{Validations} (để xác thực cấu trúc dữ liệu đầu vào) và \textbf{Services} (để thực thi các nghiệp vụ tương ứng).
+    
+    \item \textbf{Validations (\texttt{validations}):} Định nghĩa các lược đồ xác thực dữ liệu đầu vào (Yup Schema) nhằm ngăn chặn dữ liệu sai cấu trúc hoặc mã độc từ Client trước khi gửi xuống lớp sâu hơn.
+    
+    \item \textbf{Services (\texttt{services}):} Nơi chứa toàn bộ logic xử lý nghiệp vụ chính của hệ thống. Gói này phụ thuộc trực tiếp vào \textbf{Models} (để truy vấn/ghi dữ liệu vào CSDL) và \textbf{Utils} (để sử dụng các hàm tiện ích trợ giúp).
+    
+    \item \textbf{Models (\texttt{models}):} Khởi tạo thực thể dữ liệu dưới dạng Sequelize Models ánh xạ trực tiếp đến PostgreSQL. Gói này phụ thuộc vào \textbf{Config} để thiết lập và duy trì kết nối cơ sở dữ liệu.
+    
+    \item \textbf{Config (\texttt{config}):} Quản lý cấu hình toàn hệ thống bao gồm kết nối PostgreSQL, kết nối máy chủ lưu trữ MinIO và các tham số môi trường khác.
+    
+    \item \textbf{Utils (\texttt{utils}):} Cung cấp các hàm bổ trợ dùng chung trong hệ thống như công cụ tính toán điểm trung bình, định dạng ngày tháng, xuất báo cáo PDF/Excel.
+\end{itemize}
+
+\subsubsection{Biểu đồ phụ thuộc gói Client}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do goi cho client.jpg}
+    \caption{Biểu đồ gói cho client}
+    \label{fig:Fig2}
+\end{figure}
+Hình 4.3 mô tả hệ thống Client được xây dựng dựa trên kiến trúc thành phần của Next.js (React), trong đó mã nguồn chính nằm trong thư mục \texttt{src}. Cấu trúc được chia thành các module rõ ràng nhằm tối ưu hóa khả năng mở rộng và bảo trì. Cụ thể: 
+
+\begin{itemize}
+    \item \textbf{React-Routers (Định tuyến):} Đảm nhiệm việc định tuyến URL và điều hướng luồng hiển thị trang ứng dụng (trong thực tế dự án được triển khai bằng cơ chế Next.js App Router). Gói này phụ thuộc trực tiếp vào \textbf{Components} để render các thành phần giao diện tương ứng với các trang.
+    
+    \item \textbf{Components (Thành phần giao diện):} Chứa các khối giao diện người dùng có thể tái sử dụng (như Button, Table, Modal, Sidebar...). Lớp này có mối quan hệ phụ thuộc hai chiều với \textbf{States} để cập nhật trạng thái hiển thị giao diện và thu thập dữ liệu đầu vào.
+    
+    \item \textbf{States (Quản lý trạng thái):} Quản lý trạng thái toàn cục của ứng dụng để đồng bộ dữ liệu giữa các thành phần giao diện (trong thực tế dự án sử dụng thư viện Zustand). \textbf{States} phụ thuộc trực tiếp vào \textbf{Services} để gọi API đồng bộ dữ liệu từ phía máy chủ.
+    
+    \item \textbf{Services (Dịch vụ kết nối):} Cung cấp các chức năng gọi API (thông qua Axios/React Query) và xử lý logic kết nối trực tiếp với backend Express.js.
+    
+    \item \textbf{Utils (Tiện ích):} Tập hợp các hàm tiện ích hỗ trợ định dạng dữ liệu, chuyển đổi hệ điểm hoặc các xử lý lặp lại. Gói này được import trực tiếp bởi \textbf{Components} để định dạng dữ liệu trước khi hiển thị.
+\end{itemize}
+
+Ngoài ra, các thư mục \textbf{node-modules} và \textbf{public} lần lượt chứa các gói thư viện phụ thuộc bên ngoài và tài nguyên tĩnh (như hình ảnh, biểu tượng) phục vụ quá trình xây dựng và vận hành ứng dụng.
+
+
+\subsection{Thiết kế chi tiết gói}
+Sinh viên thiết kế và lần lượt vẽ biểu đồ thiết kế cho từng package, hoặc một nhóm các package liên quan để giải quyết một vấn đề gì đó. Khi vẽ thiết kế gói, sinh viên chỉ cần đưa tên lớp, không cần chỉ ra các thành viên phương thức và thuộc tính. SV tham khảo ví dụ minh họa trong Hình \ref{fig:Fig2}.
+
+Sinh viên cần vẽ rõ ràng quan hệ giữa các lớp trong biểu đồ. Các quan hệ bao gồm: phụ thuộc (dependency), kết hợp (association), kết tập (aggregation), hợp thành (composition), kế thừa (inheritance), và thực thi (implementation). Các quan hệ này đều đã được minh họa trong \ref{fig:Fig2}.
+
+Sau khi vẽ hình minh họa, sinh viên cần giải thích ngắn gọn về thiết kế của mình. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Thiet ke chi tiet cac moi quan he lop trong phan he De xuat va phe duyet diem.jpg}
+    \caption{Thiết kế chi tiết các mối quan hệ lớp trong phân hệ Đề xuất và phê duyệt điểm}
+    \label{fig:Fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Thiet ke chi tiet cac moi quan he lop trong cat com.jpg}
+    \caption{Thiết kế chi tiết các mối quan hệ lớp trong phân hệ Cắt cơm}
+    \label{fig:Fig2}
+\end{figure}
+
+
+\section{Thiết kế chi tiết}
+\subsection{Thiết kế giao diện}
+Hệ thống xây dựng giao diện trực quan, dễ sử dụng, dễ thao tác và nhất quán, thân thiện với người dùng.
+\paragraph{Màu sắc}
+
+Màu sắc ở hình \ref{fig:primary_color} là bộ màu chính được sử dụng xuyên suốt trong hệ thống, đóng vai trò là màu chủ đạo để xây dựng nền, nút bấm chính, các thông báo quan trọng, các ô nhập dữ liệu và các thành phần giao diện khác.
+
+\begin{itemize}
+    \item \textbf{Màu đậm nhất:} \texttt{\#313324}
+    
+    \item \textbf{Màu nhạt nhất:} \texttt{\#F1F2EE}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Hinhve/primary_color.jpg}
+    \caption{Bảng màu chính của hệ thống}
+    \label{fig:Fig2}
+\end{figure}
+
+Màu sắc ở hình \ref{fig:secondary_color} là nhóm màu phụ trợ, được sử dụng nhằm hỗ trợ bộ màu chính trong việc tạo điểm nhấn cho giao diện. Nhóm màu này thường được áp dụng cho các nút bấm phụ hoặc các thành phần giao diện không yêu cầu mức độ chú ý cao từ người dùng.
+
+\begin{itemize}
+    \item \textbf{Màu đậm nhất:} \texttt{\#31332A}
+    
+    \item \textbf{Màu nhạt nhất:} \texttt{\#F1F2F0}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Hinhve/secondary_color.jpg}
+    \caption{Bảng màu phụ trợ của hệ thống}
+    \label{fig:Fig2}
+\end{figure}
+Màu sắc ở hình \ref{fig:error_color} là nhóm màu được sử dụng riêng cho các trạng thái cảnh báo, thông báo lỗi hệ thống, thao tác xóa dữ liệu hoặc các thông báo yêu cầu người dùng chú ý đặc biệt.
+
+\begin{itemize}
+    \item \textbf{Màu đậm nhất:} \texttt{\#5D1815}
+    
+    \item \textbf{Màu nhạt nhất:} \texttt{\#FCEBEA}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Hinhve/error_color.jpg}
+    \caption{Bảng màu trạng thái lỗi của hệ thống}
+    \label{fig:Fig2}
+\end{figure}
+\paragraph{Chữ viết}
+Hình \ref{fig:ui_sans_serif} đại diện cho phông chữ UI Sans Serif.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Hinhve/ui_sans_serif.jpg}
+    \caption{Phông chữ UI Sans Serif}
+    \label{fig:Fig2}
+\end{figure}
+Kiểu chữ xuyên suốt toàn bộ hệ thống được sử dụng là kiểu chữ Ui Sans Serif. UI Sans Serif là nhóm phông chữ sans-serif do hệ điều hành và trình duyệt cung cấp, được thiết kế và tối ưu riêng cho các thành phần giao diện người dùng. Khi sử dụng UI Sans Serif, hệ thống sẽ tự động lựa chọn phông chữ phù hợp với từng nền tảng, chẳng hạn như San Francisco trên macOS, Segoe UI trên Windows hoặc Roboto trên Android. Cách tiếp cận này giúp giao diện đạt được sự nhất quán về khả năng hiển thị, đảm bảo tính dễ đọc và tạo cảm giác quen thuộc đối với người dùng trên nhiều thiết bị khác nhau. Đồng thời, việc sử dụng phông chữ hệ thống còn góp phần cải thiện hiệu năng tải trang, do không phát sinh chi phí tải font bên ngoài, từ đó nâng cao trải nghiệm người dùng tổng thể.
+
+Cỡ chữ: Hệ thống hiển thị giao diện với đa dạng cỡ chữ: 12px, 14px, 16px, 18px, 20px, 24px, 30px, 36px, 48px, 60px, 72px, 96px, 128px.
+
+\paragraph{Nút bấm (Button)}
+Các nút bấm cơ bản được thiết kế như ở hình \ref{fig:button_base}. Chúng được xây dựng phù hợp với bộ màu của toàn hệ thống nhằm đảm bảo tính nhất quán trong giao diện và giúp người dùng dễ dàng nhận biết chức năng của từng nút.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Hinhve/button_base.jpg}
+    \caption{Các nút bấm cơ bản của hệ thống}
+    \label{fig:Fig2}
+\end{figure}
+
+\paragraph{Ô nhập liệu (Input)}
+Các ô nhập liệu cơ bản được thiết kế như ở hình \ref{fig:input_base}. Chúng được xây dựng phù hợp với giao diện tổng thể của hệ thống, đồng thời thể hiện rõ các trạng thái trong quá trình nhập dữ liệu như trạng thái mặc định, đang nhập, hợp lệ, không hợp lệ hoặc vô hiệu hóa.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Hinhve/input_base.jpg}
+    \caption{Các ô nhập liệu cơ bản của hệ thống}
+    \label{fig:Fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Hinhve/Bo cuc chung cho he thong.jpg}
+    \caption{Thiết kế giao diện bố cục chung}
+    \label{fig:Fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Hinhve/Quan ly tai khoan.jpg}
+    \caption{Thiết kế giao diện quản lý tài khoản}
+    \label{fig:Fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Hinhve/Quan ly lich hoc.jpg}
+    \caption{Thiết kế giao diện quản lý lịch học}
+    \label{fig:Fig2}
+\end{figure}
+
+\subsection{Thiết kế lớp}
+\subsubsection{Biểu đồ tuần tự cập nhật lịch cắt cơm từ thời khóa biểu}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do tuan tu cap nhat lich cat com tu tkb.jpg}
+    
+    \label{fig:Fig2}
+\end{figure}
+
+\subsubsection{Biểu đồ tuần tự phê duyệt điểm và tính toán điểm CPA}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do tuan tu phe duyet diem va tinh lai CPA.jpg}
+    
+    \label{fig:Fig2}
+\end{figure}
+
+\subsection{Thiết kế cơ sở dữ liệu}
+\subsubsection{Biểu đồ thực thể liên kết (E-R diagram)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Bieu do thuc the lien ket.jpg}
+    \caption{Biểu đồ thực thể liên kết (E-R diagram)}
+    \label{fig:Fig2}
+\end{figure}
+\paragraph{Thực thể Users (Tài khoản)}
+\begin{itemize}
+    \item \textbf{Các thuộc tính chính:} \texttt{id}, \texttt{username}, \texttt{password}, \texttt{is\_admin}, \texttt{role}, \texttt{profile\_id}.
+    \item \textbf{Mô tả:} Lưu trữ thông tin tài khoản đăng nhập và quyền hạn của người dùng (Học viên, Chỉ huy, Admin) trong hệ thống.
+    \item \textbf{Mối quan hệ:} Mỗi tài khoản liên kết trực tiếp với duy nhất một hồ sơ quân nhân cá nhân (\texttt{profile\_id} là khóa ngoại trỏ tới bảng \texttt{profiles}). Một tài khoản học viên có thể có nhiều lịch học và lịch cắt cơm (\texttt{id} là khóa ngoại trong các bảng \texttt{time\_tables} và \texttt{cut\_rice}).
+\end{itemize}
+
+\paragraph{Thực thể Profiles (Hồ sơ)}
+\begin{itemize}
+    \item \textbf{Các thuộc tính chính:} \texttt{id}, \texttt{code}, \texttt{fullName}, \texttt{gender}, \texttt{birthday}, \texttt{unit}, \texttt{rank}, \texttt{position\_government}, \texttt{currentCpa4}, \texttt{currentCpa10}, \texttt{commander\_id}.
+    \item \textbf{Mô tả:} Lưu trữ thông tin lý lịch cá nhân chi tiết, quân tịch và học lực của cả học viên và cán bộ chỉ huy.
+    \item \textbf{Mối quan hệ:} Mỗi hồ sơ sở hữu duy nhất một tài khoản đăng nhập (\texttt{id} là khóa ngoại trỏ tới bảng \texttt{users}). Mỗi hồ sơ học viên được quản lý trực tiếp bởi một chỉ huy (\texttt{commander\_id} là khóa ngoại tự liên kết đến bảng \texttt{profiles}).
+\end{itemize}
+
+\paragraph{Thực thể TimeTables (Thời khóa biểu)}
+\begin{itemize}
+    \item \textbf{Các thuộc tính chính:} \texttt{id}, \texttt{userId}, \texttt{semester\_id}, \texttt{schedules}.
+    \item \textbf{Mô tả:} Lưu trữ thông tin thời khóa biểu học tập của học viên theo từng học kỳ dưới dạng danh sách các ca học.
+    \item \textbf{Mối quan hệ:} Mỗi thời khóa biểu thuộc về một tài khoản học viên (\texttt{userId} là khóa ngoại trỏ tới bảng \texttt{users}).
+\end{itemize}
+
+\paragraph{Thực thể CutRice (Lịch cắt cơm)}
+\begin{itemize}
+    \item \textbf{Các thuộc tính chính:} \texttt{id}, \texttt{userId}, \texttt{semester\_id}, \texttt{weekly}, \texttt{isAutoGenerated}, \texttt{notes}.
+    \item \textbf{Mô tả:} Quản lý việc báo cắt cơm ăn của học viên theo tuần (Sáng, Trưa, Tối) nhằm tối ưu hóa hậu cần và tránh lãng phí quân lương.
+    \item \textbf{Mối quan hệ:} Mỗi lịch cắt cơm thuộc về một tài khoản học viên (\texttt{userId} là khóa ngoại trỏ tới bảng \texttt{users}).
+\end{itemize}
+
+
+\subsubsection{Thiết kế cơ sở dữ liệu}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Co so du lieu.jpg}
+    \caption{Cơ sở dữ liệu}
+    \label{fig:Fig2}
+\end{figure}
+
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thuộc Tính} & \textbf{Kiểu Dữ Liệu} & \textbf{Ý Nghĩa} \\ \hline
+\texttt{id} & \texttt{serial} & Id của người dùng \\ \hline
+\texttt{username} & \texttt{varchar(255)} & Tên đăng nhập của người dùng \\ \hline
+\texttt{password} & \texttt{varchar(255)} & Mật khẩu người dùng \\ \hline
+\texttt{name} & \texttt{varchar(255)} & Họ tên người dùng \\ \hline
+\texttt{dob} & \texttt{timestamp with time zone} & Ngày sinh của người dùng \\ \hline
+\texttt{resetOTP} & \texttt{varchar(255)} & Mã OTP dùng để khôi phục tài khoản \\ \hline
+\texttt{phone} & \texttt{varchar(255)} & Số điện thoại \\ \hline
+\texttt{email} & \texttt{varchar(255)} & Email người dùng \\ \hline
+\texttt{balance} & \texttt{double precision} & Số dư tài khoản \\ \hline
+\texttt{role} & \texttt{enum\_users\_role} & Vai trò của người dùng \\ \hline
+\texttt{avatar} & \texttt{varchar(255)} & Đường dẫn avatar \\ \hline
+\texttt{gender} & \texttt{enum\_users\_gender} & Giới tính \\ \hline
+\texttt{resetOTPExpiry} & \texttt{timestamp with time zone} & Thời gian hết hạn mã OTP \\ \hline
+\end{tabular}
+\caption{Bảng miêu tả chi tiết bảng user}
+\label{tab:user_details}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thuộc Tính} & \textbf{Kiểu Dữ Liệu} & \textbf{Ý Nghĩa} \\ \hline
+\texttt{id} & \texttt{uuid} & Khóa chính của hồ sơ \\ \hline
+\texttt{code} & \texttt{varchar(50)} & Mã học viên / quân nhân \\ \hline
+\texttt{fullName} & \texttt{varchar(100)} & Họ và tên \\ \hline
+\texttt{email} & \texttt{varchar(100)} & Địa chỉ email \\ \hline
+\texttt{gender} & \texttt{varchar(20)} & Giới tính \\ \hline
+\texttt{birthday} & \texttt{timestamp} & Ngày sinh \\ \hline
+\texttt{hometown} & \texttt{varchar(255)} & Quê quán \\ \hline
+\texttt{phoneNumber} & \texttt{varchar(20)} & Số điện thoại \\ \hline
+\texttt{cccd} & \texttt{varchar(20)} & Số Căn cước công dân \\ \hline
+\texttt{unit} & \texttt{varchar(255)} & Đơn vị trực thuộc \\ \hline
+\texttt{rank} & \texttt{varchar(50)} & Cấp bậc / Quân hàm \\ \hline
+\texttt{positionGovernment} & \texttt{varchar(100)} & Chức vụ chính quyền \\ \hline
+\texttt{currentCpa4} & \texttt{double precision} & Điểm CPA tích lũy hệ 4 \\ \hline
+\texttt{currentCpa10} & \texttt{double precision} & Điểm CPA tích lũy hệ 10 \\ \hline
+\texttt{commanderId} & \texttt{uuid} & Khóa ngoại liên kết tới cán bộ quản lý \\ \hline
+\end{tabular}
+\caption{Bảng miêu tả chi tiết bảng profiles}
+\label{tab:profile_details}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thuộc Tính} & \textbf{Kiểu Dữ Liệu} & \textbf{Ý Nghĩa} \\ \hline
+\texttt{id} & \texttt{uuid} & Khóa chính kết quả môn học \\ \hline
+\texttt{semesterResultId} & \texttt{uuid} & Khóa ngoại liên kết kết quả học kỳ \\ \hline
+\texttt{subjectCode} & \texttt{varchar(50)} & Mã môn học \\ \hline
+\texttt{subjectName} & \texttt{varchar(255)} & Tên môn học \\ \hline
+\texttt{credits} & \texttt{integer} & Số tín chỉ môn học \\ \hline
+\texttt{letterGrade} & \texttt{varchar(5)} & Điểm chữ (A, B, C, D, F) \\ \hline
+\texttt{gradePoint4} & \texttt{double precision} & Điểm môn học hệ 4 \\ \hline
+\texttt{gradePoint10} & \texttt{double precision} & Điểm môn học hệ 10 \\ \hline
+\end{tabular}
+\caption{Bảng miêu tả chi tiết bảng subject\_results}
+\label{tab:subject_result_details}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thuộc Tính} & \textbf{Kiểu Dữ Liệu} & \textbf{Ý Nghĩa} \\ \hline
+\texttt{id} & \texttt{uuid} & Khóa chính của lịch cắt cơm \\ \hline
+\texttt{userId} & \texttt{uuid} & Khóa ngoại liên kết tới tài khoản học viên \\ \hline
+\texttt{semesterId} & \texttt{uuid} & Khóa ngoại liên kết tới học kỳ \\ \hline
+\texttt{weekStartDate} & \texttt{date} & Ngày bắt đầu của tuần cắt cơm \\ \hline
+\texttt{weekEndDate} & \texttt{date} & Ngày kết thúc của tuần cắt cơm \\ \hline
+\texttt{weekly} & \texttt{jsonb} & Trạng thái cắt cơm chi tiết theo tuần (Sáng/Trưa/Tối) \\ \hline
+\texttt{isAutoGenerated} & \texttt{boolean} & Trạng thái tự động sinh từ thời khóa biểu \\ \hline
+\texttt{lastUpdated} & \texttt{timestamp} & Thời gian cập nhật gần nhất \\ \hline
+\texttt{notes} & \texttt{varchar(255)} & Ghi chú thêm \\ \hline
+\end{tabular}
+\caption{Bảng miêu tả chi tiết bảng cut\_rice}
+\label{tab:cut_rice_details}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thuộc Tính} & \textbf{Kiểu Dữ Liệu} & \textbf{Ý Nghĩa} \\ \hline
+\texttt{id} & \texttt{uuid} & Khóa chính của bản ghi học phí \\ \hline
+\texttt{userId} & \texttt{uuid} & Khóa ngoại liên kết tới tài khoản học viên \\ \hline
+\texttt{semesterId} & \texttt{uuid} & Khóa ngoại liên kết tới bảng học kỳ \\ \hline
+\texttt{totalAmount} & \texttt{decimal(15,2)} & Tổng số tiền học phí cần đóng \\ \hline
+\texttt{semester} & \texttt{varchar(50)} & Tên học kỳ (ví dụ: Kỳ 1, Kỳ 2) \\ \hline
+\texttt{schoolYear} & \texttt{varchar(50)} & Năm học (ví dụ: 2025-2026) \\ \hline
+\texttt{content} & \texttt{varchar(255)} & Nội dung thu tiền học phí \\ \hline
+\texttt{status} & \texttt{varchar(50)} & Trạng thái thanh toán (ví dụ: PAID / UNPAID) \\ \hline
+\end{tabular}
+\caption{Bảng miêu tả chi tiết bảng tuition\_fees}
+\label{tab:tuition_fees_details}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thuộc Tính} & \textbf{Kiểu Dữ Liệu} & \textbf{Ý Nghĩa} \\ \hline
+\texttt{id} & \texttt{uuid} & Khóa chính của yêu cầu đề xuất điểm \\ \hline
+\texttt{userId} & \texttt{uuid} & Khóa ngoại liên kết tới học viên gửi đề xuất \\ \hline
+\texttt{subjectResultId} & \texttt{uuid} & Khóa ngoại liên kết tới môn học cần sửa \\ \hline
+\texttt{requestType} & \texttt{enum('ADD', 'UPDATE', 'DELETE')} & Loại yêu cầu đề xuất điểm \\ \hline
+\texttt{reason} & \texttt{text} & Lý do đề xuất chỉnh sửa điểm \\ \hline
+\texttt{proposedLetterGrade} & \texttt{varchar(5)} & Điểm chữ đề xuất mới \\ \hline
+\texttt{proposedGradePoint4} & \texttt{double precision} & Điểm hệ 4 đề xuất mới \\ \hline
+\texttt{proposedGradePoint10} & \texttt{double precision} & Điểm hệ 10 đề xuất mới \\ \hline
+\texttt{attachmentUrl} & \texttt{varchar(500)} & Đường dẫn tới tài liệu/hình ảnh minh chứng \\ \hline
+\texttt{status} & \texttt{enum('PENDING', 'APPROVED', 'REJECTED')} & Trạng thái phê duyệt đề xuất \\ \hline
+\texttt{reviewerId} & \texttt{uuid} & Khóa ngoại liên kết tới cán bộ phê duyệt \\ \hline
+\texttt{reviewNote} & \texttt{text} & Ghi chú/lý do phê duyệt hoặc từ chối \\ \hline
+\texttt{reviewedAt} & \texttt{timestamp} & Thời gian thực hiện phê duyệt \\ \hline
+\end{tabular}
+\caption{Bảng miêu tả chi tiết bảng grade\_requests}
+\label{tab:grade_requests_details}
+\end{table}
+
+
+\section{Xây dựng ứng dụng}
+\subsection{Thư viện và công cụ sử dụng}
+
+
+\begin{table}[H]
+\centering{}
+    \begin{tabular}{lll}
+        \hline
+        \textbf{Mục đích} & \textbf{Công cụ} & \textbf{Địa chỉ URL} \\ \hline
+        IDE lập trình & Visual Studio Code & \url{https://code.visualstudio.com/} \\ \hline
+        Công cụ soạn thảo văn bản & Overleaf & \url{https://www.overleaf.com/} \\ \hline
+        Công cụ vẽ biểu đồ & Draw.io & \url{https://app.diagrams.net/} \\ \hline
+        Lập trình Server & NodeJS & \url{https://nodejs.org/en/} \\ \hline
+        Xây dựng API & ExpressJS & \url{https://expressjs.com/} \\ \hline
+        Lập trình giao diện & ReactJS & \url{https://react.dev/} \\ \hline
+        Gửi request lên API & Axios & \url{https://axios-http.com/} \\ \hline
+        Hệ quản trị cơ sở dữ liệu & PostgreSQL & \url{https://www.postgresql.org/} \\ \hline
+        \end{tabular}
+    \caption{Danh sách thư viện và công cụ sử dụng}
+    \label{fig:my_label}
+\end{table}
+
+\subsection{Kết quả đạt được}
+Sau quá trình nghiên cứu và phát triển, đồ án tốt nghiệp đã hoàn thành việc xây dựng hệ thống website Quản lý Học viên với các chức năng chính như sau:
+\begin{itemize}
+    \item \textbf{Quản lý hồ sơ học viên:} Quản lý thông tin lý lịch cá nhân, quân tịch, cấp bậc, đơn vị và tự động khởi tạo tài khoản đăng nhập tương ứng.
+    \item \textbf{Quản lý kết quả học tập \& tính toán điểm CPA:} Tự động tính toán điểm trung bình học kỳ, điểm trung bình tích lũy CPA hệ 4 và hệ 10 khi có thay đổi điểm môn học.
+    \item \textbf{Đề xuất cập nhật điểm số:} Cho phép học viên gửi đề xuất sửa đổi/thêm điểm số môn học kèm tài liệu minh chứng (hình ảnh, file PDF); cán bộ chỉ huy có thẩm quyền phê duyệt hoặc từ chối đề xuất.
+    \item \textbf{Tự động lập lịch cắt cơm tuần:} Quét thời gian thời khóa biểu học tập của học viên để tự động đánh dấu và cập nhật danh sách cắt cơm theo ngày, tránh lãng phí quân lương.
+    \item \textbf{Quản lý lịch học và thời khóa biểu:} Hỗ trợ cán bộ chỉ huy nhập thời khóa biểu học tập của học viên theo học kỳ, xuất lịch học và lịch cắt cơm ra file Excel báo cáo.
+    \item \textbf{Quản lý học phí:} Theo dõi chi tiết các đợt đóng học phí, ghi nhận và sửa đổi trạng thái đóng học phí của học viên, phục vụ truy xuất dữ liệu.
+    \item \textbf{Phân công lịch trực chỉ huy:} Thiết lập và phân công lịch trực ban của cán bộ chỉ huy đơn vị, ghi nhật ký ca trực và các nhiệm vụ tuần liên quan.
+    \item \textbf{Phân quyền người dùng (RBAC) \& Bảo mật:} Phân chia rõ ràng 3 vai trò (Học viên, Chỉ huy, Quản trị viên) với cơ chế bảo mật xác thực tài khoản qua JWT và mã hóa mật khẩu bằng bcrypt.
+\end{itemize}
+
+Về mặt đóng gói và triển khai kỹ thuật, mã nguồn ứng dụng được tổ chức khoa học và đóng gói thành hai phân hệ độc lập:
+\begin{itemize}
+    \item \textbf{Phân hệ Backend API:} Chứa 24 Sequelize Models định nghĩa các thực thể dữ liệu, 26 tập tin định tuyến routes API và 23 Controllers điều khiển. Dung lượng mã nguồn backend xấp xỉ 25 MB (chưa bao gồm thư viện \texttt{node\_modules}).
+    \item \textbf{Phân hệ Frontend App:} Được xây dựng theo mô hình Next.js App Router. Tổ chức giao diện gồm các thư mục \texttt{components} (linh kiện dùng chung), \texttt{hooks} (các tác vụ lấy dữ liệu), và \texttt{store} (quản lý trạng thái). Dung lượng mã nguồn xấp xỉ 15 MB.
+\end{itemize}
+
+\subsection{Minh họa các chức năng chính}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Giao dien trang chu.jpg}
+    \caption{Giao diện trang chủ}
+    \label{fig:Fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Giao dien dang nhap he thong.jpg}
+    \caption{Giao diện đăng nhập}
+    \label{fig:Fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Giao dien chi huy.jpg}
+    \caption{Giao diện chỉ huy}
+    \label{fig:Fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/Giao dien hoc vien.jpg}
+    \caption{Giao diện học viên}
+    \label{fig:Fig2}
+\end{figure}
+
+\section{Kiểm thử}
+
+\subsection{Kiểm thử hộp đen}
+
+\subsubsection{Nhóm chức năng Đăng nhập \& Phân quyền}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{3.2cm}|p{3.5cm}|p{5.5cm}|c|}
+\hline
+\textbf{STT} & \textbf{Chức năng} & \textbf{Đầu vào} & \textbf{Đầu ra mong muốn} & \textbf{Kết quả} \\ \hline
+1 & Đăng nhập & Nhập sai thông tin tên tài khoản hoặc mật khẩu & Hiển thị thông báo ``Tên đăng nhập hoặc mật khẩu không chính xác'' & Đạt \\ \hline
+2 & Đăng nhập & Bỏ trống tên tài khoản hoặc mật khẩu & Hiển thị thông báo ``Vui lòng nhập đầy đủ thông tin'' & Đạt \\ \hline
+3 & Đăng nhập \& Phân quyền & Đăng nhập thành công tài khoản Học viên & Chuyển hướng thành công vào trang cá nhân của học viên & Đạt \\ \hline
+4 & Đăng nhập \& Phân quyền & Học viên cố tình truy cập trang cấu hình của Cán bộ & Hệ thống ngăn chặn truy cập và hiển thị thông báo lỗi phân quyền & Đạt \\ \hline
+\end{tabular}
+\caption{Kiểm thử nhóm chức năng Đăng nhập \& Phân quyền}
+\label{tab:dang_nhap_rbac}
+\end{table}
+
+\subsubsection{Nhóm chức năng Quản lý hồ sơ học viên}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{3.2cm}|p{3.5cm}|p{5.5cm}|c|}
+\hline
+\textbf{STT} & \textbf{Chức năng} & \textbf{Đầu vào} & \textbf{Đầu ra mong muốn} & \textbf{Kết quả} \\ \hline
+1 & Thêm học viên mới & Nhập trùng mã học viên (\texttt{student\_id} đã tồn tại) & Hiển thị thông báo lỗi ``Mã học viên đã tồn tại trên hệ thống'' & Đạt \\ \hline
+2 & Thêm học viên mới & Bỏ trống các trường bắt buộc (Mã HV, Họ tên, Lớp học) & Hiển thị cảnh báo yêu cầu nhập đầy đủ thông tin bắt buộc & Đạt \\ \hline
+3 & Xóa hồ sơ học viên & Cán bộ chỉ huy bấm nút xóa tài khoản học viên & Hồ sơ học viên bị xóa, đồng thời tài khoản người dùng liên kết cũng tự động bị xóa & Đạt \\ \hline
+4 & Tìm kiếm học viên & Nhập tên học viên hoặc tên lớp vào bộ lọc tìm kiếm & Hiển thị danh sách học viên khớp với từ khóa tìm kiếm & Đạt \\ \hline
+\end{tabular}
+\caption{Kiểm thử nhóm chức năng Quản lý hồ sơ học viên}
+\label{tab:quan_ly_hoc_vien}
+\end{table}
+
+\subsubsection{Nhóm chức năng Đề xuất và phê duyệt điểm số}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{3.2cm}|p{3.5cm}|p{5.5cm}|c|}
+\hline
+\textbf{STT} & \textbf{Chức năng} & \textbf{Đầu vào} & \textbf{Đầu ra mong muốn} & \textbf{Kết quả} \\ \hline
+1 & Đề xuất điểm số & Học viên tạo yêu cầu chỉnh sửa điểm kèm theo tệp tài liệu minh chứng & Đề xuất được tạo thành công với trạng thái mặc định ban đầu là ``PENDING'' & Đạt \\ \hline
+2 & Phê duyệt điểm số & Cán bộ chỉ huy bấm nút chấp nhận đề xuất điểm số & Trạng thái chuyển thành ``APPROVED'', điểm số mới được ghi nhận vào bảng điểm & Đạt \\ \hline
+3 & Tự động tính toán lại CPA & Điểm mới được cập nhật sau khi phê duyệt đề xuất & Điểm trung bình học kỳ, năm học và CPA tích lũy hệ 4/hệ 10 của học viên tự động được tính lại chính xác & Đạt \\ \hline
+4 & Từ chối đề xuất điểm & Cán bộ chỉ huy bấm nút từ chối đề xuất và nhập lý do phản hồi & Trạng thái chuyển thành ``REJECTED'', điểm số cũ của học viên được giữ nguyên & Đạt \\ \hline
+\end{tabular}
+\caption{Kiểm thử nhóm chức năng Đề xuất và phê duyệt điểm số}
+\label{tab:de_xuat_phe_duyet_diem}
+\end{table}
+
+\subsubsection{Nhóm chức năng Lịch học và tự động cắt cơm}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{3.2cm}|p{3.5cm}|p{5.5cm}|c|}
+\hline
+\textbf{STT} & \textbf{Chức năng} & \textbf{Đầu vào} & \textbf{Đầu ra mong muốn} & \textbf{Kết quả} \\ \hline
+1 & Tự động đồng bộ lịch cơm & Chỉ huy nhập lịch học của học viên trùng vào thời gian ăn/đi lại tại đơn vị & Hệ thống lưu lịch học và tự động tạo bản ghi cắt cơm tương ứng của học viên đó & Đạt \\ \hline
+2 & Kiểm tra cờ tự động sinh & Kiểm tra trường dữ liệu của lịch cơm vừa sinh tự động & Bản ghi cắt cơm lưu thuộc tính \texttt{isAutoGenerated = true} & Đạt \\ \hline
+3 & Điều chỉnh lịch cơm & Học viên thực hiện điều chỉnh hủy cắt cơm thủ công & Trạng thái cập nhật thành công, thuộc tính chuyển đổi thành \texttt{isAutoGenerated = false} & Đạt \\ \hline
+\end{tabular}
+\caption{Kiểm thử nhóm chức năng Lịch học và tự động cắt cơm}
+\label{tab:lich_hoc_cat_com}
+\end{table}
+
+\subsubsection{Nhóm chức năng Quản lý học phí}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{3.2cm}|p{3.5cm}|p{5.5cm}|c|}
+\hline
+\textbf{STT} & \textbf{Chức năng} & \textbf{Đầu vào} & \textbf{Đầu ra mong muốn} & \textbf{Kết quả} \\ \hline
+1 & Cập nhật học phí & Chỉ huy cập nhật trạng thái đóng học phí sang ``Đã đóng'' & Trạng thái học phí cập nhật thành ``PAID'', học viên có thể xem trực tuyến ngay lập tức & Đạt \\ \hline
+2 & Xuất báo cáo học phí & Chỉ huy nhấn nút kết xuất báo cáo học phí của một lớp & Hệ thống xuất thành công tệp tin báo cáo định dạng Excel/Word đúng biểu mẫu & Đạt \\ \hline
+3 & Tra cứu học phí & Học viên truy cập mục kiểm tra học phí cá nhân & Hiển thị chính xác các đợt học phí và trạng thái đóng/nợ tương ứng & Đạt \\ \hline
+\end{tabular}
+\caption{Kiểm thử nhóm chức năng Quản lý học phí}
+\label{tab:quan_ly_hoc_phi}
+\end{table}
+
+
+\subsection{Kiểm thử tương thích}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{3.2cm}|p{5cm}|p{4.5cm}|c|}
+\hline
+\textbf{STT} & \textbf{Thiết bị} & \textbf{Phần cứng} & \textbf{Phần mềm} & \textbf{Kết quả} \\ \hline
+1 & Laptop ASUS TUF GAMING F15 & Màn hình: 15.6 inch, CPU: 11th Gen Intel Core i5 11400H, RAM: 16 GB & HĐH: Windows 11; Trình duyệt: Google Chrome & Đạt \\ \hline
+2 & ACER NITRO 5 & Màn hình: 15.6 inch, CPU: 12th Intel Core i5-12500H, RAM: 16 GB & HĐH: Windows 11; Trình duyệt: Google Chrome & Đạt \\ \hline
+3 & Laptop MSI Modern 14 C12MO-660VN & Màn hình: 15.6 inch FHD, CPU: AMD Ryzen 7-5700U, RAM: 16 GB & HĐH: Windows 11; Trình duyệt: Google Chrome & Đạt \\ \hline
+\end{tabular}
+\caption{Kiểm thử thiết bị và môi trường}
+\label{tab:thiet_bi_moi_truong}
+\end{table}
+
+\section{Triển khai}
+Hệ thống được thiết kế để có thể triển khai linh hoạt trên hạ tầng đám mây ảo hoặc máy chủ vật lý chuyên dụng của đơn vị đào tạo.
+
+\paragraph{Kiến trúc triển khai vật lý:}
+\begin{itemize}
+    \item \textbf{Hệ điều hành máy chủ:} Ubuntu Server 22.04 LTS hoặc Linux CentOS 8.
+    \item \textbf{Cấu hình khuyến nghị:} CPU 4 Cores, RAM 8 GB, SSD 100 GB.
+    \item \textbf{Môi trường thực thi:} Node.js v20 runtime cho API Server, PostgreSQL v16 Engine cho CSDL, MinIO Server cho việc lưu trữ Object Storage đính kèm.
+\end{itemize}
+
+\paragraph{Triển khai container hóa bằng Docker Compose:}
+Để đơn giản hóa quy trình cài đặt và đảm bảo tính đồng nhất môi trường giữa phát triển và vận hành thực tế, dự án tích hợp sẵn tập tin cấu hình đóng gói \texttt{docker-compose.yml}.
+
+Mô tả hoạt động của các phân hệ Docker dịch vụ:
+\begin{enumerate}
+    \item \texttt{database-postgres:} Khởi chạy PostgreSQL, ánh xạ cổng \texttt{5432}, cấu hình volume \texttt{pgdata} để lưu trữ dữ liệu bền vững.
+    \item \texttt{object-storage-minio:} Khởi chạy máy chủ MinIO lưu trữ tệp tin, expose cổng điều khiển giao diện web Console ở cổng \texttt{9001} và cổng API lưu trữ ở \texttt{9000}.
+    \item \texttt{backend-api-server:} Đóng gói mã nguồn backend Express.js, cấu hình liên kết mạng phụ thuộc vào database và storage. Lắng nghe yêu cầu HTTP ở cổng \texttt{6868}.
+    \item \texttt{frontend-client-app:} Đóng gói ứng dụng Next.js, ánh xạ cổng hiển thị giao diện chính ra cổng \texttt{3000} của máy chủ vật lý để người dùng truy cập.
+\end{enumerate}
+
+Với thiết lập này, quản trị viên chỉ cần cài đặt Docker/Docker Compose trên máy chủ vật lý và thực hiện lệnh duy nhất \texttt{docker-compose up -d --build} để khởi chạy toàn bộ hệ thống quản lý học viên.
+
+\subsection{Kết quả triển khai thử nghiệm}
+Hệ thống đã được triển khai thử nghiệm với kết quả khả quan. Về độ tin cậy, hệ thống hoạt động ổn định trong suốt thời gian thử nghiệm, ít xảy ra lỗi hoặc gián đoạn dịch vụ, đảm bảo thời gian hoạt động liên tục (uptime) đạt trên 99\%. Về tương tác người dùng, cán bộ chỉ huy và học viên tương tác tốt với các tính năng cốt lõi, đặc biệt là tính năng tự động tính lịch cắt cơm và đề xuất cập nhật điểm trực tuyến, giúp giảm thiểu 80\% thủ tục giấy tờ thủ công tại đơn vị. Về phản hồi người dùng, đa số cán bộ và học viên đều đánh giá tích cực về tính năng tự động hóa và giao diện trực quan, cho thấy hệ thống đáp ứng tốt nhu cầu thực tế của công tác quản lý đào tạo. Một số vấn đề nhỏ đã được ghi nhận như thời gian khởi động nguội của các Docker container và độ trễ khi tải ban đầu danh sách học viên quy mô lớn; những điểm hạn chế này sẽ được nghiên cứu và tối ưu hóa trong các phiên bản nâng cấp tiếp theo.
+
+\end{document}

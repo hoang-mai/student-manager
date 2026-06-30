@@ -1,0 +1,49 @@
+% !TEX root = ../DoAn.tex
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Đặt vấn đề}
+\label{section:1.1}
+Trong thời đại công nghệ số phát triển mạnh mẽ như hiện nay, việc ứng dụng công nghệ thông tin vào công tác quản lý học viên tại các trường đại học, cao đẳng và trung tâm đào tạo đã trở thành một xu hướng tất yếu. Hệ thống quản lý học viên không chỉ giúp nhà trường quản lý thông tin sinh viên một cách khoa học, chính xác mà còn hỗ trợ học viên tiếp cận các dịch vụ học tập một cách nhanh chóng và thuận tiện. Tuy nhiên, bên cạnh những lợi ích đó, công tác quản lý học viên hiện nay tại nhiều cơ sở giáo dục vẫn còn tồn tại không ít khó khăn và hạn chế cần được giải quyết.
+
+Một trong những thách thức lớn nhất là việc quản lý thông tin học viên bằng phương pháp thủ công hoặc các hệ thống rời rạc gây mất nhiều thời gian, dễ xảy ra sai sót và khó đồng bộ dữ liệu. Số lượng học viên ngày càng tăng đòi hỏi hệ thống phải có khả năng lưu trữ, tra cứu và xử lý dữ liệu nhanh chóng, chính xác và ổn định. Bên cạnh đó, nhu cầu của học viên trong việc xem thời khóa biểu, kết quả học tập, đăng ký học phần, đóng học phí hay nhận thông báo từ nhà trường ngày càng cao, yêu cầu một hệ thống quản lý hiện đại và thân thiện với người dùng.
+
+Nhằm giải quyết những vấn đề trên, hệ thống quản lý học viên trực tuyến đã được đề xuất xây dựng. Mục tiêu chính của hệ thống là tối ưu hóa quy trình quản lý học viên, giảm tải công việc hành chính cho nhà trường và nâng cao trải nghiệm của học viên. Đề tài này hướng đến việc cung cấp một nền tảng quản lý tập trung, cho phép nhà trường dễ dàng quản lý hồ sơ học viên, kết quả học tập, học phí, thông báo và các hoạt động liên quan; đồng thời giúp học viên có thể truy cập thông tin cá nhân và các dịch vụ học tập mọi lúc, mọi nơi thông qua website hoặc thiết bị di động.
+
+Bằng việc kết hợp các công nghệ web hiện đại với khả năng quản lý dữ liệu linh hoạt, hệ thống quản lý học viên hứa hẹn sẽ trở thành công cụ hỗ trợ đắc lực cho nhà trường trong việc nâng cao hiệu quả quản lý, cải thiện chất lượng phục vụ và xây dựng môi trường học tập hiện đại, chuyên nghiệp cho học viên.
+
+\section{Mục tiêu và phạm vi đề tài}
+\label{section:1.2}
+Qua quá trình nghiên cứu và tìm hiểu, em nhận thấy rằng tại nhiều trường học viện quân đội đào tạo hiện nay, công tác quản lý học viên vẫn còn tồn tại nhiều hạn chế do sử dụng các phương pháp quản lý thủ công hoặc các hệ thống chưa được đồng bộ. Theo khảo sát và trao đổi với cán bộ quản lý học viên, em nhận thấy rằng: (i) Việc lưu trữ và tra cứu thông tin học viên còn mất nhiều thời gian, đặc biệt khi số lượng học viên lớn; (ii) Quá trình quản lý
+kết quả học tập, học phần và học phí còn phân tán, gây khó khăn trong việc tổng hợp và theo dõi; (iii) Học viên chưa có một nền tảng tập trung để dễ dàng tra cứu thông tin cá nhân, kết quả học tập, lịch học hay các thông báo từ nhà trường; (iv) Công tác thống kê, báo cáo của đơn vị còn tốn nhiều công sức và dễ xảy ra sai sót.
+
+Dựa trên thực trạng đó, em đề xuất xây dựng một hệ thống quản lý học viên nhằm nâng cao hiệu quả quản lý và hiện đại hóa các hoạt động đào tạo trong nhà trường. Hệ thống hỗ trợ quản lý các thông tin cá nhân, học tập, lịch học, kết quả học tập và học phí của học viên, đồng thời đảm bảo dữ liệu được lưu trữ tập trung, chính xác và dễ dàng tra cứu.
+
+Hệ thống quản lý học viên sẽ bao gồm các chức năng chính như sau: (i) Quản lý tài khoản và hồ sơ cá nhân; (ii) Quản lý kết quả học tập; (iii) Nhóm chức năng lịch học và quản lý lịch cắt cơm; (iv) Quản lý thi đua thành tích; (v) Hệ thống thông báo và báo cáo thống kê; (vi) Quản lý học phí ; (vii) Quản lý phân quyền người dùng theo các vai trò như quản trị viên, cán bộ chỉ huy và học viên.
+
+
+\section{Định hướng giải pháp}
+\label{section:1.3}
+Từ việc xác định rõ nhiệm vụ cần giải quyết ở phần \ref{section:1.2}, em đề xuất giải pháp là xây dựng một hệ thống quản lý học viên đào tạo trường ngoài quân đội dành cho toàn bộ học viên và cán bộ chỉ huy tại đơn vị. Trong quá trình phát triển hệ thống, em sử dụng các công nghệ chính bao gồm Node.js kết hợp framework Express cho phần backend, Next.js (dựa trên thư viện React.js) cho phần frontend, cùng với hệ quản trị cơ sở dữ liệu PostgreSQL và thư viện Sequelize ORM. Hệ thống được thiết kế và xây dựng theo mô hình Client-Server độc lập, trong đó phần backend áp dụng kiến trúc phân tầng (Model - Controller - Service - Route) giúp phân tách rõ ràng giữa định nghĩa dữ liệu (Model), logic nghiệp vụ (Service), điều phối luồng xử lý (Controller) và định tuyến API (Route). Mô hình này đảm bảo kiến trúc hệ thống được tổ chức chặt chẽ, mạch lạc, dễ dàng mở rộng, nâng cấp và bảo trì trong tương lai.
+
+Phần frontend sử dụng Next.js kết hợp cùng Tailwind CSS, giúp xây dựng giao diện ứng dụng web phản hồi nhanh, trực quan, mượt mà và tương thích tốt trên nhiều loại thiết bị. Học viên có thể dễ dàng thực hiện các thao tác như xem thời khóa biểu, theo dõi lịch cắt cơm tự động, tra cứu kết quả học tập (GPA, CPA), gửi các đề xuất cập nhật điểm số kèm minh chứng trực quan hoặc xem thông tin đóng học phí. Chỉ huy cũng sở hữu một bảng điều khiển (Dashboard) quản lý trực quan để theo dõi hồ sơ học viên, phân công lịch trực, phê duyệt các yêu cầu và xuất báo cáo thống kê.
+
+Phần backend sử dụng Node.js/Express, cho phép xây dựng hệ thống RESTful API mạnh mẽ nhằm xử lý toàn bộ các logic nghiệp vụ phức tạp của hệ thống như xác thực tài khoản qua JWT, phân quyền theo vai trò (Scoped-RBAC) giúp bảo mật dòng dữ liệu giữa các đơn vị, thực hiện quy trình phê duyệt điểm số qua cơ chế Transaction phân tầng, và tự động hóa thuật toán lập lịch cắt cơm. Kết hợp cùng PostgreSQL và Sequelize ORM, hệ thống đảm bảo khả năng lưu trữ, truy xuất dữ liệu tối ưu và duy trì tính nhất quán tuyệt đối của dữ liệu.
+
+Việc áp dụng mô hình client-server hiện đại, kết hợp với các công nghệ web tiên tiến và kiến trúc phân lớp rõ ràng giúp hệ thống quản lý học viên vận hành ổn định, an toàn bảo mật, có khả năng chịu tải tốt và mang lại trải nghiệm tối ưu cho cả học viên lẫn cán bộ quản lý.
+
+\section{Bố cục đồ án}
+\label{section:1.4}
+Phần còn lại của báo cáo đồ án tốt nghiệp này được tổ chức như sau.
+
+Chương 2 của đồ án tập trung khảo sát hiện trạng công tác quản lý học viên gửi đào tạo ngoài quân đội tại Học viện Khoa học Quân sự. Từ việc nhận diện các bất cập cốt lõi của quy trình thủ công truyền thống như: lãng phí suất ăn khi báo cắt cơm thủ công, sai sót dữ liệu điểm số, hồ sơ Excel phân mảnh và rủi ro an toàn thông tin. Từ đó, em sẽ  tiến hành xác định các tác nhân hệ thống và phân tích chi tiết yêu cầu chức năng, nhu cầu xử dụng thực tế. Những phân tích này sẽ là nền tảng quan trọng để định hướng phát triển các chức năng chính của hệ thống mà em để xuất.
+
+Trong Chương 3, em sẽ  trình bày nền tảng  lý thuyết và công nghệ được lựa chọn để xây dựng hệ thống. Phía Front-end sử dụng framework Next.js (React 19) kết hợp Tailwind CSS để phát triển giao diện responsive, ngôn ngữ TypeScript tăng tính ổn định, cùng Zustand và TanStack Query phục vụ quản lý trạng thái và đồng bộ dữ liệu. Phía Backend sử dụng môi trường Node.js kết hợp framework Express.js, hệ quản trị cơ sở dữ liệu PostgreSQL thông qua Sequelize ORM, lưu trữ tệp tin đính kèm bằng MinIO, xác thực bảo mật qua JWT và mã hóa mật khẩu bằng Bcrypt.
+
+Chương 4 sẽ  trình bày phân tích thiết kế, triển khai và đánh giá hệ thống. Cụ thể bao gồm: thiết kế kiến trúc phân lớp (Layered Architecture) Client-Server và biểu đồ phụ thuộc gói (Package Diagram); thiết kế chi tiết giao diện người dùng; xây dựng các biểu đồ tuần tự (Sequence Diagram) mô tả nghiệp vụ; thiết kế cơ sở dữ liệu chi tiết (sơ đồ ERD và đặc tả các bảng dữ liệu); thống kê công cụ phát triển và tổ chức mã nguồn; thực hiện các kịch bản kiểm thử hộp đen (Black-box Testing) đa tính năng và kiểm thử tương thích thiết bị; và cuối cùng là cấu hình triển khai container hóa thông qua Docker Compose.
+
+Chương 5 đi sâu phân tích hai giải pháp kỹ thuật và đóng góp nổi bật mang tính thực tiễn cao nhất của đồ án: (i) Phân hệ tự động sinh lịch cắt cơm và quản lý suất ăn dựa trên việc liên kết thời khóa biểu học tập trường ngoài của học viên với hoạt động hậu cần đơn vị nhằm tối ưu hóa suất ăn và tránh lãng phí quân lương; (ii) Quy trình số hóa xử lý yêu cầu phản hồi và phê duyệt điều chỉnh điểm số học tập tích hợp minh chứng, áp dụng cơ chế giao dịch cơ sở dữ liệu (Transaction) phân tầng giúp tự động cập nhật và đồng bộ điểm trung bình học kỳ, năm học cũng như điểm CPA tích lũy toàn khóa trên hồ sơ học viên.
+
+Chương 6 tổng hợp lại các kết quả kỹ thuật và sản phẩm đạt được, thực hiện đối sánh với các giải pháp quản lý học tập dân sự và phương thức quản lý thủ công. Đồng thời, chương này thẳng thắn chỉ ra những hạn chế hiện tại của hệ thống và đề xuất các hướng phát triển trong tương lai, bao gồm tối ưu hóa bộ nhớ đệm Redis, nâng cấp cơ sở hạ tầng, hoàn thiện hệ thống thông báo thời gian thực, phát triển ứng dụng di động gốc (Native App) đa nền tảng và tích hợp công nghệ AI/OCR để tự động nhận dạng bảng điểm minh chứng.
+
+\end{document}
