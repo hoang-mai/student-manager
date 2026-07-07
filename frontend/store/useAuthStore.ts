@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
         });
         if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-          window.location.href = "/login";
+          window.location.href = "/login?session_expired=1";
         }
       },
     }),
