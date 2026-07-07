@@ -68,7 +68,7 @@ export default function Header() {
           Cổng thông tin học viên
         </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 font-bold">
-          Học viện Kỹ thuật Quân sự
+          Học viện Khoa học Quân sự
         </span>
       </div>
 
@@ -81,9 +81,8 @@ export default function Header() {
           <Dropdown
             trigger={(isOpen) => (
               <div
-                className={`flex items-center gap-3 transition-all group ${
-                  isOpen ? "opacity-80" : ""
-                }`}
+                className={`flex items-center gap-3 transition-all group ${isOpen ? "opacity-80" : ""
+                  }`}
               >
                 <div className="flex flex-col text-right">
                   <span className="text-sm font-bold text-neutral-800 dark:text-neutral-100 leading-none group-hover:text-primary-700 dark:group-hover:text-white transition-colors">
@@ -100,18 +99,16 @@ export default function Header() {
                     src={profile?.profile?.avatar}
                     alt={profile?.profile?.fullName}
                     size={40}
-                    className={`border-2 transition-all ${
-                      isOpen
+                    className={`border-2 transition-all ${isOpen
                         ? "border-primary-500 shadow-md"
                         : "border-primary-50 dark:border-neutral-800 shadow-sm"
-                    }`}
+                      }`}
                   />
                   <div className="absolute -bottom-1 -right-1 size-4 bg-white dark:bg-neutral-900 rounded-full flex items-center justify-center shadow-sm border border-neutral-100 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400">
                     <HiOutlineChevronDown
                       size={10}
-                      className={`transition-transform duration-300 ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </div>
                 </div>

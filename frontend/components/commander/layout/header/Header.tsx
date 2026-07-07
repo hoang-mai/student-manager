@@ -69,13 +69,13 @@ export default function Header() {
           Hệ thống quản lý học viên
         </h2>
         <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 font-bold">
-          Học viện Kỹ thuật Quân sự
+          Học viện Khoa học Quân sự
         </span>
       </div>
 
       <div className="flex items-center gap-6">
         <NotificationsPopover />
- 
+
         {/* User Profile & Dropdown */}
         <div className="flex items-center h-10 gap-6">
           <Divide orientation="vertical" className="h-6" />
