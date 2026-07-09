@@ -136,6 +136,14 @@ export const universitySchema = z.object({
     .min(1, "Tên trường là bắt buộc")
     .max(255, "Tối đa 255 ký tự"),
   status: z.enum(["ACTIVE", "INACTIVE"], "Trạng thái không hợp lệ"),
+  organizations: z
+    .array(
+      z.object({
+        organizationName: z.string().min(1, "Tên khoa/ngành không được để trống"),
+        educationLevels: z.string().optional(),
+      })
+    )
+    .optional(),
 });
 
 export type UniversityFormValues = z.infer<typeof universitySchema>;
@@ -262,7 +270,6 @@ export type UpdateEducationLevelFormValues = z.infer<
  */
 export const createClassSchema = z.object({
   className: z.string().min(1, "Tên lớp là bắt buộc"),
-  studentCount: z.number().min(0, "Số lượng học viên không được âm"),
   educationLevelId: z.string().min(1, "Education Level ID là bắt buộc"),
 });
 

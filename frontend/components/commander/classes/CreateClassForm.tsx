@@ -76,7 +76,6 @@ export default function CreateClassForm() {
     resolver: zodResolver(createClassSchema),
     defaultValues: {
       className: "",
-      studentCount: 0,
       educationLevelId: "",
     },
   });
@@ -196,18 +195,6 @@ export default function CreateClassForm() {
         error={errors.className?.message}
         isLoading={mutation.isPending}
         {...register("className")}
-        required
-      />
-
-      {/* Số lượng học viên */}
-      <Input
-        label="Số lượng học viên"
-        type="number"
-        placeholder="Nhập số lượng học viên hiện tại..."
-        prefixIcon={<HiOutlineUserGroup />}
-        error={errors.studentCount?.message}
-        isLoading={mutation.isPending}
-        {...register("studentCount", { valueAsNumber: true })}
         required
       />
 

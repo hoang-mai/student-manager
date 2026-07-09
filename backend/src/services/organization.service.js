@@ -5,14 +5,25 @@ const { paginateQuery } = require('../utils/response');
 const Organization = db.organization;
 const University = db.university;
 
+const totalStudentsLiteral = [
+  db.Sequelize.literal(`(
+    SELECT CAST(COUNT(id) AS INTEGER)
+    FROM profiles
+    WHERE profiles.organization_id = "Organization"."id"
+  )`),
+  'totalStudents'
+];
+
 const create = async (data) => Organization.create(data);
 const getAll = async (query) => paginateQuery(Organization, query, {
   filterFields: ['organizationName', 'status', 'universityId'],
+  attributes: { include: [totalStudentsLiteral] },
   include: [{ model: University }],
 });
 
 const getDetail = async (id) => {
   const record = await Organization.findByPk(id, {
+    attributes: { include: [totalStudentsLiteral] },
     include: [{ model: University }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy đơn vị');

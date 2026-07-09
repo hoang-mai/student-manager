@@ -7,9 +7,67 @@ const Organization = db.organization;
 const EducationLevel = db.educationLevel;
 const Class = db.class;
 
-const create = async (data) => University.create(data);
+const totalStudentsLiteral = [
+  db.Sequelize.literal(`(
+    SELECT CAST(COUNT(id) AS INTEGER)
+    FROM profiles
+    WHERE profiles.university_id = "University"."id"
+  )`),
+  'totalStudents'
+];
+
+const create = async (data) => {
+  const transaction = await db.sequelize.transaction();
+  try {
+    const university = await University.create(
+      {
+        universityCode: data.universityCode,
+        universityName: data.universityName,
+        status: data.status || 'ACTIVE',
+      },
+      { transaction }
+    );
+
+    if (data.organizations && data.organizations.length > 0) {
+      for (const orgData of data.organizations) {
+        if (orgData.organizationName) {
+          const organization = await Organization.create(
+            {
+              organizationName: orgData.organizationName,
+              universityId: university.id,
+              status: 'ACTIVE',
+              travelTime: 0,
+            },
+            { transaction }
+          );
+
+          const levels = orgData.educationLevels
+            ? orgData.educationLevels.split(',').map((l) => l.trim()).filter((l) => l)
+            : ['Đại học', 'Thạc sĩ', 'Tiến sĩ'];
+
+          for (const levelName of levels) {
+            await EducationLevel.create(
+              {
+                levelName,
+                organizationId: organization.id,
+              },
+              { transaction }
+            );
+          }
+        }
+      }
+    }
+
+    await transaction.commit();
+    return getDetail(university.id);
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
 const getAll = async (query) => paginateQuery(University, query, {
   filterFields: ['universityCode', 'universityName', 'status'],
+  attributes: { include: [totalStudentsLiteral] },
   include: [
     {
       model: Organization,
@@ -20,6 +78,7 @@ const getAll = async (query) => paginateQuery(University, query, {
 
 const getDetail = async (id) => {
   const record = await University.findByPk(id, {
+    attributes: { include: [totalStudentsLiteral] },
     include: [
       {
         model: Organization,
@@ -38,6 +97,7 @@ const getDetail = async (id) => {
 
 const getHierarchy = async () => {
   return University.findAll({
+    attributes: { include: [totalStudentsLiteral] },
     include: [
       {
         model: Organization,

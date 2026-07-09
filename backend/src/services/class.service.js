@@ -17,6 +17,15 @@ const NESTED_SORT_MAP = {
   universityName: [{ model: EducationLevel }, { model: Organization }, { model: University }, 'universityName'],
 };
 
+const studentCountLiteral = [
+  db.Sequelize.literal(`(
+    SELECT CAST(COUNT(id) AS INTEGER)
+    FROM profiles
+    WHERE profiles.class_id = "Class"."id"
+  )`),
+  'studentCount'
+];
+
 const create = async (data) => Class.create(data);
 
 const getAll = async (query) => {
@@ -72,7 +81,7 @@ const getAll = async (query) => {
     orgInclude.required = true;
   }
 
-  const options = { where, include: [elInclude] };
+  const options = { where, include: [elInclude], attributes: { include: [studentCountLiteral] } };
 
   if (query.sortBy && NESTED_SORT_MAP[query.sortBy]) {
     const sortOrder = query.sortOrder === 'desc' ? 'DESC' : 'ASC';
@@ -86,6 +95,7 @@ const getAll = async (query) => {
 
 const getDetail = async (id) => {
   const record = await Class.findByPk(id, {
+    attributes: { include: [studentCountLiteral] },
     include: [{ model: EducationLevel }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy lớp học');
@@ -123,6 +133,7 @@ const deleteRecord = async (id) => {
 
 const getClassWithHierarchy = async (id) => {
   const record = await Class.findByPk(id, {
+    attributes: { include: [studentCountLiteral] },
     include: [{ model: EducationLevel, include: [{ model: Organization, include: [{ model: University }] }] }],
   });
   if (!record) throw new NotFoundError('Không tìm thấy lớp học');
@@ -167,10 +178,10 @@ const assignStudents = async (classId, userIds = []) => {
     where: { id: { [Op.in]: profileIds } },
   });
 
-  const studentCount = await Profile.count({ where: { classId: record.id } });
-  await record.update({ studentCount });
+  // Re-fetch to get accurate updated count
+  const updatedRecord = await getClassWithHierarchy(classId);
 
-  return { classId: record.id, updated: uniqueIds.length, studentCount };
+  return { classId: record.id, updated: uniqueIds.length, studentCount: updatedRecord.dataValues.studentCount };
 };
 
 const assignStudentsByCodes = async (classId, studentCodes = []) => {
@@ -201,10 +212,10 @@ const removeStudents = async (classId, userIds = []) => {
     where: { id: { [Op.in]: profileIds } },
   });
 
-  const studentCount = await Profile.count({ where: { classId: record.id } });
-  await record.update({ studentCount });
+  // Re-fetch to get accurate updated count
+  const updatedRecord = await getClassWithHierarchy(classId);
 
-  return { classId: record.id, updated: uniqueIds.length, studentCount };
+  return { classId: record.id, updated: uniqueIds.length, studentCount: updatedRecord.dataValues.studentCount };
 };
 
 const removeStudent = async (classId, userId) => {
