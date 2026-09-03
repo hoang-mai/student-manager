@@ -58,7 +58,12 @@ const errorMiddleware = (err, req, res, next) => {
   // Sequelize foreign key
   if (err.name === 'SequelizeForeignKeyConstraintError') {
     const table = tableNameMap[err.table] || err.table || '';
-    const msg = table ? `Tham chiếu không hợp lệ: ${table} không tồn tại` : 'Tham chiếu không hợp lệ';
+    let msg = 'Tham chiếu không hợp lệ';
+    if (req.method === 'DELETE') {
+      msg = table ? `Không thể xóa vì ${table.toLowerCase()} đang có dữ liệu liên quan` : 'Không thể xóa vì đang có dữ liệu liên quan';
+    } else {
+      msg = table ? `Tham chiếu không hợp lệ: ${table} không tồn tại` : 'Tham chiếu không hợp lệ';
+    }
     return res.status(400).json({ success: false, statusCode: 400, message: msg, type: 'FK_ERROR' });
   }
 

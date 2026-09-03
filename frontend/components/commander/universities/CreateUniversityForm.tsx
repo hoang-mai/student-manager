@@ -58,7 +58,7 @@ export default function CreateUniversityForm() {
             />
             <Input
               label="Tên trường"
-              placeholder="Ví dụ: Học viện Kỹ thuật Quân sự"
+              placeholder="Ví dụ: Học viện Khoa học Quân sự"
               {...register("universityName")}
               error={errors.universityName?.message}
               isLoading={mutation.isPending}

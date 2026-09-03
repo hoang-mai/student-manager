@@ -14,7 +14,7 @@ export interface Class {
 
 export interface CreateClassRequest {
   className: string;
-  studentCount: number;
+  studentCount?: number;
   educationLevelId: string;
 }
 

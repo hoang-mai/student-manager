@@ -48,7 +48,7 @@ const reject = asyncHandler(async (req, res) => {
 const uploadEvidence = asyncHandler(async (req, res) => {
   if (!req.file) throw new require('../utils/apiError').BadRequestError('Vui lòng chọn file minh chứng để tải lên');
   const fileStorageService = require('../services/fileStorage.service');
-  const result = await fileStorageService.uploadFile('evidence', req.userId, req.file);
+  const result = await fileStorageService.uploadBuffer({ file: req.file, folder: `evidence/${req.userId}` });
   return success(res, result, 'Upload minh chứng thành công');
 });
 

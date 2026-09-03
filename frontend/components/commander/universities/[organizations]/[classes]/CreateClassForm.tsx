@@ -27,7 +27,6 @@ export default function CreateClassForm({ educationLevelId }: Props) {
     resolver: zodResolver(createClassSchema),
     defaultValues: {
       className: "",
-      studentCount: 0,
       educationLevelId: educationLevelId,
     },
   });
@@ -52,16 +51,7 @@ export default function CreateClassForm({ educationLevelId }: Props) {
         {...register("className")}
         required
       />
-      <Input
-        label="Số lượng học viên"
-        type="number"
-        placeholder="Nhập số lượng học viên hiện tại..."
-        prefixIcon={<HiOutlineUserGroup />}
-        error={errors.studentCount?.message}
-        isLoading={mutation.isPending}
-        {...register("studentCount", { valueAsNumber: true })}
-        required
-      />
+
 
       <div className="flex flex-col gap-4">
         <Divide />

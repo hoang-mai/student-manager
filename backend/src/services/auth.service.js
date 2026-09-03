@@ -14,8 +14,8 @@ const _excludePassword = (user) => serialize(user);
 
 const _generateTokens = (userId) => {
   const issuedAt = Math.floor(Date.now() / 1000);
-  const accessToken = JwtService.jwtSign({ userId, issuedAt, token: 1 }, { expiresIn: '5h' });
-  const refreshToken = JwtService.jwtSign({ userId, issuedAt, token: 2 }, { expiresIn: '7d' });
+  const accessToken = JwtService.jwtSign({ userId, issuedAt, token: 1 }, { expiresIn: '180d' });
+  const refreshToken = JwtService.jwtSign({ userId, issuedAt, token: 2 }, { expiresIn: '365d' });
   return { accessToken, refreshToken };
 };
 

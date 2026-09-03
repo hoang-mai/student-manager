@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
@@ -27,6 +27,20 @@ export default function Main() {
   const { setAuth } = useAuthStore();
   const { showLoading, hideLoading } = useLoadingStore();
   const { addToast } = useToastStore();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("session_expired") === "1") {
+        addToast({
+          message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+          variant: "warning",
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, [addToast]);
+
   const loginMutation = useMutation({
     mutationFn: (data: LoginRequest) => {
       showLoading();

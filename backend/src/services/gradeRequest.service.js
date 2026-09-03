@@ -84,8 +84,8 @@ const getAll = async (query = {}, requester = {}) => {
   const studentWhere = {};
   const semesterWhere = {};
 
-  if (requester.role === 'COMMANDER' && requester.profile?.unit) {
-    studentWhere.unit = requester.profile.unit;
+  if (requester.role === 'COMMANDER') {
+    studentWhere.commanderId = requester.id;
   }
 
   if (query.semester) semesterWhere.semester = query.semester;

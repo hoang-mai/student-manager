@@ -24,6 +24,7 @@ export interface UniversityQueryRequest extends QueryRequest {
 export interface CreateUniversityRequest {
   universityCode: string;
   universityName: string;
+  organizations?: { organizationName: string; educationLevels?: string }[];
 }
 
 /**
